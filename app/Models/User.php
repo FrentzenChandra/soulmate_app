@@ -21,8 +21,42 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'username',
         'password',
+        'cabang_id',
+        'no_hp',
+        'status',
     ];
+
+    public function cabang()
+    {
+        return $this->belongsTo(Cabang::class);
+    }
+
+    public function isOwner(): bool
+    {
+        return $this->hasRole('Owner');
+    }
+
+    public function isSuperadmin(): bool
+    {
+        return $this->hasRole('Superadmin');
+    }
+
+    public function isTeknisi(): bool
+    {
+        return $this->hasRole('Teknisi');
+    }
+
+    public function isKasir(): bool
+    {
+        return $this->hasRole('Kasir');
+    }
+
+    public function getRoleNameAttribute(): string
+    {
+        return $this->getRoleNames()->first() ?? 'Staff';
+    }
 
     /**
      * The attributes that should be hidden for serialization.
