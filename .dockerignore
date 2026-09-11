@@ -1,0 +1,13 @@
+.git
+.github
+node_modules
+npm-debug.log
+yarn-error.log
+.env.backup
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+storage/logs/*.log
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*

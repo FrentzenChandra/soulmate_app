@@ -1,0 +1,46 @@
+services:
+  soulmate_apps:
+    container_name: soulmate_apps
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html/public
+    depends_on:
+      postgresql_soulmate_app:
+        condition: service_healthy
+    networks:
+      - soulmate_network
+
+  postgresql_soulmate_app:
+    container_name: postgresql_soulmate_app
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: postgresql_soulmate_app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret123
+    volumes:
+      - postgresql_soulmate_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgresql_soulmate_app"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - soulmate_network
+
+volumes:
+  postgresql_soulmate_data:
+    driver: local
+
+networks:
+  soulmate_network:
+    driver: bridge
