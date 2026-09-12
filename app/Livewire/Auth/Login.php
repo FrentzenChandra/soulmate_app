@@ -52,7 +52,7 @@ class Login extends Component
 
         if (!Auth::attempt($credentials, $this->remember)) {
             throw ValidationException::withMessages([
-                'identity' => 'Email / Username atau kata sandi tidak cocok dengan catatan kami.',
+                'identity' => 'Email / Username atau kata sandi Tidak Valid.',
             ]);
         }
 

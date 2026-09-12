@@ -6,11 +6,11 @@ Saya sedang membangun sebuah sistem internal untuk usaha servis elektronik (misa
 
 ## 1. Gambaran Umum & Role
 
-Sistem digunakan oleh banyak cabang sekaligus, jadi ada **data master Cabang**. Setiap User terikat ke 1 cabang tertentu (kecuali **Owner** yang bisa akses semua cabang dan semua menu).
+Sistem digunakan oleh banyak cabang sekaligus, jadi ada **data master Cabang**. Setiap User terikat ke 1 cabang tertentu (kecuali **Owner** yang bisa akses semua cabang dan beralih konteks antara Kantor Pusat/HQ dan Cabang).
 
-**Role:**
-- **Owner** — Pemilik bisnis / Owner pusat, memiliki hak akses penuh ke **semua cabang** dan **semua menu/fitur** (dashboard analitik, master data, kasir, servis, laporan keuangan & performa seluruh cabang).
-- **Superadmin** — Administrator cabang, memiliki akses ke semua menu operasional/administrasi tetapi **hanya terbatas pada 1 cabang yang dipegangnya**.
+**Role & Hierarki Hak Akses:**
+- **Owner (Pemilik Bisnis)** — Memegang otoritas tertinggi (level Organisasi/Pusat). Memiliki akses ke **HQ Context** dan semua cabang. Satu-satunya role yang berhak menambah/mengelola **Owner baru**, **Superadmin**, dan **Cabang baru**, serta melihat konsolidasi finansial/laporan performa seluruh cabang.
+- **Superadmin (Admin Cabang)** — Administrator operasional cabang. Akses dibatasi ketat **hanya pada 1 cabang yang dipegangnya**. Dapat mengelola transaksi, stok, teknisi, kasir, dan laporan di cabangnya, tetapi **tidak bisa** menambah cabang baru, beralih ke cabang lain, atau mengelola akun Owner/Super Admin lain.
 - **Teknisi** — Akses menu servis (servis masuk, servis keluar, ubah status pengerjaan) pada cabang yang ditugaskan.
 - **Kasir** — Akses menu kasir POS/penjualan produk dan penagihan servis pada cabang yang ditugaskan.
 
@@ -377,6 +377,30 @@ Mekanisme Real-Time Update:
 Route Publik: /display/{kode_cabang} (memuat data antrian khusus cabang terkait).
 
 Reverb Broadcast: Menggunakan kanal WebSocket cabang.{id}.servis. Setiap kali teknisi memperbarui status di aplikasi internal atau kasir menyelesaikan transaksi penagihan, layar TV akan langsung meng-update angka counter tanpa perlu page refresh.
+
+---
+
+## 13. Struktur Navigasi Multi-Cabang & Hierarki Akses (HQ Context vs Branch Context)
+
+Untuk menjaga kerapian antarmuka (*clean UX*), memisahkan tata kelola global (*governance*) dari operasional harian, dan menghindari kesalahan klik (*blast radius safety*), navigasi sistem dibagi menjadi **dua level konteks**:
+
+### A. Konteks Global / Kantor Pusat (HQ View) — Khusus Owner
+Diakses oleh Owner melalui Branch Switcher di Topbar/Header Sidebar dengan memilih opsi `🏢 Kantor Pusat (HQ)`:
+- **Konsolidasi Finansial & Bisnis:** Dashboard analitik menyeluruh, grafik omzet gabungan, profit & loss lintas cabang.
+- **Manajemen Cabang:** Daftar seluruh cabang, tambah cabang baru, edit profil/nomor WA cabang, aktivasi/nonaktifkan cabang.
+- **Manajemen Pengguna Global:** Tambah dan kelola akun Owner serta penetapan akun Superadmin per cabang.
+- **Master Data & Kebijakan Global:** Katalog produk terpusat, kategori produk, pengaturan PPN global.
+
+### B. Konteks Operasional Cabang (Branch View)
+Aktif saat Owner memilih cabang spesifik dari Branch Switcher, atau otomatis terkunci untuk role non-Owner (Superadmin, Teknisi, Kasir) sesuai `cabang_id` masing-masing:
+- **Dashboard Cabang:** Ringkasan penjualan dan antrian servis khusus cabang tersebut.
+- **Menu Operasional:** Kasir POS Produk, Penagihan Servis, Servis Masuk & Keluar, Manajemen Stok Cabang.
+- **Manajemen Staff Cabang (Superadmin Only):** Mengelola akun Teknisi dan Kasir pada cabang terkait.
+- **Laporan Cabang:** Histori penjualan dan riwayat servis cabang.
+
+### C. Keputusan UX Sidebar & Keamanan
+- Menu administratif tingkat tinggi (`Tambah Cabang`, `Tambah Owner`, `Tambah Super Admin`) **TIDAK diletakkan langsung (flat) di sidebar operasional cabang**.
+- Menu-menu ini hanya muncul saat berada dalam **Konteks HQ** atau melalui menu terdedikasi **Pengaturan Organisasi (Owner Only)**, memastikan sidebar harian tetap fokus, ramping, dan aman dari kesalahan operasional.
 
 ---
 

@@ -4,9 +4,9 @@ namespace App\Livewire\Dashboard;
 
 use App\Models\Cabang;
 use App\Models\Penjualan;
-use App\Models\Produk;
 use App\Models\ServisMasuk;
 use App\Models\Stok;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -17,29 +17,41 @@ use Livewire\Component;
 #[Title('Dashboard Overview')]
 class Index extends Component
 {
-    public ?int $selectedCabangId = null;
-
-    public function mount()
+    public function switchToBranch($cabangId)
     {
-        $user = Auth::user();
-        if (!$user->isOwner()) {
-            $this->selectedCabangId = $user->cabang_id;
+        if (Auth::user()->isOwner()) {
+            session(['active_branch_id' => $cabangId]);
+            return redirect()->route('dashboard');
         }
     }
 
-    public function filterCabang(?int $cabangId)
+    public function switchToHq()
     {
         if (Auth::user()->isOwner()) {
-            $this->selectedCabangId = $cabangId;
+            session(['active_branch_id' => 'hq']);
+            return redirect()->route('dashboard');
         }
     }
 
     public function render()
     {
         $user = Auth::user();
-        $cabangId = $user->isOwner() ? $this->selectedCabangId : $user->cabang_id;
+        $isOwner = $user->isOwner();
+        $activeBranchSession = session('active_branch_id', 'hq');
+        $isHQ = $isOwner && ($activeBranchSession === 'hq' || !$activeBranchSession);
 
-        // Query Servis Aktif
+        $cabangId = null;
+        if (!$isHQ) {
+            $cabangId = $isOwner ? $activeBranchSession : $user->cabang_id;
+        }
+
+        $activeCabang = $cabangId ? Cabang::find($cabangId) : null;
+
+        // --- GLOBAL / HQ METRICS ---
+        $totalCabangAktif = Cabang::where('status', 'aktif')->count();
+        $totalUserAktif = User::where('status', 'aktif')->count();
+
+        // Servis Query
         $servisQuery = ServisMasuk::query()
             ->when($cabangId, fn($q) => $q->where('cabang_id', $cabangId));
 
@@ -65,7 +77,7 @@ class Index extends Component
             'ok'  => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'selesai')->count(),
         ];
 
-        // Query Penjualan & Omzet
+        // Penjualan & Omzet
         $penjualanQuery = Penjualan::query()
             ->when($cabangId, fn($q) => $q->where('cabang_id', $cabangId))
             ->where('status', 'lunas');
@@ -78,6 +90,10 @@ class Index extends Component
             ->whereMonth('tanggal', Carbon::now()->month)
             ->whereYear('tanggal', Carbon::now()->year)
             ->sum('total');
+
+        $totalTransaksiHariIni = (clone $penjualanQuery)
+            ->whereDate('tanggal', Carbon::today())
+            ->count();
 
         $totalTransaksiBulanIni = (clone $penjualanQuery)
             ->whereMonth('tanggal', Carbon::now()->month)
@@ -106,11 +122,79 @@ class Index extends Component
             ->take(5)
             ->get();
 
-        $cabangs = Cabang::where('status', 'aktif')->get();
+        // Data Snapshot Cabang Khusus HQ
+        $branchSnapshots = [];
+        $allCabangs = Cabang::where('status', 'aktif')->with(['users' => function($q) {
+            $q->role('Superadmin');
+        }])->get();
+
+        if ($isHQ) {
+            foreach ($allCabangs as $c) {
+                $cOmzet = Penjualan::where('cabang_id', $c->id)->where('status', 'lunas')->whereDate('tanggal', Carbon::today())->sum('total');
+                $cServisAktif = ServisMasuk::where('cabang_id', $c->id)->whereIn('status', ['pengecekan', 'pengerjaan'])->count();
+                $cSuperadmin = $c->users->first()?->name ?? 'Belum ada Admin';
+                $cTotalStaff = User::where('cabang_id', $c->id)->where('status', 'aktif')->count();
+
+                $branchSnapshots[] = [
+                    'id' => $c->id,
+                    'kode' => $c->kode_cabang,
+                    'nama' => $c->nama_cabang,
+                    'alamat' => $c->alamat,
+                    'no_wa' => $c->no_wa,
+                    'superadmin' => $cSuperadmin,
+                    'omzet_hari_ini' => $cOmzet,
+                    'servis_aktif' => $cServisAktif,
+                    'total_staff' => $cTotalStaff,
+                ];
+            }
+        }
+
+        // Data Chart 7 Hari Terakhir
+        $chartCategories = [];
+        $chartSeries = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+            $chartCategories[] = $date->translatedFormat('d M');
+        }
+
+        if ($isHQ) {
+            foreach ($allCabangs as $c) {
+                $seriesData = [];
+                for ($i = 6; $i >= 0; $i--) {
+                    $date = Carbon::today()->subDays($i);
+                    $dailySum = Penjualan::where('cabang_id', $c->id)
+                        ->where('status', 'lunas')
+                        ->whereDate('tanggal', $date)
+                        ->sum('total');
+                    $seriesData[] = (int) $dailySum;
+                }
+                $chartSeries[] = [
+                    'name' => $c->nama_cabang,
+                    'data' => $seriesData,
+                ];
+            }
+        } else {
+            $seriesData = [];
+            for ($i = 6; $i >= 0; $i--) {
+                $date = Carbon::today()->subDays($i);
+                $dailySum = Penjualan::where('cabang_id', $cabangId)
+                    ->where('status', 'lunas')
+                    ->whereDate('tanggal', $date)
+                    ->sum('total');
+                $seriesData[] = (int) $dailySum;
+            }
+            $chartSeries[] = [
+                'name' => $activeCabang?->nama_cabang ?? 'Penjualan',
+                'data' => $seriesData,
+            ];
+        }
 
         return view('livewire.dashboard.index', [
-            'cabangs' => $cabangs,
-            'selectedCabang' => $cabangId ? Cabang::find($cabangId) : null,
+            'isHQ' => $isHQ,
+            'isOwner' => $isOwner,
+            'activeCabang' => $activeCabang,
+            'totalCabangAktif' => $totalCabangAktif,
+            'totalUserAktif' => $totalUserAktif,
             'countTotalAktif' => $countTotalAktif,
             'countPengecekan' => $countPengecekan,
             'countPengerjaan' => $countPengerjaan,
@@ -120,10 +204,14 @@ class Index extends Component
             'antrianKomputer' => $antrianKomputer,
             'omzetHariIni' => $omzetHariIni,
             'omzetBulanIni' => $omzetBulanIni,
+            'totalTransaksiHariIni' => $totalTransaksiHariIni,
             'totalTransaksiBulanIni' => $totalTransaksiBulanIni,
             'recentServis' => $recentServis,
             'recentPenjualan' => $recentPenjualan,
             'lowStocks' => $lowStocks,
+            'branchSnapshots' => $branchSnapshots,
+            'chartCategories' => $chartCategories,
+            'chartSeries' => $chartSeries,
         ]);
     }
 }
