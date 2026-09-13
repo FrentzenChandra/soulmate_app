@@ -9,7 +9,7 @@ class BranchSwitcher extends Component
 {
     public function switchBranch($cabangId = null)
     {
-        if (!auth()->user()->isOwner()) {
+        if (! auth()->user()->isOwner()) {
             return;
         }
 

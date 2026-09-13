@@ -31,7 +31,7 @@ class ServisMasukSeeder extends Seeder
         $lcd = Produk::where('barcode', '8991234560035')->first();
         $head = Produk::where('barcode', '8991234560066')->first();
 
-        if (!$pkp || !$teknisiPkp || !$customer1) {
+        if (! $pkp || ! $teknisiPkp || ! $customer1) {
             return;
         }
 

@@ -4,7 +4,7 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-gray-400 mb-1">
-                <span>🏢 Kantor Pusat (HQ)</span>
+                <span>Kantor Pusat</span>
                 <span>/</span>
                 <span class="text-purple-600 font-bold">Master Cabang</span>
             </div>
@@ -50,13 +50,13 @@
             <table class="w-full text-left text-xs">
                 <thead class="bg-gray-50/80 border-b border-gray-100 text-gray-400 uppercase font-extrabold text-[10px] tracking-wider">
                     <tr>
-                        <th class="py-3.5 px-5">Kode & Nama Cabang</th>
-                        <th class="py-3.5 px-4">Alamat</th>
-                        <th class="py-3.5 px-4">Kontak & No. WhatsApp</th>
-                        <th class="py-3.5 px-4">Superadmin (PIC)</th>
-                        <th class="py-3.5 px-4 text-center">Staff Terdaftar</th>
-                        <th class="py-3.5 px-4 text-center">Status</th>
-                        <th class="py-3.5 px-5 text-right">Aksi</th>
+                        <x-th-sort field="nama_cabang" :sortField="$sortField" :sortDirection="$sortDirection" class="px-5">Kode & Nama Cabang</x-th-sort>
+                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Alamat</th>
+                        <x-th-sort field="no_wa" :sortField="$sortField" :sortDirection="$sortDirection">Kontak & No. WhatsApp</x-th-sort>
+                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Superadmin (PIC)</th>
+                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400 text-center">Staff Terdaftar</th>
+                        <x-th-sort field="status" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Status</x-th-sort>
+                        <th class="py-3.5 px-5 text-right font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -162,12 +162,33 @@
             </table>
         </div>
 
-        <!-- Pagination -->
-        @if($cabangs->hasPages())
-            <div class="px-6 py-4 border-t border-gray-100">
-                {{ $cabangs->links() }}
-            </div>
-        @endif
+        <!-- Infinite Scroll Sentinel & Status -->
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+            @if(isset($hasMore) && $hasMore)
+                <div x-intersect="$wire.loadMore()" 
+                     class="py-2 flex flex-col items-center justify-center space-y-2 text-center">
+                    <div wire:loading wire:target="loadMore" class="flex items-center space-x-2 text-[#5E17EB]">
+                        <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <span class="text-xs font-bold">Memuat cabang lainnya...</span>
+                    </div>
+
+                    <button type="button" 
+                            wire:click="loadMore" 
+                            wire:loading.remove 
+                            wire:target="loadMore"
+                            class="px-4 py-1.5 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-600 hover:text-[#5E17EB] hover:border-[#5E17EB] shadow-xs transition-all cursor-pointer">
+                        Muat Lebih Banyak Cabang (Scroll Otomatis)
+                    </button>
+                </div>
+            @elseif(count($cabangs) > 0)
+                <div class="py-1 text-center text-xs font-medium text-gray-400">
+                    ✓ Menampilkan seluruh {{ count($cabangs) }} dari {{ $totalCabang ?? count($cabangs) }} cabang
+                </div>
+            @endif
+        </div>
     </div>
 
     <!-- Modal Form Tambah / Edit Cabang -->

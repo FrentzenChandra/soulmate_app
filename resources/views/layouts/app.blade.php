@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Dashboard' }} - Soulmate Komputer</title>
+    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo_bulat.jpg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -69,9 +70,9 @@
                         <p class="text-[11px] font-medium">
                             @if(auth()->user()->isOwner())
                                 @if(session('active_branch_id', 'hq') === 'hq')
-                                    <span class="text-purple-400 font-semibold">🏢 Owner (Konteks HQ)</span>
+                                    <span class="text-purple-300 font-semibold">Owner • Konteks HQ</span>
                                 @else
-                                    <span class="text-blue-400 font-semibold">📍 Owner (Mode Cabang)</span>
+                                    <span class="text-blue-300 font-semibold">Owner • Mode Cabang</span>
                                 @endif
                             @else
                                 <span class="text-gray-400">{{ auth()->user()->role_name }} • {{ auth()->user()->cabang?->nama_cabang ?? 'Cabang' }}</span>
@@ -88,6 +89,16 @@
                 @php
                     $isOwner = auth()->user()->isOwner();
                     $isHQ = $isOwner && session('active_branch_id', 'hq') === 'hq';
+                    $activeBranchSession = session('active_branch_id', 'hq');
+
+                    // Hitung jumlah stok kosong untuk badge sidebar
+                    if ($isHQ) {
+                        $emptyStockSidebarCount = \App\Models\Stok::where('jumlah', '<=', 0)->count();
+                    } else {
+                        $targetCabId = $isOwner ? (int) $activeBranchSession : auth()->user()->cabang_id;
+                        $targetCabId = $targetCabId ?: 1;
+                        $emptyStockSidebarCount = \App\Models\Stok::where('cabang_id', $targetCabId)->where('jumlah', '<=', 0)->count();
+                    }
                 @endphp
 
                 @if($isHQ)
@@ -95,34 +106,46 @@
                     <!-- SIDEBAR: KONTEKS KANTOR PUSAT (HQ) - OWNER ONLY -->
                     <!-- ============================================== -->
                     <p class="px-3 pt-3 pb-1 text-[10px] font-extrabold tracking-wider text-purple-400 uppercase flex items-center justify-between">
-                        <span>Tata Kelola Pusat (HQ)</span>
-                        <span class="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-bold">Global</span>
+                        <span>Tata Kelola Pusat</span>
+                        <span class="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-bold">HQ</span>
                     </p>
 
                     <a href="{{ route('dashboard') }}" 
-                       class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('dashboard') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                       class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('dashboard') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         Dashboard HQ
                     </a>
 
                     <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Master & Organisasi</p>
 
                     <a href="{{ route('master.cabang') }}" 
-                       class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.cabang*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                       class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.cabang*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.cabang*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                         Master Cabang
                     </a>
 
                     <a href="{{ route('master.users') }}" 
-                       class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.users*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                       class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.users*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.users*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                         Master Pengguna
+                    </a>
+
+                    <a href="{{ route('master.produk') }}" 
+                       class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.produk*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.produk*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        Master Produk
+                    </a>
+
+                    <a href="{{ route('master.kategori') }}" 
+                       class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.kategori*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.kategori*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                        Master Kategori
                     </a>
 
                     <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Laporan Global</p>
 
-                    <a href="#" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-400 hover:bg-gray-800/80 hover:text-white transition-all">
-                        <svg class="w-5 h-5 mr-3 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <a href="#" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-400 hover:bg-gray-800/80 hover:text-white transition-all">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Konsolidasi Finansial
                         <span class="ml-auto text-[9px] bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded font-semibold">Segera</span>
                     </a>
@@ -139,8 +162,8 @@
                     </p>
 
                     <a href="{{ route('dashboard') }}" 
-                       class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('dashboard') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                       class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('dashboard') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                         Dashboard Cabang
                     </a>
 
@@ -148,13 +171,13 @@
                     @hasanyrole('Owner|Superadmin|Teknisi')
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Layanan Servis</p>
 
-                    <a href="#" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
-                        <svg class="w-5 h-5 mr-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    <a href="#" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                         Servis Masuk
                     </a>
 
-                    <a href="#" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
-                        <svg class="w-5 h-5 mr-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <a href="#" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Servis Selesai / Keluar
                     </a>
                     @endhasanyrole
@@ -163,14 +186,16 @@
                     @hasanyrole('Owner|Superadmin|Kasir')
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Kasir & Penjualan</p>
 
-                    <a href="#" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
-                        <svg class="w-5 h-5 mr-3 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        Kasir POS (Produk)
+                    <a href="{{ route('kasir.produk') }}" 
+                       class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('kasir.produk*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('kasir.produk*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        <span>Kasir POS (Produk)</span>
                     </a>
 
-                    <a href="#" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
-                        <svg class="w-5 h-5 mr-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                        Riwayat Transaksi
+                    <a href="#" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-400 hover:bg-gray-800/80 hover:text-white transition-all">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        <span>Riwayat Transaksi</span>
+                        <span class="ml-auto text-[9px] bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded font-semibold">Segera</span>
                     </a>
                     @endhasanyrole
 
@@ -178,18 +203,33 @@
                     @hasanyrole('Owner|Superadmin')
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Katalog & Stok</p>
 
-                    <a href="#" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
-                        <svg class="w-5 h-5 mr-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                    <a href="{{ route('master.produk') }}" 
+                       class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.produk*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.produk*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                         Master Produk
                     </a>
 
-                    <a href="#" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
-                        <svg class="w-5 h-5 mr-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path></svg>
-                        Stok Cabang
+                    <a href="{{ route('master.kategori') }}" 
+                       class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.kategori*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.kategori*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                        Master Kategori
                     </a>
 
-                    <a href="#" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
-                        <svg class="w-5 h-5 mr-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <a href="{{ route('cabang.stok') }}" 
+                       class="group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('cabang.stok*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-3 {{ request()->routeIs('cabang.stok*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path></svg>
+                            <span>Stok Cabang</span>
+                        </div>
+                        @if($emptyStockSidebarCount > 0)
+                            <span class="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black leading-none animate-pulse shadow-sm">
+                                {{ $emptyStockSidebarCount }}
+                            </span>
+                        @endif
+                    </a>
+
+                    <a href="#" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                         Data Pelanggan
                     </a>
                     @endhasanyrole
@@ -197,8 +237,8 @@
                     <!-- Display Antrian Smart TV -->
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Layar Toko</p>
 
-                    <a href="#" target="_blank" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
-                        <svg class="w-5 h-5 mr-3 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <a href="#" target="_blank" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                         Display Antrian TV
                         <span class="ml-auto text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-bold">Live</span>
                     </a>
@@ -207,7 +247,7 @@
                         <div class="pt-6 px-1">
                             <button wire:click="$dispatch('switchBranchHQ')"
                                     class="w-full flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl text-xs font-bold bg-purple-950/70 border border-purple-800/60 text-purple-300 hover:bg-purple-900 hover:text-white transition-all shadow-md cursor-pointer">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path></svg>
+                                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path></svg>
                                 <span>Kembali ke Pusat (HQ)</span>
                             </button>
                         </div>
@@ -236,7 +276,7 @@
         <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
             
             <!-- Topbar Header -->
-            <header class="bg-white border-b border-gray-200/80 px-6 py-3.5 flex items-center justify-between z-10">
+            <header class="bg-white border-b border-gray-200/80 px-6 py-3.5 flex items-center justify-between relative z-30">
                 <div class="flex items-center space-x-4">
                     <button @click="sidebarOpen = true" class="md:hidden text-gray-500 hover:text-gray-700">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -246,16 +286,75 @@
                     <livewire:components.branch-switcher />
                 </div>
 
-                <!-- Right Action / User Profile -->
-                <div class="flex items-center space-x-4">
-                    <div class="hidden sm:flex flex-col text-right">
-                        <span class="text-sm font-bold text-gray-900 leading-tight">{{ auth()->user()->name }}</span>
-                        <span class="text-xs font-bold text-[#5E17EB]">{{ auth()->user()->role_name }}</span>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-brand-gradient text-white flex items-center justify-center font-bold text-base shadow-sm">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                <!-- Right Actions (Notification Bell & Profile Dropdown) -->
+                <div class="flex items-center space-x-3">
+                    <!-- Notification Bell Component -->
+                    <livewire:components.notification-bell />
+
+                    <!-- User Profile Dropdown -->
+                    <div class="relative" x-data="{ profileOpen: false }" @click.outside="profileOpen = false">
+                    <button @click="profileOpen = !profileOpen" 
+                            type="button"
+                            class="flex items-center space-x-3 p-1 rounded-xl hover:bg-gray-100 transition-colors focus:outline-none cursor-pointer group">
+                        <div class="hidden sm:flex flex-col text-right">
+                            <span class="text-sm font-bold text-gray-900 leading-tight">{{ auth()->user()->name }}</span>
+                            <span class="text-xs font-bold text-[#5E17EB]">{{ auth()->user()->role_name }}</span>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl overflow-hidden bg-brand-gradient text-white flex items-center justify-center font-bold text-base shadow-sm ring-2 ring-purple-100 group-hover:ring-purple-200 transition-all shrink-0">
+                            @if(auth()->user()->foto_url)
+                                <img src="{{ asset(auth()->user()->foto_url) }}" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
+                                     alt="{{ auth()->user()->name }}" 
+                                     class="w-full h-full object-cover">
+                                <span style="display:none;" class="w-full h-full flex items-center justify-center">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                            @else
+                                <span>{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                            @endif
+                        </div>
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200" :class="profileOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Profile Dropdown Menu -->
+                    <div x-show="profileOpen" 
+                         x-cloak
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+                         class="absolute right-0 mt-2 w-64 rounded-2xl bg-white shadow-2xl shadow-purple-950/15 border border-gray-100 py-2 z-50 divide-y divide-gray-100"
+                         style="display: none;">
+                        
+                        <div class="px-4 py-3">
+                            <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Masuk sebagai</p>
+                            <p class="text-sm font-extrabold text-gray-900 truncate mt-0.5">{{ auth()->user()->name }}</p>
+                            <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email ?? auth()->user()->username }}</p>
+                            <div class="mt-2.5 inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-purple-50 text-[#5E17EB] border border-purple-200">
+                                <span>{{ auth()->user()->role_name }}</span>
+                                @if(auth()->user()->cabang)
+                                    <span class="text-gray-400 mx-1">•</span>
+                                    <span>{{ auth()->user()->cabang->nama_cabang }}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="py-1">
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="w-full text-left flex items-center px-4 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer group">
+                                    <svg class="w-4 h-4 mr-2.5 text-rose-500 group-hover:text-rose-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                    </svg>
+                                    <span>Keluar (Logout)</span>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
+            </div>
             </header>
 
             <!-- Main Page Slot -->
@@ -293,6 +392,58 @@
 
         </div>
 
+    </div>
+
+    <!-- Global Toast Notifications -->
+    <div x-data="{
+            toasts: [],
+            addToast(type, title, text) {
+                const id = Date.now() + Math.random();
+                this.toasts.push({ id, type, title, text });
+                setTimeout(() => {
+                    this.removeToast(id);
+                }, 4000);
+            },
+            removeToast(id) {
+                this.toasts = this.toasts.filter(t => t.id !== id);
+            }
+         }"
+         @swal:success.window="addToast('success', $event.detail.title ?? ($event.detail[0]?.title ?? 'Berhasil'), $event.detail.text ?? ($event.detail[0]?.text ?? ''))"
+         @swal:warning.window="addToast('warning', $event.detail.title ?? ($event.detail[0]?.title ?? 'Peringatan'), $event.detail.text ?? ($event.detail[0]?.text ?? ''))"
+         @swal:error.window="addToast('error', $event.detail.title ?? ($event.detail[0]?.title ?? 'Error'), $event.detail.text ?? ($event.detail[0]?.text ?? ''))"
+         @swal:info.window="addToast('info', $event.detail.title ?? ($event.detail[0]?.title ?? 'Info'), $event.detail.text ?? ($event.detail[0]?.text ?? ''))"
+         class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none max-w-sm w-full px-4 sm:px-0">
+        <template x-for="t in toasts" :key="t.id">
+            <div class="pointer-events-auto p-4 rounded-2xl shadow-xl border flex items-start space-x-3 transition-all transform duration-300"
+                 :class="{
+                     'bg-emerald-900/95 border-emerald-700 text-white': t.type === 'success',
+                     'bg-amber-900/95 border-amber-700 text-white': t.type === 'warning',
+                     'bg-rose-900/95 border-rose-700 text-white': t.type === 'error',
+                     'bg-slate-900/95 border-slate-700 text-white': t.type === 'info'
+                 }">
+                <div class="shrink-0 mt-0.5">
+                    <template x-if="t.type === 'success'">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    </template>
+                    <template x-if="t.type === 'warning'">
+                        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </template>
+                    <template x-if="t.type === 'error'">
+                        <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </template>
+                    <template x-if="t.type === 'info'">
+                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </template>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h5 class="text-xs font-bold leading-tight" x-text="t.title"></h5>
+                    <p class="text-[11px] opacity-90 mt-0.5 leading-snug" x-text="t.text" x-show="t.text"></p>
+                </div>
+                <button @click="removeToast(t.id)" class="text-white/60 hover:text-white shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </template>
     </div>
 
     @livewireScripts

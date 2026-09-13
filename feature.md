@@ -140,11 +140,14 @@ erDiagram
     }
     USER {
         int id PK
-        string nama
+        string name
         string username
+        string email
         string password
-        int role_id FK
-        int cabang_id FK
+        string no_hp
+        string status "aktif / nonaktif"
+        string foto_url "nullable, WebP < 40KB foto profil pengguna"
+        int cabang_id FK "nullable, diisi jika superadmin/staf cabang"
     }
     CUSTOMER {
         int id PK
@@ -156,6 +159,7 @@ erDiagram
     KATEGORI_PRODUK {
         int id PK
         string nama_kategori
+        string slug
     }
     PRODUK {
         int id PK
@@ -165,8 +169,9 @@ erDiagram
         decimal harga_beli
         decimal harga_jual
         boolean ready_marketplace "true/false tampil di web publik"
-        string foto_url
+        string foto_url "nullable, WebP < 40KB foto produk"
         string deskripsi
+        datetime deleted_at "soft deletes proteksi riwayat transaksi"
     }
     STOK {
         int id PK
@@ -404,4 +409,59 @@ Aktif saat Owner memilih cabang spesifik dari Branch Switcher, atau otomatis ter
 
 ---
 
+## 14. Kebijakan Master Produk, Foto Profil Pengguna & Kompresi Media WebP
+
+### A. Scoping Stok Produk (HQ vs Mode Cabang)
+- **Tampilan HQ (Owner):** Menampilkan matriks stok lengkap seluruh cabang (*CB-PKP*, *CB-SGL*, *CB-KBA*) beserta total stok global.
+- **Tampilan Cabang (Superadmin / Mode Cabang):** Tabel dan form modal hanya menampilkan stok milik cabang aktif terkait (*Stok [Nama Cabang]*).
+
+### B. Kebijakan Penghapusan Produk (Soft Deletes & Blast Radius Safety)
+- **Soft Deletes:** Tabel `produks` menggunakan `SoftDeletes` (`deleted_at`). Data transaksi lama, riwayat audit kasir, dan garansi servis tetap utuh.
+- **Otoritas Khusus:** Hanya akun **Owner dalam Konteks HQ** yang dapat melakukan hapus produk master.
+- **Integritas Transaksi:** Produk yang sudah memiliki riwayat penjualan di kasir (`PENJUALAN_DETAIL`) atau servis (`SERVIS_DETAIL`) diblokir dari penghapusan.
+
+### C. Standar Kompresi Gambar & Foto Profil (WebP Optimization)
+- **Auto-WebP Compression:** Semua unggahan gambar produk dan foto profil pengguna dikonversi otomatis ke format **`.webp`** dengan resolusi proporsional (max width 500-600px) dan kompresi $\le 40\text{ KB}$ per file di `public/images/products/` dan `public/images/users/`.
+- **Live Preview Interaktif:** Sebelum tombol simpan ditekan, sistem menampilkan visual card preview instan, indikator upload (`wire:loading`), nama file, ukuran KB, serta tombol pembatalan/hapus pilihan.
+- **Dukungan Direct Path / Database Manager:** Kolom `foto_url` tetap mendukung input manual via DB manager dengan fallback visual jika file tidak ditemukan.
+
+### D. Master Kategori Produk Terdedikasi (`/master/kategori`)
+- **Akses & Penempatan:** Dapat diakses oleh **Owner (HQ)** dan **Superadmin (Cabang)** melalui menu sidebar *Katalog & Stok*.
+- **Fungsi Utama:**
+  - Menampilkan ringkasan metrik (Total Kategori, Total Produk Terdaftar, Kategori dengan Produk Terbanyak).
+  - Manajemen kategori (tambah nama & auto-slug, edit, dan hapus).
+  - **Proteksi Hapus Kategori:** Kategori yang masih menaungi produk dilarang dihapus untuk mencegah *orphan data*.
+
+### E. Sistem Indikator Visual & Notifikasi Stok Realtime
+- **Peringatan Multi-Titik (Bukan Sekadar Garis Border):**
+  - **Floating Indicator pada Thumbnail:** Ikon badge mengambang di sudut foto produk (tanda silang merah untuk stok kosong $= 0$, tanda seru kuning/amber membal untuk stok kritis $\le 3$).
+  - **Pill Badge Kontras Tinggi:** Badge label solid berwarna merah (`HABIS`) atau kuning (`KRITIS`) disematkan di samping judul produk.
+  - **Status Ketersediaan:** Menampilkan icon warning SVG (`Stok Kosong (0)` dan `Menipis (X)`) dengan latar berarsir tebal.
+  - **Highlight Sisa Stok Fisik:** Menampilkan angka stok dalam kontainer kontras tinggi yang langsung eye-catching saat skimming data tabel.
+  - **Thumbnail Produk di Modal Opname:** Menampilkan thumbnail gambar produk secara jelas saat staf melakukan penyesuaian stok.
+
+---
+
+## 15. Modul Kasir POS Penjualan Produk (`/kasir/produk`)
+
+Modul Kasir POS dirancang untuk mendukung operasional ritel toko komputer, aksesoris, dan suku cadang secara cepat, intuitif, dan akurat:
+
+### A. Fitur & Alur Operasional POS
+- **Pencarian Cepat & Barcode Scanner:** Input terdedikasi dengan autofocus yang langsung mendeteksi scan barcode fisik atau pencarian nama produk dan memasukkannya ke keranjang belanja (*Cart*).
+- **Validasi Stok Realtime:** Kuantiti barang yang masuk ke keranjang dibatasi ketat oleh sisa stok fisik cabang aktif (`stok_max`). Produk dengan stok 0 otomatis berstatus non-aktif (*disabled*) dan tidak dapat dijual.
+- **Kalkulasi Diskon & PPN Dinamis:** Mendukung diskon transaksi (Rp) dan pemilihan tarif pajak dari `master_ppns` (`Tanpa PPN`, `PPN 11%`, dll) dengan kalkulasi otomatis `Grand Total = (Subtotal - Diskon) + PPN`.
+- **Manajemen Pelanggan Fleksibel:** Transaksi dapat diproses sebagai *Pelanggan Umum (Non-Member)* atau dikaitkan ke pelanggan terdaftar dengan fitur pencarian cepat & modal *Tambah Pelanggan Baru*.
+- **Multi-Metode Pembayaran:**
+  - **Tunai (Cash):** Tombol pecahan nominal cepat (*Uang Pas*, *Rp 50.000*, *Rp 100.000*, *Rp 200.000*, *Rp 500.000*) dan kalkulasi kembalian instan realtime.
+  - **Non-Tunai:** QRIS dan Transfer Bank.
+
+### B. Integritas Data & Transaksi Atomic
+- **Format Nomor Transaksi Kasir Produk:** `INV-PJ-[KODE_CABANG]-[YYMM]-[NOMOR_URUT]` (contoh: `INV-PJ-CBPKP-2609-00001`), dihasilkan secara atomik per cabang menggunakan penguncian baris (*row lock*) pada tabel `nomor_urut_transaksis`.
+- **Pengurangan Stok Otomatis:** Setiap transaksi yang berhasil langsung memotong stok cabang aktif di tabel `stoks` dan men-dispatch event `stockUpdated` untuk memperbarui indikator peringatan stok pada topbar notification bell dan sidebar badge.
+- **Cetak Struk Thermal Siap Pakai:** Format nota struk kasir standar printer thermal 58mm / 80mm dengan header outlet, rincian barang, rekap pembayaran, dan informasi garansi toko.
+
+---
+
 Tolong bantu saya lanjutkan pengembangan sistem ini berdasarkan konteks & skema database di atas.
+
+

@@ -25,7 +25,7 @@ class RoleAndUserSeeder extends Seeder
         $cabangSgl = Cabang::where('kode_cabang', 'CB-SGL')->first();
         $cabangKba = Cabang::where('kode_cabang', 'CB-KBA')->first();
 
-        // 2. Akun Owner (Akses Penuh Semua Cabang & Semua Menu)
+        // 2. Akun Owner & Dev (Akses Penuh Semua Cabang & Semua Menu)
         $owner = User::updateOrCreate(
             ['email' => 'owner@soulmate.test'],
             [
@@ -38,6 +38,19 @@ class RoleAndUserSeeder extends Seeder
             ]
         );
         $owner->syncRoles([$ownerRole]);
+
+        $dev = User::updateOrCreate(
+            ['email' => 'dev@soulmate.test'],
+            [
+                'name' => 'Developer Mode',
+                'username' => 'dev',
+                'password' => Hash::make('password'),
+                'cabang_id' => null, // null = Akses semua cabang tanpa batasan
+                'no_hp' => '081200000000',
+                'status' => 'aktif',
+            ]
+        );
+        $dev->syncRoles([$ownerRole]);
 
         // 3. Akun Superadmin (Admin Cabang - Akses Semua Menu di 1 Cabang)
         $superadminPkp = User::updateOrCreate(

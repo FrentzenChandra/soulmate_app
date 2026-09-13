@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('foto_url', 255)->nullable();
             $table->text('deskripsi')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

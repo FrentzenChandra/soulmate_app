@@ -166,22 +166,34 @@ class KategoriDanProdukSeeder extends Seeder
             );
 
             // Inisialisasi Stok tiap cabang
-            if ($pkp) {
+            if ($pkp && isset($item['stok_pkp'])) {
                 Stok::updateOrCreate(
                     ['produk_id' => $produk->id, 'cabang_id' => $pkp->id],
-                    ['jumlah' => $item['stok_pkp']]
+                    [
+                        'jumlah' => $item['stok_pkp'],
+                        'min_stok' => 3,
+                        'is_aktif' => true,
+                    ]
                 );
             }
-            if ($sgl) {
+            if ($sgl && isset($item['stok_sgl'])) {
                 Stok::updateOrCreate(
                     ['produk_id' => $produk->id, 'cabang_id' => $sgl->id],
-                    ['jumlah' => $item['stok_sgl']]
+                    [
+                        'jumlah' => $item['stok_sgl'],
+                        'min_stok' => 3,
+                        'is_aktif' => true,
+                    ]
                 );
             }
-            if ($kba) {
+            if ($kba && isset($item['stok_kba'])) {
                 Stok::updateOrCreate(
                     ['produk_id' => $produk->id, 'cabang_id' => $kba->id],
-                    ['jumlah' => $item['stok_kba']]
+                    [
+                        'jumlah' => $item['stok_kba'],
+                        'min_stok' => 2,
+                        'is_aktif' => true,
+                    ]
                 );
             }
         }

@@ -1,0 +1,516 @@
+<?php
+
+namespace App\Livewire\Master\Produk;
+
+use App\Livewire\Traits\WithSorting;
+use App\Models\Cabang;
+use App\Models\KategoriProduk;
+use App\Models\Produk;
+use App\Models\Stok;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Livewire\WithPagination;
+
+#[Layout('layouts.app')]
+#[Title('Master Produk & Katalog - Soulmate Komputer')]
+class Index extends Component
+{
+    use WithFileUploads, WithPagination, WithSorting;
+
+    public string $search = '';
+
+    public string $kategoriFilter = 'semua';
+
+    public string $stokFilter = 'semua';
+
+    // Modal Produk
+    public bool $modalProdukOpen = false;
+
+    public bool $isEditMode = false;
+
+    public ?int $produkId = null;
+
+    // Form fields Produk
+    public ?int $kategori_id = null;
+
+    public string $barcode = '';
+
+    public string $nama_produk = '';
+
+    public $harga_beli = 0;
+
+    public $harga_jual = 0;
+
+    public bool $ready_marketplace = false;
+
+    public string $deskripsi = '';
+
+    public $foto = null;
+
+    public ?string $existing_foto_url = null;
+
+    public array $initialStock = []; // [cabang_id => jumlah]
+
+    // Modal Manajemen Kategori
+    public bool $modalKategoriOpen = false;
+
+    public string $new_kategori_name = '';
+
+    public ?int $edit_kategori_id = null;
+
+    public string $edit_kategori_name = '';
+
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'kategoriFilter' => ['except' => 'semua'],
+        'stokFilter' => ['except' => 'semua'],
+        'sortField' => ['except' => 'nama_produk'],
+        'sortDirection' => ['except' => 'asc'],
+    ];
+
+    public int $perPage = 15;
+
+    public function mount(): void
+    {
+        $this->sortField = 'nama_produk';
+        $this->sortDirection = 'asc';
+    }
+
+    public function loadMore(): void
+    {
+        $this->perPage += 15;
+    }
+
+    public function updatingSearch()
+    {
+        $this->perPage = 15;
+        $this->resetPage();
+    }
+
+    public function updatingKategoriFilter()
+    {
+        $this->perPage = 15;
+        $this->resetPage();
+    }
+
+    public function updatingStokFilter()
+    {
+        $this->perPage = 15;
+        $this->resetPage();
+    }
+
+    public function rules(): array
+    {
+        return [
+            'nama_produk' => ['required', 'string', 'max:200'],
+            'kategori_id' => ['nullable', 'exists:kategori_produks,id'],
+            'barcode' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('produks', 'barcode')->ignore($this->produkId),
+            ],
+            'harga_beli' => ['required', 'numeric', 'min:0'],
+            'harga_jual' => ['required', 'numeric', 'min:0'],
+            'ready_marketplace' => ['boolean'],
+            'deskripsi' => ['nullable', 'string'],
+            'foto' => ['nullable', 'image', 'max:4096'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nama_produk.required' => 'Nama produk wajib diisi.',
+            'barcode.unique' => 'Barcode atau SKU ini sudah terdaftar pada produk lain.',
+            'harga_beli.required' => 'Harga modal/beli wajib diisi.',
+            'harga_beli.min' => 'Harga modal tidak boleh negatif.',
+            'harga_jual.required' => 'Harga jual wajib diisi.',
+            'harga_jual.min' => 'Harga jual tidak boleh negatif.',
+            'foto.image' => 'File harus berupa gambar (JPG, PNG, WEBP).',
+            'foto.max' => 'Ukuran gambar maksimal 4MB.',
+        ];
+    }
+
+    public function generateBarcode(): void
+    {
+        $this->barcode = '899'.str_pad((string) mt_rand(1000000000, 9999999999), 10, '0', STR_PAD_LEFT);
+    }
+
+    public function openCreateModal(): void
+    {
+        $this->resetValidation();
+        $this->reset(['produkId', 'kategori_id', 'barcode', 'nama_produk', 'deskripsi', 'foto', 'existing_foto_url']);
+        $this->harga_beli = 0;
+        $this->harga_jual = 0;
+        $this->ready_marketplace = false;
+        $this->isEditMode = false;
+
+        $user = Auth::user();
+        $isHQ = $user->isOwner() && session('active_branch_id', 'hq') === 'hq';
+
+        $cabangs = Cabang::where('status', 'aktif')->get();
+        $this->initialStock = [];
+        foreach ($cabangs as $c) {
+            $this->initialStock[$c->id] = 0;
+        }
+
+        $this->modalProdukOpen = true;
+    }
+
+    public function openEditModal(int $id): void
+    {
+        $this->resetValidation();
+        $this->foto = null;
+        $produk = Produk::with('stoks')->findOrFail($id);
+
+        $this->produkId = $produk->id;
+        $this->kategori_id = $produk->kategori_id;
+        $this->barcode = $produk->barcode ?? '';
+        $this->nama_produk = $produk->nama_produk;
+        $this->harga_beli = (float) $produk->harga_beli;
+        $this->harga_jual = (float) $produk->harga_jual;
+        $this->ready_marketplace = (bool) $produk->ready_marketplace;
+        $this->deskripsi = $produk->deskripsi ?? '';
+        $this->existing_foto_url = $produk->foto_url;
+
+        $cabangs = Cabang::where('status', 'aktif')->get();
+        $this->initialStock = [];
+        foreach ($cabangs as $c) {
+            $stok = $produk->stoks->firstWhere('cabang_id', $c->id);
+            $this->initialStock[$c->id] = $stok ? $stok->jumlah : 0;
+        }
+
+        $this->isEditMode = true;
+        $this->modalProdukOpen = true;
+    }
+
+    protected function processAndSaveWebp($uploadedFile): string
+    {
+        $targetDir = public_path('images/products');
+        if (! file_exists($targetDir)) {
+            @mkdir($targetDir, 0775, true);
+        }
+
+        $imagePath = $uploadedFile->getRealPath();
+        $imageInfo = @getimagesize($imagePath);
+
+        if ($imageInfo && function_exists('imagecreatefromstring') && function_exists('imagewebp')) {
+            $source = @imagecreatefromstring(file_get_contents($imagePath));
+            if ($source !== false) {
+                $filename = 'prod_'.time().'_'.Str::random(6).'.webp';
+                $destination = $targetDir.'/'.$filename;
+
+                $width = imagesx($source);
+                $height = imagesy($source);
+
+                $maxDim = 600;
+                if ($width > $maxDim || $height > $maxDim) {
+                    if ($width > $height) {
+                        $newWidth = $maxDim;
+                        $newHeight = (int) ($height * ($maxDim / $width));
+                    } else {
+                        $newHeight = $maxDim;
+                        $newWidth = (int) ($width * ($maxDim / $height));
+                    }
+                    $resized = imagecreatetruecolor($newWidth, $newHeight);
+                    imagealphablending($resized, false);
+                    imagesavealpha($resized, true);
+                    imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+                    imagewebp($resized, $destination, 80);
+                    imagedestroy($resized);
+                } else {
+                    imagewebp($source, $destination, 80);
+                }
+                imagedestroy($source);
+
+                return 'images/products/'.$filename;
+            }
+        }
+
+        // Fallback jika GD webp tidak aktif
+        $fallbackName = 'prod_'.time().'_'.Str::random(6).'.'.($uploadedFile->getClientOriginalExtension() ?: 'jpg');
+        $destination = $targetDir.'/'.$fallbackName;
+
+        try {
+            $uploadedFile->move($targetDir, $fallbackName);
+        } catch (\Throwable $e) {
+            @copy($imagePath, $destination);
+        }
+
+        return 'images/products/'.$fallbackName;
+    }
+
+    public function cancelUploadFoto(): void
+    {
+        $this->foto = null;
+    }
+
+    public function removeExistingFoto(): void
+    {
+        $this->existing_foto_url = null;
+        $this->foto = null;
+    }
+
+    public function saveProduk(): void
+    {
+        $this->validate();
+
+        $data = [
+            'kategori_id' => $this->kategori_id ?: null,
+            'barcode' => ! empty($this->barcode) ? trim($this->barcode) : null,
+            'nama_produk' => trim($this->nama_produk),
+            'harga_beli' => $this->harga_beli,
+            'harga_jual' => $this->harga_jual,
+            'ready_marketplace' => $this->ready_marketplace,
+            'deskripsi' => ! empty($this->deskripsi) ? trim($this->deskripsi) : null,
+        ];
+
+        if ($this->foto) {
+            $data['foto_url'] = $this->processAndSaveWebp($this->foto);
+        } elseif ($this->isEditMode && $this->existing_foto_url === null) {
+            $data['foto_url'] = null;
+        }
+
+        if ($this->isEditMode && $this->produkId) {
+            $produk = Produk::findOrFail($this->produkId);
+            $produk->update($data);
+
+            // Update stok per cabang
+            foreach ($this->initialStock as $cabangId => $jumlah) {
+                Stok::updateOrCreate(
+                    ['produk_id' => $produk->id, 'cabang_id' => $cabangId],
+                    ['jumlah' => max(0, (int) $jumlah)]
+                );
+            }
+
+            session()->flash('success', "Produk \"{$produk->nama_produk}\" berhasil diperbarui.");
+        } else {
+            $produk = Produk::create($data);
+
+            // Simpan stok awal tiap cabang
+            $allCabangs = Cabang::all();
+            foreach ($allCabangs as $c) {
+                $qty = isset($this->initialStock[$c->id]) ? max(0, (int) $this->initialStock[$c->id]) : 0;
+                Stok::create([
+                    'produk_id' => $produk->id,
+                    'cabang_id' => $c->id,
+                    'jumlah' => $qty,
+                ]);
+            }
+
+            session()->flash('success', "Produk baru \"{$produk->nama_produk}\" berhasil ditambahkan.");
+        }
+
+        $this->modalProdukOpen = false;
+        $this->foto = null;
+    }
+
+    public function deleteProduk(int $id): void
+    {
+        $user = Auth::user();
+        $activeBranchId = session('active_branch_id', 'hq');
+        $isHQ = $user->isOwner() && ($activeBranchId === 'hq' || ! $activeBranchId);
+
+        // Hanya Owner di konteks HQ yang berhak menghapus produk global
+        if (! $isHQ) {
+            session()->flash('error', 'Hanya Owner di Konteks Kantor Pusat (HQ) yang memiliki otorisasi menghapus produk global.');
+
+            return;
+        }
+
+        $produk = Produk::findOrFail($id);
+
+        if ($produk->penjualanDetails()->exists() || $produk->servisDetails()->exists()) {
+            session()->flash('error', "Produk \"{$produk->nama_produk}\" tidak dapat dihapus karena memiliki riwayat transaksi kasir atau servis.");
+
+            return;
+        }
+
+        $nama = $produk->nama_produk;
+        $produk->delete();
+
+        session()->flash('success', "Produk \"{$nama}\" berhasil dihapus.");
+    }
+
+    // ==========================================
+    // MANAJEMEN KATEGORI
+    // ==========================================
+
+    public function openKategoriModal(): void
+    {
+        $this->resetValidation();
+        $this->new_kategori_name = '';
+        $this->edit_kategori_id = null;
+        $this->edit_kategori_name = '';
+        $this->modalKategoriOpen = true;
+    }
+
+    public function saveNewKategori(): void
+    {
+        $this->validate([
+            'new_kategori_name' => ['required', 'string', 'max:100', 'unique:kategori_produks,nama_kategori'],
+        ], [
+            'new_kategori_name.required' => 'Nama kategori wajib diisi.',
+            'new_kategori_name.unique' => 'Kategori ini sudah ada.',
+        ]);
+
+        KategoriProduk::create([
+            'nama_kategori' => trim($this->new_kategori_name),
+            'slug' => Str::slug($this->new_kategori_name),
+        ]);
+
+        $this->new_kategori_name = '';
+        session()->flash('success', 'Kategori baru berhasil ditambahkan.');
+    }
+
+    public function startEditKategori(int $id): void
+    {
+        $kat = KategoriProduk::findOrFail($id);
+        $this->edit_kategori_id = $kat->id;
+        $this->edit_kategori_name = $kat->nama_kategori;
+    }
+
+    public function saveEditKategori(): void
+    {
+        $this->validate([
+            'edit_kategori_name' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('kategori_produks', 'nama_kategori')->ignore($this->edit_kategori_id),
+            ],
+        ], [
+            'edit_kategori_name.required' => 'Nama kategori tidak boleh kosong.',
+            'edit_kategori_name.unique' => 'Nama kategori ini sudah digunakan.',
+        ]);
+
+        $kat = KategoriProduk::findOrFail($this->edit_kategori_id);
+        $kat->update([
+            'nama_kategori' => trim($this->edit_kategori_name),
+            'slug' => Str::slug($this->edit_kategori_name),
+        ]);
+
+        $this->edit_kategori_id = null;
+        $this->edit_kategori_name = '';
+        session()->flash('success', 'Kategori berhasil diperbarui.');
+    }
+
+    public function cancelEditKategori(): void
+    {
+        $this->edit_kategori_id = null;
+        $this->edit_kategori_name = '';
+    }
+
+    public function deleteKategori(int $id): void
+    {
+        $kat = KategoriProduk::findOrFail($id);
+
+        if ($kat->produks()->exists()) {
+            session()->flash('error', "Kategori \"{$kat->nama_kategori}\" masih digunakan oleh beberapa produk.");
+
+            return;
+        }
+
+        $nama = $kat->nama_kategori;
+        $kat->delete();
+
+        session()->flash('success', "Kategori \"{$nama}\" berhasil dihapus.");
+    }
+
+    public function render()
+    {
+        $user = Auth::user();
+        $isOwner = $user->isOwner();
+        $activeBranchId = session('active_branch_id', 'hq');
+        $isHQ = $isOwner && ($activeBranchId === 'hq' || ! $activeBranchId);
+
+        $cabangs = Cabang::where('status', 'aktif')->orderBy('id')->get();
+        $activeCabang = null;
+        if (! $isHQ) {
+            $activeCabang = $isOwner ? Cabang::find($activeBranchId) : $user->cabang;
+            if (! $activeCabang) {
+                $activeCabang = Cabang::first();
+            }
+        }
+
+        $kategoris = KategoriProduk::withCount('produks')->orderBy('nama_kategori')->get();
+
+        $query = Produk::with(['kategori', 'stoks']);
+
+        if (! empty($this->search)) {
+            $term = '%'.trim($this->search).'%';
+            $query->where(function ($q) use ($term) {
+                $q->where('nama_produk', 'like', $term)
+                    ->orWhere('barcode', 'like', $term)
+                    ->orWhere('deskripsi', 'like', $term);
+            });
+        }
+
+        if ($this->kategoriFilter !== 'semua') {
+            $query->where('kategori_id', $this->kategoriFilter);
+        }
+
+        if ($this->stokFilter !== 'semua') {
+            if ($isHQ) {
+                if ($this->stokFilter === 'tersedia') {
+                    $query->whereHas('stoks', function ($q) {
+                        $q->havingRaw('SUM(jumlah) > 3');
+                    });
+                } elseif ($this->stokFilter === 'kritis') {
+                    $query->whereHas('stoks', function ($q) {
+                        $q->havingRaw('SUM(jumlah) > 0 AND SUM(jumlah) <= 3');
+                    });
+                } elseif ($this->stokFilter === 'habis') {
+                    $query->whereDoesntHave('stoks', function ($q) {
+                        $q->where('jumlah', '>', 0);
+                    });
+                }
+            } else {
+                $targetCabangId = $activeCabang?->id ?? 1;
+                if ($this->stokFilter === 'tersedia') {
+                    $query->whereHas('stoks', function ($q) use ($targetCabangId) {
+                        $q->where('cabang_id', $targetCabangId)->where('jumlah', '>', 3);
+                    });
+                } elseif ($this->stokFilter === 'kritis') {
+                    $query->whereHas('stoks', function ($q) use ($targetCabangId) {
+                        $q->where('cabang_id', $targetCabangId)->where('jumlah', '>', 0)->where('jumlah', '<=', 3);
+                    });
+                } elseif ($this->stokFilter === 'habis') {
+                    $query->where(function ($q) use ($targetCabangId) {
+                        $q->whereHas('stoks', function ($sq) use ($targetCabangId) {
+                            $sq->where('cabang_id', $targetCabangId)->where('jumlah', '<=', 0);
+                        })->orWhereDoesntHave('stoks', function ($sq) use ($targetCabangId) {
+                            $sq->where('cabang_id', $targetCabangId);
+                        });
+                    });
+                }
+            }
+        }
+
+        $allowedSorts = ['nama_produk', 'barcode', 'harga_beli', 'harga_jual', 'created_at', 'id'];
+        $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'nama_produk';
+        $sortDir = strtolower($this->sortDirection) === 'desc' ? 'desc' : 'asc';
+
+        $totalProduk = (clone $query)->count();
+        $produks = $query->orderBy($sortColumn, $sortDir)->take($this->perPage)->get();
+        $hasMore = $totalProduk > $this->perPage;
+
+        return view('livewire.master.produk.index', [
+            'produks' => $produks,
+            'hasMore' => $hasMore,
+            'totalProduk' => $totalProduk,
+            'kategoris' => $kategoris,
+            'cabangs' => $cabangs,
+            'activeCabang' => $activeCabang,
+            'isHQ' => $isHQ,
+            'isOwner' => $isOwner,
+            'activeBranchId' => $activeBranchId,
+        ]);
+    }
+}

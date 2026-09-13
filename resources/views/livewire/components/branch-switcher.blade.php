@@ -18,7 +18,7 @@
                     {{ $activeBranchId === 'hq' || !$activeBranchId ? 'Konteks Global' : 'Konteks Cabang' }}
                 </span>
                 <span class="text-sm font-bold text-gray-900 block leading-tight">
-                    {{ $activeBranchId === 'hq' || !$activeBranchId ? '🏢 Kantor Pusat (HQ)' : ($activeCabang?->nama_cabang ?? 'Pilih Cabang') }}
+                    {{ $activeBranchId === 'hq' || !$activeBranchId ? 'Kantor Pusat (HQ)' : ($activeCabang?->nama_cabang ?? 'Pilih Cabang') }}
                 </span>
             </div>
 

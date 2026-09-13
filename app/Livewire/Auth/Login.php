@@ -13,7 +13,9 @@ use Livewire\Component;
 class Login extends Component
 {
     public string $identity = '';
+
     public string $password = '';
+
     public bool $remember = false;
 
     public function rules(): array
@@ -50,7 +52,7 @@ class Login extends Component
             'password' => $this->password,
         ];
 
-        if (!Auth::attempt($credentials, $this->remember)) {
+        if (! Auth::attempt($credentials, $this->remember)) {
             throw ValidationException::withMessages([
                 'identity' => 'Email / Username atau kata sandi Tidak Valid.',
             ]);

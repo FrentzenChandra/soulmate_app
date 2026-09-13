@@ -1,7 +1,7 @@
 <div class="space-y-6">
 
     <!-- Welcome & Header Banner -->
-    <div class="card-custom bg-cover bg-center text-white p-6 md:p-8 rounded-3xl relative overflow-hidden shadow-xl shadow-purple-950/20"
+    <div class="card-custom bg-cover bg-center text-white p-6 md:p-8 rounded-3xl relative z-0 overflow-hidden shadow-xl shadow-purple-950/20"
          style="background-image: url('{{ asset('images/hero_display.jpeg') }}');">
         
         <!-- Dark Brand Gradient Overlay -->
@@ -14,13 +14,13 @@
                     <span>Soulmate Komputer Multi-Branch System</span>
                 </div>
                 <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
-                    Halo, {{ auth()->user()->name }}! 👋
+                    Halo, {{ auth()->user()->name }}!
                 </h1>
                 <p class="text-purple-100 text-sm mt-1.5 max-w-xl leading-relaxed">
                     @if($isHQ)
-                        Mode <strong>🏢 Kantor Pusat (HQ)</strong> — Pantau performa finansial gabungan, kelola cabang, dan distribusi akun admin secara terpusat.
+                        Mode <strong>Kantor Pusat (HQ)</strong> — Pantau performa finansial gabungan, kelola cabang, dan distribusi akun admin secara terpusat.
                     @else
-                        Mode Operasional <strong>📍 {{ $activeCabang?->nama_cabang ?? 'Cabang' }}</strong> — Role: <strong>{{ auth()->user()->role_name }}</strong>.
+                        Mode Operasional <strong>{{ $activeCabang?->nama_cabang ?? 'Cabang' }}</strong> — Role: <strong>{{ auth()->user()->role_name }}</strong>.
                     @endif
                 </p>
             </div>
@@ -187,7 +187,7 @@
                             <!-- Card Header -->
                             <div class="flex items-start justify-between pb-3 border-b border-gray-100">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 rounded-xl bg-purple-50 text-[#5E17EB] font-extrabold flex items-center justify-center text-sm">
+                                    <div class="px-3.5 py-2 rounded-xl bg-purple-100/90 border border-purple-200 text-[#5E17EB] font-black flex items-center justify-center text-xs tracking-wider shadow-sm shrink-0">
                                         {{ $b['kode'] }}
                                     </div>
                                     <div>
@@ -321,7 +321,7 @@
                     </div>
                 </div>
                 <span class="text-xs bg-gray-800 text-gray-300 font-semibold px-3 py-1 rounded-full border border-gray-700">
-                    🎥 CCTV Supervised
+                    CCTV Supervised
                 </span>
             </div>
 
@@ -329,7 +329,7 @@
                 <!-- Laptop Card -->
                 <div class="bg-gray-900/90 border border-blue-500/30 rounded-xl p-4">
                     <div class="flex items-center justify-between pb-3 border-b border-gray-800 text-blue-400 font-bold text-sm">
-                        <span>💻 LAPTOP</span>
+                        <span>LAPTOP</span>
                         <span class="text-xs bg-blue-500/10 px-2 py-0.5 rounded text-blue-300">{{ $antrianLaptop['cek'] + $antrianLaptop['prg'] + $antrianLaptop['ok'] }} Total</span>
                     </div>
                     <div class="grid grid-cols-3 gap-2 text-center pt-3">
@@ -351,7 +351,7 @@
                 <!-- Printer Card -->
                 <div class="bg-gray-900/90 border border-pink-500/30 rounded-xl p-4">
                     <div class="flex items-center justify-between pb-3 border-b border-gray-800 text-pink-400 font-bold text-sm">
-                        <span>🖨️ PRINTER</span>
+                        <span>PRINTER</span>
                         <span class="text-xs bg-pink-500/10 px-2 py-0.5 rounded text-pink-300">{{ $antrianPrinter['cek'] + $antrianPrinter['prg'] + $antrianPrinter['ok'] }} Total</span>
                     </div>
                     <div class="grid grid-cols-3 gap-2 text-center pt-3">
@@ -373,7 +373,7 @@
                 <!-- Komputer PC Card -->
                 <div class="bg-gray-900/90 border border-indigo-500/30 rounded-xl p-4">
                     <div class="flex items-center justify-between pb-3 border-b border-gray-800 text-indigo-400 font-bold text-sm">
-                        <span>🖥️ KOMPUTER / PC</span>
+                        <span>KOMPUTER / PC</span>
                         <span class="text-xs bg-indigo-500/10 px-2 py-0.5 rounded text-indigo-300">{{ $antrianKomputer['cek'] + $antrianKomputer['prg'] + $antrianKomputer['ok'] }} Total</span>
                     </div>
                     <div class="grid grid-cols-3 gap-2 text-center pt-3">

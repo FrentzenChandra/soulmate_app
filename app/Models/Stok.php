@@ -15,10 +15,14 @@ class Stok extends Model
         'produk_id',
         'cabang_id',
         'jumlah',
+        'min_stok',
+        'is_aktif',
     ];
 
     protected $casts = [
         'jumlah' => 'integer',
+        'min_stok' => 'integer',
+        'is_aktif' => 'boolean',
     ];
 
     public function produk()

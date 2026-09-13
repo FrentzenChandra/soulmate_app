@@ -1,15 +1,40 @@
-<div class="bg-white rounded-3xl shadow-2xl shadow-purple-950/40 border border-gray-100/10 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
+<div class="relative bg-white rounded-3xl shadow-2xl shadow-purple-950/40 border border-gray-100/10 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
+
+    <!-- Full-screen Loading Modal Overlay on Submit -->
+    <div wire:loading.flex 
+         wire:target="authenticate" 
+         class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/75 backdrop-blur-sm transition-opacity"
+         style="display: none;">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-11/12 shadow-2xl border border-gray-100 flex flex-col items-center text-center">
+            <div class="relative mb-5">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#5E17EB] to-[#E6007A] flex items-center justify-center text-white shadow-xl shadow-purple-500/30 overflow-hidden">
+                    <img src="{{ asset('images/logo_bulat.jpg') }}" alt="Logo" class="w-full h-full object-cover">
+                </div>
+                <div class="absolute -inset-1.5 rounded-2xl border-2 border-[#5E17EB] animate-ping opacity-40"></div>
+            </div>
+            
+            <h3 class="text-lg font-extrabold text-gray-900">Memproses Masuk...</h3>
+            <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                Sedang memverifikasi kredensial & otorisasi sistem Soulmate Komputer.
+            </p>
+
+            <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mt-6">
+                <div class="bg-gradient-to-r from-[#5E17EB] via-[#0052FF] to-[#E6007A] h-full rounded-full w-full animate-pulse"></div>
+            </div>
+            <span class="text-[10px] text-purple-600 font-bold uppercase tracking-wider mt-3">Mohon tunggu sebentar...</span>
+        </div>
+    </div>
 
     <!-- Left Hero Display Section (Desktop Only / Wide) -->
     <div class="lg:col-span-6 relative hidden lg:flex flex-col justify-between p-8 bg-cover bg-center overflow-hidden" 
-         style="background-image: url('{{ asset('images/hero_display.jpeg') }}');">
+         style="background-image: url('{{ asset('images/toko.webp') }}');">
         
         <!-- Dark Gradient Overlay for Readability -->
-        <div class="absolute inset-0 bg-gradient-to-t from-[#0E1726] via-[#0E1726]/75 to-[#0E1726]/50"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#0E1726] via-[#0E1726]/80 to-[#0E1726]/60"></div>
 
         <!-- Top Header inside Hero -->
         <div class="relative z-10 flex items-center space-x-3">
-            <img src="{{ asset('images/logo.jpeg') }}" alt="Logo Soulmate" class="w-11 h-11 rounded-xl object-contain bg-white/10 backdrop-blur-md p-1 border border-white/20 shadow-md">
+            <img src="{{ asset('images/logo_bulat.jpg') }}" alt="Logo Soulmate" class="w-11 h-11 rounded-xl object-contain bg-white/10 backdrop-blur-md p-1 border border-white/20 shadow-md">
             <div>
                 <span class="text-lg font-extrabold text-white tracking-tight block leading-tight">SOULMATE</span>
                 <span class="text-[11px] text-purple-300 font-semibold tracking-wider uppercase">Pusat Servis & POS Multi-Cabang</span>
@@ -18,8 +43,9 @@
 
         <!-- Middle Branding Info -->
         <div class="relative z-10 my-auto py-6">
-            <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-[#5E17EB]/80 to-[#E6007A]/80 backdrop-blur-md text-white text-xs font-bold px-3.5 py-1.5 rounded-full mb-3 border border-white/20 shadow-lg">
-                <span>⚡ Cepat • Transparan • Terpercaya</span>
+            <div class="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md text-white text-xs font-bold px-3.5 py-1.5 rounded-full mb-3 border border-white/20 shadow-lg">
+                <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                <span>Cepat • Transparan • Terpercaya</span>
             </div>
             <h2 class="text-2xl xl:text-3xl font-extrabold text-white leading-tight">
                 Sistem Operasional Terpadu & Terintegrasi
@@ -35,7 +61,7 @@
                 </div>
                 <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-xl p-3">
                     <span class="text-xs text-emerald-200 block font-medium">Keamanan Terjamin</span>
-                    <span class="text-sm font-bold text-white">🎥 CCTV Supervised</span>
+                    <span class="text-sm font-bold text-white">CCTV Supervised</span>
                 </div>
             </div>
         </div>
@@ -52,7 +78,7 @@
         
         <!-- Mobile Logo Display -->
         <div class="lg:hidden flex items-center space-x-3 mb-6">
-            <img src="{{ asset('images/logo.jpeg') }}" alt="Logo Soulmate" class="w-10 h-10 rounded-xl object-contain border border-gray-200 shadow-sm p-0.5">
+            <img src="{{ asset('images/logo_bulat.jpg') }}" alt="Logo Soulmate" class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm p-0.5">
             <div>
                 <span class="text-lg font-extrabold text-gray-900 tracking-tight block leading-tight">SOULMATE KOMPUTER</span>
                 <span class="text-[10px] text-purple-600 font-bold uppercase tracking-wider">Servis & POS System</span>
@@ -133,41 +159,47 @@
                 <span wire:loading.remove wire:target="authenticate">Masuk ke Dashboard</span>
                 <span wire:loading wire:target="authenticate" class="flex items-center space-x-2">
                     <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    <span>Memvalidasi...</span>
+                    <span>Memproses...</span>
                 </span>
             </button>
         </form>
 
         <!-- Quick Demo Switcher -->
         <div class="mt-6 pt-5 border-t border-gray-100">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2 text-center">Akun Uji Coba Cepat (1-Klik)</p>
-            <div class="grid grid-cols-2 gap-2 text-xs">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2 text-center">Akun Uji Coba Cepat</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                <button type="button" 
+                        wire:click="fillCredentials('dev')" 
+                        class="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
+                    <span>Dev</span>
+                    <span class="text-[10px] text-purple-600 font-semibold">Owner</span>
+                </button>
                 <button type="button" 
                         wire:click="fillCredentials('owner')" 
-                        class="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
-                    <span>👑 Owner</span>
-                    <span class="text-[10px] text-amber-600 font-normal">All Store</span>
+                        class="px-2.5 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-800 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
+                    <span>Owner</span>
+                    <span class="text-[10px] text-gray-500 font-normal">Pusat</span>
                 </button>
                 <button type="button" 
                         wire:click="fillCredentials('superadmin')" 
-                        class="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
-                    <span>⚡ Superadmin</span>
-                    <span class="text-[10px] text-purple-600 font-normal">PKP</span>
+                        class="px-2.5 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-800 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
+                    <span>Superadmin</span>
+                    <span class="text-[10px] text-gray-500 font-normal">PKP</span>
                 </button>
                 <button type="button" 
                         wire:click="fillCredentials('teknisi_pkp')" 
-                        class="px-2.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
-                    <span>🔧 Teknisi</span>
-                    <span class="text-[10px] text-blue-600 font-normal">PKP</span>
+                        class="px-2.5 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-800 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
+                    <span>Teknisi</span>
+                    <span class="text-[10px] text-gray-500 font-normal">PKP</span>
                 </button>
                 <button type="button" 
                         wire:click="fillCredentials('kasir_pkp')" 
-                        class="px-2.5 py-1.5 rounded-xl bg-pink-50 hover:bg-pink-100 border border-pink-200 text-pink-900 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
-                    <span>💳 Kasir</span>
-                    <span class="text-[10px] text-pink-600 font-normal">PKP</span>
+                        class="px-2.5 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-800 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
+                    <span>Kasir</span>
+                    <span class="text-[10px] text-gray-500 font-normal">PKP</span>
                 </button>
             </div>
-            <p class="text-[10px] text-gray-400 text-center mt-2">Password default: <code class="bg-gray-100 px-1 py-0.5 rounded text-gray-700 font-mono">password</code></p>
+            <p class="text-[10px] text-gray-400 text-center mt-2.5">Password default: <code class="bg-gray-100 px-1 py-0.5 rounded text-gray-700 font-mono font-bold">password</code></p>
         </div>
     </div>
 </div>

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Auth\Login;
+use App\Livewire\Master\Cabang\Index;
 use App\Models\Cabang;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,7 +16,9 @@ class OwnerMasterTest extends TestCase
     use RefreshDatabase;
 
     protected User $owner;
+
     protected User $superadmin;
+
     protected Cabang $cabang;
 
     protected function setUp(): void
@@ -81,7 +85,7 @@ class OwnerMasterTest extends TestCase
     {
         $this->actingAs($this->owner);
 
-        Livewire::test(\App\Livewire\Master\Cabang\Index::class)
+        Livewire::test(Index::class)
             ->call('openCreateModal')
             ->set('kode_cabang', 'CB-SGL')
             ->set('nama_cabang', 'Cabang Sungailiat')
@@ -146,5 +150,34 @@ class OwnerMasterTest extends TestCase
             ->call('toggleStatus', $this->owner->id);
 
         $this->assertEquals('aktif', $this->owner->fresh()->status);
+    }
+
+    public function test_user_can_login_via_livewire()
+    {
+        Livewire::test(Login::class)
+            ->set('identity', 'owner')
+            ->set('password', 'password')
+            ->call('authenticate')
+            ->assertRedirect(route('dashboard'));
+
+        $this->assertAuthenticatedAs($this->owner);
+    }
+
+    public function test_owner_can_edit_user_details()
+    {
+        $this->actingAs($this->owner);
+
+        Livewire::test(\App\Livewire\Master\User\Index::class)
+            ->call('openEditModal', $this->superadmin->id)
+            ->set('name', 'Admin PKP Updated')
+            ->set('no_hp', '089911223344')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('users', [
+            'id' => $this->superadmin->id,
+            'name' => 'Admin PKP Updated',
+            'no_hp' => '089911223344',
+        ]);
     }
 }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('cabang_id')->nullable()->after('id')->constrained('cabangs')->nullOnDelete();
             $table->string('no_hp', 30)->nullable()->after('email');
             $table->string('status', 20)->default('aktif')->after('no_hp')->comment('aktif / nonaktif');
+            $table->string('foto_url')->nullable()->after('status');
         });
     }
 
@@ -26,7 +27,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['cabang_id']);
-            $table->dropColumn(['username', 'cabang_id', 'no_hp', 'status']);
+            $table->dropColumn(['username', 'cabang_id', 'no_hp', 'status', 'foto_url']);
         });
     }
 };

@@ -21,6 +21,7 @@ class Index extends Component
     {
         if (Auth::user()->isOwner()) {
             session(['active_branch_id' => $cabangId]);
+
             return redirect()->route('dashboard');
         }
     }
@@ -29,6 +30,7 @@ class Index extends Component
     {
         if (Auth::user()->isOwner()) {
             session(['active_branch_id' => 'hq']);
+
             return redirect()->route('dashboard');
         }
     }
@@ -38,10 +40,10 @@ class Index extends Component
         $user = Auth::user();
         $isOwner = $user->isOwner();
         $activeBranchSession = session('active_branch_id', 'hq');
-        $isHQ = $isOwner && ($activeBranchSession === 'hq' || !$activeBranchSession);
+        $isHQ = $isOwner && ($activeBranchSession === 'hq' || ! $activeBranchSession);
 
         $cabangId = null;
-        if (!$isHQ) {
+        if (! $isHQ) {
             $cabangId = $isOwner ? $activeBranchSession : $user->cabang_id;
         }
 
@@ -53,7 +55,7 @@ class Index extends Component
 
         // Servis Query
         $servisQuery = ServisMasuk::query()
-            ->when($cabangId, fn($q) => $q->where('cabang_id', $cabangId));
+            ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId));
 
         $countPengecekan = (clone $servisQuery)->where('status', 'pengecekan')->count();
         $countPengerjaan = (clone $servisQuery)->where('status', 'pengerjaan')->count();
@@ -64,22 +66,22 @@ class Index extends Component
         $antrianLaptop = [
             'cek' => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'pengecekan')->count(),
             'prg' => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'pengerjaan')->count(),
-            'ok'  => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'selesai')->count(),
+            'ok' => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'selesai')->count(),
         ];
         $antrianPrinter = [
             'cek' => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'pengecekan')->count(),
             'prg' => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'pengerjaan')->count(),
-            'ok'  => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'selesai')->count(),
+            'ok' => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'selesai')->count(),
         ];
         $antrianKomputer = [
             'cek' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'pengecekan')->count(),
             'prg' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'pengerjaan')->count(),
-            'ok'  => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'selesai')->count(),
+            'ok' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'selesai')->count(),
         ];
 
         // Penjualan & Omzet
         $penjualanQuery = Penjualan::query()
-            ->when($cabangId, fn($q) => $q->where('cabang_id', $cabangId))
+            ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
             ->where('status', 'lunas');
 
         $omzetHariIni = (clone $penjualanQuery)
@@ -102,21 +104,21 @@ class Index extends Component
 
         // Servis Masuk Terbaru
         $recentServis = ServisMasuk::with(['customer', 'teknisi', 'cabang'])
-            ->when($cabangId, fn($q) => $q->where('cabang_id', $cabangId))
+            ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
             ->latest('tanggal_masuk')
             ->take(5)
             ->get();
 
         // Penjualan Terbaru
         $recentPenjualan = Penjualan::with(['customer', 'kasir', 'cabang'])
-            ->when($cabangId, fn($q) => $q->where('cabang_id', $cabangId))
+            ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
             ->latest('tanggal')
             ->take(5)
             ->get();
 
         // Stok Menipis (< 5)
         $lowStocks = Stok::with(['produk', 'cabang'])
-            ->when($cabangId, fn($q) => $q->where('cabang_id', $cabangId))
+            ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
             ->where('jumlah', '<=', 5)
             ->orderBy('jumlah', 'asc')
             ->take(5)
@@ -124,7 +126,7 @@ class Index extends Component
 
         // Data Snapshot Cabang Khusus HQ
         $branchSnapshots = [];
-        $allCabangs = Cabang::where('status', 'aktif')->with(['users' => function($q) {
+        $allCabangs = Cabang::where('status', 'aktif')->with(['users' => function ($q) {
             $q->role('Superadmin');
         }])->get();
 

@@ -37,7 +37,7 @@ class PenjualanSeeder extends Seeder
         $mouse = Produk::where('barcode', '8991234560080')->first();
         $pasta = Produk::where('barcode', '8991234560059')->first();
 
-        if (!$pkp || !$kasirPkp) {
+        if (! $pkp || ! $kasirPkp) {
             return;
         }
 

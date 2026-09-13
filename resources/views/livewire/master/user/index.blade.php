@@ -4,7 +4,7 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-gray-400 mb-1">
-                <span>🏢 Kantor Pusat (HQ)</span>
+                <span>Kantor Pusat</span>
                 <span>/</span>
                 <span class="text-purple-600 font-bold">Master Pengguna</span>
             </div>
@@ -39,8 +39,8 @@
                 <select wire:model.live="roleFilter" 
                         class="bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl px-3 py-2 text-gray-700 focus:ring-2 focus:ring-purple-400">
                     <option value="semua">Semua Role</option>
-                    <option value="Owner">👑 Owner</option>
-                    <option value="Superadmin">🛡️ Superadmin</option>
+                    <option value="Owner">Owner</option>
+                    <option value="Superadmin">Superadmin</option>
                 </select>
             </div>
 
@@ -49,7 +49,7 @@
                 <select wire:model.live="cabangFilter" 
                         class="bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl px-3 py-2 text-gray-700 focus:ring-2 focus:ring-purple-400">
                     <option value="semua">Semua Wilayah</option>
-                    <option value="hq">🏢 Kantor Pusat (Owner)</option>
+                    <option value="hq">Kantor Pusat (Owner)</option>
                     @foreach($cabangs as $c)
                         <option value="{{ $c->id }}">{{ $c->nama_cabang }}</option>
                     @endforeach
@@ -64,13 +64,13 @@
             <table class="w-full text-left text-xs">
                 <thead class="bg-gray-50/80 border-b border-gray-100 text-gray-400 uppercase font-extrabold text-[10px] tracking-wider">
                     <tr>
-                        <th class="py-3.5 px-5">Nama Pengguna</th>
-                        <th class="py-3.5 px-4">Username & Email</th>
-                        <th class="py-3.5 px-4 text-center">Tipe Role</th>
-                        <th class="py-3.5 px-4">Wilayah Tugas / Cabang</th>
-                        <th class="py-3.5 px-4">No. HP</th>
-                        <th class="py-3.5 px-4 text-center">Status</th>
-                        <th class="py-3.5 px-5 text-right">Aksi</th>
+                        <x-th-sort field="name" :sortField="$sortField" :sortDirection="$sortDirection" class="px-5">Nama Pengguna</x-th-sort>
+                        <x-th-sort field="username" :sortField="$sortField" :sortDirection="$sortDirection">Username & Email</x-th-sort>
+                        <th class="py-3.5 px-4 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Tipe Role</th>
+                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Wilayah Tugas / Cabang</th>
+                        <x-th-sort field="no_hp" :sortField="$sortField" :sortDirection="$sortDirection">No. HP</x-th-sort>
+                        <x-th-sort field="status" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Status</x-th-sort>
+                        <th class="py-3.5 px-5 text-right font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -79,8 +79,18 @@
                             <!-- User Name & Avatar -->
                             <td class="py-4 px-5">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-9 h-9 rounded-xl {{ $u->isOwner() ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }} font-extrabold flex items-center justify-center text-xs shadow-xs">
-                                        {{ strtoupper(substr($u->name, 0, 1)) }}
+                                    <div class="w-9 h-9 rounded-xl overflow-hidden {{ $u->isOwner() ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }} font-extrabold flex items-center justify-center text-xs shadow-xs shrink-0 border border-gray-100">
+                                        @if($u->foto_url)
+                                            <img src="{{ asset($u->foto_url) }}" 
+                                                 loading="lazy"
+                                                 decoding="async"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" 
+                                                 alt="{{ $u->name }}" 
+                                                 class="w-full h-full object-cover">
+                                            <span style="display:none;">{{ strtoupper(substr($u->name, 0, 1)) }}</span>
+                                        @else
+                                            <span>{{ strtoupper(substr($u->name, 0, 1)) }}</span>
+                                        @endif
                                     </div>
                                     <div>
                                         <span class="font-extrabold text-sm text-gray-900 block leading-tight">
@@ -103,12 +113,12 @@
                             <!-- Role Badge -->
                             <td class="py-4 px-4 text-center">
                                 @if($u->isOwner())
-                                    <span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 font-extrabold text-[11px] border border-purple-200">
-                                        <span>👑 Owner</span>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 font-extrabold text-[11px] border border-purple-200">
+                                        <span>Owner</span>
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-extrabold text-[11px] border border-blue-200">
-                                        <span>🛡️ Superadmin</span>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-extrabold text-[11px] border border-blue-200">
+                                        <span>Superadmin</span>
                                     </span>
                                 @endif
                             </td>
@@ -173,12 +183,33 @@
             </table>
         </div>
 
-        <!-- Pagination -->
-        @if($users->hasPages())
-            <div class="px-6 py-4 border-t border-gray-100">
-                {{ $users->links() }}
-            </div>
-        @endif
+        <!-- Infinite Scroll Sentinel & Status -->
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+            @if(isset($hasMore) && $hasMore)
+                <div x-intersect="$wire.loadMore()" 
+                     class="py-2 flex flex-col items-center justify-center space-y-2 text-center">
+                    <div wire:loading wire:target="loadMore" class="flex items-center space-x-2 text-[#5E17EB]">
+                        <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <span class="text-xs font-bold">Memuat pengguna lainnya...</span>
+                    </div>
+
+                    <button type="button" 
+                            wire:click="loadMore" 
+                            wire:loading.remove 
+                            wire:target="loadMore"
+                            class="px-4 py-1.5 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-600 hover:text-[#5E17EB] hover:border-[#5E17EB] shadow-xs transition-all cursor-pointer">
+                        Muat Lebih Banyak Pengguna (Scroll Otomatis)
+                    </button>
+                </div>
+            @elseif(count($users) > 0)
+                <div class="py-1 text-center text-xs font-medium text-gray-400">
+                    ✓ Menampilkan seluruh {{ count($users) }} dari {{ $totalUsers ?? count($users) }} pengguna
+                </div>
+            @endif
+        </div>
     </div>
 
     <!-- Modal Form Tambah / Edit Pengguna -->
@@ -265,6 +296,116 @@
                                     <span>Akun <strong>Owner</strong> memiliki akses lintas cabang secara global (HQ).</span>
                                 </div>
                             @endif
+
+                            <!-- Upload Foto Profil User & Live Preview -->
+                            <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                        Foto Profil Pengguna
+                                    </label>
+                                    <span class="text-[10px] font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
+                                        WebP Otomatis (&le;40 KB)
+                                    </span>
+                                </div>
+
+                                <!-- Loading State Saat File Diupload -->
+                                <div wire:loading wire:target="foto" class="w-full p-4 mb-3 bg-purple-50/80 border border-purple-200 rounded-2xl flex items-center space-x-3 text-purple-700">
+                                    <svg class="animate-spin h-5 w-5 text-[#5E17EB] shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-900">Mengunggah & memproses preview foto...</p>
+                                        <p class="text-[10px] text-purple-600">Mohon tunggu sebentar sebelum menyimpan</p>
+                                    </div>
+                                </div>
+
+                                <div wire:loading.remove wire:target="foto">
+                                    @if($foto)
+                                        <!-- PREVIEW FOTO BARU SEBELUM SIMPAN -->
+                                        <div class="p-3.5 bg-white rounded-2xl border-2 border-[#5E17EB]/30 shadow-xs flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                                            <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-gray-100 border border-purple-200 shrink-0 shadow-inner group">
+                                                <img src="{{ $foto->temporaryUrl() }}" alt="Preview Foto Baru" class="w-full h-full object-cover">
+                                                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <span class="text-[9px] font-black text-white px-2 py-0.5 bg-[#5E17EB]/80 rounded-full">Preview</span>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-center space-x-2">
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                        Foto Profil Baru Terpilih
+                                                    </span>
+                                                    <span class="text-[10px] text-gray-400 font-mono">
+                                                        {{ round($foto->getSize() / 1024, 1) }} KB
+                                                    </span>
+                                                </div>
+                                                <p class="text-xs font-bold text-gray-900 truncate mt-1">
+                                                    {{ $foto->getClientOriginalName() }}
+                                                </p>
+                                                <p class="text-[10px] text-gray-500 mt-0.5">
+                                                    Foto akan otomatis dikonversi ke format WebP ringan saat disimpan.
+                                                </p>
+                                                <div class="mt-2 flex items-center space-x-2">
+                                                    <button type="button" 
+                                                            wire:click="cancelUploadFoto" 
+                                                            class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                        <span>Batal / Hapus Pilihan</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    @elseif($existing_foto_url)
+                                        <!-- PREVIEW FOTO YANG SUDAH TERSIMPAN -->
+                                        <div class="p-3 bg-white rounded-2xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                                            <div class="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+                                                <img src="{{ asset($existing_foto_url) }}" 
+                                                     onerror="this.src='{{ asset('images/logo_bulat.jpg') }}';" 
+                                                     alt="Foto Saat Ini" 
+                                                     class="w-full h-full object-cover">
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-100">
+                                                    Foto Profil Aktif
+                                                </span>
+                                                <div class="mt-2 flex flex-wrap items-center gap-2">
+                                                    <label class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#5E17EB] bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors cursor-pointer">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                                        <span>Ganti Foto</span>
+                                                        <input type="file" wire:model="foto" accept="image/*" class="hidden">
+                                                    </label>
+                                                    <button type="button" 
+                                                            wire:click="removeExistingFoto" 
+                                                            class="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                        <span>Hapus Foto</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    @else
+                                        <!-- PILIH FOTO BARU -->
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-12 h-12 rounded-2xl bg-white border-2 border-dashed border-gray-300 flex items-center justify-center shrink-0 text-gray-400">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                            </div>
+                                            <div class="flex-1">
+                                                <input type="file" 
+                                                       wire:model="foto" 
+                                                       accept="image/*"
+                                                       class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#5E17EB]/10 file:text-[#5E17EB] hover:file:bg-[#5E17EB]/20 cursor-pointer">
+                                                <p class="text-[10px] text-gray-400 mt-1">Upload foto profil (JPG, PNG, WEBP, Maks. 4MB).</p>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                @error('foto') 
+                                    <span class="text-[11px] text-rose-500 font-semibold block mt-2">{{ $message }}</span> 
+                                @enderror
+                            </div>
 
 
                             <!-- Nama Lengkap -->

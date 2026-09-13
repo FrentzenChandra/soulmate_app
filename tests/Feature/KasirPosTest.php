@@ -1,0 +1,363 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Livewire\Kasir\Produk\Index;
+use App\Models\Cabang;
+use App\Models\MasterPpn;
+use App\Models\Penjualan;
+use App\Models\Produk;
+use App\Models\Stok;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Spatie\Permission\Models\Role;
+use Tests\TestCase;
+
+class KasirPosTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected User $owner;
+
+    protected User $superadmin;
+
+    protected User $kasir;
+
+    protected Cabang $cabangPkp;
+
+    protected MasterPpn $ppn11;
+
+    protected MasterPpn $ppn0;
+
+    protected Produk $produk1;
+
+    protected Produk $produk2;
+
+    protected Produk $produkZero;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $ownerRole = Role::firstOrCreate(['name' => 'Owner']);
+        $superadminRole = Role::firstOrCreate(['name' => 'Superadmin']);
+        $kasirRole = Role::firstOrCreate(['name' => 'Kasir']);
+
+        $this->cabangPkp = Cabang::create([
+            'kode_cabang' => 'CB-PKP',
+            'nama_cabang' => 'Cabang Pangkalpinang',
+            'status' => 'aktif',
+        ]);
+
+        $this->owner = User::create([
+            'name' => 'Owner Utama',
+            'username' => 'owner',
+            'email' => 'owner@soulmate.test',
+            'password' => bcrypt('password'),
+            'status' => 'aktif',
+        ]);
+        $this->owner->syncRoles([$ownerRole]);
+
+        $this->superadmin = User::create([
+            'name' => 'Admin PKP',
+            'username' => 'admin_pkp',
+            'email' => 'admin.pkp@soulmate.test',
+            'password' => bcrypt('password'),
+            'cabang_id' => $this->cabangPkp->id,
+            'status' => 'aktif',
+        ]);
+        $this->superadmin->syncRoles([$superadminRole]);
+
+        $this->kasir = User::create([
+            'name' => 'Kasir PKP',
+            'username' => 'kasir_pkp',
+            'email' => 'kasir.pkp@soulmate.test',
+            'password' => bcrypt('password'),
+            'cabang_id' => $this->cabangPkp->id,
+            'status' => 'aktif',
+        ]);
+        $this->kasir->syncRoles([$kasirRole]);
+
+        $this->ppn0 = MasterPpn::create([
+            'nama' => 'Tanpa PPN',
+            'persen' => 0,
+            'is_aktif' => true,
+        ]);
+
+        $this->ppn11 = MasterPpn::create([
+            'nama' => 'PPN 11%',
+            'persen' => 11,
+            'is_aktif' => true,
+        ]);
+
+        $this->produk1 = Produk::create([
+            'nama_produk' => 'Mouse Wireless Logitech M330',
+            'barcode' => '899111222',
+            'harga_beli' => 120000,
+            'harga_jual' => 175000,
+        ]);
+
+        Stok::create([
+            'produk_id' => $this->produk1->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 10,
+        ]);
+
+        $this->produk2 = Produk::create([
+            'nama_produk' => 'Flashdisk Sandisk 64GB',
+            'barcode' => '899333444',
+            'harga_beli' => 60000,
+            'harga_jual' => 95000,
+        ]);
+
+        Stok::create([
+            'produk_id' => $this->produk2->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 5,
+        ]);
+
+        $this->produkZero = Produk::create([
+            'nama_produk' => 'Keyboard Gaming RGB (Kosong)',
+            'barcode' => '899555666',
+            'harga_beli' => 300000,
+            'harga_jual' => 450000,
+        ]);
+
+        Stok::create([
+            'produk_id' => $this->produkZero->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 0,
+        ]);
+    }
+
+    public function test_kasir_superadmin_and_owner_can_access_pos_module()
+    {
+        $this->actingAs($this->kasir);
+        $this->get('/kasir/produk')->assertStatus(200);
+
+        $this->actingAs($this->superadmin);
+        $this->get('/kasir/produk')->assertStatus(200);
+
+        $this->actingAs($this->owner);
+        $this->get('/kasir/produk')->assertStatus(200);
+    }
+
+    public function test_can_add_products_to_cart_and_validate_subtotal()
+    {
+        $this->actingAs($this->kasir);
+
+        Livewire::test(Index::class)
+            ->call('addToCart', $this->produk1->id)
+            ->call('addToCart', $this->produk2->id)
+            ->assertSet('cart.'.$this->produk1->id.'.qty', 1)
+            ->assertSet('cart.'.$this->produk2->id.'.qty', 1)
+            ->call('adjustQty', $this->produk1->id, 1) // jadi 2 pcs
+            ->assertSet('cart.'.$this->produk1->id.'.qty', 2)
+            ->assertSee('Rp '.number_format((175000 * 2) + 95000, 0, ',', '.'));
+    }
+
+    public function test_cannot_add_product_with_zero_stock()
+    {
+        $this->actingAs($this->kasir);
+
+        Livewire::test(Index::class)
+            ->call('addToCart', $this->produkZero->id)
+            ->assertSet('cart', [])
+            ->assertDispatched('swal:warning');
+    }
+
+    public function test_cart_quantity_cannot_exceed_available_branch_stock()
+    {
+        $this->actingAs($this->kasir);
+
+        Livewire::test(Index::class)
+            ->call('addToCart', $this->produk2->id) // stok max = 5
+            ->call('updateQty', $this->produk2->id, 10) // coba isi 10
+            ->assertSet('cart.'.$this->produk2->id.'.qty', 5) // harus dipaksa ke max 5
+            ->assertDispatched('swal:warning');
+    }
+
+    public function test_financial_calculations_with_discount_and_ppn()
+    {
+        $this->actingAs($this->kasir);
+
+        // Produk 1: 175.000 * 2 = 350.000
+        // Diskon: 50.000 -> Base = 300.000
+        // PPN 11% = 33.000 -> Grand Total = 333.000
+        Livewire::test(Index::class)
+            ->call('addToCart', $this->produk1->id)
+            ->call('adjustQty', $this->produk1->id, 1)
+            ->set('diskon', 50000)
+            ->set('selectedPpnId', $this->ppn11->id)
+            ->assertSet('subtotal', 350000)
+            ->assertSet('ppnNominal', 33000)
+            ->assertSet('grandTotal', 333000);
+    }
+
+    public function test_can_create_new_customer_and_attach_to_sale()
+    {
+        $this->actingAs($this->kasir);
+
+        Livewire::test(Index::class)
+            ->call('openNewCustomerModal')
+            ->set('newCustomerNama', 'Hendra Wijaya')
+            ->set('newCustomerHp', '081234567890')
+            ->set('newCustomerAlamat', 'Jl. Jenderal Sudirman No. 45')
+            ->call('saveNewCustomer')
+            ->assertSet('customerType', 'member');
+
+        $this->assertDatabaseHas('customers', [
+            'cabang_id' => $this->cabangPkp->id,
+            'nama' => 'Hendra Wijaya',
+            'no_hp' => '081234567890',
+        ]);
+    }
+
+    public function test_successful_cash_checkout_decrements_stock_and_creates_invoice()
+    {
+        $this->actingAs($this->kasir);
+
+        // Produk 1: 2 unit @ 175.000 = 350.000
+        // Stok awal = 10, sisa harus 8
+        Livewire::test(Index::class)
+            ->call('addToCart', $this->produk1->id)
+            ->call('adjustQty', $this->produk1->id, 1)
+            ->set('selectedPpnId', $this->ppn0->id) // Tanpa PPN -> Grand Total = 350.000
+            ->call('openPaymentModal')
+            ->set('metodeBayar', 'cash')
+            ->set('jumlahBayar', 400000) // Bayar 400.000 -> Kembalian 50.000
+            ->set('catatan', 'Nota atas nama Toko Berkah')
+            ->call('prosesPembayaran')
+            ->assertSet('modalSuccessOpen', true)
+            ->assertSet('cart', []);
+
+        // Verifikasi database Penjualan
+        $this->assertDatabaseHas('penjualans', [
+            'cabang_id' => $this->cabangPkp->id,
+            'kasir_id' => $this->kasir->id,
+            'tipe_transaksi' => 'penjualan_barang',
+            'total' => 350000,
+            'jumlah_bayar' => 400000,
+            'kembalian' => 50000,
+            'metode_bayar' => 'cash',
+            'status' => 'selesai',
+        ]);
+
+        $penjualan = Penjualan::where('cabang_id', $this->cabangPkp->id)->first();
+        $this->assertNotNull($penjualan);
+        $this->assertStringStartsWith('INV-PJ-', $penjualan->no_transaksi);
+
+        // Verifikasi detail penjualan
+        $this->assertDatabaseHas('penjualan_details', [
+            'penjualan_id' => $penjualan->id,
+            'produk_id' => $this->produk1->id,
+            'qty' => 2,
+            'subtotal' => 350000,
+        ]);
+
+        // Verifikasi stok cabang berkurang dari 10 menjadi 8
+        $this->assertDatabaseHas('stoks', [
+            'produk_id' => $this->produk1->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 8,
+        ]);
+    }
+
+    public function test_search_barcode_and_product_name_on_enter()
+    {
+        $this->actingAs($this->kasir);
+
+        // 1. Search unique product name on enter
+        Livewire::test(Index::class)
+            ->set('search', 'Flashdisk')
+            ->call('handleSearchOrScan')
+            ->assertSet('search', '')
+            ->assertCount('cart', 1);
+
+        // 2. Scan exact barcode via dedicated scanner modal
+        Livewire::test(Index::class)
+            ->call('openScanModal')
+            ->set('scanBarcode', '899111222')
+            ->call('processScanBarcode')
+            ->assertSet('scanBarcode', '')
+            ->assertCount('cart', 1);
+    }
+
+    public function test_penjualan_saves_ppn_persen_and_ppn_nominal_correctly()
+    {
+        $this->actingAs($this->kasir);
+
+        // Subtotal: 175.000, Diskon: 25.000 -> DPP = 150.000
+        // PPN 11% = 16.500 -> Total = 166.500
+        Livewire::test(Index::class)
+            ->call('addToCart', $this->produk1->id)
+            ->set('diskon', 25000)
+            ->set('selectedPpnId', $this->ppn11->id)
+            ->call('openPaymentModal')
+            ->set('metodeBayar', 'cash')
+            ->set('jumlahBayar', 200000)
+            ->call('prosesPembayaran')
+            ->assertSet('modalSuccessOpen', true);
+
+        $penjualan = Penjualan::latest('id')->first();
+        $this->assertNotNull($penjualan);
+        $this->assertEquals(175000, (float) $penjualan->subtotal);
+        $this->assertEquals(25000, (float) $penjualan->diskon);
+        $this->assertEquals(11.00, (float) $penjualan->ppn_persen);
+        $this->assertEquals(16500.00, (float) $penjualan->ppn_nominal);
+        $this->assertEquals(166500.00, (float) $penjualan->total);
+        $this->assertEquals(200000, (float) $penjualan->jumlah_bayar);
+        $this->assertEquals(33500.00, (float) $penjualan->kembalian);
+    }
+
+    public function test_infinite_scroll_load_more_increments_per_page()
+    {
+        $this->actingAs($this->kasir);
+
+        Livewire::test(Index::class)
+            ->assertSet('perPage', 12)
+            ->call('loadMore')
+            ->assertSet('perPage', 24)
+            ->set('search', 'Mouse')
+            ->assertSet('perPage', 12);
+    }
+
+    public function test_case_insensitive_and_multi_word_search()
+    {
+        $this->actingAs($this->kasir);
+
+        // Search with UPPERCASE
+        Livewire::test(Index::class)
+            ->set('search', 'LOGITECH')
+            ->call('handleSearchOrScan')
+            ->assertSet('search', '')
+            ->assertCount('cart', 1);
+
+        // Search with mixed case and multiple words
+        Livewire::test(Index::class)
+            ->set('search', 'fLasHdIsk 64gb')
+            ->call('handleSearchOrScan')
+            ->assertSet('search', '')
+            ->assertCount('cart', 1);
+    }
+
+    public function test_dedicated_barcode_scanner_modal_processes_items()
+    {
+        $this->actingAs($this->kasir);
+
+        Livewire::test(Index::class)
+            ->call('openScanModal')
+            ->assertSet('modalScanOpen', true)
+            ->set('scanBarcode', '899111222')
+            ->call('processScanBarcode')
+            ->assertSet('scanBarcode', '')
+            ->assertSet('lastScannedName', 'Mouse Wireless Logitech M330')
+            ->assertCount('cart', 1)
+            ->set('scanBarcode', '899333444')
+            ->call('processScanBarcode')
+            ->assertCount('cart', 2)
+            ->call('closeScanModal')
+            ->assertSet('modalScanOpen', false);
+    }
+}
