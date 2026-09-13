@@ -20,13 +20,19 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
             cd /var/www/soulmate_app
-            echo "==> [1/3] Pulling latest code from GitHub..."
+            echo "==> [1/4] Pulling latest code from GitHub..."
             git pull origin $(git rev-parse --abbrev-ref HEAD)
 
-            echo "==> [2/3] Building / restarting Docker containers..."
+            echo "==> [2/4] Building frontend assets (Vite / Tailwind)..."
+            if command -v npm >/dev/null 2>&1; then
+                npm install --no-audit --no-fund
+                npm run build
+            fi
+
+            echo "==> [3/4] Building / restarting Docker containers..."
             docker compose up -d --build
 
-            echo "==> [3/3] Running Laravel deploy script..."
+            echo "==> [4/4] Running Laravel deployment automation..."
             docker exec soulmate_apps sh docker/deploy.sh
 
-            echo "==> [SUCCESS] Deployment finished!"
+            echo "==> [SUCCESS] Deployment completed successfully!"
