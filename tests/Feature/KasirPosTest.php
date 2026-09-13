@@ -10,6 +10,8 @@ use App\Models\Produk;
 use App\Models\Stok;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -205,12 +207,13 @@ class KasirPosTest extends TestCase
             ->set('newCustomerHp', '081234567890')
             ->set('newCustomerAlamat', 'Jl. Jenderal Sudirman No. 45')
             ->call('saveNewCustomer')
-            ->assertSet('customerType', 'member');
+            ->assertSet('customerType', 'langganan');
 
         $this->assertDatabaseHas('customers', [
             'cabang_id' => $this->cabangPkp->id,
             'nama' => 'Hendra Wijaya',
             'no_hp' => '081234567890',
+            'tipe' => 'langganan',
         ]);
     }
 
@@ -359,5 +362,30 @@ class KasirPosTest extends TestCase
             ->assertCount('cart', 2)
             ->call('closeScanModal')
             ->assertSet('modalScanOpen', false);
+    }
+
+    public function test_can_register_new_customer_with_photo()
+    {
+        Storage::fake('public');
+        $this->actingAs($this->kasir);
+
+        $file = UploadedFile::fake()->image('customer_avatar.jpg', 200, 200);
+
+        Livewire::test(Index::class)
+            ->call('openNewCustomerModal')
+            ->set('newCustomerNama', 'Budi Santoso Langganan')
+            ->set('newCustomerHp', '081999888777')
+            ->set('newCustomerAlamat', 'Jl. Selindung No. 10')
+            ->set('newCustomerFoto', $file)
+            ->call('saveNewCustomer')
+            ->assertSet('customerType', 'langganan')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('customers', [
+            'cabang_id' => $this->cabangPkp->id,
+            'nama' => 'Budi Santoso Langganan',
+            'no_hp' => '081999888777',
+            'tipe' => 'langganan',
+        ]);
     }
 }

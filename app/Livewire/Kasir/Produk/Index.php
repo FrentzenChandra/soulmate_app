@@ -13,16 +13,18 @@ use App\Models\Produk;
 use App\Models\Stok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 #[Layout('layouts.app')]
 #[Title('Kasir POS Produk - Soulmate Komputer')]
 class Index extends Component
 {
-    use WithPagination;
+    use WithFileUploads, WithPagination;
 
     // Search & Filter Katalog (Hanya Pencarian Nama/Kata Kunci)
     public string $search = '';
@@ -41,7 +43,7 @@ class Index extends Component
     // Keranjang Belanja (Cart)
     public array $cart = [];
 
-    // Customer Selection
+    // Customer Selection (umum / langganan)
     public string $customerType = 'umum';
 
     public ?int $selectedCustomerId = null;
@@ -55,6 +57,8 @@ class Index extends Component
     public string $newCustomerHp = '';
 
     public string $newCustomerAlamat = '';
+
+    public $newCustomerFoto = null;
 
     // Diskon & PPN
     public float $diskon = 0;
@@ -381,11 +385,66 @@ class Index extends Component
         return max(0, $this->jumlahBayar - $this->grandTotal);
     }
 
+    protected function processAndSaveCustomerWebp($uploadedFile): string
+    {
+        $targetDir = public_path('images/customers');
+        if (! file_exists($targetDir)) {
+            @mkdir($targetDir, 0775, true);
+        }
+
+        $imagePath = $uploadedFile->getRealPath();
+        $imageInfo = @getimagesize($imagePath);
+
+        if ($imageInfo && function_exists('imagecreatefromstring') && function_exists('imagewebp')) {
+            $source = @imagecreatefromstring(file_get_contents($imagePath));
+            if ($source !== false) {
+                $filename = 'cust_'.time().'_'.Str::random(6).'.webp';
+                $destination = $targetDir.'/'.$filename;
+
+                $width = imagesx($source);
+                $height = imagesy($source);
+
+                $maxDim = 500;
+                if ($width > $maxDim || $height > $maxDim) {
+                    if ($width > $height) {
+                        $newWidth = $maxDim;
+                        $newHeight = (int) ($height * ($maxDim / $width));
+                    } else {
+                        $newHeight = $maxDim;
+                        $newWidth = (int) ($width * ($maxDim / $height));
+                    }
+                    $resized = imagecreatetruecolor($newWidth, $newHeight);
+                    imagealphablending($resized, false);
+                    imagesavealpha($resized, true);
+                    imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+                    imagewebp($resized, $destination, 80);
+                    imagedestroy($resized);
+                } else {
+                    imagewebp($source, $destination, 80);
+                }
+                imagedestroy($source);
+
+                return 'images/customers/'.$filename;
+            }
+        }
+
+        $fallbackName = 'cust_'.time().'_'.Str::random(6).'.'.($uploadedFile->getClientOriginalExtension() ?: 'jpg');
+        $destination = $targetDir.'/'.$fallbackName;
+
+        try {
+            $uploadedFile->move($targetDir, $fallbackName);
+        } catch (\Throwable $e) {
+            @copy($imagePath, $destination);
+        }
+
+        return 'images/customers/'.$fallbackName;
+    }
+
     // Pelanggan
     public function selectCustomer(int $customerId): void
     {
         $this->selectedCustomerId = $customerId;
-        $this->customerType = 'member';
+        $this->customerType = 'langganan';
         $this->customerSearch = '';
     }
 
@@ -398,7 +457,7 @@ class Index extends Component
 
     public function openNewCustomerModal(): void
     {
-        $this->reset(['newCustomerNama', 'newCustomerHp', 'newCustomerAlamat']);
+        $this->reset(['newCustomerNama', 'newCustomerHp', 'newCustomerAlamat', 'newCustomerFoto']);
         $this->modalNewCustomerOpen = true;
     }
 
@@ -408,6 +467,10 @@ class Index extends Component
             'newCustomerNama' => 'required|string|max:100',
             'newCustomerHp' => 'nullable|string|max:20',
             'newCustomerAlamat' => 'nullable|string|max:255',
+            'newCustomerFoto' => 'nullable|image|max:4096',
+        ], [
+            'newCustomerNama.required' => 'Nama pelanggan wajib diisi.',
+            'newCustomerFoto.image' => 'File foto harus berupa gambar valid.',
         ]);
 
         $cabang = $this->activeCabang;
@@ -415,17 +478,25 @@ class Index extends Component
             return;
         }
 
+        $fotoUrl = null;
+        if ($this->newCustomerFoto) {
+            $fotoUrl = $this->processAndSaveCustomerWebp($this->newCustomerFoto);
+        }
+
         $customer = Customer::create([
             'cabang_id' => $cabang->id,
-            'nama' => $this->newCustomerNama,
-            'no_hp' => $this->newCustomerHp,
-            'alamat' => $this->newCustomerAlamat,
+            'nama' => trim($this->newCustomerNama),
+            'no_hp' => trim($this->newCustomerHp) ?: null,
+            'alamat' => trim($this->newCustomerAlamat) ?: null,
+            'tipe' => 'langganan',
+            'foto_url' => $fotoUrl,
         ]);
 
         $this->selectedCustomerId = $customer->id;
-        $this->customerType = 'member';
+        $this->customerType = 'langganan';
         $this->modalNewCustomerOpen = false;
-        $this->dispatch('swal:success', ['title' => 'Sukses', 'text' => "Pelanggan '{$customer->nama}' berhasil ditambahkan."]);
+        $this->newCustomerFoto = null;
+        $this->dispatch('swal:success', ['title' => 'Sukses', 'text' => "Pelanggan langganan '{$customer->nama}' berhasil ditambahkan."]);
     }
 
     // Checkout
@@ -512,7 +583,7 @@ class Index extends Component
                 'no_transaksi' => $noTransaksi,
                 'cabang_id' => $cabang->id,
                 'kasir_id' => Auth::id(),
-                'customer_id' => $this->customerType === 'member' ? $this->selectedCustomerId : null,
+                'customer_id' => $this->customerType === 'langganan' ? $this->selectedCustomerId : null,
                 'servis_id' => null,
                 'tipe_transaksi' => 'penjualan_barang',
                 'tanggal' => $now,
@@ -583,7 +654,7 @@ class Index extends Component
         $masterPpns = MasterPpn::where('is_aktif', true)->orderBy('persen')->get();
 
         $customers = collect();
-        if ($this->customerType === 'member' && ! empty($this->customerSearch) && $cabang) {
+        if ($this->customerType === 'langganan' && ! empty($this->customerSearch) && $cabang) {
             $term = '%'.strtolower(trim($this->customerSearch)).'%';
             $customers = Customer::where('cabang_id', $cabang->id)
                 ->where(function ($q) use ($term) {

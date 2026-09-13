@@ -67,7 +67,7 @@
                         <x-th-sort field="name" :sortField="$sortField" :sortDirection="$sortDirection" class="px-5">Nama Pengguna</x-th-sort>
                         <x-th-sort field="username" :sortField="$sortField" :sortDirection="$sortDirection">Username & Email</x-th-sort>
                         <th class="py-3.5 px-4 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Tipe Role</th>
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Wilayah Tugas / Cabang</th>
+                        <x-th-sort field="cabang_id" :sortField="$sortField" :sortDirection="$sortDirection">Wilayah Tugas / Cabang</x-th-sort>
                         <x-th-sort field="no_hp" :sortField="$sortField" :sortDirection="$sortDirection">No. HP</x-th-sort>
                         <x-th-sort field="status" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Status</x-th-sort>
                         <th class="py-3.5 px-5 text-right font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi</th>

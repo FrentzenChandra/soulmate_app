@@ -236,12 +236,32 @@ class Index extends Component
             }
         }
 
-        $allowedSorts = ['nama_produk', 'barcode', 'harga_jual', 'created_at', 'id'];
-        $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'nama_produk';
         $sortDir = strtolower($this->sortDirection) === 'desc' ? 'desc' : 'asc';
 
+        if ($this->sortField === 'stok_jumlah') {
+            $query->orderBy(
+                Stok::select('jumlah')
+                    ->whereColumn('stoks.produk_id', 'produks.id')
+                    ->where('stoks.cabang_id', $cabang->id)
+                    ->limit(1),
+                $sortDir
+            );
+        } elseif ($this->sortField === 'is_aktif') {
+            $query->orderBy(
+                Stok::select('is_aktif')
+                    ->whereColumn('stoks.produk_id', 'produks.id')
+                    ->where('stoks.cabang_id', $cabang->id)
+                    ->limit(1),
+                $sortDir
+            );
+        } else {
+            $allowedSorts = ['nama_produk', 'barcode', 'kategori_id', 'harga_jual', 'created_at', 'id'];
+            $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'nama_produk';
+            $query->orderBy($sortColumn, $sortDir);
+        }
+
         $totalItems = (clone $query)->count();
-        $stokItems = $query->orderBy($sortColumn, $sortDir)->take($this->perPage)->get();
+        $stokItems = $query->take($this->perPage)->get();
         $hasMore = $totalItems > $this->perPage;
 
         // Hitung Ringkasan Metrik Cabang

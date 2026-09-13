@@ -97,7 +97,15 @@ class ProductAndStockTest extends TestCase
             ->set('ready_marketplace', true)
             ->set('initialStock', [
                 $this->cabangPkp->id => 10,
-                $this->cabangSgl->id => 5,
+                $this->cabangSgl->id => 0,
+            ])
+            ->set('minStock', [
+                $this->cabangPkp->id => 4,
+                $this->cabangSgl->id => 2,
+            ])
+            ->set('isAktifStock', [
+                $this->cabangPkp->id => true,
+                $this->cabangSgl->id => false,
             ])
             ->call('saveProduk')
             ->assertHasNoErrors();
@@ -116,12 +124,16 @@ class ProductAndStockTest extends TestCase
             'produk_id' => $produk->id,
             'cabang_id' => $this->cabangPkp->id,
             'jumlah' => 10,
+            'min_stok' => 4,
+            'is_aktif' => true,
         ]);
 
         $this->assertDatabaseHas('stoks', [
             'produk_id' => $produk->id,
             'cabang_id' => $this->cabangSgl->id,
-            'jumlah' => 5,
+            'jumlah' => 0,
+            'min_stok' => 2,
+            'is_aktif' => false,
         ]);
     }
 
@@ -371,5 +383,40 @@ class ProductAndStockTest extends TestCase
             ->assertSet('criticalCount', 1)
             ->assertSet('emptyCount', 0)
             ->assertSee('RAM DDR4 8GB PKP');
+    }
+
+    public function test_column_sorting_across_product_and_stock_tables()
+    {
+        $this->actingAs($this->owner);
+
+        // 1. Master Produk sorting tests
+        Livewire::test(Index::class)
+            ->call('sortBy', 'harga_beli')
+            ->assertSet('sortField', 'harga_beli')
+            ->assertSet('sortDirection', 'asc')
+            ->call('sortBy', 'harga_beli')
+            ->assertSet('sortDirection', 'desc')
+            ->call('sortBy', 'kategori_id')
+            ->assertSet('sortField', 'kategori_id')
+            ->call('sortBy', 'stok_total')
+            ->assertSet('sortField', 'stok_total');
+
+        // 2. Cabang Stok sorting tests
+        Livewire::test(\App\Livewire\Cabang\Stok\Index::class)
+            ->call('sortBy', 'harga_jual')
+            ->assertSet('sortField', 'harga_jual')
+            ->assertSet('sortDirection', 'asc')
+            ->call('sortBy', 'stok_jumlah')
+            ->assertSet('sortField', 'stok_jumlah')
+            ->call('sortBy', 'is_aktif')
+            ->assertSet('sortField', 'is_aktif');
+
+        // 3. Master Kategori sorting tests
+        Livewire::test(\App\Livewire\Master\Kategori\Index::class)
+            ->call('sortBy', 'produks_count')
+            ->assertSet('sortField', 'produks_count')
+            ->assertSet('sortDirection', 'asc')
+            ->call('sortBy', 'created_at')
+            ->assertSet('sortField', 'created_at');
     }
 }

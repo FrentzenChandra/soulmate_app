@@ -359,7 +359,7 @@ class Index extends Component
                 }
             });
 
-        $allowedSorts = ['name', 'username', 'email', 'status', 'created_at', 'id'];
+        $allowedSorts = ['name', 'username', 'email', 'cabang_id', 'no_hp', 'status', 'created_at', 'id'];
         $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'name';
         $sortDir = strtolower($this->sortDirection) === 'desc' ? 'desc' : 'asc';
 

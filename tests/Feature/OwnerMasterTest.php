@@ -180,4 +180,33 @@ class OwnerMasterTest extends TestCase
             'no_hp' => '089911223344',
         ]);
     }
+
+    public function test_column_sorting_on_user_and_cabang_tables()
+    {
+        $this->actingAs($this->owner);
+
+        // 1. Master User sorting
+        Livewire::test(\App\Livewire\Master\User\Index::class)
+            ->call('sortBy', 'username')
+            ->assertSet('sortField', 'username')
+            ->assertSet('sortDirection', 'asc')
+            ->call('sortBy', 'cabang_id')
+            ->assertSet('sortField', 'cabang_id')
+            ->call('sortBy', 'no_hp')
+            ->assertSet('sortField', 'no_hp')
+            ->call('sortBy', 'status')
+            ->assertSet('sortField', 'status');
+
+        // 2. Master Cabang sorting
+        Livewire::test(Index::class)
+            ->call('sortBy', 'nama_cabang')
+            ->assertSet('sortField', 'nama_cabang')
+            ->assertSet('sortDirection', 'asc')
+            ->call('sortBy', 'alamat')
+            ->assertSet('sortField', 'alamat')
+            ->call('sortBy', 'no_wa')
+            ->assertSet('sortField', 'no_wa')
+            ->call('sortBy', 'status')
+            ->assertSet('sortField', 'status');
+    }
 }

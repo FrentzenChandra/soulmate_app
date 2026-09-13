@@ -51,7 +51,7 @@
                 <thead class="bg-gray-50/80 border-b border-gray-100 text-gray-400 uppercase font-extrabold text-[10px] tracking-wider">
                     <tr>
                         <x-th-sort field="nama_cabang" :sortField="$sortField" :sortDirection="$sortDirection" class="px-5">Kode & Nama Cabang</x-th-sort>
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Alamat</th>
+                        <x-th-sort field="alamat" :sortField="$sortField" :sortDirection="$sortDirection">Alamat</x-th-sort>
                         <x-th-sort field="no_wa" :sortField="$sortField" :sortDirection="$sortDirection">Kontak & No. WhatsApp</x-th-sort>
                         <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Superadmin (PIC)</th>
                         <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400 text-center">Staff Terdaftar</th>

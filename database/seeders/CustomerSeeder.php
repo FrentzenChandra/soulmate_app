@@ -24,18 +24,32 @@ class CustomerSeeder extends Seeder
                 'nama' => 'Hendra Setiawan',
                 'no_hp' => '081367891234',
                 'alamat' => 'Jl. Mentok No. 12, Pangkalpinang',
+                'tipe' => 'langganan',
+                'foto_url' => null,
             ],
             [
                 'cabang_id' => $pkp?->id,
                 'nama' => 'Mega Lestari',
                 'no_hp' => '081273456789',
                 'alamat' => 'Komp. Perumahan Bukit Merapin, Pangkalpinang',
+                'tipe' => 'langganan',
+                'foto_url' => null,
             ],
             [
                 'cabang_id' => $pkp?->id,
                 'nama' => 'PT Bangka Media Utama (Bpk. Fajar)',
                 'no_hp' => '082178901234',
                 'alamat' => 'Jl. RE Martadinata No. 5, Pangkalpinang',
+                'tipe' => 'langganan',
+                'foto_url' => null,
+            ],
+            [
+                'cabang_id' => $pkp?->id,
+                'nama' => 'Budi Walk-In',
+                'no_hp' => '081277889900',
+                'alamat' => 'Pangkalpinang',
+                'tipe' => 'umum',
+                'foto_url' => null,
             ],
 
             // Cabang Sungailiat
@@ -44,12 +58,16 @@ class CustomerSeeder extends Seeder
                 'nama' => 'Rizky Pratama',
                 'no_hp' => '085267123456',
                 'alamat' => 'Jl. Batin Tikal, Sungailiat',
+                'tipe' => 'langganan',
+                'foto_url' => null,
             ],
             [
                 'cabang_id' => $sgl?->id,
                 'nama' => 'Indah Permata',
                 'no_hp' => '081923456789',
                 'alamat' => 'Jl. Sinar Baru, Sungailiat',
+                'tipe' => 'langganan',
+                'foto_url' => null,
             ],
 
             // Cabang Koba
@@ -58,6 +76,8 @@ class CustomerSeeder extends Seeder
                 'nama' => 'Agus Budiman',
                 'no_hp' => '085389012345',
                 'alamat' => 'Jl. Padang Mulia, Koba',
+                'tipe' => 'langganan',
+                'foto_url' => null,
             ],
         ];
 

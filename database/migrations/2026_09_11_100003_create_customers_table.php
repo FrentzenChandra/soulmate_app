@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('cabang_id')->constrained('cabangs')->cascadeOnDelete();
             $table->string('nama', 150);
-            $table->string('no_hp', 30);
+            $table->string('no_hp', 30)->nullable();
             $table->text('alamat')->nullable();
+            $table->string('tipe', 20)->default('langganan')->comment('umum / langganan');
+            $table->string('foto_url')->nullable();
             $table->timestamps();
 
             $table->index(['cabang_id', 'no_hp']);

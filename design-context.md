@@ -36,8 +36,8 @@
 * **Menunggu Part / Warning:** Merah Pink (`#EC4899`) / Merah Magenta
 
 
-* **Gradasi & Banner:** Kombinasi gradasi diagonal *Purple-to-Pink* (`linear-gradient(135deg, #5E17EB, #E6007A)`) pada *banner* pengumuman dan header fitur utama.
-* **Ikonografi:** Ikon gaya *Clean Outline* / *Duotone* dengan warna ungu atau biru yang senada. -->
+* **Clean Solid Colors (No AI-Slop Gradients):** Utamakan warna solid modern (`#5E17EB`, `#0052FF`, `#E6007A`) dengan kontras tinggi dan permukaan putih/abu bersih. Hindari gradient berlebihan kecuali diminta secara spesifik.
+* **Ikonografi:** Ikon gaya *Clean Outline* / *SVG* dengan warna senada tanpa emoji pada button/aksi. -->
 
 
 Kamu adalah Product Designer untuk Soulmate Komputer — sebuah service center 

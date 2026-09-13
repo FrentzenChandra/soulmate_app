@@ -147,6 +147,23 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_pkp' => 10,
                 'stok_sgl' => 5,
                 'stok_kba' => 3,
+                'foto_url' => null,
+            ],
+            [
+                'kategori' => 'Sparepart Laptop',
+                'barcode' => '8991234560103',
+                'nama_produk' => 'Keyboard Asus X441 / X441N / X441U Non-Frame (Discontinue)',
+                'harga_beli' => 90000,
+                'harga_jual' => 145000,
+                'ready_marketplace' => false,
+                'deskripsi' => 'Keyboard pengganti Asus X441 series layout US black.',
+                'stok_pkp' => 0,
+                'is_aktif_pkp' => false,
+                'stok_sgl' => 0,
+                'is_aktif_sgl' => false,
+                'stok_kba' => 0,
+                'is_aktif_kba' => false,
+                'foto_url' => null,
             ],
         ];
 
@@ -162,6 +179,7 @@ class KategoriDanProdukSeeder extends Seeder
                     'harga_jual' => $item['harga_jual'],
                     'ready_marketplace' => $item['ready_marketplace'],
                     'deskripsi' => $item['deskripsi'],
+                    'foto_url' => $item['foto_url'] ?? null,
                 ]
             );
 
@@ -171,8 +189,8 @@ class KategoriDanProdukSeeder extends Seeder
                     ['produk_id' => $produk->id, 'cabang_id' => $pkp->id],
                     [
                         'jumlah' => $item['stok_pkp'],
-                        'min_stok' => 3,
-                        'is_aktif' => true,
+                        'min_stok' => $item['min_stok_pkp'] ?? 3,
+                        'is_aktif' => $item['is_aktif_pkp'] ?? true,
                     ]
                 );
             }
@@ -181,8 +199,8 @@ class KategoriDanProdukSeeder extends Seeder
                     ['produk_id' => $produk->id, 'cabang_id' => $sgl->id],
                     [
                         'jumlah' => $item['stok_sgl'],
-                        'min_stok' => 3,
-                        'is_aktif' => true,
+                        'min_stok' => $item['min_stok_sgl'] ?? 3,
+                        'is_aktif' => $item['is_aktif_sgl'] ?? true,
                     ]
                 );
             }
@@ -191,8 +209,8 @@ class KategoriDanProdukSeeder extends Seeder
                     ['produk_id' => $produk->id, 'cabang_id' => $kba->id],
                     [
                         'jumlah' => $item['stok_kba'],
-                        'min_stok' => 2,
-                        'is_aktif' => true,
+                        'min_stok' => $item['min_stok_kba'] ?? 2,
+                        'is_aktif' => $item['is_aktif_kba'] ?? true,
                     ]
                 );
             }

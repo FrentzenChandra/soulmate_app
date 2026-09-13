@@ -56,6 +56,10 @@ class Index extends Component
 
     public array $initialStock = []; // [cabang_id => jumlah]
 
+    public array $minStock = []; // [cabang_id => min_stok threshold]
+
+    public array $isAktifStock = []; // [cabang_id => boolean status]
+
     // Modal Manajemen Kategori
     public bool $modalKategoriOpen = false;
 
@@ -156,8 +160,12 @@ class Index extends Component
 
         $cabangs = Cabang::where('status', 'aktif')->get();
         $this->initialStock = [];
+        $this->minStock = [];
+        $this->isAktifStock = [];
         foreach ($cabangs as $c) {
             $this->initialStock[$c->id] = 0;
+            $this->minStock[$c->id] = 3;
+            $this->isAktifStock[$c->id] = true;
         }
 
         $this->modalProdukOpen = true;
@@ -181,9 +189,13 @@ class Index extends Component
 
         $cabangs = Cabang::where('status', 'aktif')->get();
         $this->initialStock = [];
+        $this->minStock = [];
+        $this->isAktifStock = [];
         foreach ($cabangs as $c) {
             $stok = $produk->stoks->firstWhere('cabang_id', $c->id);
             $this->initialStock[$c->id] = $stok ? $stok->jumlah : 0;
+            $this->minStock[$c->id] = $stok ? $stok->min_stok : 3;
+            $this->isAktifStock[$c->id] = $stok ? (bool) $stok->is_aktif : false;
         }
 
         $this->isEditMode = true;
@@ -282,11 +294,16 @@ class Index extends Component
             $produk->update($data);
 
             // Update stok per cabang
-            foreach ($this->initialStock as $cabangId => $jumlah) {
-                Stok::updateOrCreate(
-                    ['produk_id' => $produk->id, 'cabang_id' => $cabangId],
-                    ['jumlah' => max(0, (int) $jumlah)]
-                );
+            foreach (Cabang::all() as $c) {
+                if (isset($this->initialStock[$c->id])) {
+                    $qty = max(0, (int) $this->initialStock[$c->id]);
+                    $minStok = isset($this->minStock[$c->id]) ? max(1, (int) $this->minStock[$c->id]) : 3;
+                    $isAktif = isset($this->isAktifStock[$c->id]) ? (bool) $this->isAktifStock[$c->id] : ($qty > 0);
+                    Stok::updateOrCreate(
+                        ['produk_id' => $produk->id, 'cabang_id' => $c->id],
+                        ['jumlah' => $qty, 'min_stok' => $minStok, 'is_aktif' => $isAktif]
+                    );
+                }
             }
 
             session()->flash('success', "Produk \"{$produk->nama_produk}\" berhasil diperbarui.");
@@ -297,10 +314,14 @@ class Index extends Component
             $allCabangs = Cabang::all();
             foreach ($allCabangs as $c) {
                 $qty = isset($this->initialStock[$c->id]) ? max(0, (int) $this->initialStock[$c->id]) : 0;
+                $minStok = isset($this->minStock[$c->id]) ? max(1, (int) $this->minStock[$c->id]) : 3;
+                $isAktif = isset($this->isAktifStock[$c->id]) ? (bool) $this->isAktifStock[$c->id] : ($qty > 0);
                 Stok::create([
                     'produk_id' => $produk->id,
                     'cabang_id' => $c->id,
                     'jumlah' => $qty,
+                    'min_stok' => $minStok,
+                    'is_aktif' => $isAktif,
                 ]);
             }
 
@@ -460,45 +481,47 @@ class Index extends Component
             if ($isHQ) {
                 if ($this->stokFilter === 'tersedia') {
                     $query->whereHas('stoks', function ($q) {
-                        $q->havingRaw('SUM(jumlah) > 3');
+                        $q->where('is_aktif', true)->havingRaw('SUM(jumlah) > SUM(min_stok)');
                     });
                 } elseif ($this->stokFilter === 'kritis') {
                     $query->whereHas('stoks', function ($q) {
-                        $q->havingRaw('SUM(jumlah) > 0 AND SUM(jumlah) <= 3');
+                        $q->where('is_aktif', true)->havingRaw('SUM(jumlah) > 0 AND SUM(jumlah) <= SUM(min_stok)');
                     });
                 } elseif ($this->stokFilter === 'habis') {
-                    $query->whereDoesntHave('stoks', function ($q) {
-                        $q->where('jumlah', '>', 0);
+                    $query->whereHas('stoks', function ($q) {
+                        $q->where('is_aktif', true)->havingRaw('SUM(jumlah) <= 0');
                     });
                 }
             } else {
                 $targetCabangId = $activeCabang?->id ?? 1;
                 if ($this->stokFilter === 'tersedia') {
                     $query->whereHas('stoks', function ($q) use ($targetCabangId) {
-                        $q->where('cabang_id', $targetCabangId)->where('jumlah', '>', 3);
+                        $q->where('cabang_id', $targetCabangId)->where('is_aktif', true)->whereColumn('jumlah', '>', 'min_stok');
                     });
                 } elseif ($this->stokFilter === 'kritis') {
                     $query->whereHas('stoks', function ($q) use ($targetCabangId) {
-                        $q->where('cabang_id', $targetCabangId)->where('jumlah', '>', 0)->where('jumlah', '<=', 3);
+                        $q->where('cabang_id', $targetCabangId)->where('is_aktif', true)->where('jumlah', '>', 0)->whereColumn('jumlah', '<=', 'min_stok');
                     });
                 } elseif ($this->stokFilter === 'habis') {
-                    $query->where(function ($q) use ($targetCabangId) {
-                        $q->whereHas('stoks', function ($sq) use ($targetCabangId) {
-                            $sq->where('cabang_id', $targetCabangId)->where('jumlah', '<=', 0);
-                        })->orWhereDoesntHave('stoks', function ($sq) use ($targetCabangId) {
-                            $sq->where('cabang_id', $targetCabangId);
-                        });
+                    $query->whereHas('stoks', function ($q) use ($targetCabangId) {
+                        $q->where('cabang_id', $targetCabangId)->where('is_aktif', true)->where('jumlah', '<=', 0);
                     });
                 }
             }
         }
 
-        $allowedSorts = ['nama_produk', 'barcode', 'harga_beli', 'harga_jual', 'created_at', 'id'];
-        $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'nama_produk';
         $sortDir = strtolower($this->sortDirection) === 'desc' ? 'desc' : 'asc';
 
+        if ($this->sortField === 'stok_total') {
+            $query->withSum('stoks as total_stok', 'jumlah')->orderBy('total_stok', $sortDir);
+        } else {
+            $allowedSorts = ['nama_produk', 'barcode', 'kategori_id', 'harga_beli', 'harga_jual', 'created_at', 'id'];
+            $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'nama_produk';
+            $query->orderBy($sortColumn, $sortDir);
+        }
+
         $totalProduk = (clone $query)->count();
-        $produks = $query->orderBy($sortColumn, $sortDir)->take($this->perPage)->get();
+        $produks = $query->take($this->perPage)->get();
         $hasMore = $totalProduk > $this->perPage;
 
         return view('livewire.master.produk.index', [

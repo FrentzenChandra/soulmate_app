@@ -19,7 +19,7 @@
     <!-- Top Bar: Header Info & Status -->
     <div class="bg-white card-custom p-4 sm:p-5 rounded-2xl border border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
         <div class="flex items-center space-x-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#5E17EB] to-[#0052FF] text-white flex items-center justify-center shadow-md shadow-purple-900/20">
+            <div class="w-12 h-12 rounded-2xl bg-[#5E17EB] text-white flex items-center justify-center shadow-md shadow-purple-900/20">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
             </div>
             <div>
@@ -39,7 +39,7 @@
             <!-- Tombol Buka Modal Scan (USB / Keyboard) -->
             <button type="button"
                     wire:click="openScanModal('scanner')"
-                    class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#5E17EB] to-[#0052FF] text-white hover:opacity-90 text-xs font-bold transition-all shadow-sm inline-flex items-center space-x-1.5 cursor-pointer">
+                    class="px-3.5 py-2 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-sm inline-flex items-center space-x-1.5 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
                 <span>Scan Barcode</span>
                 <span class="px-1.5 py-0.5 rounded bg-white/20 text-[10px] font-mono font-black">`</span>
@@ -281,7 +281,7 @@
                         <span>Pelanggan</span>
                     </span>
 
-                    <!-- Toggle Pelanggan Umum vs Member -->
+                    <!-- Toggle Pelanggan Umum vs Langganan -->
                     <div class="flex items-center space-x-1 bg-gray-100 p-0.5 rounded-lg text-xs font-bold">
                         <button type="button"
                                 wire:click="setCustomerUmum"
@@ -289,20 +289,29 @@
                             Umum
                         </button>
                         <button type="button"
-                                wire:click="$set('customerType', 'member')"
-                                class="px-2.5 py-1 rounded-md transition-all cursor-pointer {{ $customerType === 'member' ? 'bg-white text-[#5E17EB] shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
-                            Member
+                                wire:click="$set('customerType', 'langganan')"
+                                class="px-2.5 py-1 rounded-md transition-all cursor-pointer {{ $customerType === 'langganan' ? 'bg-white text-[#5E17EB] shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
+                            Langganan
                         </button>
                     </div>
                 </div>
 
-                @if($customerType === 'member')
+                @if($customerType === 'langganan')
                     <div class="space-y-2 pt-1 border-t border-gray-100">
                         @if($selectedCustomer)
                             <div class="p-2.5 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-between">
-                                <div class="truncate">
-                                    <h4 class="text-xs font-extrabold text-[#5E17EB] truncate">{{ $selectedCustomer->nama }}</h4>
-                                    <p class="text-[11px] text-gray-500">{{ $selectedCustomer->no_hp ?: 'Tanpa No HP' }}</p>
+                                <div class="flex items-center space-x-2.5 truncate">
+                                    @if($selectedCustomer->foto_url && file_exists(public_path($selectedCustomer->foto_url)))
+                                        <img src="{{ asset($selectedCustomer->foto_url) }}" alt="{{ $selectedCustomer->nama }}" class="w-8 h-8 rounded-full object-cover border border-purple-200 shrink-0">
+                                    @else
+                                        <div class="w-8 h-8 rounded-full bg-purple-200 text-[#5E17EB] font-black flex items-center justify-center text-xs shrink-0">
+                                            {{ strtoupper(substr($selectedCustomer->nama, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                    <div class="truncate">
+                                        <h4 class="text-xs font-extrabold text-[#5E17EB] truncate">{{ $selectedCustomer->nama }}</h4>
+                                        <p class="text-[11px] text-gray-500">{{ $selectedCustomer->no_hp ?: 'Tanpa No HP' }}</p>
+                                    </div>
                                 </div>
                                 <button type="button"
                                         wire:click="setCustomerUmum"
@@ -315,7 +324,7 @@
                             <div class="relative">
                                 <input type="text"
                                        wire:model.live.debounce.300ms="customerSearch"
-                                       placeholder="Cari nama / nomor HP member..."
+                                       placeholder="Cari nama / nomor HP langganan..."
                                        class="w-full text-xs font-medium pl-8 pr-20 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-1 focus:ring-[#5E17EB]">
                                 <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 <button type="button"
@@ -331,8 +340,17 @@
                                         <button type="button"
                                                 wire:click="selectCustomer({{ $c->id }})"
                                                 class="w-full px-3 py-2 text-left hover:bg-purple-50 transition-colors flex items-center justify-between cursor-pointer">
-                                            <span class="text-xs font-bold text-gray-800 truncate">{{ $c->nama }}</span>
-                                            <span class="text-[10px] text-gray-400">{{ $c->no_hp }}</span>
+                                            <div class="flex items-center space-x-2 truncate">
+                                                @if($c->foto_url && file_exists(public_path($c->foto_url)))
+                                                    <img src="{{ asset($c->foto_url) }}" alt="{{ $c->nama }}" class="w-6 h-6 rounded-full object-cover shrink-0 border border-gray-200">
+                                                @else
+                                                    <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-[10px] shrink-0">
+                                                        {{ strtoupper(substr($c->nama, 0, 1)) }}
+                                                    </div>
+                                                @endif
+                                                <span class="text-xs font-bold text-gray-800 truncate">{{ $c->nama }}</span>
+                                            </div>
+                                            <span class="text-[10px] text-gray-400 shrink-0">{{ $c->no_hp }}</span>
                                         </button>
                                     @endforeach
                                 </div>
@@ -467,7 +485,7 @@
                     <button type="button"
                             wire:click="openPaymentModal"
                             @if(count($cart) === 0) disabled @endif
-                            class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#5E17EB] to-[#0052FF] hover:from-purple-700 hover:to-blue-700 text-white font-extrabold text-sm shadow-lg shadow-purple-900/30 transition-all flex items-center justify-between cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="w-full py-3.5 px-4 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-extrabold text-sm shadow-lg shadow-purple-900/30 transition-all flex items-center justify-between cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                         <div class="flex items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                             <span>Bayar Sekarang</span>
@@ -589,7 +607,7 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
 
                     <!-- Header Modal -->
-                    <div class="bg-gradient-to-r from-[#0E1726] to-[#5E17EB] px-6 py-4 text-white flex items-center justify-between">
+                    <div class="bg-[#0E1726] px-6 py-4 text-white flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
                                 <svg class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
@@ -646,7 +664,7 @@
                                     </div>
 
                                     <button type="submit"
-                                            class="w-full py-3 rounded-xl bg-gradient-to-r from-[#5E17EB] to-[#0052FF] text-white text-xs font-bold shadow-md hover:opacity-95 transition-all cursor-pointer">
+                                            class="w-full py-3 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white text-xs font-bold shadow-md transition-all cursor-pointer">
                                         Masukkan ke Keranjang (Enter)
                                     </button>
                                 </form>
@@ -712,7 +730,7 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
 
                     <!-- Header Modal -->
-                    <div class="bg-gradient-to-r from-[#0E1726] to-[#0052FF] px-6 py-5 text-white flex items-center justify-between">
+                    <div class="bg-[#0E1726] px-6 py-5 text-white flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
                                 <svg class="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -874,7 +892,7 @@
                                 Batal
                             </button>
                             <button type="submit"
-                                    class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#5E17EB] to-[#0052FF] hover:from-purple-700 hover:to-blue-700 text-xs font-extrabold text-white shadow-lg shadow-purple-900/30 transition-all cursor-pointer">
+                                    class="px-6 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-extrabold text-white shadow-lg shadow-purple-900/30 transition-all cursor-pointer">
                                 Konfirmasi & Selesaikan Transaksi
                             </button>
                         </div>
@@ -895,7 +913,7 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
 
                     <!-- Header Sukses -->
-                    <div class="p-6 text-center bg-gradient-to-b from-emerald-50 to-white border-b border-gray-100">
+                    <div class="p-6 text-center bg-emerald-50 border-b border-gray-100">
                         <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-md shadow-emerald-600/15">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                         </div>
@@ -990,7 +1008,7 @@
             <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
 
-                    <div class="bg-gradient-to-r from-[#0E1726] to-[#5E17EB] px-6 py-5 text-white flex items-center justify-between">
+                    <div class="bg-[#0E1726] px-6 py-5 text-white flex items-center justify-between">
                         <h3 class="text-base font-extrabold text-white">Tambah Pelanggan Baru</h3>
                         <button type="button" wire:click="$set('modalNewCustomerOpen', false)" class="text-gray-300 hover:text-white cursor-pointer">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -1028,6 +1046,29 @@
                                        wire:model="newCustomerAlamat"
                                        placeholder="Contoh: Jl. Sudirman No. 12"
                                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB]">
+                            </div>
+
+                            <!-- Upload Foto Langganan -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                    Foto Langganan (Opsional)
+                                </label>
+                                <div class="flex items-center space-x-3">
+                                    @if($newCustomerFoto)
+                                        <img src="{{ $newCustomerFoto->temporaryUrl() }}" class="w-12 h-12 rounded-xl object-cover border border-purple-200 shadow-xs">
+                                    @else
+                                        <div class="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                        </div>
+                                    @endif
+                                    <div class="flex-1">
+                                        <input type="file"
+                                               wire:model="newCustomerFoto"
+                                               accept="image/*"
+                                               class="w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-[#5E17EB] hover:file:bg-purple-100 cursor-pointer">
+                                        @error('newCustomerFoto') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

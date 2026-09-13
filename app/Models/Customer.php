@@ -16,7 +16,14 @@ class Customer extends Model
         'nama',
         'no_hp',
         'alamat',
+        'tipe',
+        'foto_url',
     ];
+
+    public function isLangganan(): bool
+    {
+        return $this->tipe === 'langganan';
+    }
 
     public function cabang()
     {

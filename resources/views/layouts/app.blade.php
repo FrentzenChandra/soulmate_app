@@ -91,13 +91,21 @@
                     $isHQ = $isOwner && session('active_branch_id', 'hq') === 'hq';
                     $activeBranchSession = session('active_branch_id', 'hq');
 
-                    // Hitung jumlah stok kosong untuk badge sidebar
+                    // Hitung jumlah alert stok (kritis + kosong) yang aktif untuk sinkron dengan NotificationBell
                     if ($isHQ) {
-                        $emptyStockSidebarCount = \App\Models\Stok::where('jumlah', '<=', 0)->count();
+                        $emptyStockSidebarCount = \App\Models\Stok::where('is_aktif', true)
+                            ->whereHas('produk')
+                            ->whereHas('cabang', fn ($q) => $q->where('status', 'aktif'))
+                            ->whereColumn('jumlah', '<=', 'min_stok')
+                            ->count();
                     } else {
                         $targetCabId = $isOwner ? (int) $activeBranchSession : auth()->user()->cabang_id;
                         $targetCabId = $targetCabId ?: 1;
-                        $emptyStockSidebarCount = \App\Models\Stok::where('cabang_id', $targetCabId)->where('jumlah', '<=', 0)->count();
+                        $emptyStockSidebarCount = \App\Models\Stok::where('cabang_id', $targetCabId)
+                            ->where('is_aktif', true)
+                            ->whereHas('produk')
+                            ->whereColumn('jumlah', '<=', 'min_stok')
+                            ->count();
                     }
                 @endphp
 

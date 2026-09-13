@@ -163,7 +163,7 @@ class Index extends Component
                 $q->where('status', $this->statusFilter);
             });
 
-        $allowedSorts = ['kode_cabang', 'nama_cabang', 'no_wa', 'status', 'created_at', 'id'];
+        $allowedSorts = ['kode_cabang', 'nama_cabang', 'alamat', 'no_wa', 'status', 'created_at', 'id'];
         $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'kode_cabang';
         $sortDir = strtolower($this->sortDirection) === 'desc' ? 'desc' : 'asc';
 

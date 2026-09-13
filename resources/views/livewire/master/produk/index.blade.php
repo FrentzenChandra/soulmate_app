@@ -82,20 +82,20 @@
             <table class="w-full text-left text-xs">
                 <thead class="bg-gray-50/80 border-b border-gray-100 text-gray-400 uppercase font-extrabold text-[10px] tracking-wider">
                     <tr>
-                        <th class="py-3.5 px-4 w-14 text-center">Foto</th>
-                        <th class="py-3.5 px-4">Info Produk & SKU</th>
-                        <th class="py-3.5 px-4">Kategori</th>
-                        <th class="py-3.5 px-4 text-right">Harga Modal</th>
-                        <th class="py-3.5 px-4 text-right">Harga Jual</th>
+                        <th class="py-3.5 px-4 w-14 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Foto</th>
+                        <x-th-sort field="nama_produk" :sortField="$sortField" :sortDirection="$sortDirection">Info Produk & SKU</x-th-sort>
+                        <x-th-sort field="kategori_id" :sortField="$sortField" :sortDirection="$sortDirection">Kategori</x-th-sort>
+                        <x-th-sort field="harga_beli" :sortField="$sortField" :sortDirection="$sortDirection" align="right">Harga Modal</x-th-sort>
+                        <x-th-sort field="harga_jual" :sortField="$sortField" :sortDirection="$sortDirection" align="right">Harga Jual</x-th-sort>
                         @if($isHQ)
                             @foreach($cabangs as $c)
-                                <th class="py-3.5 px-3 text-center">{{ $c->kode_cabang }}</th>
+                                <th class="py-3.5 px-3 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">{{ $c->kode_cabang }}</th>
                             @endforeach
-                            <th class="py-3.5 px-4 text-center">Total Global</th>
+                            <x-th-sort field="stok_total" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Total Global</x-th-sort>
                         @else
-                            <th class="py-3.5 px-4 text-center">Stok {{ $activeCabang?->nama_cabang ?? 'Cabang' }}</th>
+                            <th class="py-3.5 px-4 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Stok {{ $activeCabang?->nama_cabang ?? 'Cabang' }}</th>
                         @endif
-                        <th class="py-3.5 px-5 text-right">Aksi</th>
+                        <th class="py-3.5 px-5 text-right font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -473,39 +473,79 @@
                             <!-- Alokasi Stok Fisik (Dinamis: Sesuai Mode HQ vs Mode Cabang) -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                                    {{ $isHQ ? 'Alokasi Jumlah Stok Fisik per Cabang' : 'Stok Fisik di ' . ($activeCabang?->nama_cabang ?? 'Cabang Ini') }}
+                                    {{ $isHQ ? 'Alokasi & Manajemen Stok per Cabang' : 'Stok di ' . ($activeCabang?->nama_cabang ?? 'Cabang Ini') }}
                                 </label>
 
                                 @if($isHQ)
                                     <!-- Grid Semua Cabang Khusus HQ -->
                                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         @foreach($cabangs as $c)
-                                            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
-                                                <div class="flex items-center justify-between mb-1.5">
-                                                    <span class="text-xs font-extrabold text-gray-800">{{ $c->nama_cabang }}</span>
+                                            <div class="p-3 rounded-xl border {{ !empty($isAktifStock[$c->id]) ? 'bg-purple-50/40 border-purple-200' : 'bg-gray-50 border-gray-200 opacity-60' }}">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <label class="flex items-center gap-1.5 cursor-pointer">
+                                                        <input type="checkbox"
+                                                               wire:model.live="isAktifStock.{{ $c->id }}"
+                                                               class="rounded text-[#5E17EB] focus:ring-[#5E17EB] h-3.5 w-3.5 border-gray-300">
+                                                        <span class="text-xs font-extrabold text-gray-800">{{ $c->nama_cabang }}</span>
+                                                    </label>
                                                     <span class="text-[10px] font-bold text-purple-600 uppercase">{{ $c->kode_cabang }}</span>
                                                 </div>
-                                                <input type="number"
-                                                       wire:model="initialStock.{{ $c->id }}"
-                                                       min="0"
-                                                       placeholder="0"
-                                                       class="w-full text-xs font-extrabold px-3 py-1.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#5E17EB]">
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <div>
+                                                        <label class="block text-[10px] font-bold text-gray-500 mb-0.5">Stok Fisik</label>
+                                                        <input type="number"
+                                                               wire:model="initialStock.{{ $c->id }}"
+                                                               min="0"
+                                                               placeholder="0"
+                                                               {{ empty($isAktifStock[$c->id]) ? 'disabled' : '' }}
+                                                               class="w-full text-xs font-extrabold px-2.5 py-1.5 rounded-lg border {{ empty($isAktifStock[$c->id]) ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed' : 'border-gray-300 bg-white focus:ring-2 focus:ring-[#5E17EB]' }}">
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[10px] font-bold text-amber-600 mb-0.5">Min Alert</label>
+                                                        <input type="number"
+                                                               wire:model="minStock.{{ $c->id }}"
+                                                               min="1"
+                                                               placeholder="3"
+                                                               {{ empty($isAktifStock[$c->id]) ? 'disabled' : '' }}
+                                                               class="w-full text-xs font-extrabold px-2.5 py-1.5 rounded-lg border {{ empty($isAktifStock[$c->id]) ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed' : 'border-amber-300 bg-white focus:ring-2 focus:ring-amber-500' }}">
+                                                    </div>
+                                                </div>
                                             </div>
                                         @endforeach
                                     </div>
                                 @else
                                     <!-- Input Tunggal Khusus Cabang Ini Saja -->
                                     @if($activeCabang)
-                                        <div class="bg-blue-50/60 p-3.5 rounded-2xl border border-blue-200 max-w-sm">
-                                            <div class="flex items-center justify-between mb-1.5">
-                                                <span class="text-xs font-extrabold text-gray-900">{{ $activeCabang->nama_cabang }}</span>
+                                        <div class="bg-blue-50/60 p-3.5 rounded-2xl border border-blue-200 max-w-md">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <label class="flex items-center gap-1.5 cursor-pointer">
+                                                    <input type="checkbox"
+                                                           wire:model.live="isAktifStock.{{ $activeCabang->id }}"
+                                                           class="rounded text-[#0052FF] focus:ring-[#0052FF] h-4 w-4 border-blue-300">
+                                                    <span class="text-xs font-extrabold text-gray-900">{{ $activeCabang->nama_cabang }} (Aktif Dijual)</span>
+                                                </label>
                                                 <span class="text-[10px] font-bold text-blue-600 uppercase">{{ $activeCabang->kode_cabang }}</span>
                                             </div>
-                                            <input type="number"
-                                                   wire:model="initialStock.{{ $activeCabang->id }}"
-                                                   min="0"
-                                                   placeholder="0"
-                                                   class="w-full text-sm font-extrabold px-3.5 py-2 rounded-xl border border-blue-300 bg-white focus:ring-2 focus:ring-[#0052FF]">
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Stok Fisik</label>
+                                                    <input type="number"
+                                                           wire:model="initialStock.{{ $activeCabang->id }}"
+                                                           min="0"
+                                                           placeholder="0"
+                                                           {{ empty($isAktifStock[$activeCabang->id]) ? 'disabled' : '' }}
+                                                           class="w-full text-sm font-extrabold px-3 py-1.5 rounded-xl border {{ empty($isAktifStock[$activeCabang->id]) ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed' : 'border-blue-300 bg-white focus:ring-2 focus:ring-[#0052FF]' }}">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[10px] font-bold text-amber-600 mb-0.5">Min Alert Threshold</label>
+                                                    <input type="number"
+                                                           wire:model="minStock.{{ $activeCabang->id }}"
+                                                           min="1"
+                                                           placeholder="3"
+                                                           {{ empty($isAktifStock[$activeCabang->id]) ? 'disabled' : '' }}
+                                                           class="w-full text-sm font-extrabold px-3 py-1.5 rounded-xl border {{ empty($isAktifStock[$activeCabang->id]) ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed' : 'border-amber-300 bg-white focus:ring-2 focus:ring-amber-500' }}">
+                                                </div>
+                                            </div>
                                         </div>
                                     @endif
                                 @endif

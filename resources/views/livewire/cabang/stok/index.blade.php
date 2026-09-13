@@ -119,19 +119,22 @@
                     <tr>
                         <th class="py-3.5 px-4 text-center w-14 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Foto</th>
                         <x-th-sort field="nama_produk" :sortField="$sortField" :sortDirection="$sortDirection">Produk & Barcode</x-th-sort>
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Kategori</th>
+                        <x-th-sort field="kategori_id" :sortField="$sortField" :sortDirection="$sortDirection">Kategori</x-th-sort>
                         <x-th-sort field="harga_jual" :sortField="$sortField" :sortDirection="$sortDirection" align="right">Harga Toko (POS)</x-th-sort>
-                        <th class="py-3.5 px-4 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Status Ketersediaan</th>
-                        <th class="py-3.5 px-4 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Sisa Stok Fisik</th>
+                        <x-th-sort field="is_aktif" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Status Ketersediaan</x-th-sort>
+                        <x-th-sort field="stok_jumlah" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Sisa Stok Fisik</x-th-sort>
                         <th class="py-3.5 px-5 text-right font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi Penyesuaian</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @forelse($stokItems as $item)
                         @php
-                            $qty = $item->stoks->first()?->jumlah ?? 0;
-                            $isZero = $qty <= 0;
-                            $isCrit = !$isZero && $qty <= 3;
+                            $stok = $item->stoks->first();
+                            $isAktif = $stok ? (bool) $stok->is_aktif : false;
+                            $qty = $stok?->jumlah ?? 0;
+                            $minStok = $stok?->min_stok ?? 3;
+                            $isZero = $isAktif && $qty <= 0;
+                            $isCrit = $isAktif && ! $isZero && $qty <= $minStok;
                         @endphp
                         <tr class="transition-colors {{ $isZero ? 'bg-rose-50/40 border-l-4 border-rose-500 hover:bg-rose-50/60' : ($isCrit ? 'bg-amber-50/30 border-l-4 border-amber-500 hover:bg-amber-50/50' : 'hover:bg-gray-50/80') }}">
                             <!-- Foto Produk -->
@@ -156,7 +159,7 @@
                                         </div>
                                     @endif
 
-                                    <!-- Floating Alert Indicator on Thumbnail -->
+                                    <!-- Floating Alert Indicator on Thumbnail (Hanya jika aktif) -->
                                     @if($isZero)
                                         <span class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-md ring-2 ring-white" title="Stok Kosong!">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -176,7 +179,11 @@
                                         <span class="font-extrabold text-sm text-gray-900 block leading-tight">
                                             {{ $item->nama_produk }}
                                         </span>
-                                        @if($isZero)
+                                        @if(!$isAktif)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 text-gray-500 text-[10px] font-bold border border-gray-200">
+                                                Tidak Dijual di Cabang Ini
+                                            </span>
+                                        @elseif($isZero)
                                             <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-rose-600 text-white text-[10px] font-black shadow-xs tracking-wider">
                                                 <svg class="w-3 h-3 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                                 <span>HABIS</span>
@@ -208,7 +215,12 @@
 
                             <!-- Status Badge dengan Icon Alert yang Jelas -->
                             <td class="py-4 px-4 text-center">
-                                @if($qty > 3)
+                                @if(!$isAktif)
+                                    <span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                                        <span>Tidak Aktif Dijual</span>
+                                    </span>
+                                @elseif($qty > $minStok)
                                     <span class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                         <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                                         <span>Tersedia Aman</span>
@@ -229,7 +241,7 @@
                             <!-- Sisa Stok -->
                             <td class="py-4 px-4 text-center">
                                 <div class="inline-flex flex-col items-center">
-                                    <span class="text-base font-black px-2.5 py-0.5 rounded-lg {{ $qty > 3 ? 'text-gray-900 bg-gray-100' : ($qty > 0 ? 'text-amber-950 bg-amber-200/70 border border-amber-300' : 'text-rose-950 bg-rose-200/70 border border-rose-300') }}">
+                                    <span class="text-base font-black px-2.5 py-0.5 rounded-lg {{ !$isAktif ? 'text-gray-500 bg-gray-100' : ($qty > $minStok ? 'text-gray-900 bg-gray-100' : ($qty > 0 ? 'text-amber-950 bg-amber-200/70 border border-amber-300' : 'text-rose-950 bg-rose-200/70 border border-rose-300')) }}">
                                         {{ $qty }}
                                     </span>
                                     <span class="text-[10px] font-bold text-gray-400 mt-0.5">Unit Fisik</span>
@@ -360,16 +372,17 @@
                                 <input type="number" 
                                        wire:model.live="newStock"
                                        min="0"
-                                       class="w-full text-center text-lg font-black py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF]">
+                                       {{ !$isAktif ? 'disabled' : '' }}
+                                       class="w-full text-center text-lg font-black py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] {{ !$isAktif ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white' }}">
                                 @error('newStock') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
 
                                 <!-- Quick Increment Buttons -->
                                 <div class="flex items-center justify-center space-x-1.5 mt-2">
-                                    <button type="button" wire:click="quickDelta(-5)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs">-5</button>
-                                    <button type="button" wire:click="quickDelta(-1)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs">-1</button>
-                                    <button type="button" wire:click="quickDelta(1)" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs">+1</button>
-                                    <button type="button" wire:click="quickDelta(5)" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs">+5</button>
-                                    <button type="button" wire:click="quickDelta(10)" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs">+10</button>
+                                    <button type="button" wire:click="quickDelta(-5)" {{ !$isAktif ? 'disabled' : '' }} class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs {{ !$isAktif ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer' }}">-5</button>
+                                    <button type="button" wire:click="quickDelta(-1)" {{ !$isAktif ? 'disabled' : '' }} class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs {{ !$isAktif ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer' }}">-1</button>
+                                    <button type="button" wire:click="quickDelta(1)" {{ !$isAktif ? 'disabled' : '' }} class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs {{ !$isAktif ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer' }}">+1</button>
+                                    <button type="button" wire:click="quickDelta(5)" {{ !$isAktif ? 'disabled' : '' }} class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs {{ !$isAktif ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer' }}">+5</button>
+                                    <button type="button" wire:click="quickDelta(10)" {{ !$isAktif ? 'disabled' : '' }} class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs {{ !$isAktif ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer' }}">+10</button>
                                 </div>
                             </div>
 
@@ -382,7 +395,8 @@
                                     <input type="number" 
                                            wire:model="minStok"
                                            min="0"
-                                           class="w-full text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] @error('minStok') border-rose-500 @enderror">
+                                           {{ !$isAktif ? 'disabled' : '' }}
+                                           class="w-full text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] {{ !$isAktif ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white' }} @error('minStok') border-rose-500 @enderror">
                                     <span class="text-[10px] text-gray-400 block mt-0.5">Notif bunyi jika stok ≤ nilai ini</span>
                                     @error('minStok') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
                                 </div>
@@ -391,7 +405,7 @@
                                         Status di Cabang Ini
                                     </label>
                                     <label class="flex items-center space-x-2 p-2 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer mt-0.5">
-                                        <input type="checkbox" wire:model="isAktif" class="rounded text-[#0052FF] focus:ring-[#0052FF]">
+                                        <input type="checkbox" wire:model.live="isAktif" class="rounded text-[#0052FF] focus:ring-[#0052FF]">
                                         <span class="text-xs font-bold text-gray-800">Aktif Dijual</span>
                                     </label>
                                     <span class="text-[10px] text-gray-400 block mt-0.5">Bila nonaktif, 0 notifikasi</span>
