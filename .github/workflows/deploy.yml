@@ -1,0 +1,32 @@
+name: Auto Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            cd /var/www/soulmate_app
+            echo "==> [1/3] Pulling latest code from GitHub..."
+            git pull origin $(git rev-parse --abbrev-ref HEAD)
+
+            echo "==> [2/3] Building / restarting Docker containers..."
+            docker compose up -d --build
+
+            echo "==> [3/3] Running Laravel deploy script..."
+            docker exec soulmate_apps sh docker/deploy.sh
+
+            echo "==> [SUCCESS] Deployment finished!"
