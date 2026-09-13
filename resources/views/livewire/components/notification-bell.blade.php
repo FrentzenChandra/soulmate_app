@@ -81,7 +81,7 @@
                     <div class="relative shrink-0">
                         @if($fotoUrl && file_exists(public_path($fotoUrl)))
                             <img src="{{ asset($fotoUrl) }}" alt="{{ $nama }}" class="w-9 h-9 rounded-lg object-cover border border-gray-200">
-                        @elseif($fotoUrl && (str_starts_with($fotoUrl, 'http') || str_starts_with($fotoUrl, 'images/')))
+                        @elseif($fotoUrl && (str_starts_with($fotoUrl, 'http') || str_starts_with($fotoUrl, 'storage/') || str_starts_with($fotoUrl, 'images/')))
                             <img src="{{ asset($fotoUrl) }}" alt="{{ $nama }}" class="w-9 h-9 rounded-lg object-cover border border-gray-200" onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.jpg') }}';">
                         @else
                             <div class="w-9 h-9 rounded-lg {{ $isZero ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-amber-50 text-amber-600 border border-amber-100' }} flex items-center justify-center">

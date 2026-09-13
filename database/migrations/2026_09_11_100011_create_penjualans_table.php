@@ -32,12 +32,13 @@ return new class extends Migration
             $table->decimal('jumlah_bayar', 15, 2)->default(0);
             $table->decimal('kembalian', 15, 2)->default(0);
 
-            $table->string('metode_bayar', 30)->default('cash')->comment('cash, transfer, qris, debit, dll');
+            $table->string('metode_bayar', 30)->nullable()->comment('cash, transfer, qris, debit, dll (opsional/disembunyikan)');
             $table->string('status', 20)->default('lunas')->comment('lunas, batal');
+            $table->boolean('is_real')->default(true)->comment('true = penjualan riil potong stok & masuk omset; false = nota simulasi/non-real');
             $table->text('catatan')->nullable();
             $table->timestamps();
 
-            $table->index(['cabang_id', 'tipe_transaksi', 'tanggal']);
+            $table->index(['cabang_id', 'is_real', 'tipe_transaksi', 'tanggal']);
         });
     }
 

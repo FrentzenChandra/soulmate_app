@@ -221,7 +221,19 @@ class Index extends Component
         }
 
         if ($this->stokFilter !== 'semua') {
-            if ($this->stokFilter === 'tersedia') {
+            if ($this->stokFilter === 'aktif') {
+                $query->whereHas('stoks', function ($q) use ($cabang) {
+                    $q->where('cabang_id', $cabang->id)->where('is_aktif', true);
+                });
+            } elseif ($this->stokFilter === 'non_aktif') {
+                $query->where(function ($sq) use ($cabang) {
+                    $sq->whereDoesntHave('stoks', function ($q) use ($cabang) {
+                        $q->where('cabang_id', $cabang->id);
+                    })->orWhereHas('stoks', function ($q) use ($cabang) {
+                        $q->where('cabang_id', $cabang->id)->where('is_aktif', false);
+                    });
+                });
+            } elseif ($this->stokFilter === 'tersedia') {
                 $query->whereHas('stoks', function ($q) use ($cabang) {
                     $q->where('cabang_id', $cabang->id)->where('is_aktif', true)->whereColumn('jumlah', '>', 'min_stok');
                 });

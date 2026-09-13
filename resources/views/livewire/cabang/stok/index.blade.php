@@ -102,10 +102,12 @@
                 <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Status:</span>
                 <select wire:model.live="stokFilter" 
                         class="bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400">
-                    <option value="semua">Semua</option>
-                    <option value="tersedia">Tersedia (&gt; 3)</option>
-                    <option value="kritis">Kritis (&le; 3)</option>
-                    <option value="habis">Kosong (0)</option>
+                    <option value="semua">Semua Status</option>
+                    <option value="aktif">Aktif Dijual di Cabang Ini</option>
+                    <option value="non_aktif">Non-Aktif / Belum Dijual</option>
+                    <option value="tersedia">Stok Tersedia (&gt; Min Alert)</option>
+                    <option value="kritis">Stok Kritis (&le; Min Alert)</option>
+                    <option value="habis">Stok Kosong (0)</option>
                 </select>
             </div>
         </div>
@@ -146,7 +148,7 @@
                                              loading="lazy"
                                              decoding="async"
                                              class="w-12 h-12 rounded-xl object-cover border {{ $isZero ? 'border-rose-300 ring-2 ring-rose-200' : ($isCrit ? 'border-amber-300 ring-2 ring-amber-200' : 'border-gray-200') }} shadow-xs mx-auto">
-                                    @elseif($item->foto_url && (str_starts_with($item->foto_url, 'http') || str_starts_with($item->foto_url, 'images/')))
+                                    @elseif($item->foto_url && (str_starts_with($item->foto_url, 'http') || str_starts_with($item->foto_url, 'storage/') || str_starts_with($item->foto_url, 'images/')))
                                         <img src="{{ asset($item->foto_url) }}" 
                                              alt="{{ $item->nama_produk }}" 
                                              loading="lazy"
@@ -336,7 +338,7 @@
                                     <img src="{{ asset($selectedProdukFoto) }}" 
                                          alt="{{ $selectedProdukName }}" 
                                          class="w-12 h-12 rounded-xl object-cover border border-gray-200 shadow-xs shrink-0">
-                                @elseif($selectedProdukFoto && (str_starts_with($selectedProdukFoto, 'http') || str_starts_with($selectedProdukFoto, 'images/')))
+                                @elseif($selectedProdukFoto && (str_starts_with($selectedProdukFoto, 'http') || str_starts_with($selectedProdukFoto, 'storage/') || str_starts_with($selectedProdukFoto, 'images/')))
                                     <img src="{{ asset($selectedProdukFoto) }}" 
                                          alt="{{ $selectedProdukName }}" 
                                          class="w-12 h-12 rounded-xl object-cover border border-gray-200 shadow-xs shrink-0"

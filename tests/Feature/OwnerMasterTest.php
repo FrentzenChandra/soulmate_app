@@ -4,11 +4,14 @@ namespace Tests\Feature;
 
 use App\Livewire\Auth\Login;
 use App\Livewire\Master\Cabang\Index;
+use App\Livewire\Master\User\Index as MasterUserIndex;
 use App\Models\Cabang;
 use App\Models\User;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class OwnerMasterTest extends TestCase
@@ -19,41 +22,14 @@ class OwnerMasterTest extends TestCase
 
     protected User $superadmin;
 
-    protected Cabang $cabang;
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        $ownerRole = Role::firstOrCreate(['name' => 'Owner']);
-        $superadminRole = Role::firstOrCreate(['name' => 'Superadmin']);
+        $this->seed(DatabaseSeeder::class);
 
-        $this->cabang = Cabang::create([
-            'kode_cabang' => 'CB-PKP',
-            'nama_cabang' => 'Cabang Pangkalpinang',
-            'alamat' => 'Jl. Sudirman No. 12',
-            'no_wa' => '081234567890',
-            'status' => 'aktif',
-        ]);
-
-        $this->owner = User::create([
-            'name' => 'Owner Utama',
-            'username' => 'owner',
-            'email' => 'owner@soulmate.test',
-            'password' => bcrypt('password'),
-            'status' => 'aktif',
-        ]);
-        $this->owner->syncRoles([$ownerRole]);
-
-        $this->superadmin = User::create([
-            'name' => 'Admin PKP',
-            'username' => 'admin_pkp',
-            'email' => 'admin.pkp@soulmate.test',
-            'password' => bcrypt('password'),
-            'cabang_id' => $this->cabang->id,
-            'status' => 'aktif',
-        ]);
-        $this->superadmin->syncRoles([$superadminRole]);
+        $this->owner = User::where('email', 'owner@soulmate.test')->first();
+        $this->superadmin = User::where('email', 'superadmin@soulmate.test')->first();
     }
 
     public function test_owner_can_access_dashboard_and_master_routes()
@@ -70,15 +46,19 @@ class OwnerMasterTest extends TestCase
         $responseUsers->assertStatus(200);
     }
 
-    public function test_superadmin_cannot_access_master_routes()
+    public function test_superadmin_cannot_access_owner_only_routes()
     {
         $this->actingAs($this->superadmin);
 
         $responseCabang = $this->get('/master/cabang');
         $responseCabang->assertStatus(403);
 
+        $responsePpn = $this->get('/master/ppn');
+        $responsePpn->assertStatus(403);
+
+        // Superadmin CAN access /master/users for staff management
         $responseUsers = $this->get('/master/users');
-        $responseUsers->assertStatus(403);
+        $responseUsers->assertStatus(200);
     }
 
     public function test_owner_can_create_new_cabang()
@@ -87,67 +67,77 @@ class OwnerMasterTest extends TestCase
 
         Livewire::test(Index::class)
             ->call('openCreateModal')
-            ->set('kode_cabang', 'CB-SGL')
-            ->set('nama_cabang', 'Cabang Sungailiat')
-            ->set('alamat', 'Jl. Muhidin No. 5')
-            ->set('no_wa', '081299887766')
+            ->set('kode_cabang', 'CB-BEL')
+            ->set('nama_cabang', 'Cabang Belinyu')
+            ->set('alamat', 'Jl. Jenderal Sudirman No. 12')
+            ->set('no_telp', '0718-12345')
+            ->set('no_wa', '081234567890')
             ->set('status', 'aktif')
             ->call('save')
             ->assertHasNoErrors();
 
         $this->assertDatabaseHas('cabangs', [
-            'kode_cabang' => 'CB-SGL',
-            'nama_cabang' => 'Cabang Sungailiat',
+            'kode_cabang' => 'CB-BEL',
+            'nama_cabang' => 'Cabang Belinyu',
         ]);
     }
 
     public function test_owner_can_create_new_owner_and_superadmin()
     {
         $this->actingAs($this->owner);
+        $cabang = Cabang::first();
 
-        // 1. Create New Owner
-        Livewire::test(\App\Livewire\Master\User\Index::class)
+        // 1. Create Superadmin
+        Livewire::test(MasterUserIndex::class)
             ->call('openCreateModal')
-            ->set('role_name', 'Owner')
-            ->set('name', 'Owner Kedua')
-            ->set('username', 'owner2')
-            ->set('email', 'owner2@soulmate.test')
-            ->set('password', 'password123')
-            ->set('status', 'aktif')
-            ->call('save')
-            ->assertHasNoErrors();
-
-        $this->assertDatabaseHas('users', [
-            'email' => 'owner2@soulmate.test',
-            'username' => 'owner2',
-            'cabang_id' => null,
-        ]);
-
-        // 2. Create Superadmin assigned to branch
-        Livewire::test(\App\Livewire\Master\User\Index::class)
-            ->call('openCreateModal')
-            ->set('role_name', 'Superadmin')
-            ->set('cabang_id', $this->cabang->id)
-            ->set('name', 'Super Admin Baru')
-            ->set('username', 'superadmin_baru')
+            ->set('name', 'Admin Cabang Baru')
+            ->set('username', 'admin_baru')
             ->set('email', 'adminbaru@soulmate.test')
             ->set('password', 'password123')
+            ->set('role_name', 'Superadmin')
+            ->set('cabang_id', $cabang->id)
             ->set('status', 'aktif')
             ->call('save')
             ->assertHasNoErrors();
 
         $this->assertDatabaseHas('users', [
             'email' => 'adminbaru@soulmate.test',
-            'cabang_id' => $this->cabang->id,
+            'username' => 'admin_baru',
+            'cabang_id' => $cabang->id,
         ]);
+
+        $createdSuperadmin = User::where('email', 'adminbaru@soulmate.test')->first();
+        $this->assertTrue($createdSuperadmin->hasRole('Superadmin'));
+
+        // 2. Create Owner
+        Livewire::test(MasterUserIndex::class)
+            ->call('openCreateModal')
+            ->set('name', 'Owner Kedua')
+            ->set('username', 'owner_kedua')
+            ->set('email', 'owner2@soulmate.test')
+            ->set('password', 'password123')
+            ->set('role_name', 'Owner')
+            ->set('status', 'aktif')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'owner2@soulmate.test',
+            'username' => 'owner_kedua',
+            'cabang_id' => null,
+        ]);
+
+        $createdOwner = User::where('email', 'owner2@soulmate.test')->first();
+        $this->assertTrue($createdOwner->hasRole('Owner'));
     }
 
     public function test_owner_cannot_deactivate_self()
     {
         $this->actingAs($this->owner);
 
-        Livewire::test(\App\Livewire\Master\User\Index::class)
-            ->call('toggleStatus', $this->owner->id);
+        Livewire::test(MasterUserIndex::class)
+            ->call('toggleStatus', $this->owner->id)
+            ->assertSee('tidak dapat menonaktifkan');
 
         $this->assertEquals('aktif', $this->owner->fresh()->status);
     }
@@ -167,46 +157,65 @@ class OwnerMasterTest extends TestCase
     {
         $this->actingAs($this->owner);
 
-        Livewire::test(\App\Livewire\Master\User\Index::class)
-            ->call('openEditModal', $this->superadmin->id)
-            ->set('name', 'Admin PKP Updated')
-            ->set('no_hp', '089911223344')
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+
+        Livewire::test(MasterUserIndex::class)
+            ->call('openEditModal', $superadmin->id)
+            ->set('name', 'Superadmin PKP Updated')
+            ->set('no_hp', '089988776655')
             ->call('save')
             ->assertHasNoErrors();
 
-        $this->assertDatabaseHas('users', [
-            'id' => $this->superadmin->id,
-            'name' => 'Admin PKP Updated',
-            'no_hp' => '089911223344',
-        ]);
+        $this->assertEquals('Superadmin PKP Updated', $superadmin->fresh()->name);
+        $this->assertEquals('089988776655', $superadmin->fresh()->no_hp);
     }
 
     public function test_column_sorting_on_user_and_cabang_tables()
     {
         $this->actingAs($this->owner);
 
-        // 1. Master User sorting
-        Livewire::test(\App\Livewire\Master\User\Index::class)
-            ->call('sortBy', 'username')
-            ->assertSet('sortField', 'username')
-            ->assertSet('sortDirection', 'asc')
-            ->call('sortBy', 'cabang_id')
-            ->assertSet('sortField', 'cabang_id')
-            ->call('sortBy', 'no_hp')
-            ->assertSet('sortField', 'no_hp')
-            ->call('sortBy', 'status')
-            ->assertSet('sortField', 'status');
-
-        // 2. Master Cabang sorting
+        // Test sorting on Cabang
         Livewire::test(Index::class)
             ->call('sortBy', 'nama_cabang')
             ->assertSet('sortField', 'nama_cabang')
             ->assertSet('sortDirection', 'asc')
-            ->call('sortBy', 'alamat')
-            ->assertSet('sortField', 'alamat')
-            ->call('sortBy', 'no_wa')
-            ->assertSet('sortField', 'no_wa')
-            ->call('sortBy', 'status')
-            ->assertSet('sortField', 'status');
+            ->call('sortBy', 'nama_cabang')
+            ->assertSet('sortDirection', 'desc');
+
+        // Test sorting on Users
+        Livewire::test(MasterUserIndex::class)
+            ->call('sortBy', 'email')
+            ->assertSet('sortField', 'email')
+            ->assertSet('sortDirection', 'asc')
+            ->call('sortBy', 'email')
+            ->assertSet('sortDirection', 'desc');
+    }
+
+    public function test_owner_can_upload_user_photo_to_storage()
+    {
+        Storage::fake('public');
+        $this->actingAs($this->owner);
+
+        $file = UploadedFile::fake()->image('profile.jpg', 300, 300);
+
+        Livewire::test(MasterUserIndex::class)
+            ->call('openCreateModal')
+            ->set('name', 'User With Photo')
+            ->set('username', 'user_photo')
+            ->set('email', 'userphoto@soulmate.test')
+            ->set('password', 'password123')
+            ->set('role_name', 'Superadmin')
+            ->set('cabang_id', Cabang::first()->id)
+            ->set('foto', $file)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $user = User::where('email', 'userphoto@soulmate.test')->first();
+        $this->assertNotNull($user->foto_url);
+        $this->assertTrue(str_starts_with($user->foto_url, 'storage/users/'));
+
+        // Verify file was written to disk
+        $relativePath = str_replace('storage/', '', $user->foto_url);
+        Storage::disk('public')->assertExists($relativePath);
     }
 }

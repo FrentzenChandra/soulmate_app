@@ -10,6 +10,9 @@ use App\Models\Produk;
 use App\Models\Stok;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -418,5 +421,60 @@ class ProductAndStockTest extends TestCase
             ->assertSet('sortDirection', 'asc')
             ->call('sortBy', 'created_at')
             ->assertSet('sortField', 'created_at');
+    }
+
+    public function test_owner_can_upload_product_photo_to_storage()
+    {
+        Storage::fake('public');
+        $this->actingAs($this->owner);
+
+        $file = UploadedFile::fake()->image('produk_test.jpg', 300, 300);
+
+        Livewire::test(Index::class)
+            ->call('openCreateModal')
+            ->set('nama_produk', 'Mouse Gaming RGB Pro')
+            ->set('barcode', '8999990001')
+            ->set('kategori_id', $this->kategori->id)
+            ->set('harga_beli', 120000)
+            ->set('harga_jual', 180000)
+            ->set('foto', $file)
+            ->call('saveProduk')
+            ->assertHasNoErrors();
+
+        $produk = Produk::where('nama_produk', 'Mouse Gaming RGB Pro')->first();
+        $this->assertNotNull($produk);
+        $this->assertNotNull($produk->foto_url);
+        $this->assertStringStartsWith('storage/products/', $produk->foto_url);
+
+        $storedRelative = Str::after($produk->foto_url, 'storage/');
+        Storage::disk('public')->assertExists($storedRelative);
+    }
+
+    public function test_master_produk_detects_existing_product_on_create_modal()
+    {
+        $this->actingAs($this->owner);
+
+        // 1. Buat produk existing
+        $existing = Produk::create([
+            'nama_produk' => 'Keyboard Mechanical RGB',
+            'barcode' => '899777888999',
+            'kategori_id' => $this->kategori->id,
+            'harga_beli' => 250000,
+            'harga_jual' => 375000,
+        ]);
+
+        // 2. Saat open create modal dan input barcode sama, sistem mendeteksi duplicate master
+        Livewire::test(Index::class)
+            ->call('openCreateModal')
+            ->assertSet('duplicateMasterProduct', null)
+            ->set('barcode', '899777888999')
+            ->assertSet('duplicateMasterProductId', $existing->id);
+
+        // 3. Saat barcode dihapus dan input nama_produk sama
+        Livewire::test(Index::class)
+            ->call('openCreateModal')
+            ->set('barcode', '')
+            ->set('nama_produk', 'keyboard mechanical rgb')
+            ->assertSet('duplicateMasterProductId', $existing->id);
     }
 }

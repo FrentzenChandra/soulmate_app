@@ -7,6 +7,7 @@ use App\Models\Cabang;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -16,7 +17,7 @@ use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
 
 #[Layout('layouts.app')]
-#[Title('Master Pengguna - Soulmate Komputer')]
+#[Title('Manajemen Pengguna & Staff - Soulmate Komputer')]
 class Index extends Component
 {
     use WithFileUploads, WithPagination, WithSorting;
@@ -44,7 +45,7 @@ class Index extends Component
 
     public string $password = '';
 
-    public string $role_name = 'Superadmin';
+    public string $role_name = 'Kasir';
 
     public ?int $cabang_id = null;
 
@@ -66,8 +67,20 @@ class Index extends Component
 
     public function mount()
     {
+        $user = Auth::user();
+        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin'))) {
+            abort(403, 'Anda tidak memiliki akses ke halaman manajemen pengguna.');
+        }
+
         $this->sortField = 'name';
         $this->sortDirection = 'asc';
+
+        if (! $user->isOwner()) {
+            $this->cabang_id = $user->cabang_id;
+            $this->role_name = 'Kasir';
+        } else {
+            $this->role_name = 'Superadmin';
+        }
     }
 
     public function loadMore(): void
@@ -96,8 +109,17 @@ class Index extends Component
     public function openCreateModal()
     {
         $this->resetValidation();
-        $this->reset(['userId', 'name', 'email', 'username', 'password', 'no_hp', 'cabang_id', 'foto', 'existing_foto_url']);
-        $this->role_name = 'Superadmin';
+        $this->reset(['userId', 'name', 'email', 'username', 'password', 'no_hp', 'foto', 'existing_foto_url']);
+
+        $currentUser = Auth::user();
+        if (! $currentUser->isOwner()) {
+            $this->cabang_id = $currentUser->cabang_id;
+            $this->role_name = 'Kasir';
+        } else {
+            $this->cabang_id = null;
+            $this->role_name = 'Superadmin';
+        }
+
         $this->status = 'aktif';
         $this->isEditMode = false;
         $this->modalOpen = true;
@@ -106,14 +128,24 @@ class Index extends Component
     public function openEditModal(int $id)
     {
         $this->resetValidation();
+        $currentUser = Auth::user();
         $user = User::with('roles')->findOrFail($id);
+
+        // RBAC Check for Superadmin
+        if (! $currentUser->isOwner()) {
+            if ($user->isOwner() || (int) $user->cabang_id !== (int) $currentUser->cabang_id) {
+                session()->flash('error', 'Anda tidak memiliki otoritas untuk mengelola akun pengguna ini.');
+
+                return;
+            }
+        }
 
         $this->userId = $user->id;
         $this->name = $user->name;
         $this->email = $user->email;
         $this->username = $user->username ?? '';
         $this->password = ''; // kosongkan password saat edit kecuali ingin diubah
-        $this->role_name = $user->getRoleNames()->first() ?? 'Superadmin';
+        $this->role_name = $user->getRoleNames()->first() ?? 'Kasir';
         $this->cabang_id = $user->cabang_id;
         $this->no_hp = $user->no_hp ?? '';
         $this->status = $user->status;
@@ -144,11 +176,6 @@ class Index extends Component
 
     protected function processAndSaveWebp($uploadedFile): string
     {
-        $targetDir = public_path('images/users');
-        if (! file_exists($targetDir)) {
-            @mkdir($targetDir, 0775, true);
-        }
-
         $imagePath = $uploadedFile->getRealPath();
         $imageInfo = @getimagesize($imagePath);
 
@@ -156,7 +183,6 @@ class Index extends Component
             $source = @imagecreatefromstring(file_get_contents($imagePath));
             if ($source !== false) {
                 $filename = 'user_'.time().'_'.Str::random(6).'.webp';
-                $destination = $targetDir.'/'.$filename;
 
                 $width = imagesx($source);
                 $height = imagesy($source);
@@ -174,32 +200,39 @@ class Index extends Component
                     imagealphablending($resized, false);
                     imagesavealpha($resized, true);
                     imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-                    imagewebp($resized, $destination, 80);
+                    ob_start();
+                    imagewebp($resized, null, 80);
+                    $webContent = ob_get_clean();
                     imagedestroy($resized);
                 } else {
-                    imagewebp($source, $destination, 80);
+                    ob_start();
+                    imagewebp($source, null, 80);
+                    $webContent = ob_get_clean();
                 }
                 imagedestroy($source);
 
-                return 'images/users/'.$filename;
+                if ($webContent !== false) {
+                    Storage::disk('public')->put('users/'.$filename, $webContent);
+
+                    return 'storage/users/'.$filename;
+                }
             }
         }
 
         // Fallback jika GD webp tidak aktif
         $fallbackName = 'user_'.time().'_'.Str::random(6).'.'.($uploadedFile->getClientOriginalExtension() ?: 'jpg');
-        $destination = $targetDir.'/'.$fallbackName;
+        $storedPath = Storage::disk('public')->putFileAs('users', $uploadedFile, $fallbackName);
 
-        try {
-            $uploadedFile->move($targetDir, $fallbackName);
-        } catch (\Throwable $e) {
-            @copy($imagePath, $destination);
-        }
-
-        return 'images/users/'.$fallbackName;
+        return 'storage/'.$storedPath;
     }
 
     public function save()
     {
+        $currentUser = Auth::user();
+        $allowedRoles = $currentUser->isOwner()
+            ? ['Owner', 'Superadmin', 'Teknisi', 'Kasir']
+            : ['Superadmin', 'Teknisi', 'Kasir'];
+
         $rules = [
             'name' => 'required|string|max:255',
             'username' => [
@@ -216,8 +249,10 @@ class Index extends Component
                 'unique:users,email,'.($this->userId ?? 'NULL').',id',
             ],
             'password' => $this->isEditMode ? 'nullable|min:6' : 'required|min:6',
-            'role_name' => 'required|in:Owner,Superadmin',
-            'cabang_id' => $this->role_name === 'Superadmin' ? 'required|exists:cabangs,id' : 'nullable',
+            'role_name' => 'required|in:'.implode(',', $allowedRoles),
+            'cabang_id' => ($currentUser->isOwner() && $this->role_name === 'Owner')
+                ? 'nullable'
+                : 'required|exists:cabangs,id',
             'no_hp' => 'nullable|string|max:20',
             'status' => 'required|in:aktif,nonaktif',
             'foto' => 'nullable|image|max:4096',
@@ -231,14 +266,20 @@ class Index extends Component
             'email.unique' => 'Email ini sudah dipakai oleh akun lain.',
             'password.required' => 'Password wajib diisi untuk akun baru.',
             'password.min' => 'Password minimal 6 karakter.',
-            'cabang_id.required' => 'Superadmin wajib ditugaskan ke salah satu cabang.',
+            'role_name.in' => 'Peran yang dipilih tidak valid atau di luar hak akses Anda.',
+            'cabang_id.required' => 'Pengguna wajib ditugaskan ke salah satu cabang.',
             'foto.image' => 'File harus berupa gambar (JPG, PNG, WEBP).',
             'foto.max' => 'Ukuran foto maksimal 4MB.',
         ];
 
+        // Jika superadmin, kunci cabang_id ke cabangnya sendiri
+        if (! $currentUser->isOwner()) {
+            $this->cabang_id = $currentUser->cabang_id;
+        }
+
         $validated = $this->validate($rules, $messages);
 
-        // Jika role Owner, cabang_id selalu null (akses global)
+        // Jika role Owner, cabang_id selalu null (akses global HQ)
         if ($this->role_name === 'Owner') {
             $validated['cabang_id'] = null;
         }
@@ -251,9 +292,18 @@ class Index extends Component
         if ($this->isEditMode && $this->userId) {
             $user = User::findOrFail($this->userId);
 
+            // RBAC Check for edit
+            if (! $currentUser->isOwner()) {
+                if ($user->isOwner() || (int) $user->cabang_id !== (int) $currentUser->cabang_id) {
+                    session()->flash('error', 'Anda tidak memiliki otoritas untuk memperbarui akun ini.');
+
+                    return;
+                }
+            }
+
             // Proteksi agar tidak menonaktifkan akun sendiri
             if ($user->id === Auth::id() && $validated['status'] === 'nonaktif') {
-                session()->flash('error', 'Anda tidak dapat menonaktifkan akun Owner Anda sendiri!');
+                session()->flash('error', 'Anda tidak dapat menonaktifkan akun yang sedang Anda gunakan.');
 
                 return;
             }
@@ -271,6 +321,14 @@ class Index extends Component
                 $updateData['foto_url'] = $fotoPath;
             } elseif ($this->existing_foto_url === null) {
                 $updateData['foto_url'] = null;
+            }
+
+            // Hapus file lama jika foto diubah atau dihapus
+            if (isset($updateData['foto_url']) && $user->foto_url && $user->foto_url !== $updateData['foto_url']) {
+                if (str_starts_with($user->foto_url, 'storage/')) {
+                    $oldPath = Str::after($user->foto_url, 'storage/');
+                    Storage::disk('public')->delete($oldPath);
+                }
             }
 
             if (! empty($validated['password'])) {
@@ -308,11 +366,21 @@ class Index extends Component
 
     public function toggleStatus(int $id)
     {
+        $currentUser = Auth::user();
         $user = User::findOrFail($id);
+
+        // RBAC check
+        if (! $currentUser->isOwner()) {
+            if ($user->isOwner() || (int) $user->cabang_id !== (int) $currentUser->cabang_id) {
+                session()->flash('error', 'Anda tidak memiliki otoritas untuk mengubah status akun ini.');
+
+                return;
+            }
+        }
 
         // Self-lockout check
         if ($user->id === Auth::id()) {
-            session()->flash('error', 'Anda tidak dapat menonaktifkan akun Owner yang sedang Anda gunakan.');
+            session()->flash('error', 'Anda tidak dapat menonaktifkan akun yang sedang Anda gunakan.');
 
             return;
         }
@@ -335,12 +403,32 @@ class Index extends Component
 
     public function render()
     {
+        $currentUser = Auth::user();
+        $isOwner = $currentUser->isOwner();
+
         $query = User::with(['cabang', 'roles'])
-            ->whereHas('roles', function ($q) {
-                if ($this->roleFilter === 'semua') {
-                    $q->whereIn('name', ['Owner', 'Superadmin']);
+            ->whereHas('roles', function ($q) use ($isOwner) {
+                if (! $isOwner) {
+                    // Superadmin hanya mengelola Superadmin, Teknisi, Kasir di cabangnya
+                    if ($this->roleFilter === 'semua') {
+                        $q->whereIn('name', ['Superadmin', 'Teknisi', 'Kasir']);
+                    } else {
+                        $q->where('name', $this->roleFilter);
+                    }
                 } else {
-                    $q->where('name', $this->roleFilter);
+                    if ($this->roleFilter !== 'semua') {
+                        $q->where('name', $this->roleFilter);
+                    }
+                }
+            })
+            ->when(! $isOwner, function ($q) use ($currentUser) {
+                $q->where('cabang_id', $currentUser->cabang_id);
+            })
+            ->when($isOwner && $this->cabangFilter !== 'semua', function ($q) {
+                if ($this->cabangFilter === 'hq') {
+                    $q->whereNull('cabang_id');
+                } else {
+                    $q->where('cabang_id', $this->cabangFilter);
                 }
             })
             ->when($this->search, function ($q) {
@@ -350,13 +438,6 @@ class Index extends Component
                         ->orWhere('email', 'like', '%'.$this->search.'%')
                         ->orWhere('no_hp', 'like', '%'.$this->search.'%');
                 });
-            })
-            ->when($this->cabangFilter !== 'semua', function ($q) {
-                if ($this->cabangFilter === 'hq') {
-                    $q->whereNull('cabang_id');
-                } else {
-                    $q->where('cabang_id', $this->cabangFilter);
-                }
             });
 
         $allowedSorts = ['name', 'username', 'email', 'cabang_id', 'no_hp', 'status', 'created_at', 'id'];
@@ -367,13 +448,16 @@ class Index extends Component
         $users = $query->orderBy($sortColumn, $sortDir)->take($this->perPage)->get();
         $hasMore = $totalUsers > $this->perPage;
 
-        $cabangs = Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get();
+        $cabangs = $isOwner
+            ? Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get()
+            : Cabang::where('id', $currentUser->cabang_id)->get();
 
         return view('livewire.master.user.index', [
             'users' => $users,
             'hasMore' => $hasMore,
             'totalUsers' => $totalUsers,
             'cabangs' => $cabangs,
+            'isOwner' => $isOwner,
         ]);
     }
 }

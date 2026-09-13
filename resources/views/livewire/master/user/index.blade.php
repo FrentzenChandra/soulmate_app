@@ -1,21 +1,52 @@
 <div class="space-y-6">
 
+    <!-- Flash Messages -->
+    @if (session()->has('success'))
+        <div class="px-4 py-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between shadow-sm">
+            <div class="flex items-center space-x-2">
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-xs font-bold">{{ session('success') }}</span>
+            </div>
+        </div>
+    @endif
+
+    @if (session()->has('error'))
+        <div class="px-4 py-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between shadow-sm">
+            <div class="flex items-center space-x-2">
+                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <span class="text-xs font-bold">{{ session('error') }}</span>
+            </div>
+        </div>
+    @endif
+
     <!-- Header & Breadcrumb -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-gray-400 mb-1">
-                <span>Kantor Pusat</span>
-                <span>/</span>
-                <span class="text-purple-600 font-bold">Master Pengguna</span>
+                @if($isOwner)
+                    <span>Kantor Pusat (HQ)</span>
+                    <span>/</span>
+                    <span class="text-purple-600 font-bold">Master Pengguna</span>
+                @else
+                    <span>Cabang {{ auth()->user()->cabang?->nama_cabang }}</span>
+                    <span>/</span>
+                    <span class="text-blue-600 font-bold">Manajemen Staff</span>
+                @endif
             </div>
-            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Master Pengguna (Owner & Superadmin)</h1>
-            <p class="text-xs text-gray-500 mt-0.5">Kelola hak akses pemilik bisnis (Owner) dan administrator operasional per cabang (Superadmin).</p>
+            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">
+                {{ $isOwner ? 'Master Pengguna & Staff' : 'Manajemen Staff Cabang' }}
+            </h1>
+            <p class="text-xs text-gray-500 mt-0.5">
+                {{ $isOwner
+                    ? 'Kelola akun Owner, Superadmin cabang, Teknisi, dan Kasir secara menyeluruh.'
+                    : 'Kelola akun Superadmin, Teknisi, dan Kasir khusus untuk Cabang ' . (auth()->user()->cabang?->nama_cabang ?? '') }}
+            </p>
         </div>
 
         <button wire:click="openCreateModal"
-                class="inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-bold text-sm shadow-lg shadow-purple-900/30 transition-all cursor-pointer">
+                class="inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl {{ $isOwner ? 'bg-[#5E17EB] hover:bg-purple-700 shadow-purple-900/30' : 'bg-[#0052FF] hover:bg-blue-700 shadow-blue-900/30' }} text-white font-bold text-sm shadow-lg transition-all cursor-pointer">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
-            <span>Tambah Pengguna Baru</span>
+            <span>Tambah {{ $isOwner ? 'Pengguna Baru' : 'Staff Baru' }}</span>
         </button>
     </div>
 
@@ -26,35 +57,41 @@
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
-            <input type="text" 
+            <input type="text"
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari nama, username, email, HP..." 
-                   class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-all">
+                   placeholder="Cari nama, username, email, HP..."
+                   class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50/80 border border-gray-200 rounded-xl focus:ring-2 {{ $isOwner ? 'focus:ring-[#5E17EB] focus:border-[#5E17EB]' : 'focus:ring-[#0052FF] focus:border-[#0052FF]' }} transition-all">
         </div>
 
         <!-- Filter Role & Cabang -->
         <div class="flex items-center space-x-3 w-full md:w-auto">
             <div class="flex items-center space-x-2">
                 <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Role:</span>
-                <select wire:model.live="roleFilter" 
+                <select wire:model.live="roleFilter"
                         class="bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl px-3 py-2 text-gray-700 focus:ring-2 focus:ring-purple-400">
                     <option value="semua">Semua Role</option>
-                    <option value="Owner">Owner</option>
+                    @if($isOwner)
+                        <option value="Owner">Owner</option>
+                    @endif
                     <option value="Superadmin">Superadmin</option>
+                    <option value="Teknisi">Teknisi</option>
+                    <option value="Kasir">Kasir</option>
                 </select>
             </div>
 
-            <div class="flex items-center space-x-2">
-                <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Cabang:</span>
-                <select wire:model.live="cabangFilter" 
-                        class="bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl px-3 py-2 text-gray-700 focus:ring-2 focus:ring-purple-400">
-                    <option value="semua">Semua Wilayah</option>
-                    <option value="hq">Kantor Pusat (Owner)</option>
-                    @foreach($cabangs as $c)
-                        <option value="{{ $c->id }}">{{ $c->nama_cabang }}</option>
-                    @endforeach
-                </select>
-            </div>
+            @if($isOwner)
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Cabang:</span>
+                    <select wire:model.live="cabangFilter"
+                            class="bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl px-3 py-2 text-gray-700 focus:ring-2 focus:ring-purple-400">
+                        <option value="semua">Semua Wilayah</option>
+                        <option value="hq">Kantor Pusat (Owner HQ)</option>
+                        @foreach($cabangs as $c)
+                            <option value="{{ $c->id }}">{{ $c->nama_cabang }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -75,17 +112,20 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @forelse($users as $u)
+                        @php
+                            $userRole = $u->getRoleNames()->first() ?? 'Staff';
+                        @endphp
                         <tr class="hover:bg-gray-50/80 transition-colors">
                             <!-- User Name & Avatar -->
                             <td class="py-4 px-5">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-9 h-9 rounded-xl overflow-hidden {{ $u->isOwner() ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }} font-extrabold flex items-center justify-center text-xs shadow-xs shrink-0 border border-gray-100">
-                                        @if($u->foto_url)
-                                            <img src="{{ asset($u->foto_url) }}" 
+                                    <div class="w-9 h-9 rounded-xl overflow-hidden {{ $u->isOwner() ? 'bg-purple-100 text-purple-700' : ($userRole === 'Superadmin' ? 'bg-blue-100 text-blue-700' : ($userRole === 'Teknisi' ? 'bg-teal-100 text-teal-700' : 'bg-pink-100 text-pink-700')) }} font-extrabold flex items-center justify-center text-xs shadow-xs shrink-0 border border-gray-100">
+                                        @if($u->profile_photo_url || $u->foto_url)
+                                            <img src="{{ $u->profile_photo_url }}"
                                                  loading="lazy"
                                                  decoding="async"
-                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" 
-                                                 alt="{{ $u->name }}" 
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                                                 alt="{{ $u->name }}"
                                                  class="w-full h-full object-cover">
                                             <span style="display:none;">{{ strtoupper(substr($u->name, 0, 1)) }}</span>
                                         @else
@@ -116,9 +156,17 @@
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 font-extrabold text-[11px] border border-purple-200">
                                         <span>Owner</span>
                                     </span>
-                                @else
+                                @elseif($userRole === 'Superadmin')
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-extrabold text-[11px] border border-blue-200">
                                         <span>Superadmin</span>
+                                    </span>
+                                @elseif($userRole === 'Teknisi')
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 font-extrabold text-[11px] border border-teal-200">
+                                        <span>Teknisi</span>
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-pink-50 text-pink-700 font-extrabold text-[11px] border border-pink-200">
+                                        <span>Kasir</span>
                                     </span>
                                 @endif
                             </td>
@@ -150,6 +198,10 @@
                                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                                         <span>Aktif (Anda)</span>
                                     </span>
+                                @elseif(!$isOwner && $u->isOwner())
+                                    <span class="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200">
+                                        <span>Terkunci</span>
+                                    </span>
                                 @else
                                     <button wire:click="toggleStatus({{ $u->id }})"
                                             class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer {{ $u->status === 'aktif' ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200 border border-gray-300' }}">
@@ -161,11 +213,13 @@
 
                             <!-- Actions -->
                             <td class="py-4 px-5 text-right">
-                                <button wire:click="openEditModal({{ $u->id }})" 
-                                        class="p-2 rounded-xl text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
-                                        title="Edit Akun Pengguna">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                </button>
+                                @if($isOwner || (!$u->isOwner() && (int)$u->cabang_id === (int)auth()->user()->cabang_id))
+                                    <button wire:click="openEditModal({{ $u->id }})"
+                                            class="p-2 rounded-xl text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
+                                            title="Edit Akun Pengguna">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                     @empty
@@ -186,7 +240,7 @@
         <!-- Infinite Scroll Sentinel & Status -->
         <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
             @if(isset($hasMore) && $hasMore)
-                <div x-intersect="$wire.loadMore()" 
+                <div x-intersect="$wire.loadMore()"
                      class="py-2 flex flex-col items-center justify-center space-y-2 text-center">
                     <div wire:loading wire:target="loadMore" class="flex items-center space-x-2 text-[#5E17EB]">
                         <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
@@ -196,9 +250,9 @@
                         <span class="text-xs font-bold">Memuat pengguna lainnya...</span>
                     </div>
 
-                    <button type="button" 
-                            wire:click="loadMore" 
-                            wire:loading.remove 
+                    <button type="button"
+                            wire:click="loadMore"
+                            wire:loading.remove
                             wire:target="loadMore"
                             class="px-4 py-1.5 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-600 hover:text-[#5E17EB] hover:border-[#5E17EB] shadow-xs transition-all cursor-pointer">
                         Muat Lebih Banyak Pengguna (Scroll Otomatis)
@@ -206,7 +260,7 @@
                 </div>
             @elseif(count($users) > 0)
                 <div class="py-1 text-center text-xs font-medium text-gray-400">
-                    ✓ Menampilkan seluruh {{ count($users) }} dari {{ $totalUsers ?? count($users) }} pengguna
+                    âœ“ Menampilkan seluruh {{ count($users) }} dari {{ $totalUsers ?? count($users) }} pengguna
                 </div>
             @endif
         </div>
@@ -220,9 +274,9 @@
 
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
-                    
+
                     <!-- Header Modal -->
-                    <div class="bg-gradient-to-r from-[#0E1726] to-[#5E17EB] px-6 py-5 text-white flex items-center justify-between">
+                    <div class="bg-gradient-to-r {{ $isOwner ? 'from-[#0E1726] to-[#5E17EB]' : 'from-[#0E1726] to-[#0052FF]' }} px-6 py-5 text-white flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-md">
                                 <svg class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
@@ -243,46 +297,77 @@
                     <form wire:submit.prevent="save">
                         <div class="p-6 space-y-4">
 
-                            <!-- Pilihan Role (Owner vs Superadmin) -->
+                            <!-- Pilihan Role -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                                     Pilih Peran Akun (Role) <span class="text-rose-500">*</span>
                                 </label>
-                                <div class="grid grid-cols-2 gap-3">
+                                <div class="grid {{ $isOwner ? 'grid-cols-2 gap-2.5' : 'grid-cols-3 gap-2' }}">
+                                    @if($isOwner)
+                                        <!-- Role Owner Card -->
+                                        <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Owner' ? 'border-[#5E17EB] bg-purple-50/50' : 'border-gray-200 hover:border-gray-300' }}">
+                                            <input type="radio" wire:model.live="role_name" value="Owner" class="sr-only">
+                                            <div class="flex items-center space-x-1.5">
+                                                <span class="w-5 h-5 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                                                </span>
+                                                <span class="text-xs font-extrabold text-gray-900">Owner</span>
+                                            </div>
+                                            <span class="text-[9px] text-gray-500 mt-1 leading-tight">Akses penuh seluruh cabang</span>
+                                        </label>
+                                    @endif
+
                                     <!-- Role Superadmin Card -->
-                                    <label class="relative flex flex-col p-3 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Superadmin' ? 'border-[#0052FF] bg-blue-50/50' : 'border-gray-200 hover:border-gray-300' }}">
+                                    <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Superadmin' ? 'border-[#0052FF] bg-blue-50/50' : 'border-gray-200 hover:border-gray-300' }}">
                                         <input type="radio" wire:model.live="role_name" value="Superadmin" class="sr-only">
-                                        <div class="flex items-center space-x-2">
-                                            <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                        <div class="flex items-center space-x-1.5">
+                                            <span class="w-5 h-5 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                                             </span>
                                             <span class="text-xs font-extrabold text-gray-900">Superadmin</span>
                                         </div>
-                                        <span class="text-[10px] text-gray-500 mt-1">Admin operasional khusus di 1 cabang toko</span>
+                                        <span class="text-[9px] text-gray-500 mt-1 leading-tight">Admin operasional cabang</span>
                                     </label>
 
-                                    <!-- Role Owner Card -->
-                                    <label class="relative flex flex-col p-3 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Owner' ? 'border-[#5E17EB] bg-purple-50/50' : 'border-gray-200 hover:border-gray-300' }}">
-                                        <input type="radio" wire:model.live="role_name" value="Owner" class="sr-only">
-                                        <div class="flex items-center space-x-2">
-                                            <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                                    <!-- Role Teknisi Card -->
+                                    <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Teknisi' ? 'border-teal-500 bg-teal-50/50' : 'border-gray-200 hover:border-gray-300' }}">
+                                        <input type="radio" wire:model.live="role_name" value="Teknisi" class="sr-only">
+                                        <div class="flex items-center space-x-1.5">
+                                            <span class="w-5 h-5 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center shrink-0">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                             </span>
-                                            <span class="text-xs font-extrabold text-gray-900">Owner</span>
+                                            <span class="text-xs font-extrabold text-gray-900">Teknisi</span>
                                         </div>
-                                        <span class="text-[10px] text-gray-500 mt-1">Pemilik bisnis, hak akses penuh seluruh cabang</span>
+                                        <span class="text-[9px] text-gray-500 mt-1 leading-tight">Pengerjaan & status servis</span>
+                                    </label>
+
+                                    <!-- Role Kasir Card -->
+                                    <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Kasir' ? 'border-pink-500 bg-pink-50/50' : 'border-gray-200 hover:border-gray-300' }}">
+                                        <input type="radio" wire:model.live="role_name" value="Kasir" class="sr-only">
+                                        <div class="flex items-center space-x-1.5">
+                                            <span class="w-5 h-5 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center shrink-0">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                            </span>
+                                            <span class="text-xs font-extrabold text-gray-900">Kasir</span>
+                                        </div>
+                                        <span class="text-[9px] text-gray-500 mt-1 leading-tight">POS penjualan & tagihan</span>
                                     </label>
                                 </div>
                             </div>
 
-                            <!-- Assignment Cabang (Hanya jika role Superadmin) -->
-                            @if($role_name === 'Superadmin')
+                            <!-- Assignment Cabang -->
+                            @if($role_name === 'Owner')
+                                <div class="p-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span>Akun <strong>Owner</strong> memiliki akses lintas cabang secara global (HQ).</span>
+                                </div>
+                            @elseif($isOwner)
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                         Pilih Cabang Penugasan <span class="text-rose-500">*</span>
                                     </label>
-                                    <select wire:model="cabang_id" 
-                                            class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] @error('cabang_id') border-rose-500 @enderror">
+                                    <select wire:model="cabang_id"
+                                            class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('cabang_id') border-rose-500 @enderror">
                                         <option value="">-- Pilih Cabang --</option>
                                         @foreach($cabangs as $c)
                                             <option value="{{ $c->id }}">{{ $c->nama_cabang }} ({{ $c->kode_cabang }})</option>
@@ -291,9 +376,9 @@
                                     @error('cabang_id') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
                             @else
-                                <div class="p-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center space-x-2">
-                                    <svg class="w-4 h-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <span>Akun <strong>Owner</strong> memiliki akses lintas cabang secara global (HQ).</span>
+                                <div class="p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                    <span>Staff ini akan ditugaskan ke: <strong>{{ auth()->user()->cabang?->nama_cabang }}</strong></span>
                                 </div>
                             @endif
 
@@ -308,7 +393,6 @@
                                     </span>
                                 </div>
 
-                                <!-- Loading State Saat File Diupload -->
                                 <div wire:loading wire:target="foto" class="w-full p-4 mb-3 bg-purple-50/80 border border-purple-200 rounded-2xl flex items-center space-x-3 text-purple-700">
                                     <svg class="animate-spin h-5 w-5 text-[#5E17EB] shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -322,13 +406,9 @@
 
                                 <div wire:loading.remove wire:target="foto">
                                     @if($foto)
-                                        <!-- PREVIEW FOTO BARU SEBELUM SIMPAN -->
                                         <div class="p-3.5 bg-white rounded-2xl border-2 border-[#5E17EB]/30 shadow-xs flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                                             <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-gray-100 border border-purple-200 shrink-0 shadow-inner group">
                                                 <img src="{{ $foto->temporaryUrl() }}" alt="Preview Foto Baru" class="w-full h-full object-cover">
-                                                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                    <span class="text-[9px] font-black text-white px-2 py-0.5 bg-[#5E17EB]/80 rounded-full">Preview</span>
-                                                </div>
                                             </div>
                                             <div class="flex-1 min-w-0">
                                                 <div class="flex items-center space-x-2">
@@ -342,161 +422,135 @@
                                                 <p class="text-xs font-bold text-gray-900 truncate mt-1">
                                                     {{ $foto->getClientOriginalName() }}
                                                 </p>
-                                                <p class="text-[10px] text-gray-500 mt-0.5">
-                                                    Foto akan otomatis dikonversi ke format WebP ringan saat disimpan.
-                                                </p>
                                                 <div class="mt-2 flex items-center space-x-2">
-                                                    <button type="button" 
-                                                            wire:click="cancelUploadFoto" 
-                                                            class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                                        <span>Batal / Hapus Pilihan</span>
+                                                    <button type="button"
+                                                            wire:click="cancelUploadFoto"
+                                                            class="text-[11px] font-bold text-rose-600 hover:text-rose-800 hover:underline cursor-pointer">
+                                                        Batal / Pilih Ulang
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
-
                                     @elseif($existing_foto_url)
-                                        <!-- PREVIEW FOTO YANG SUDAH TERSIMPAN -->
-                                        <div class="p-3 bg-white rounded-2xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-                                            <div class="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
-                                                <img src="{{ asset($existing_foto_url) }}" 
-                                                     onerror="this.src='{{ asset('images/logo_bulat.jpg') }}';" 
-                                                     alt="Foto Saat Ini" 
-                                                     class="w-full h-full object-cover">
+                                        <div class="p-3.5 bg-white rounded-2xl border border-gray-200 shadow-xs flex items-center space-x-4">
+                                            <div class="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+                                                <img src="{{ asset($existing_foto_url) }}" alt="Foto Saat Ini" class="w-full h-full object-cover">
                                             </div>
                                             <div class="flex-1 min-w-0">
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-100">
-                                                    Foto Profil Aktif
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700">
+                                                    Foto Profil Tersimpan
                                                 </span>
-                                                <div class="mt-2 flex flex-wrap items-center gap-2">
-                                                    <label class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#5E17EB] bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors cursor-pointer">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                                        <span>Ganti Foto</span>
-                                                        <input type="file" wire:model="foto" accept="image/*" class="hidden">
+                                                <div class="mt-1 flex items-center space-x-3">
+                                                    <label class="text-[11px] font-bold text-purple-600 hover:text-purple-800 hover:underline cursor-pointer">
+                                                        Ganti Foto
+                                                        <input type="file" wire:model="foto" accept="image/*" class="sr-only">
                                                     </label>
-                                                    <button type="button" 
-                                                            wire:click="removeExistingFoto" 
-                                                            class="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                        <span>Hapus Foto</span>
+                                                    <button type="button"
+                                                            wire:click="removeExistingFoto"
+                                                            class="text-[11px] font-bold text-rose-600 hover:text-rose-800 hover:underline cursor-pointer">
+                                                        Hapus Foto
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
-
                                     @else
-                                        <!-- PILIH FOTO BARU -->
-                                        <div class="flex items-center space-x-4">
-                                            <div class="w-12 h-12 rounded-2xl bg-white border-2 border-dashed border-gray-300 flex items-center justify-center shrink-0 text-gray-400">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                            </div>
-                                            <div class="flex-1">
-                                                <input type="file" 
-                                                       wire:model="foto" 
-                                                       accept="image/*"
-                                                       class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#5E17EB]/10 file:text-[#5E17EB] hover:file:bg-[#5E17EB]/20 cursor-pointer">
-                                                <p class="text-[10px] text-gray-400 mt-1">Upload foto profil (JPG, PNG, WEBP, Maks. 4MB).</p>
-                                            </div>
-                                        </div>
+                                        <label class="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 hover:border-purple-400 rounded-2xl cursor-pointer bg-white transition-all group">
+                                            <svg class="w-8 h-8 text-gray-400 group-hover:text-purple-500 transition-colors mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            <span class="text-xs font-bold text-gray-700 group-hover:text-purple-600">Klik untuk upload foto profil</span>
+                                            <span class="text-[10px] text-gray-400">JPG, PNG, WEBP hingga 4MB</span>
+                                            <input type="file" wire:model="foto" accept="image/*" class="sr-only">
+                                        </label>
                                     @endif
                                 </div>
-
-                                @error('foto') 
-                                    <span class="text-[11px] text-rose-500 font-semibold block mt-2">{{ $message }}</span> 
-                                @enderror
+                                @error('foto') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
-
-                            <!-- Nama Lengkap -->
+                            <!-- Input Nama Lengkap -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                     Nama Lengkap <span class="text-rose-500">*</span>
                                 </label>
-                                <input type="text" 
+                                <input type="text"
                                        wire:model="name"
                                        placeholder="Contoh: Budi Santoso"
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('name') border-rose-500 @enderror">
                                 @error('name') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <!-- Username -->
+                            <!-- Input Username & Email -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                         Username Login <span class="text-rose-500">*</span>
                                     </label>
-                                    <input type="text" 
+                                    <input type="text"
                                            wire:model="username"
-                                           placeholder="Contoh: budi_admin"
-                                           class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('username') border-rose-500 @enderror">
+                                           placeholder="budi_santoso"
+                                           class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('username') border-rose-500 @enderror">
                                     @error('username') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
-
-                                <!-- Email -->
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                         Alamat Email <span class="text-rose-500">*</span>
                                     </label>
-                                    <input type="email" 
+                                    <input type="email"
                                            wire:model="email"
-                                           placeholder="Contoh: budi@soulmate.test"
-                                           class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('email') border-rose-500 @enderror">
+                                           placeholder="budi@soulmate.test"
+                                           class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('email') border-rose-500 @enderror">
                                     @error('email') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <!-- Password -->
+                            <!-- Input Password & No HP -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Password @if(!$isEditMode) <span class="text-rose-500">*</span> @else <span class="text-gray-400 font-normal">(Kosongkan jika tdk diubah)</span> @endif
+                                        Password @if(!$isEditMode)<span class="text-rose-500">*</span>@endif
                                     </label>
-                                    <input type="password" 
+                                    <input type="password"
                                            wire:model="password"
-                                           placeholder="Minimal 6 karakter"
-                                           class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('password') border-rose-500 @enderror">
+                                           placeholder="{{ $isEditMode ? 'Kosongkan jika tidak diubah' : 'Minimal 6 karakter' }}"
+                                           class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('password') border-rose-500 @enderror">
                                     @error('password') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
-
-                                <!-- No HP -->
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        No. Handphone / WhatsApp
+                                        No. WhatsApp / HP
                                     </label>
-                                    <input type="text" 
+                                    <input type="text"
                                            wire:model="no_hp"
-                                           placeholder="Contoh: 081234567890"
-                                           class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]">
+                                           placeholder="081234567890"
+                                           class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('no_hp') border-rose-500 @enderror">
                                     @error('no_hp') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
                             </div>
 
-                            <!-- Status Akun -->
+                            <!-- Input Status Akun -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                     Status Akun <span class="text-rose-500">*</span>
                                 </label>
-                                <select wire:model="status" 
+                                <select wire:model="status"
                                         class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]">
-                                    <option value="aktif">Aktif (Bisa Login)</option>
-                                    <option value="nonaktif">Nonaktif (Diblokir)</option>
+                                    <option value="aktif">Aktif (Dapat Login)</option>
+                                    <option value="nonaktif">Non-Aktif (Diblokir)</option>
                                 </select>
-                                @error('status') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
                         </div>
 
                         <!-- Footer Modal -->
-                        <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-3 rounded-b-3xl">
-                            <button type="button" 
+                        <div class="bg-gray-50 px-6 py-4 rounded-b-3xl border-t border-gray-100 flex items-center justify-end space-x-3">
+                            <button type="button"
                                     wire:click="closeModal"
-                                    class="px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
+                                    class="px-4 py-2 text-xs font-bold text-gray-600 hover:text-gray-800 rounded-xl hover:bg-gray-200/60 transition-colors cursor-pointer">
                                 Batal
                             </button>
-                            <button type="submit" 
-                                    class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-bold text-white shadow-lg shadow-purple-900/30 transition-all cursor-pointer">
-                                {{ $isEditMode ? 'Simpan Perubahan' : 'Buat Akun Pengguna' }}
+                            <button type="submit"
+                                    wire:loading.attr="disabled"
+                                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl {{ $isOwner ? 'bg-[#5E17EB] hover:bg-purple-700 shadow-purple-900/30' : 'bg-[#0052FF] hover:bg-blue-700 shadow-blue-900/30' }} text-white font-bold text-xs shadow-md transition-all cursor-pointer">
+                                <span wire:loading.remove>{{ $isEditMode ? 'Simpan Perubahan' : 'Buat Akun' }}</span>
+                                <span wire:loading>Memproses...</span>
                             </button>
                         </div>
                     </form>

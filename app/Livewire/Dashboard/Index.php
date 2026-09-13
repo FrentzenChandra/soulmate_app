@@ -79,9 +79,10 @@ class Index extends Component
             'ok' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'selesai')->count(),
         ];
 
-        // Penjualan & Omzet
+        // Penjualan & Omzet (Hanya Transaksi Riil/Nyata)
         $penjualanQuery = Penjualan::query()
             ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
+            ->where('is_real', true)
             ->where('status', 'lunas');
 
         $omzetHariIni = (clone $penjualanQuery)
@@ -132,7 +133,7 @@ class Index extends Component
 
         if ($isHQ) {
             foreach ($allCabangs as $c) {
-                $cOmzet = Penjualan::where('cabang_id', $c->id)->where('status', 'lunas')->whereDate('tanggal', Carbon::today())->sum('total');
+                $cOmzet = Penjualan::where('cabang_id', $c->id)->where('is_real', true)->where('status', 'lunas')->whereDate('tanggal', Carbon::today())->sum('total');
                 $cServisAktif = ServisMasuk::where('cabang_id', $c->id)->whereIn('status', ['pengecekan', 'pengerjaan'])->count();
                 $cSuperadmin = $c->users->first()?->name ?? 'Belum ada Admin';
                 $cTotalStaff = User::where('cabang_id', $c->id)->where('status', 'aktif')->count();
@@ -165,6 +166,7 @@ class Index extends Component
                 for ($i = 6; $i >= 0; $i--) {
                     $date = Carbon::today()->subDays($i);
                     $dailySum = Penjualan::where('cabang_id', $c->id)
+                        ->where('is_real', true)
                         ->where('status', 'lunas')
                         ->whereDate('tanggal', $date)
                         ->sum('total');
@@ -180,6 +182,7 @@ class Index extends Component
             for ($i = 6; $i >= 0; $i--) {
                 $date = Carbon::today()->subDays($i);
                 $dailySum = Penjualan::where('cabang_id', $cabangId)
+                    ->where('is_real', true)
                     ->where('status', 'lunas')
                     ->whereDate('tanggal', $date)
                     ->sum('total');

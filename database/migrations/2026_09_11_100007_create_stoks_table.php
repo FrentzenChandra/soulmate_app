@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('cabang_id')->constrained('cabangs')->cascadeOnDelete();
             $table->integer('jumlah')->default(0);
             $table->integer('min_stok')->default(3);
-            $table->boolean('is_aktif')->default(true);
+            $table->boolean('is_aktif')->default(false);
             $table->timestamps();
 
             $table->unique(['produk_id', 'cabang_id']);

@@ -146,7 +146,7 @@
                                          loading="lazy"
                                          decoding="async"
                                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                                @elseif($p->foto_url && (str_starts_with($p->foto_url, 'http') || str_starts_with($p->foto_url, 'images/')))
+                                @elseif($p->foto_url && (str_starts_with($p->foto_url, 'http') || str_starts_with($p->foto_url, 'storage/') || str_starts_with($p->foto_url, 'images/')))
                                     <img src="{{ asset($p->foto_url) }}"
                                          alt="{{ $p->nama_produk }}"
                                          loading="lazy"
@@ -197,7 +197,7 @@
                             <span class="text-xs font-black text-[#0052FF]">
                                 Rp {{ number_format($p->harga_jual, 0, ',', '.') }}
                             </span>
-                            @if(!$isZero)
+                            @if(!$isZero || !$isReal)
                                 <button type="button"
                                         wire:click.stop="addToCart({{ $p->id }})"
                                         class="w-7 h-7 rounded-lg bg-purple-50 hover:bg-[#5E17EB] text-[#5E17EB] hover:text-white transition-all flex items-center justify-center cursor-pointer shadow-xs">
@@ -234,7 +234,7 @@
                         }
                      }"
                      class="p-4 bg-white rounded-2xl border border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
-                    
+
                     <div class="flex items-center space-x-2 text-xs text-gray-500 font-medium">
                         <span class="inline-block w-2 h-2 rounded-full bg-[#5E17EB] animate-ping"></span>
                         <span>Menampilkan <strong>{{ $produks->count() }}</strong> dari <strong>{{ $totalProduk }}</strong> produk</span>
@@ -251,8 +251,8 @@
 
                     <!-- Fallback Manual Trigger -->
                     <div wire:loading.remove wire:target="loadMore">
-                        <button type="button" 
-                                wire:click="loadMore" 
+                        <button type="button"
+                                wire:click="loadMore"
                                 class="px-4 py-2 bg-purple-50 text-[#5E17EB] hover:bg-[#5E17EB] hover:text-white font-bold rounded-xl text-xs transition-colors cursor-pointer inline-flex items-center space-x-1.5">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             <span>Scroll untuk Muat Otomatis</span>
@@ -362,7 +362,7 @@
 
             <!-- Cart Items Container -->
             <div class="bg-white card-custom rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
-                <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                <div class="p-3.5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                     <div class="flex items-center space-x-2">
                         <svg class="w-4 h-4 text-[#5E17EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                         <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Keranjang Belanja</h3>
@@ -375,6 +375,26 @@
                             Kosongkan
                         </button>
                     @endif
+                </div>
+
+                <!-- Toggle Mode Penjualan: Riil vs Non-Real -->
+                <div class="px-3.5 py-2 bg-gray-50 border-b border-gray-100 flex items-center justify-between gap-2">
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full {{ $isReal ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
+                        <span class="text-[10px] font-bold text-gray-600 uppercase tracking-wider">Tipe:</span>
+                    </div>
+                    <div class="flex items-center space-x-1 bg-gray-200/80 p-0.5 rounded-lg text-[10px] font-extrabold">
+                        <button type="button"
+                                wire:click="toggleRealMode"
+                                class="px-2 py-0.5 rounded-md transition-all cursor-pointer {{ $isReal ? 'bg-white text-emerald-700 shadow-2xs font-black' : 'text-gray-500 hover:text-gray-900' }}">
+                            Real (Potong Stok)
+                        </button>
+                        <button type="button"
+                                wire:click="toggleRealMode"
+                                class="px-2 py-0.5 rounded-md transition-all cursor-pointer {{ !$isReal ? 'bg-amber-500 text-white shadow-2xs font-black' : 'text-gray-500 hover:text-gray-900' }}">
+                            Nota Non-Real (Stok Tidak Terpengaruh)
+                        </button>
+                    </div>
                 </div>
 
                 <!-- List Items Scrollable -->
@@ -440,13 +460,8 @@
                     <!-- Diskon Input -->
                     <div class="flex items-center justify-between text-xs text-gray-600">
                         <span>Diskon Transaksi</span>
-                        <div class="flex items-center space-x-1">
-                            <span class="text-gray-400 text-[11px]">Rp</span>
-                            <input type="number"
-                                   wire:model.live.debounce.250ms="diskon"
-                                   min="0"
-                                   placeholder="0"
-                                   class="w-24 text-right text-xs font-extrabold py-1 px-2 border border-gray-200 rounded-lg bg-white focus:ring-1 focus:ring-[#5E17EB]">
+                        <div class="w-28">
+                            <x-input-rupiah wire:model.live.debounce.250ms="diskon" placeholder="0" inputClass="!py-1 !px-2 !text-right !text-xs !font-extrabold" />
                         </div>
                     </div>
 
@@ -766,13 +781,8 @@
 
                                 <div class="flex items-center justify-between text-gray-600">
                                     <span class="font-medium">Diskon Transaksi</span>
-                                    <div class="flex items-center space-x-1">
-                                        <span class="text-gray-400 font-bold">Rp</span>
-                                        <input type="number"
-                                               wire:model.live.debounce.250ms="diskon"
-                                               min="0"
-                                               placeholder="0"
-                                               class="w-28 text-right font-extrabold py-1 px-2 border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-[#5E17EB]">
+                                    <div class="w-32">
+                                        <x-input-rupiah wire:model.live.debounce.250ms="diskon" placeholder="0" inputClass="!py-1 !px-2 !text-right !text-xs !font-extrabold !border-gray-300" />
                                     </div>
                                 </div>
 
@@ -794,83 +804,108 @@
                                 @endif
                             </div>
 
-                            <!-- Tab Metode Bayar -->
+                            <!-- Mode Transaksi Banner -->
+                            @if($isReal)
+                                <div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+                                    <div class="flex items-center space-x-2.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                        <div>
+                                            <h4 class="text-xs font-black text-emerald-900">Penjualan Real (Real POS)</h4>
+                                            <p class="text-[11px] text-emerald-700">Memotong stok fisik cabang & tercatat dalam laporan omset.</p>
+                                        </div>
+                                    </div>
+                                    <button type="button"
+                                            wire:click="toggleRealMode"
+                                            class="text-[11px] font-black text-amber-800 bg-amber-100 hover:bg-amber-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shrink-0">
+                                        Ubah ke Non-Real
+                                    </button>
+                                </div>
+                            @else
+                                <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between">
+                                    <div class="flex items-center space-x-2.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+                                        <div>
+                                            <h4 class="text-xs font-black text-amber-900">Nota Non-Real (Formalitas)</h4>
+                                            <p class="text-[11px] text-amber-700">Hanya cetak bon. TIDAK memotong stok & TIDAK masuk omset.</p>
+                                        </div>
+                                    </div>
+                                    <button type="button"
+                                            wire:click="toggleRealMode"
+                                            class="text-[11px] font-black text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shrink-0">
+                                        Ubah ke Riil
+                                    </button>
+                                </div>
+                            @endif
+
+                            <!-- Input Uang Diterima & Quick Money Stepper -->
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                                    Metode Pembayaran <span class="text-rose-500">*</span>
-                                </label>
-                                <div class="grid grid-cols-3 gap-2">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                        Nominal Uang Diterima
+                                    </label>
                                     <button type="button"
-                                            wire:click="$set('metodeBayar', 'cash')"
-                                            class="p-3 rounded-2xl border text-center transition-all cursor-pointer {{ $metodeBayar === 'cash' ? 'border-[#5E17EB] bg-purple-50/80 text-[#5E17EB] font-black shadow-xs ring-2 ring-purple-200' : 'border-gray-200 hover:bg-gray-50 text-gray-600 font-bold' }}">
-                                        <svg class="w-5 h-5 mx-auto mb-1 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                        <span class="text-xs block">Tunai (Cash)</span>
+                                            wire:click="setUangPas"
+                                            class="text-[11px] font-bold text-[#5E17EB] hover:underline cursor-pointer">
+                                        Pakai Uang Pas
                                     </button>
+                                </div>
 
-                                    <button type="button"
-                                            wire:click="$set('metodeBayar', 'qris')"
-                                            class="p-3 rounded-2xl border text-center transition-all cursor-pointer {{ $metodeBayar === 'qris' ? 'border-[#5E17EB] bg-purple-50/80 text-[#5E17EB] font-black shadow-xs ring-2 ring-purple-200' : 'border-gray-200 hover:bg-gray-50 text-gray-600 font-bold' }}">
-                                        <svg class="w-5 h-5 mx-auto mb-1 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
-                                        <span class="text-xs block">QRIS</span>
-                                    </button>
+                                <div x-data="{
+                                    raw: @entangle('jumlahBayar'),
+                                    display: '',
+                                    formatRupiah(val) {
+                                        if (val === null || val === undefined || val === '' || isNaN(val)) return '';
+                                        let num = parseInt(val.toString().replace(/[^0-9]/g, ''), 10);
+                                        return isNaN(num) || num === 0 ? '' : num.toLocaleString('id-ID');
+                                    },
+                                    update(e) {
+                                        let clean = e.target.value.replace(/[^0-9]/g, '');
+                                        let num = clean ? parseInt(clean, 10) : 0;
+                                        this.raw = num;
+                                        this.display = num ? num.toLocaleString('id-ID') : '';
+                                        e.target.value = this.display;
+                                    },
+                                    init() {
+                                        this.display = this.formatRupiah(this.raw);
+                                        this.$watch('raw', (newVal) => {
+                                            this.display = this.formatRupiah(newVal);
+                                        });
+                                    }
+                                }" class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-sm font-bold text-gray-400 select-none pointer-events-none">Rp</span>
+                                    <input type="text"
+                                           inputmode="numeric"
+                                           :value="display"
+                                           @input="update($event)"
+                                           placeholder="0"
+                                           class="w-full pl-11 pr-4 py-3 text-lg font-black text-gray-900 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] bg-white">
+                                </div>
+                                @error('jumlahBayar') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
 
-                                    <button type="button"
-                                            wire:click="$set('metodeBayar', 'transfer')"
-                                            class="p-3 rounded-2xl border text-center transition-all cursor-pointer {{ $metodeBayar === 'transfer' ? 'border-[#5E17EB] bg-purple-50/80 text-[#5E17EB] font-black shadow-xs ring-2 ring-purple-200' : 'border-gray-200 hover:bg-gray-50 text-gray-600 font-bold' }}">
-                                        <svg class="w-5 h-5 mx-auto mb-1 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path></svg>
-                                        <span class="text-xs block">Transfer Bank</span>
-                                    </button>
+                                <!-- Quick Money Pills -->
+                                <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                                    <button type="button" wire:click="setUangPas" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">Uang Pas</button>
+                                    <button type="button" wire:click="setQuickNominal(50000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">50.000</button>
+                                    <button type="button" wire:click="setQuickNominal(100000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">100.000</button>
+                                    <button type="button" wire:click="setQuickNominal(200000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">200.000</button>
+                                    <button type="button" wire:click="setQuickNominal(500000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">500.000</button>
                                 </div>
                             </div>
 
-                            @if($metodeBayar === 'cash')
-                                <!-- Input Uang Diterima & Quick Money Stepper -->
+                            <!-- Box Kembalian -->
+                            <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 flex items-center justify-between">
                                 <div>
-                                    <div class="flex items-center justify-between mb-1.5">
-                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                            Nominal Uang Diterima <span class="text-rose-500">*</span>
-                                        </label>
-                                        <button type="button"
-                                                wire:click="setUangPas"
-                                                class="text-[11px] font-bold text-[#5E17EB] hover:underline cursor-pointer">
-                                            Pakai Uang Pas
-                                        </button>
-                                    </div>
-
-                                    <div class="relative">
-                                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-sm font-bold text-gray-400">Rp</span>
-                                        <input type="number"
-                                               wire:model.live="jumlahBayar"
-                                               min="0"
-                                               class="w-full pl-11 pr-4 py-3 text-lg font-black text-gray-900 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB]">
-                                    </div>
-                                    @error('jumlahBayar') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-
-                                    <!-- Quick Money Pills -->
-                                    <div class="flex flex-wrap items-center gap-1.5 mt-2">
-                                        <button type="button" wire:click="setUangPas" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">Uang Pas</button>
-                                        <button type="button" wire:click="setQuickNominal(50000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">50.000</button>
-                                        <button type="button" wire:click="setQuickNominal(100000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">100.000</button>
-                                        <button type="button" wire:click="setQuickNominal(200000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">200.000</button>
-                                        <button type="button" wire:click="setQuickNominal(500000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">500.000</button>
-                                    </div>
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Kembalian</span>
+                                    <span class="text-xl font-black {{ $this->kembalian >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                                        Rp {{ number_format($this->kembalian, 0, ',', '.') }}
+                                    </span>
                                 </div>
-
-                                <!-- Box Kembalian -->
-                                <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 flex items-center justify-between">
-                                    <div>
-                                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Kembalian</span>
-                                        <span class="text-xl font-black {{ $this->kembalian >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                                            Rp {{ number_format($this->kembalian, 0, ',', '.') }}
-                                        </span>
-                                    </div>
-                                    @if($this->kembalian > 0)
-                                        <span class="px-2 py-1 rounded-md bg-emerald-100 text-emerald-800 font-black text-[10px]">Ada Kembalian</span>
-                                    @elseif($jumlahBayar == $this->grandTotal)
-                                        <span class="px-2 py-1 rounded-md bg-blue-100 text-blue-800 font-black text-[10px]">Uang Pas</span>
-                                    @endif
-                                </div>
-                            @endif
+                                @if($this->kembalian > 0)
+                                    <span class="px-2 py-1 rounded-md bg-emerald-100 text-emerald-800 font-black text-[10px]">Ada Kembalian</span>
+                                @elseif($jumlahBayar == $this->grandTotal)
+                                    <span class="px-2 py-1 rounded-md bg-blue-100 text-blue-800 font-black text-[10px]">Uang Pas</span>
+                                @endif
+                            </div>
 
                             <!-- Catatan Transaksi -->
                             <div>

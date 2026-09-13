@@ -15,7 +15,7 @@ class CabangSeeder extends Seeder
         $cabangs = [
             [
                 'kode_cabang' => 'CB-PKP',
-                'nama_cabang' => 'Soulmate Pangkalpinang (Pusat)',
+                'nama_cabang' => 'Soulmate Pangkalpinang',
                 'alamat' => 'Jl. Jenderal Sudirman No. 123, Gabek, Pangkalpinang',
                 'no_telp' => '0717-422111',
                 'no_wa' => '6281271000111',

@@ -243,7 +243,7 @@ class KasirPosTest extends TestCase
             'total' => 350000,
             'jumlah_bayar' => 400000,
             'kembalian' => 50000,
-            'metode_bayar' => 'cash',
+            'is_real' => true,
             'status' => 'selesai',
         ]);
 
@@ -387,5 +387,78 @@ class KasirPosTest extends TestCase
             'no_hp' => '081999888777',
             'tipe' => 'langganan',
         ]);
+    }
+
+    public function test_non_real_transaction_does_not_decrement_stock_and_sets_is_real_false()
+    {
+        $this->actingAs($this->kasir);
+
+        // Produk 1 stok awal = 10
+        // Lakukan transaksi Non-Real (isReal = false) sebanyak 4 unit
+        Livewire::test(Index::class)
+            ->call('toggleRealMode')
+            ->assertSet('isReal', false)
+            ->call('addToCart', $this->produk1->id)
+            ->call('updateQty', $this->produk1->id, 4)
+            ->set('selectedPpnId', $this->ppn0->id)
+            ->call('openPaymentModal')
+            ->call('prosesPembayaran')
+            ->assertSet('modalSuccessOpen', true);
+
+        // Verifikasi penjualan tersimpan dengan is_real = false
+        $this->assertDatabaseHas('penjualans', [
+            'cabang_id' => $this->cabangPkp->id,
+            'total' => 700000,
+            'is_real' => false,
+            'status' => 'selesai',
+        ]);
+
+        // Verifikasi STOK TIDAK BERKURANG (tetap 10)
+        $this->assertDatabaseHas('stoks', [
+            'produk_id' => $this->produk1->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 10,
+        ]);
+    }
+
+    public function test_kasir_pos_only_displays_products_active_in_branch()
+    {
+        $this->actingAs($this->kasir);
+
+        $cabangSlt = Cabang::create([
+            'kode_cabang' => 'CB-SLT',
+            'nama_cabang' => 'Cabang Sungailiat',
+            'status' => 'aktif',
+        ]);
+
+        // Buat produk baru yang HANYA aktif di Cabang Sungailiat (tidak aktif di PKP)
+        $inactiveProduct = Produk::create([
+            'nama_produk' => 'VGA RTX 4090 Cabang Lain',
+            'barcode' => '899888999111',
+            'harga_beli' => 25000000,
+            'harga_jual' => 30000000,
+        ]);
+
+        Stok::create([
+            'produk_id' => $inactiveProduct->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 0,
+            'min_stok' => 3,
+            'is_aktif' => false,
+        ]);
+
+        Stok::create([
+            'produk_id' => $inactiveProduct->id,
+            'cabang_id' => $cabangSlt->id,
+            'jumlah' => 5,
+            'min_stok' => 1,
+            'is_aktif' => true,
+        ]);
+
+        // Kasir PKP tidak boleh melihat produk yang tidak aktif di PKP
+        Livewire::test(Index::class)
+            ->assertViewHas('produks', function ($produks) use ($inactiveProduct) {
+                return ! $produks->contains('id', $inactiveProduct->id);
+            });
     }
 }

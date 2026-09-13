@@ -111,7 +111,7 @@
                                     <img src="{{ asset($p->foto_url) }}"
                                          alt="{{ $p->nama_produk }}"
                                          class="w-11 h-11 rounded-xl object-cover border border-gray-200 shadow-xs mx-auto">
-                                @elseif($p->foto_url && (str_starts_with($p->foto_url, 'http') || str_starts_with($p->foto_url, 'images/')))
+                                @elseif($p->foto_url && (str_starts_with($p->foto_url, 'http') || str_starts_with($p->foto_url, 'storage/') || str_starts_with($p->foto_url, 'images/')))
                                     <img src="{{ asset($p->foto_url) }}"
                                          alt="{{ $p->nama_produk }}"
                                          class="w-11 h-11 rounded-xl object-cover border border-gray-200 shadow-xs mx-auto"
@@ -384,13 +384,41 @@
                                 @enderror
                             </div>
 
+                            <!-- Banner Deteksi Duplikasi Produk Master -->
+                            @if($duplicateMasterProduct && !$isEditMode)
+                                <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+                                    <div class="flex items-start space-x-3 min-w-0">
+                                        <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <h4 class="text-xs font-black text-amber-900">Produk Ini Sudah Ada di Katalog Master!</h4>
+                                            <p class="text-[11px] text-amber-800 mt-0.5 truncate">
+                                                <strong>{{ $duplicateMasterProduct->nama_produk }}</strong> (Barcode: {{ $duplicateMasterProduct->barcode ?: '-' }})
+                                            </p>
+                                            @php
+                                                $myStok = $duplicateMasterProduct->stoks->firstWhere('cabang_id', $activeCabang?->id);
+                                            @endphp
+                                            <span class="inline-block mt-1 text-[10px] font-extrabold px-2 py-0.5 rounded-md {{ $myStok && $myStok->is_aktif ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-gray-200 text-gray-700 border border-gray-300' }}">
+                                                Status di {{ $activeCabang?->nama_cabang ?? 'Cabang Ini' }}: {{ $myStok && $myStok->is_aktif ? 'Aktif Dijual (Stok: ' . $myStok->jumlah . ')' : 'Belum Aktif / Non-Aktif' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button type="button"
+                                            wire:click="openEditModal({{ $duplicateMasterProduct->id }})"
+                                            class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer whitespace-nowrap shrink-0">
+                                        Aktifkan / Edit Produk Ini →
+                                    </button>
+                                </div>
+                            @endif
+
                             <!-- Nama Produk -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                     Nama Produk / Sparepart <span class="text-rose-500">*</span>
                                 </label>
                                 <input type="text"
-                                       wire:model="nama_produk"
+                                       wire:model.live.debounce.350ms="nama_produk"
                                        placeholder="Contoh: SSD NVMe Kingston NV2 512GB"
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('nama_produk') border-rose-500 @enderror">
                                 @error('nama_produk') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
@@ -418,7 +446,7 @@
                                     </label>
                                     <div class="flex space-x-2">
                                         <input type="text"
-                                               wire:model="barcode"
+                                               wire:model.live.debounce.350ms="barcode"
                                                placeholder="Contoh: 8991234560011"
                                                class="w-full text-xs font-mono px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('barcode') border-rose-500 @enderror">
                                         <button type="button"
@@ -438,12 +466,7 @@
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                         Harga Modal (Beli) <span class="text-rose-500">*</span>
                                     </label>
-                                    <div class="relative">
-                                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-bold text-gray-400">Rp</span>
-                                        <input type="number"
-                                               wire:model.live="harga_beli"
-                                               class="w-full pl-10 pr-3.5 py-2.5 text-xs font-bold rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]">
-                                    </div>
+                                    <x-input-rupiah wire:model.live="harga_beli" placeholder="0" />
                                     @error('harga_beli') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
 
@@ -451,12 +474,7 @@
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                         Harga Jual Toko (POS) <span class="text-rose-500">*</span>
                                     </label>
-                                    <div class="relative">
-                                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-bold text-gray-400">Rp</span>
-                                        <input type="number"
-                                               wire:model.live="harga_jual"
-                                               class="w-full pl-10 pr-3.5 py-2.5 text-xs font-bold rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]">
-                                    </div>
+                                    <x-input-rupiah wire:model.live="harga_jual" placeholder="0" />
                                     @error('harga_jual') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
 

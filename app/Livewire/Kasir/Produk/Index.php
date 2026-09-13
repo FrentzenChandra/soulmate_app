@@ -13,6 +13,7 @@ use App\Models\Produk;
 use App\Models\Stok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -65,10 +66,13 @@ class Index extends Component
 
     public ?int $selectedPpnId = null;
 
+    // Mode Transaksi (Real vs Non-Real / Cetak Bon Formalitas Saja)
+    public bool $isReal = true;
+
     // Modal Pembayaran
     public bool $modalBayarOpen = false;
 
-    public string $metodeBayar = 'cash';
+    public ?string $metodeBayar = null;
 
     public float $jumlahBayar = 0;
 
@@ -247,6 +251,32 @@ class Index extends Component
     /**
      * Tambah Produk ke Keranjang (Cart)
      */
+    public function toggleRealMode(): void
+    {
+        $this->isReal = ! $this->isReal;
+
+        if ($this->isReal) {
+            $cabang = $this->activeCabang;
+            foreach ($this->cart as $pId => $item) {
+                $stok = Stok::where('produk_id', $pId)->where('cabang_id', $cabang?->id)->first();
+                $stokFisik = $stok?->jumlah ?? 0;
+                if ($stokFisik <= 0) {
+                    unset($this->cart[$pId]);
+                } elseif ($item['qty'] > $stokFisik) {
+                    $this->cart[$pId]['qty'] = $stokFisik;
+                    $this->cart[$pId]['stok_max'] = $stokFisik;
+                    $this->cart[$pId]['subtotal'] = $stokFisik * $this->cart[$pId]['harga'];
+                } else {
+                    $this->cart[$pId]['stok_max'] = $stokFisik;
+                }
+            }
+        } else {
+            foreach ($this->cart as $pId => $item) {
+                $this->cart[$pId]['stok_max'] = 99999;
+            }
+        }
+    }
+
     public function addToCart(int $produkId): void
     {
         $cabang = $this->activeCabang;
@@ -263,7 +293,8 @@ class Index extends Component
 
         $stokFisik = $stok?->jumlah ?? 0;
 
-        if ($stokFisik <= 0) {
+        // Validasi stok fisik hanya jika transaksi Real
+        if ($this->isReal && $stokFisik <= 0) {
             $this->dispatch('swal:warning', [
                 'title' => 'Stok Habis!',
                 'text' => "Stok produk '{$produk->nama_produk}' kosong di cabang {$cabang->nama_cabang}.",
@@ -272,9 +303,11 @@ class Index extends Component
             return;
         }
 
+        $effectiveMax = $this->isReal ? $stokFisik : 99999;
+
         if (isset($this->cart[$produkId])) {
             $currentQty = $this->cart[$produkId]['qty'];
-            if ($currentQty + 1 > $stokFisik) {
+            if ($this->isReal && $currentQty + 1 > $stokFisik) {
                 $this->dispatch('swal:warning', [
                     'title' => 'Batas Stok Tercapai',
                     'text' => "Maksimal stok tersedia hanya {$stokFisik} unit.",
@@ -292,7 +325,7 @@ class Index extends Component
                 'foto_url' => $produk->foto_url,
                 'harga' => (float) $produk->harga_jual,
                 'qty' => 1,
-                'stok_max' => $stokFisik,
+                'stok_max' => $effectiveMax,
                 'subtotal' => (float) $produk->harga_jual,
             ];
         }
@@ -313,7 +346,7 @@ class Index extends Component
         }
 
         $stokMax = $this->cart[$produkId]['stok_max'];
-        if ($qty > $stokMax) {
+        if ($this->isReal && $qty > $stokMax) {
             $qty = $stokMax;
             $this->dispatch('swal:warning', [
                 'title' => 'Batas Stok',
@@ -387,11 +420,6 @@ class Index extends Component
 
     protected function processAndSaveCustomerWebp($uploadedFile): string
     {
-        $targetDir = public_path('images/customers');
-        if (! file_exists($targetDir)) {
-            @mkdir($targetDir, 0775, true);
-        }
-
         $imagePath = $uploadedFile->getRealPath();
         $imageInfo = @getimagesize($imagePath);
 
@@ -399,7 +427,6 @@ class Index extends Component
             $source = @imagecreatefromstring(file_get_contents($imagePath));
             if ($source !== false) {
                 $filename = 'cust_'.time().'_'.Str::random(6).'.webp';
-                $destination = $targetDir.'/'.$filename;
 
                 $width = imagesx($source);
                 $height = imagesy($source);
@@ -417,27 +444,29 @@ class Index extends Component
                     imagealphablending($resized, false);
                     imagesavealpha($resized, true);
                     imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-                    imagewebp($resized, $destination, 80);
+                    ob_start();
+                    imagewebp($resized, null, 80);
+                    $webContent = ob_get_clean();
                     imagedestroy($resized);
                 } else {
-                    imagewebp($source, $destination, 80);
+                    ob_start();
+                    imagewebp($source, null, 80);
+                    $webContent = ob_get_clean();
                 }
                 imagedestroy($source);
 
-                return 'images/customers/'.$filename;
+                if ($webContent !== false) {
+                    Storage::disk('public')->put('customers/'.$filename, $webContent);
+
+                    return 'storage/customers/'.$filename;
+                }
             }
         }
 
         $fallbackName = 'cust_'.time().'_'.Str::random(6).'.'.($uploadedFile->getClientOriginalExtension() ?: 'jpg');
-        $destination = $targetDir.'/'.$fallbackName;
+        $storedPath = Storage::disk('public')->putFileAs('customers', $uploadedFile, $fallbackName);
 
-        try {
-            $uploadedFile->move($targetDir, $fallbackName);
-        } catch (\Throwable $e) {
-            @copy($imagePath, $destination);
-        }
-
-        return 'images/customers/'.$fallbackName;
+        return 'storage/'.$storedPath;
     }
 
     // Pelanggan
@@ -538,13 +567,13 @@ class Index extends Component
             return;
         }
 
-        if ($this->metodeBayar === 'cash') {
-            if ($this->jumlahBayar < $this->grandTotal) {
-                $this->addError('jumlahBayar', 'Nominal uang tunai kurang dari grand total.');
+        if ($this->jumlahBayar > 0 && $this->jumlahBayar < $this->grandTotal) {
+            $this->addError('jumlahBayar', 'Nominal uang kurang dari total transaksi.');
 
-                return;
-            }
-        } else {
+            return;
+        }
+
+        if ($this->jumlahBayar <= 0) {
             $this->jumlahBayar = $this->grandTotal;
         }
 
@@ -595,12 +624,13 @@ class Index extends Component
                 'total' => round((float) $this->grandTotal, 2),
                 'jumlah_bayar' => round((float) $this->jumlahBayar, 2),
                 'kembalian' => round((float) $this->kembalian, 2),
-                'metode_bayar' => $this->metodeBayar,
+                'metode_bayar' => $this->metodeBayar ?: null,
                 'status' => 'selesai',
+                'is_real' => $this->isReal,
                 'catatan' => $this->catatan ?: null,
             ]);
 
-            // 3. Simpan Detail Item & Kurangi Stok
+            // 3. Simpan Detail Item & Kurangi Stok (Hanya Jika Transaksi Riil)
             foreach ($this->cart as $item) {
                 PenjualanDetail::create([
                     'penjualan_id' => $penjualan->id,
@@ -612,18 +642,22 @@ class Index extends Component
                     'subtotal' => $item['subtotal'],
                 ]);
 
-                $stok = Stok::where('produk_id', $item['id'])
-                    ->where('cabang_id', $cabang->id)
-                    ->first();
+                if ($this->isReal) {
+                    $stok = Stok::where('produk_id', $item['id'])
+                        ->where('cabang_id', $cabang->id)
+                        ->first();
 
-                if ($stok) {
-                    $stok->decrement('jumlah', $item['qty']);
+                    if ($stok) {
+                        $stok->decrement('jumlah', $item['qty']);
+                    }
                 }
             }
 
             DB::commit();
 
-            $this->dispatch('stockUpdated');
+            if ($this->isReal) {
+                $this->dispatch('stockUpdated');
+            }
 
             $this->lastPenjualanId = $penjualan->id;
             $this->modalBayarOpen = false;
@@ -682,7 +716,9 @@ class Index extends Component
             ]);
         }
 
-        $query = Produk::with(['kategori', 'stoks' => function ($q) use ($cabang) {
+        $query = Produk::whereHas('stoks', function ($q) use ($cabang) {
+            $q->where('cabang_id', $cabang->id)->where('is_aktif', true);
+        })->with(['kategori', 'stoks' => function ($q) use ($cabang) {
             $q->where('cabang_id', $cabang->id);
         }]);
 

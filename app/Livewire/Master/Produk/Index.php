@@ -8,6 +8,7 @@ use App\Models\KategoriProduk;
 use App\Models\Produk;
 use App\Models\Stok;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
@@ -59,6 +60,11 @@ class Index extends Component
     public array $minStock = []; // [cabang_id => min_stok threshold]
 
     public array $isAktifStock = []; // [cabang_id => boolean status]
+
+    // Deteksi Cerdas Duplikasi Produk Master
+    public ?int $duplicateMasterProductId = null;
+
+    public ?Produk $duplicateMasterProduct = null;
 
     // Modal Manajemen Kategori
     public bool $modalKategoriOpen = false;
@@ -141,22 +147,64 @@ class Index extends Component
         ];
     }
 
+    public function checkDuplicateMaster(): void
+    {
+        if ($this->isEditMode) {
+            $this->duplicateMasterProductId = null;
+            $this->duplicateMasterProduct = null;
+
+            return;
+        }
+
+        $barcode = trim($this->barcode);
+        $nama = trim($this->nama_produk);
+
+        $found = null;
+        if (! empty($barcode)) {
+            $found = Produk::with('stoks.cabang')->where('barcode', $barcode)->first();
+        }
+
+        if (! $found && ! empty($nama) && strlen($nama) >= 3) {
+            $found = Produk::with('stoks.cabang')->whereRaw('LOWER(nama_produk) = ?', [strtolower($nama)])->first();
+        }
+
+        if ($found) {
+            $this->duplicateMasterProduct = $found;
+            $this->duplicateMasterProductId = $found->id;
+        } else {
+            $this->duplicateMasterProduct = null;
+            $this->duplicateMasterProductId = null;
+        }
+    }
+
+    public function updatedBarcode($val): void
+    {
+        $this->checkDuplicateMaster();
+    }
+
+    public function updatedNamaProduk($val): void
+    {
+        $this->checkDuplicateMaster();
+    }
+
     public function generateBarcode(): void
     {
         $this->barcode = '899'.str_pad((string) mt_rand(1000000000, 9999999999), 10, '0', STR_PAD_LEFT);
+        $this->checkDuplicateMaster();
     }
 
     public function openCreateModal(): void
     {
         $this->resetValidation();
-        $this->reset(['produkId', 'kategori_id', 'barcode', 'nama_produk', 'deskripsi', 'foto', 'existing_foto_url']);
+        $this->reset(['produkId', 'kategori_id', 'barcode', 'nama_produk', 'deskripsi', 'foto', 'existing_foto_url', 'duplicateMasterProductId', 'duplicateMasterProduct']);
         $this->harga_beli = 0;
         $this->harga_jual = 0;
         $this->ready_marketplace = false;
         $this->isEditMode = false;
 
         $user = Auth::user();
-        $isHQ = $user->isOwner() && session('active_branch_id', 'hq') === 'hq';
+        $activeBranchId = session('active_branch_id', 'hq');
+        $userCabangId = $user->cabang_id ?? ($activeBranchId !== 'hq' ? (int) $activeBranchId : null);
 
         $cabangs = Cabang::where('status', 'aktif')->get();
         $this->initialStock = [];
@@ -165,7 +213,7 @@ class Index extends Component
         foreach ($cabangs as $c) {
             $this->initialStock[$c->id] = 0;
             $this->minStock[$c->id] = 3;
-            $this->isAktifStock[$c->id] = true;
+            $this->isAktifStock[$c->id] = $userCabangId ? ($c->id === $userCabangId) : false;
         }
 
         $this->modalProdukOpen = true;
@@ -174,6 +222,7 @@ class Index extends Component
     public function openEditModal(int $id): void
     {
         $this->resetValidation();
+        $this->reset(['duplicateMasterProductId', 'duplicateMasterProduct']);
         $this->foto = null;
         $produk = Produk::with('stoks')->findOrFail($id);
 
@@ -204,11 +253,6 @@ class Index extends Component
 
     protected function processAndSaveWebp($uploadedFile): string
     {
-        $targetDir = public_path('images/products');
-        if (! file_exists($targetDir)) {
-            @mkdir($targetDir, 0775, true);
-        }
-
         $imagePath = $uploadedFile->getRealPath();
         $imageInfo = @getimagesize($imagePath);
 
@@ -216,7 +260,6 @@ class Index extends Component
             $source = @imagecreatefromstring(file_get_contents($imagePath));
             if ($source !== false) {
                 $filename = 'prod_'.time().'_'.Str::random(6).'.webp';
-                $destination = $targetDir.'/'.$filename;
 
                 $width = imagesx($source);
                 $height = imagesy($source);
@@ -234,28 +277,30 @@ class Index extends Component
                     imagealphablending($resized, false);
                     imagesavealpha($resized, true);
                     imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-                    imagewebp($resized, $destination, 80);
+                    ob_start();
+                    imagewebp($resized, null, 80);
+                    $webContent = ob_get_clean();
                     imagedestroy($resized);
                 } else {
-                    imagewebp($source, $destination, 80);
+                    ob_start();
+                    imagewebp($source, null, 80);
+                    $webContent = ob_get_clean();
                 }
                 imagedestroy($source);
 
-                return 'images/products/'.$filename;
+                if ($webContent !== false) {
+                    Storage::disk('public')->put('products/'.$filename, $webContent);
+
+                    return 'storage/products/'.$filename;
+                }
             }
         }
 
         // Fallback jika GD webp tidak aktif
         $fallbackName = 'prod_'.time().'_'.Str::random(6).'.'.($uploadedFile->getClientOriginalExtension() ?: 'jpg');
-        $destination = $targetDir.'/'.$fallbackName;
+        $storedPath = Storage::disk('public')->putFileAs('products', $uploadedFile, $fallbackName);
 
-        try {
-            $uploadedFile->move($targetDir, $fallbackName);
-        } catch (\Throwable $e) {
-            @copy($imagePath, $destination);
-        }
-
-        return 'images/products/'.$fallbackName;
+        return 'storage/'.$storedPath;
     }
 
     public function cancelUploadFoto(): void
@@ -291,6 +336,15 @@ class Index extends Component
 
         if ($this->isEditMode && $this->produkId) {
             $produk = Produk::findOrFail($this->produkId);
+
+            // Hapus file lama jika foto diubah atau dihapus
+            if (isset($data['foto_url']) && $produk->foto_url && $produk->foto_url !== $data['foto_url']) {
+                if (str_starts_with($produk->foto_url, 'storage/')) {
+                    $oldPath = Str::after($produk->foto_url, 'storage/');
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
+
             $produk->update($data);
 
             // Update stok per cabang
@@ -298,7 +352,7 @@ class Index extends Component
                 if (isset($this->initialStock[$c->id])) {
                     $qty = max(0, (int) $this->initialStock[$c->id]);
                     $minStok = isset($this->minStock[$c->id]) ? max(1, (int) $this->minStock[$c->id]) : 3;
-                    $isAktif = isset($this->isAktifStock[$c->id]) ? (bool) $this->isAktifStock[$c->id] : ($qty > 0);
+                    $isAktif = ! empty($this->isAktifStock[$c->id]);
                     Stok::updateOrCreate(
                         ['produk_id' => $produk->id, 'cabang_id' => $c->id],
                         ['jumlah' => $qty, 'min_stok' => $minStok, 'is_aktif' => $isAktif]
@@ -315,7 +369,7 @@ class Index extends Component
             foreach ($allCabangs as $c) {
                 $qty = isset($this->initialStock[$c->id]) ? max(0, (int) $this->initialStock[$c->id]) : 0;
                 $minStok = isset($this->minStock[$c->id]) ? max(1, (int) $this->minStock[$c->id]) : 3;
-                $isAktif = isset($this->isAktifStock[$c->id]) ? (bool) $this->isAktifStock[$c->id] : ($qty > 0);
+                $isAktif = ! empty($this->isAktifStock[$c->id]);
                 Stok::create([
                     'produk_id' => $produk->id,
                     'cabang_id' => $c->id,

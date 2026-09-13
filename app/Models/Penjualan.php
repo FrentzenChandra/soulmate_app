@@ -29,6 +29,7 @@ class Penjualan extends Model
         'kembalian',
         'metode_bayar',
         'status',
+        'is_real',
         'catatan',
     ];
 
@@ -41,7 +42,18 @@ class Penjualan extends Model
         'total' => 'decimal:2',
         'jumlah_bayar' => 'decimal:2',
         'kembalian' => 'decimal:2',
+        'is_real' => 'boolean',
     ];
+
+    public function scopeReal($query)
+    {
+        return $query->where('is_real', true);
+    }
+
+    public function scopeNonReal($query)
+    {
+        return $query->where('is_real', false);
+    }
 
     public function cabang()
     {
