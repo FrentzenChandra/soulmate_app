@@ -90,7 +90,8 @@
                         <th class="py-3.5 px-5 text-right font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <x-table-skeleton :columns="5" :rows="5" target="search, sortField, sortDirection" />
+                <tbody wire:loading.remove wire:target="search, sortField, sortDirection" class="divide-y divide-gray-100">
                     @forelse($kategoris as $k)
                         <tr class="hover:bg-gray-50/80 transition-colors">
                             <!-- No -->
@@ -161,31 +162,14 @@
         </div>
 
         <!-- Infinite Scroll Sentinel & Status -->
-        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
-            @if(isset($hasMore) && $hasMore)
-                <div x-intersect="$wire.loadMore()" 
-                     class="py-2 flex flex-col items-center justify-center space-y-2 text-center">
-                    <div wire:loading wire:target="loadMore" class="flex items-center space-x-2 text-[#5E17EB]">
-                        <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                        </svg>
-                        <span class="text-xs font-bold">Memuat kategori lainnya...</span>
-                    </div>
-
-                    <button type="button" 
-                            wire:click="loadMore" 
-                            wire:loading.remove 
-                            wire:target="loadMore"
-                            class="px-4 py-1.5 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-600 hover:text-[#5E17EB] hover:border-[#5E17EB] shadow-xs transition-all cursor-pointer">
-                        Muat Lebih Banyak Kategori (Scroll Otomatis)
-                    </button>
-                </div>
-            @elseif(count($kategoris) > 0)
-                <div class="py-1 text-center text-xs font-medium text-gray-400">
-                    ✓ Menampilkan seluruh {{ count($kategoris) }} dari {{ $totalFiltered ?? count($kategoris) }} kategori
-                </div>
-            @endif
+        <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
+            <x-infinite-scroll-sentinel 
+                :has-more="$hasMore ?? false" 
+                target="loadMore" 
+                label="kategori" 
+                :current="count($kategoris)" 
+                :total="$totalFiltered ?? count($kategoris)" 
+                color="purple" />
         </div>
     </div>
 
@@ -254,8 +238,13 @@
                                 Batal
                             </button>
                             <button type="submit" 
-                                    class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-bold text-white shadow-lg shadow-purple-900/30 transition-all cursor-pointer">
-                                {{ $isEditMode ? 'Simpan Perubahan' : 'Tambah Kategori' }}
+                                    wire:loading.attr="disabled"
+                                    class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 text-xs font-bold text-white shadow-lg shadow-purple-900/30 transition-all cursor-pointer inline-flex items-center space-x-2">
+                                <svg wire:loading wire:target="save" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span>{{ $isEditMode ? 'Simpan Perubahan' : 'Tambah Kategori' }}</span>
                             </button>
                         </div>
                     </form>

@@ -4,11 +4,15 @@
 - Jalankan auto-update graphify (via `python -m graphify.cli update`) setiap kali terjadi perubahan kode, penambahan fitur, atau commit di project.
 - Gunakan `graphify query` untuk menelusuri relasi kode, god nodes, dan dependensi sebelum melakukan refaktor.
 
-## 2. UI & Design Standards (Anti-AI Slop & Anti-Mojibake)
+## 2. UI & Design Standards (Anti-AI Slop, Anti-Mojibake & Loading/Skeleton)
 - **Dilarang keras memakai gradient berlebihan / multi-color mesh gradient (AI slop)** kecuali diperintahkan secara eksplisit oleh user.
 - Gunakan solid clean modern color palette: Brand Purple (`#5E17EB`), Tech Blue (`#0052FF`), Accent Pink (`#E6007A`), dan netral gray/slate dengan white cards, clean crisp borders, dan subtle shadows.
 - **Anti-Mojibake & Tipografi Bersih:** Dilarang menggunakan karakter UTF-8 rentan encoding rusak seperti raw bullet (`•`), em-dash (`—`), checkmark mentah (`✓`), atau emoji di kode Blade. Gunakan HTML entity (`&bull;`, `&middot;`), SVG icon, atau Tailwind CSS round dots (`<span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>`).
 - **Placeholder Jelas & Manusiawi:** Placeholder form input WAJIB deskriptif dalam bahasa Indonesia (contoh: `placeholder="Masukkan kata sandi saat ini..."`), BUKAN placeholder karakter dummy/bullet acak (`••••••••`).
+- **Standar Loading & Skeleton Universal:**
+  * **Upload Foto/Media:** Loading indicator WAJIB terpusat di tengah parent (`flex-col items-center justify-center`) dengan spinner dan progress bar animasi di bagian tengah container.
+  * **Aksi Form (POST, PUT/PATCH, DELETE, EDIT):** Semua tombol aksi WAJIB dilengkapi `wire:loading` spinner, status disabled (`wire:loading.attr="disabled"`), dan teks proses deskriptif.
+  * **Query / Data Fetching (GET, Search, Filter, Sort):** Tabel dan katalog grid WAJIB menampilkan **Skeleton Loader** (`<x-table-skeleton />` / `<x-grid-skeleton />`) dengan efek shimmer `animate-pulse` saat request query berlangsung.
 
 ## 3. Docker & Execution Environment (Windows Host + Linux Container)
 - **Eksekusi Perintah Framework:** Semua perintah yang menyentuh filesystem / backend (`php artisan storage:link`, `php artisan migrate`, `php artisan optimize:clear`, dsb.) **WAJIB dieksekusi di dalam Docker container** (`docker exec soulmate_apps ...`), bukan di terminal Windows host.

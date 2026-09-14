@@ -411,11 +411,11 @@ class Index extends Component
 
     public function getKembalianProperty(): float
     {
-        if ($this->metodeBayar !== 'cash') {
+        if ($this->metodeBayar && $this->metodeBayar !== 'cash') {
             return 0;
         }
 
-        return max(0, $this->jumlahBayar - $this->grandTotal);
+        return max(0, (float) $this->jumlahBayar - (float) $this->grandTotal);
     }
 
     protected function processAndSaveCustomerWebp($uploadedFile): string
@@ -537,6 +537,7 @@ class Index extends Component
             return;
         }
 
+        $this->metodeBayar = $this->metodeBayar ?: 'cash';
         $this->jumlahBayar = $this->grandTotal;
         $this->catatan = '';
         $this->modalBayarOpen = true;

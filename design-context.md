@@ -111,10 +111,16 @@ COMPONEN & ICONOGRAPHY GUIDELINES:
 
 MEDIA UPLOAD & LIVE PREVIEW SYSTEM:
 * Instant Visual Feedback: Setiap form upload gambar (Produk, Avatar Pengguna) WAJIB menampilkan kartu preview visual real-time sebelum data disimpan.
-* Status Unggah Dinamis: Menggunakan indikator loading terdedikasi (`wire:loading`) dengan animasi spinner dan microcopy informatif saat file sedang dibaca browser.
+* Status Unggah Terpusat (Centered Loading State): Indikator loading upload foto WAJIB terpusat di tengah parent (`flex flex-col items-center justify-center`) dengan spinner, teks status, dan progress bar animasi di bagian tengah container.
 * Info Metadata & Kontrol Pembatalan: Kartu preview harus menyertakan nama file, estimasi ukuran KB, badge status ("Foto Baru Terpilih"), dan tombol interaktif "Batal / Hapus Pilihan".
 * Graceful Fallback: Jika gambar rusak / path tidak ditemukan, tampilkan inisial nama untuk avatar pengguna atau logo bulat Soulmate untuk produk tanpa merusak tata letak (broken image box dilarang).
 * Standar Format WebP: Semua unggahan dikonversi ke format WebP super ringan (<40 KB) untuk menjamin kecepatan render pada jaringan cabang.
+
+UNIVERSAL LOADING & SKELETON LOADER STANDARDS:
+* Form Action Requests (POST, PUT/PATCH, DELETE, EDIT):
+  - Setiap tombol aksi form (Simpan, Update, Hapus, Edit Modal) WAJIB dilengkapi `wire:loading` spinner, status disabled (`wire:loading.attr="disabled"`), dan teks proses deskriptif (contoh: "Menyimpan...", "Menghapus...", "Memproses...").
+* Query / Data Fetching (GET, Search, Filter, Sorting, Pagination):
+  - Setiap tabel data dan katalog grid WAJIB menggunakan Skeleton Loader (`<x-table-skeleton />` / `<x-grid-skeleton />`) dengan efek shimmer `animate-pulse` saat request query berlangsung (`wire:loading.delay`) agar pergantian data terasa halus tanpa kedipan layar kosong.
 
 STOCK ALERT & VISUAL WARNING SYSTEM:
 * High-Contrast Multi-Point Alerts: Jangan hanya mengandalkan garis border samping tipis. Baris tabel dengan stok kritis atau kosong wajib dilengkapi:

@@ -98,7 +98,8 @@
                         <th class="py-3.5 px-5 text-right font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <x-table-skeleton :columns="$isHQ ? (6 + $cabangs->count()) : 7" :rows="6" target="search, kategoriFilter, statusFilter, sortBy, sortDir" />
+                <tbody wire:loading.remove wire:target="search, kategoriFilter, statusFilter, sortBy, sortDir" class="divide-y divide-gray-100">
                     @forelse($produks as $p)
                         @php
                             $totalStok = $p->stoks->sum('jumlah');
@@ -229,15 +230,16 @@
             </table>
         </div>
 
-        <!-- Load More / Info -->
-        @if($hasMore)
-            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-                <p class="text-xs text-gray-500">Menampilkan {{ $produks->count() }} dari {{ $totalProduk }} produk</p>
-                <button wire:click="loadMore" class="px-4 py-2 bg-purple-50 text-purple-700 hover:bg-purple-100 font-bold rounded-xl text-xs transition-colors">
-                    Muat Lebih Banyak
-                </button>
-            </div>
-        @endif
+        <!-- Infinite Scroll Sentinel & Status -->
+        <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
+            <x-infinite-scroll-sentinel 
+                :has-more="$hasMore" 
+                target="loadMore" 
+                label="produk" 
+                :current="$produks->count()" 
+                :total="$totalProduk" 
+                color="purple" />
+        </div>
     </div>
 
     <!-- ============================================== -->
@@ -285,17 +287,8 @@
                                     </span>
                                 </div>
 
-                                <!-- Loading State Saat File Diupload -->
-                                <div wire:loading wire:target="foto" class="w-full p-4 mb-3 bg-purple-50/80 border border-purple-200 rounded-2xl flex items-center space-x-3 text-purple-700">
-                                    <svg class="animate-spin h-5 w-5 text-[#5E17EB] shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    <div>
-                                        <p class="text-xs font-bold text-gray-900">Mengunggah & memproses preview foto...</p>
-                                        <p class="text-[10px] text-purple-600">Mohon tunggu sebentar sebelum menyimpan</p>
-                                    </div>
-                                </div>
+                                <!-- Loading State Saat File Diupload (Centered & Responsive) -->
+                                <x-photo-upload-loading target="foto" color="purple" />
 
                                 <div wire:loading.remove wire:target="foto">
                                     @if($foto)
@@ -384,44 +377,80 @@
                                 @enderror
                             </div>
 
-                            <!-- Banner Deteksi Duplikasi Produk Master -->
-                            @if($duplicateMasterProduct && !$isEditMode)
-                                <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
-                                    <div class="flex items-start space-x-3 min-w-0">
-                                        <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        </div>
-                                        <div class="min-w-0">
-                                            <h4 class="text-xs font-black text-amber-900">Produk Ini Sudah Ada di Katalog Master!</h4>
-                                            <p class="text-[11px] text-amber-800 mt-0.5 truncate">
-                                                <strong>{{ $duplicateMasterProduct->nama_produk }}</strong> (Barcode: {{ $duplicateMasterProduct->barcode ?: '-' }})
-                                            </p>
-                                            @php
-                                                $myStok = $duplicateMasterProduct->stoks->firstWhere('cabang_id', $activeCabang?->id);
-                                            @endphp
-                                            <span class="inline-block mt-1 text-[10px] font-extrabold px-2 py-0.5 rounded-md {{ $myStok && $myStok->is_aktif ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-gray-200 text-gray-700 border border-gray-300' }}">
-                                                Status di {{ $activeCabang?->nama_cabang ?? 'Cabang Ini' }}: {{ $myStok && $myStok->is_aktif ? 'Aktif Dijual (Stok: ' . $myStok->jumlah . ')' : 'Belum Aktif / Non-Aktif' }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <button type="button"
-                                            wire:click="openEditModal({{ $duplicateMasterProduct->id }})"
-                                            class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer whitespace-nowrap shrink-0">
-                                        Aktifkan / Edit Produk Ini →
-                                    </button>
-                                </div>
-                            @endif
-
                             <!-- Nama Produk -->
-                            <div>
+                            <div class="relative">
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                     Nama Produk / Sparepart <span class="text-rose-500">*</span>
                                 </label>
                                 <input type="text"
-                                       wire:model.live.debounce.350ms="nama_produk"
+                                       wire:model.live.debounce.300ms="nama_produk"
                                        placeholder="Contoh: SSD NVMe Kingston NV2 512GB"
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('nama_produk') border-rose-500 @enderror">
                                 @error('nama_produk') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+
+                                <!-- Interactive Suggestion Dropdown: Product Exists Search List -->
+                                @if(!$isEditMode && !empty($duplicateMasterProducts) && count($duplicateMasterProducts) > 0)
+                                    <div class="mt-2.5 p-3.5 rounded-2xl bg-purple-50/70 border-2 border-purple-200/80 shadow-md space-y-2.5">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-600 text-white shadow-2xs">
+                                                    Product Exists ({{ count($duplicateMasterProducts) }})
+                                                </span>
+                                                <span class="text-xs font-bold text-purple-950">Produk Serupa Ditemukan di Katalog</span>
+                                            </div>
+                                            <span class="text-[10px] text-purple-600 font-medium">Klik produk untuk langsung tambah/atur stok</span>
+                                        </div>
+
+                                        <div class="divide-y divide-purple-100 bg-white rounded-xl border border-purple-100 overflow-hidden shadow-2xs">
+                                            @foreach($duplicateMasterProducts as $dup)
+                                                @php
+                                                    $dupStok = $dup->stoks->firstWhere('cabang_id', $activeCabang?->id);
+                                                    $isAktifInBranch = $dupStok && $dupStok->is_aktif;
+                                                @endphp
+                                                <div class="p-3 hover:bg-purple-50/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 group">
+                                                    <div class="flex items-center space-x-3 min-w-0">
+                                                        <div class="w-11 h-11 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                                            @if($dup->foto_url)
+                                                                <img src="{{ $dup->foto_url }}" alt="{{ $dup->nama_produk }}" class="w-full h-full object-cover">
+                                                            @else
+                                                                <span class="text-xs font-black text-gray-400 uppercase">{{ substr($dup->nama_produk, 0, 2) }}</span>
+                                                            @endif
+                                                        </div>
+                                                        <div class="min-w-0">
+                                                            <div class="flex items-center space-x-1.5 flex-wrap">
+                                                                <h5 class="text-xs font-extrabold text-gray-900 group-hover:text-[#5E17EB] transition-colors truncate">
+                                                                    {{ $dup->nama_produk }}
+                                                                </h5>
+                                                                @if($dup->kategori)
+                                                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200">
+                                                                        {{ $dup->kategori->nama_kategori }}
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                            <div class="flex items-center space-x-3 text-[11px] text-gray-500 mt-0.5">
+                                                                <span class="font-mono">Barcode: {{ $dup->barcode ?: '-' }}</span>
+                                                                <span>·</span>
+                                                                <span class="font-bold text-[#5E17EB]">Rp {{ number_format($dup->harga_jual, 0, ',', '.') }}</span>
+                                                                <span>·</span>
+                                                                <span class="font-semibold {{ $isAktifInBranch ? 'text-emerald-700' : 'text-amber-600' }}">
+                                                                    {{ $activeCabang?->nama_cabang ?? 'Cabang' }}: {{ $isAktifInBranch ? 'Stok ' . $dupStok->jumlah : 'Belum Aktif' }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button type="button"
+                                                            wire:click="selectExistingProduct({{ $dup->id }})"
+                                                            class="px-3.5 py-2 rounded-xl bg-[#5E17EB] hover:bg-[#4E10C7] text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center space-x-1.5">
+                                                        <span>Pilih & Atur Stok</span>
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -600,8 +629,13 @@
                                 Batal
                             </button>
                             <button type="submit"
-                                    class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-bold text-white shadow-lg shadow-purple-900/30 transition-all cursor-pointer">
-                                {{ $isEditMode ? 'Simpan Perubahan' : 'Simpan Produk Baru' }}
+                                    wire:loading.attr="disabled"
+                                    class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 text-xs font-bold text-white shadow-lg shadow-purple-900/30 transition-all cursor-pointer inline-flex items-center space-x-2">
+                                <svg wire:loading wire:target="saveProduk, foto" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span>{{ $isEditMode ? 'Simpan Perubahan' : 'Simpan Produk Baru' }}</span>
                             </button>
                         </div>
                     </form>

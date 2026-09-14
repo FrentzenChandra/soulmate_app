@@ -66,6 +66,8 @@ class Index extends Component
 
     public ?Produk $duplicateMasterProduct = null;
 
+    public $duplicateMasterProducts = [];
+
     // Modal Manajemen Kategori
     public bool $modalKategoriOpen = false;
 
@@ -152,6 +154,7 @@ class Index extends Component
         if ($this->isEditMode) {
             $this->duplicateMasterProductId = null;
             $this->duplicateMasterProduct = null;
+            $this->duplicateMasterProducts = [];
 
             return;
         }
@@ -159,22 +162,47 @@ class Index extends Component
         $barcode = trim($this->barcode);
         $nama = trim($this->nama_produk);
 
-        $found = null;
-        if (! empty($barcode)) {
-            $found = Produk::with('stoks.cabang')->where('barcode', $barcode)->first();
-        }
-
-        if (! $found && ! empty($nama) && strlen($nama) >= 3) {
-            $found = Produk::with('stoks.cabang')->whereRaw('LOWER(nama_produk) = ?', [strtolower($nama)])->first();
-        }
-
-        if ($found) {
-            $this->duplicateMasterProduct = $found;
-            $this->duplicateMasterProductId = $found->id;
-        } else {
+        if (empty($barcode) && (empty($nama) || strlen($nama) < 2)) {
             $this->duplicateMasterProduct = null;
             $this->duplicateMasterProductId = null;
+            $this->duplicateMasterProducts = [];
+
+            return;
         }
+
+        $query = Produk::with(['stoks.cabang', 'kategori']);
+
+        $query->where(function ($q) use ($barcode, $nama) {
+            if (! empty($barcode)) {
+                $q->orWhere('barcode', 'LIKE', "%{$barcode}%");
+            }
+
+            if (! empty($nama) && strlen($nama) >= 2) {
+                // Pencarian fleksibel per kata kunci (tokenized)
+                $words = preg_split('/\s+/', $nama);
+                $words = array_filter($words, fn ($w) => strlen($w) >= 2);
+
+                if (! empty($words)) {
+                    $q->orWhere(function ($subQ) use ($words) {
+                        foreach ($words as $w) {
+                            $subQ->whereRaw('LOWER(nama_produk) LIKE ?', ['%'.strtolower($w).'%']);
+                        }
+                    });
+                }
+            }
+        });
+
+        $matches = $query->take(6)->get();
+
+        $this->duplicateMasterProducts = $matches;
+        $this->duplicateMasterProduct = $matches->first();
+        $this->duplicateMasterProductId = $matches->first()?->id;
+    }
+
+    public function selectExistingProduct(int $id): void
+    {
+        $this->openEditModal($id);
+        session()->flash('info', 'Produk dipilih dari katalog master. Anda dapat langsung menambah atau menyesuaikan alokasi stok cabang.');
     }
 
     public function updatedBarcode($val): void
@@ -196,7 +224,7 @@ class Index extends Component
     public function openCreateModal(): void
     {
         $this->resetValidation();
-        $this->reset(['produkId', 'kategori_id', 'barcode', 'nama_produk', 'deskripsi', 'foto', 'existing_foto_url', 'duplicateMasterProductId', 'duplicateMasterProduct']);
+        $this->reset(['produkId', 'kategori_id', 'barcode', 'nama_produk', 'deskripsi', 'foto', 'existing_foto_url', 'duplicateMasterProductId', 'duplicateMasterProduct', 'duplicateMasterProducts']);
         $this->harga_beli = 0;
         $this->harga_jual = 0;
         $this->ready_marketplace = false;

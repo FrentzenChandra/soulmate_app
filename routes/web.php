@@ -56,6 +56,15 @@ Route::middleware('auth')->group(function () {
     // Kasir POS & Penjualan (Owner, Superadmin, Kasir)
     Route::middleware('role:Owner|Superadmin|Kasir')->group(function () {
         Route::get('/kasir/produk', KasirProdukIndex::class)->name('kasir.produk');
+        Route::get('/kasir/produk/invoice/{penjualan}', function (\App\Models\Penjualan $penjualan) {
+            $user = Auth::user();
+            if (! $user->isOwner() && $user->cabang_id !== $penjualan->cabang_id) {
+                abort(403, 'Akses invoice cabang lain dibatasi.');
+            }
+            $penjualan->load(['details.produk', 'cabang', 'kasir', 'customer', 'ppn']);
+
+            return view('kasir.invoice', ['penjualan' => $penjualan]);
+        })->name('kasir.produk.invoice');
     });
 
     // Operasional Stok Cabang

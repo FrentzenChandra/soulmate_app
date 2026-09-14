@@ -96,7 +96,8 @@
                         <th class="py-3.5 px-5 text-right font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <x-table-skeleton :columns="6" :rows="6" target="search, tipeFilter, cabangFilter, sortField, sortDirection" />
+                <tbody wire:loading.remove wire:target="search, tipeFilter, cabangFilter, sortField, sortDirection" class="divide-y divide-gray-100">
                     @forelse($customers as $c)
                         @php
                             $waNumber = $c->no_hp ? preg_replace('/[^0-9]/', '', $c->no_hp) : '';
@@ -207,31 +208,14 @@
         </div>
 
         <!-- Infinite Scroll Sentinel & Status -->
-        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
-            @if(isset($hasMore) && $hasMore)
-                <div x-intersect="$wire.loadMore()" 
-                     class="py-2 flex flex-col items-center justify-center space-y-2 text-center">
-                    <div wire:loading wire:target="loadMore" class="flex items-center space-x-2 text-[#5E17EB]">
-                        <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                        </svg>
-                        <span class="text-xs font-bold">Memuat pelanggan lainnya...</span>
-                    </div>
-
-                    <button type="button" 
-                            wire:click="loadMore" 
-                            wire:loading.remove 
-                            wire:target="loadMore"
-                            class="px-4 py-1.5 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-600 hover:text-[#5E17EB] hover:border-[#5E17EB] shadow-xs transition-all cursor-pointer">
-                        Muat Lebih Banyak
-                    </button>
-                </div>
-            @elseif(count($customers) > 0)
-                <div class="py-1 text-center text-xs font-medium text-gray-400">
-                    Menampilkan seluruh {{ count($customers) }} dari {{ $totalCustomers ?? count($customers) }} pelanggan
-                </div>
-            @endif
+        <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
+            <x-infinite-scroll-sentinel 
+                :has-more="$hasMore ?? false" 
+                target="loadMore" 
+                label="pelanggan" 
+                :current="count($customers)" 
+                :total="$totalCustomers ?? count($customers)" 
+                color="purple" />
         </div>
     </div>
 
@@ -344,15 +328,8 @@
                                     </span>
                                 </div>
 
-                                <div wire:loading wire:target="foto" class="w-full p-4 mb-3 bg-purple-50/80 border border-purple-200 rounded-2xl flex items-center space-x-3 text-purple-700">
-                                    <svg class="animate-spin h-5 w-5 text-[#5E17EB] shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    <div>
-                                        <p class="text-xs font-bold text-gray-900">Mengunggah & memproses foto...</p>
-                                    </div>
-                                </div>
+                                <!-- Upload Foto Loading State -->
+                                <x-photo-upload-loading target="foto" color="purple" />
 
                                 <div wire:loading.remove wire:target="foto">
                                     @if($foto)
@@ -410,9 +387,12 @@
                             </button>
                             <button type="submit" 
                                     wire:loading.attr="disabled"
-                                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-bold text-xs shadow-md shadow-purple-900/30 transition-all cursor-pointer">
-                                <span wire:loading.remove>{{ $isEditMode ? 'Simpan Perubahan' : 'Daftarkan Pelanggan' }}</span>
-                                <span wire:loading>Memproses...</span>
+                                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-purple-900/30 transition-all cursor-pointer">
+                                <svg wire:loading wire:target="save, foto" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span>{{ $isEditMode ? 'Simpan Perubahan' : 'Daftarkan Pelanggan' }}</span>
                             </button>
                         </div>
                     </form>

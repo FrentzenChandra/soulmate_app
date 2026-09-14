@@ -38,6 +38,20 @@
             box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04);
             border: 1px solid rgba(0, 0, 0, 0.05);
         }
+        @media print {
+            aside, header, nav, .no-print {
+                display: none !important;
+            }
+            body, .flex, main {
+                overflow: visible !important;
+                height: auto !important;
+                background: white !important;
+            }
+            @page {
+                size: 9.5in 11in;
+                margin: 6mm 10mm;
+            }
+        }
     </style>
 </head>
 <body class="h-full text-[#1A1D20] antialiased bg-[#F8F9FA] selection:bg-[#5E17EB] selection:text-white" x-data="{ sidebarOpen: false }">

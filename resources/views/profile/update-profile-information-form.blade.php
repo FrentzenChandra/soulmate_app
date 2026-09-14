@@ -26,8 +26,13 @@
 
                 <x-label for="photo" value="Foto Profil" />
 
+                <!-- Centered Photo Upload Loading State -->
+                <div class="mt-2">
+                    <x-photo-upload-loading target="photo" color="purple" />
+                </div>
+
                 <!-- Current Profile Photo -->
-                <div class="mt-2" x-show="! photoPreview">
+                <div class="mt-2" x-show="! photoPreview" wire:loading.remove wire:target="photo">
                     <img src="{{ $this->user->profile_photo_url }}" alt="{{ $this->user->name }}" class="rounded-2xl size-20 object-cover shadow-xs border border-gray-200">
                 </div>
 
