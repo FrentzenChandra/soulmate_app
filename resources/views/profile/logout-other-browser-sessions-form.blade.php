@@ -34,7 +34,7 @@
                             <div class="min-w-0">
                                 <div class="text-xs font-bold text-gray-900 flex items-center gap-2">
                                     <span>{{ $session->agent->platform() ? $session->agent->platform() : 'Platform Tidak Dikenal' }}</span>
-                                    <span class="text-gray-300">â€¢</span>
+                                    <span class="inline-block w-1 h-1 rounded-full bg-gray-300 mx-1 align-middle"></span>
                                     <span class="text-gray-600 font-semibold">{{ $session->agent->browser() ? $session->agent->browser() : 'Browser' }}</span>
                                 </div>
                                 <div class="text-[11px] text-gray-400 font-mono mt-0.5">

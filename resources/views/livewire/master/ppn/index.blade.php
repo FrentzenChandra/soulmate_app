@@ -162,7 +162,7 @@
                 </div>
             @elseif(count($ppns) > 0)
                 <div class="py-1 text-center text-xs font-medium text-gray-400">
-                    âœ“ Menampilkan seluruh {{ count($ppns) }} dari {{ $totalPpn ?? count($ppns) }} tarif PPN
+                    Menampilkan seluruh {{ count($ppns) }} dari {{ $totalPpn ?? count($ppns) }} tarif PPN
                 </div>
             @endif
         </div>

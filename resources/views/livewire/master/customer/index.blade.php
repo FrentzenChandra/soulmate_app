@@ -152,7 +152,7 @@
                             <td class="py-4 px-4 text-center">
                                 @if($c->tipe === 'langganan')
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 font-extrabold text-[11px] border border-purple-200">
-                                        â­ Langganan
+                                        Langganan
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 font-bold text-[11px] border border-gray-200">
@@ -229,7 +229,7 @@
                 </div>
             @elseif(count($customers) > 0)
                 <div class="py-1 text-center text-xs font-medium text-gray-400">
-                    âœ“ Menampilkan seluruh {{ count($customers) }} dari {{ $totalCustomers ?? count($customers) }} pelanggan
+                    Menampilkan seluruh {{ count($customers) }} dari {{ $totalCustomers ?? count($customers) }} pelanggan
                 </div>
             @endif
         </div>
@@ -294,7 +294,7 @@
                                     </label>
                                     <select wire:model="tipe" 
                                             class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]">
-                                        <option value="langganan">â­ Pelanggan Langganan</option>
+                                        <option value="langganan">Pelanggan Langganan</option>
                                         <option value="umum">Pelanggan Umum</option>
                                     </select>
                                 </div>

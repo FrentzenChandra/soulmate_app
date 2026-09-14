@@ -57,8 +57,10 @@ DESIGN PRINCIPLES yang WAJIB diterapkan:
 4. MEMORABLE — Gunakan detail unexpected (micro-interaction, typography choice, 
    spatial decisions) yang membuat user berkesan, bukan lupa.
 
-LARANGAN MUTLAK (Hindari AI slop & Visual Clutter):
-❌ Jangan gunakan emoji sebagai ikon/dekorasi UI (hindari 🏢, 📍, ⚡, 👑, 💻, 🖨️, 👋, dll)
+LARANGAN MUTLAK (Hindari AI slop, Visual Clutter & Karakter Rusak/Mojibake):
+❌ Dilarang keras memakai karakter berisiko encoding rusak / Mojibake seperti bullet point mentah (`•` / `â€¢`), checkmark liar (`✓`), em-dash (`—`), atau emoji di kode Blade template.
+❌ Dilarang membuat placeholder input yang tidak jelas atau berisi karakter dummy/bullet acak (contoh: `placeholder="••••••••"` atau `placeholder="â€¢â€¢â€¢â€¢"`). Placeholder WAJIB deskriptif dan manusiawi (contoh: `placeholder="Masukkan kata sandi saat ini..."`, `placeholder="Minimal 8 karakter..."`, `placeholder="Nama pelanggan atau perusahaan..."`).
+❌ Jangan gunakan emoji sebagai ikon/dekorasi UI (hindari 🏢, 📍, ⚡, 👑, 💻, 🖨️, 👋, dll) — gunakan Clean Outline SVG.
 ❌ Jangan gunakan ikon secara berlebihan di setiap sudut teks — keep it simple, clean, and purposeful
 ❌ Jangan gunakan warna ikon acak/pelangi di sidebar — gunakan warna senada (muted/neutral & brand active state)
 ❌ Jangan stack card vertikal berlebihan tanpa rhythm visual

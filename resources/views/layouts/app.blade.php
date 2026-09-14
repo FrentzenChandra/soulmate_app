@@ -71,12 +71,12 @@
                         <p class="text-[11px] font-medium">
                             @if(auth()->user()->isOwner())
                                 @if(session('active_branch_id', 'hq') === 'hq')
-                                    <span class="text-purple-300 font-semibold">Owner â€¢ Konteks HQ</span>
+                                    <span class="text-purple-300 font-semibold">Owner · Konteks HQ</span>
                                 @else
-                                    <span class="text-blue-300 font-semibold">Owner â€¢ Mode Cabang</span>
+                                    <span class="text-blue-300 font-semibold">Owner · Mode Cabang</span>
                                 @endif
                             @else
-                                <span class="text-gray-400">{{ auth()->user()->role_name }} â€¢ {{ auth()->user()->cabang?->nama_cabang ?? 'Cabang' }}</span>
+                                <span class="text-gray-400">{{ auth()->user()->role_name }} · {{ auth()->user()->cabang?->nama_cabang ?? 'Cabang' }}</span>
                             @endif
                         </p>
                     </div>
@@ -363,7 +363,7 @@
                             <div class="mt-2.5 inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-purple-50 text-[#5E17EB] border border-purple-200">
                                 <span>{{ auth()->user()->role_name }}</span>
                                 @if(auth()->user()->cabang)
-                                    <span class="text-gray-400 mx-1">â€¢</span>
+                                    <span class="inline-block w-1 h-1 rounded-full bg-gray-300 mx-1 align-middle"></span>
                                     <span>{{ auth()->user()->cabang->nama_cabang }}</span>
                                 @endif
                             </div>

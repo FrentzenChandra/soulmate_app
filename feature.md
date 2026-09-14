@@ -9,42 +9,42 @@ Saya sedang membangun sebuah sistem internal untuk usaha servis elektronik (misa
 Sistem digunakan oleh banyak cabang sekaligus, jadi ada **data master Cabang**. Setiap User terikat ke 1 cabang tertentu (kecuali **Owner** yang bisa akses semua cabang dan beralih konteks antara Kantor Pusat/HQ dan Cabang).
 
 **Role & Hierarki Hak Akses:**
-- **Owner (Pemilik Bisnis)** â€” Memegang otoritas tertinggi (level Organisasi/Pusat). Memiliki akses ke **HQ Context** dan seluruh cabang. Berhak menambah dan mengelola akun semua peran (**Owner baru**, **Superadmin**, **Teknisi**, **Kasir**) di seluruh cabang maupun HQ, mengelola **Cabang baru**, mengatur **Tarif PPN**, serta melihat konsolidasi finansial/laporan performa seluruh cabang.
-- **Superadmin (Admin Cabang)** â€” Administrator operasional cabang. Akses dibatasi ketat **hanya pada 1 cabang yang dipegangnya**. Dapat mengelola transaksi kasir, katalog produk cabang, stok, laporan cabang, dan **mengelola/membuat akun staf di cabangnya sendiri** (role **Superadmin**, **Teknisi**, dan **Kasir** khusus untuk cabangnya). Superadmin **tidak bisa** menambah cabang baru, beralih ke cabang lain, mengelola akun Owner, atau mengelola staf di cabang lain.
-- **Teknisi** â€” Akses menu servis (servis masuk, servis keluar, ubah status pengerjaan) serta pencatatan data pelanggan pada cabang yang ditugaskan.
-- **Kasir** â€” Akses menu kasir POS/penjualan produk, penagihan servis, riwayat transaksi, dan data pelanggan pada cabang yang ditugaskan.
+- **Owner (Pemilik Bisnis)** — Memegang otoritas tertinggi (level Organisasi/Pusat). Memiliki akses ke **HQ Context** dan seluruh cabang. Berhak menambah dan mengelola akun semua peran (**Owner baru**, **Superadmin**, **Teknisi**, **Kasir**) di seluruh cabang maupun HQ, mengelola **Cabang baru**, mengatur **Tarif PPN**, serta melihat konsolidasi finansial/laporan performa seluruh cabang.
+- **Superadmin (Admin Cabang)** — Administrator operasional cabang. Akses dibatasi ketat **hanya pada 1 cabang yang dipegangnya**. Dapat mengelola transaksi kasir, katalog produk cabang, stok, laporan cabang, dan **mengelola/membuat akun staf di cabangnya sendiri** (role **Superadmin**, **Teknisi**, dan **Kasir** khusus untuk cabangnya). Superadmin **tidak bisa** menambah cabang baru, beralih ke cabang lain, mengelola akun Owner, atau mengelola staf di cabang lain.
+- **Teknisi** — Akses menu servis (servis masuk, servis keluar, ubah status pengerjaan) serta pencatatan data pelanggan pada cabang yang ditugaskan.
+- **Kasir** — Akses menu kasir POS/penjualan produk, penagihan servis, riwayat transaksi, dan data pelanggan pada cabang yang ditugaskan.
 
 ---
 
 ## 2. Fitur Customer (Publik)
 
-- **Menu publik cek status servis** â€” customer bisa cek status servisnya (pengecekan / pengerjaan / selesai) tanpa login, misal pakai No. Servis.
-- **Menu marketplace/pembelian produk** â€” customer browsing produk yang memang sengaja ditampilkan ke publik, masukkan ke keranjang, lalu pesan lewat WhatsApp (bukan checkout online biasa, tapi generate rincian pesanan yang dikirim ke WA).
+- **Menu publik cek status servis** — customer bisa cek status servisnya (pengecekan / pengerjaan / selesai) tanpa login, misal pakai No. Servis.
+- **Menu marketplace/pembelian produk** — customer browsing produk yang memang sengaja ditampilkan ke publik, masukkan ke keranjang, lalu pesan lewat WhatsApp (bukan checkout online biasa, tapi generate rincian pesanan yang dikirim ke WA).
 
 ### Logika marketplace multi-cabang (penting):
-- Produk adalah **katalog global** (1 produk = 1 baris data, dipakai semua cabang) â€” bukan produk per cabang, supaya tidak duplikat & mudah dikelola.
-- Produk punya kolom `ready_marketplace` (true/false) â€” keputusan admin pusat, produk mana yang boleh tampil di web publik.
+- Produk adalah **katalog global** (1 produk = 1 baris data, dipakai semua cabang) — bukan produk per cabang, supaya tidak duplikat & mudah dikelola.
+- Produk punya kolom `ready_marketplace` (true/false) — keputusan admin pusat, produk mana yang boleh tampil di web publik.
 - Stok tiap produk **berbeda-beda per cabang**, dicatat di tabel stok terpisah yang menghubungkan produk + cabang + jumlah + status keaktifan (`is_aktif`).
 - Saat customer lihat produk di web, sistem menampilkan **ketersediaan stok per cabang** (misal: "Ready di Cabang Pangkalpinang: 5 pcs", "Cabang Sungailiat: 0 pcs").
-- **Customer wajib memilih cabang** sebelum kirim pesan ke WA (bukan otomatis pilih cabang terdekat â€” itu fitur lanjutan yang belum digarap). Setelah pilih cabang, sistem generate link WA ke **nomor WA milik cabang tersebut** (jadi setiap cabang punya nomor WA sendiri di data master Cabang), berisi rincian pesanan (nama produk, qty, harga, total estimasi).
+- **Customer wajib memilih cabang** sebelum kirim pesan ke WA (bukan otomatis pilih cabang terdekat — itu fitur lanjutan yang belum digarap). Setelah pilih cabang, sistem generate link WA ke **nomor WA milik cabang tersebut** (jadi setiap cabang punya nomor WA sendiri di data master Cabang), berisi rincian pesanan (nama produk, qty, harga, total estimasi).
 - Hanya menampilkan stok dari **cabang yang berstatus aktif** dan produk dengan `is_aktif = true`. Cabang yang tutup/nonaktif tidak boleh muncul di pilihan marketplace.
-- Pesanan via WA ini **tidak disimpan sebagai transaksi di database** (cukup teks terkirim ke WA) â€” nanti kalau customer jadi beli, kasir yang input manual ke transaksi kasir.
+- Pesanan via WA ini **tidak disimpan sebagai transaksi di database** (cukup teks terkirim ke WA) — nanti kalau customer jadi beli, kasir yang input manual ke transaksi kasir.
 
 ---
 
 ## 3. Fitur Servis Masuk
 
-- Form input servis baru: pilih **Customer** â€” bisa pilih dari data lama (sudah pernah servis sebelumnya) atau input Customer Baru.
-- Setelah input, bisa **cetak Tanda Terima Servis** untuk diberikan ke customer (pakai printer thermal/dot matrix, ukuran struk â€” referensi printer Epson LX-310).
-- Servis punya **status** yang bisa diubah: `pengecekan` â†’ `pengerjaan` â†’ `selesai` (atau `batal`).
-- Setiap perubahan status **dicatat sebagai log** (siapa yang ubah, kapan, status apa) â€” untuk histori/audit trail, bukan cuma overwrite status terakhir.
-- Servis bisa punya detail sparepart yang dipakai (misal ganti LCD, ganti baterai) dengan qty & harga masing-masing â€” ini yang nanti dipakai untuk hitung total biaya servis.
+- Form input servis baru: pilih **Customer** — bisa pilih dari data lama (sudah pernah servis sebelumnya) atau input Customer Baru.
+- Setelah input, bisa **cetak Tanda Terima Servis** untuk diberikan ke customer (pakai printer thermal/dot matrix, ukuran struk — referensi printer Epson LX-310).
+- Servis punya **status** yang bisa diubah: `pengecekan` -> `pengerjaan` -> `selesai` (atau `batal`).
+- Setiap perubahan status **dicatat sebagai log** (siapa yang ubah, kapan, status apa) — untuk histori/audit trail, bukan cuma overwrite status terakhir.
+- Servis bisa punya detail sparepart yang dipakai (misal ganti LCD, ganti baterai) dengan qty & harga masing-masing — ini yang nanti dipakai untuk hitung total biaya servis.
 
 ## 4. Fitur Servis Keluar
 
-- Bukan tabel terpisah â€” ini adalah **filter/list dari data Servis Masuk** yang statusnya sudah `selesai` (siap diambil/dibayar).
-- Ada tombol **Batal** â€” kalau dipencet, status servis jadi `batal` dan **total biaya dikosongkan** (di-reset ke 0 / null).
-- Begitu servis sudah ditagihkan lewat kasir (lihat poin 5), servis tersebut **otomatis terkunci** â€” tidak bisa ditagih dobel oleh kasir lain/shift lain. Kalau dicari lagi di kasir, sistem harus tolak dengan pesan semacam "servis ini sudah dibayar".
+- Bukan tabel terpisah — ini adalah **filter/list dari data Servis Masuk** yang statusnya sudah `selesai` (siap diambil/dibayar).
+- Ada tombol **Batal** — kalau dipencet, status servis jadi `batal` dan **total biaya dikosongkan** (di-reset ke 0 / null).
+- Begitu servis sudah ditagihkan lewat kasir (lihat poin 5), servis tersebut **otomatis terkunci** — tidak bisa ditagih dobel oleh kasir lain/shift lain. Kalau dicari lagi di kasir, sistem harus tolak dengan pesan semacam "servis ini sudah dibayar".
 
 ---
 
@@ -53,22 +53,22 @@ Sistem digunakan oleh banyak cabang sekaligus, jadi ada **data master Cabang**. 
 > **Update keputusan:** sebelumnya sempat direncanakan 1 menu Kasir gabungan dengan search bar pintar. Sekarang diputuskan **dipisah** jadi 2 titik masuk yang beda, karena servis dan penjualan produk butuh alur & konteks yang beda:
 
 ### A. Kasir Produk (menu tersendiri)
-- Kasir cari barang â†’ masuk keranjang â†’ bayar (diskon + PPN) â†’ cetak nota.
+- Kasir cari barang -> masuk keranjang -> bayar (diskon + PPN) -> cetak nota.
 - Ini murni transaksi jual-beli barang biasa, tidak ada kaitan dengan servis.
 - Mendukung **Penjualan Non-Real (Nota Formalitas)**: mode cetak struk tanpa memotong stok dan tanpa masuk ke pembukuan finansial / dashboard.
 
 ### B. Penagihan Servis (masuk dari Index/List Servis, BUKAN dari menu Kasir)
-- Kasir/Teknisi buka **Index Servis** â€” daftar semua servis, bisa difilter per status (`pengecekan`, `pengerjaan`, `selesai`, `batal`).
+- Kasir/Teknisi buka **Index Servis** — daftar semua servis, bisa difilter per status (`pengecekan`, `pengerjaan`, `selesai`, `batal`).
 - Servis yang statusnya **`selesai`** akan punya tombol/aksi **"Tagih & Cetak"** langsung di baris itu.
-- Begitu diklik, muncul form ringkas: rincian biaya servis (dari `SERVIS_DETAIL` + `total_biaya`), input **diskon**, pilih **PPN** (dari master PPN), lalu **Bayar** â†’ langsung cetak nota.
-- Setelah dibayar, status servis otomatis berubah (misal jadi `sudah_dibayar` / `selesai_diambil`) dan **terkunci** â€” tidak bisa ditagih ulang oleh siapapun.
+- Begitu diklik, muncul form ringkas: rincian biaya servis (dari `SERVIS_DETAIL` + `total_biaya`), input **diskon**, pilih **PPN** (dari master PPN), lalu **Bayar** -> langsung cetak nota.
+- Setelah dibayar, status servis otomatis berubah (misal jadi `sudah_dibayar` / `selesai_diambil`) dan **terkunci** — tidak bisa ditagih ulang oleh siapapun.
 
-### Penomoran Transaksi â€” Dipisah per Jenis
+### Penomoran Transaksi — Dipisah per Jenis
 Karena sekarang dipisah, nomor transaksi (`no_transaksi` di tabel `PENJUALAN`) juga harus punya **format/urutan angka sendiri-sendiri** per jenis, supaya gampang dikenali sekilas:
-- Transaksi dari penagihan servis â†’ format `INV-SV-[KODE_CABANG]-[YYMM]-[URUT]` (counter jalan sendiri, khusus servis)
-- Transaksi dari kasir produk â†’ format `INV-PJ-[KODE_CABANG]-[YYMM]-[URUT]` (counter jalan sendiri, khusus produk)
+- Transaksi dari penagihan servis -> format `INV-SV-[KODE_CABANG]-[YYMM]-[URUT]` (counter jalan sendiri, khusus servis)
+- Transaksi dari kasir produk -> format `INV-PJ-[KODE_CABANG]-[YYMM]-[URUT]` (counter jalan sendiri, khusus produk)
 
-Keduanya tetap masuk ke tabel `PENJUALAN` yang sama (supaya laporan keuangan bisa digabung kalau perlu), tapi dibedakan lewat kolom `tipe_transaksi` dan prefix nomor transaksinya â€” bukan bikin tabel terpisah, karena struktur datanya (subtotal, diskon, ppn, total, metode bayar) tetap sama persis.
+Keduanya tetap masuk ke tabel `PENJUALAN` yang sama (supaya laporan keuangan bisa digabung kalau perlu), tapi dibedakan lewat kolom `tipe_transaksi` dan prefix nomor transaksinya — bukan bikin tabel terpisah, karena struktur datanya (subtotal, diskon, ppn, total, metode bayar) tetap sama persis.
 
 **Catatan implementasi:** counter nomor urut per jenis disimpan di tabel `NOMOR_URUT_TRANSAKSIS` dengan kolom `cabang_id`, `tipe`, `tahun`, `last_number` dibungkus `DB::transaction()` + row lock.
 
@@ -76,27 +76,27 @@ Keduanya tetap masuk ke tabel `PENJUALAN` yang sama (supaya laporan keuangan bis
 
 ## 6. Fitur Penjualan (Laporan)
 
-- Menu untuk **melihat/laporan data penjualan** (transaksi dari kasir) â€” beda dari "master servis". Ini murni tampilan histori transaksi kasir: filter tanggal, cabang, kasir, filter `is_real` (penjualan asli vs non-real), dsb.
+- Menu untuk **melihat/laporan data penjualan** (transaksi dari kasir) — beda dari "master servis". Ini murni tampilan histori transaksi kasir: filter tanggal, cabang, kasir, filter `is_real` (penjualan asli vs non-real), dsb.
 
 ## 7. Fitur Histori Servis (Laporan)
 
-- Sama seperti fitur Penjualan di atas, tapi khusus untuk data servis â€” riwayat servis masuk sampai selesai/batal per customer/cabang/teknisi.
+- Sama seperti fitur Penjualan di atas, tapi khusus untuk data servis — riwayat servis masuk sampai selesai/batal per customer/cabang/teknisi.
 
 ---
 
 ## 8. Data Master yang Dibutuhkan
 
-- **Cabang** (`/master/cabang`) â€” Termasuk nomor WA khusus per cabang & status aktif/nonaktif (data cabang tidak boleh dihapus permanen karena berkaitan dengan histori transaksi lama â€” pakai status, bukan delete). Akses: Owner.
-- **Role & Manajemen Pengguna** (`/master/users`) â€” Mengelola akun Owner, Superadmin, Teknisi, dan Kasir dengan otorisasi bertingkat (Owner = global, Superadmin = staff cabang).
-- **Kategori Produk** (`/master/kategori`) â€” Pengelompokan produk dengan proteksi hapus jika masih memiliki relasi produk. Akses: Owner & Superadmin.
-- **Master Produk** (`/master/produk`) â€” Katalog global terpusat dengan matriks stok multi-cabang, barcode scanner, deteksi duplikasi instan, dan kompresi WebP. Akses: Owner & Superadmin.
-- **Master PPN** (`/master/ppn`) â€” Opsi tarif pajak dinamis (`PPN 11%`, `PPN 12%`, `Tanpa PPN (0%)`) dengan proteksi hapus jika sudah tercatat di transaksi kasir. Akses: Owner.
-- **Master Customer / Data Pelanggan** (`/master/customer`) â€” Data pelanggan terisolasi per cabang dengan quick action WhatsApp langsung dan klasifikasi Member/Umum. Akses: Owner, Superadmin, Kasir, Teknisi.
-- **Nomor Urut Transaksi** â€” Generator counter atomik nomor invoice per cabang dan per jenis transaksi.
+- **Cabang** (`/master/cabang`) — Termasuk nomor WA khusus per cabang & status aktif/nonaktif (data cabang tidak boleh dihapus permanen karena berkaitan dengan histori transaksi lama — pakai status, bukan delete). Akses: Owner.
+- **Role & Manajemen Pengguna** (`/master/users`) — Mengelola akun Owner, Superadmin, Teknisi, dan Kasir dengan otorisasi bertingkat (Owner = global, Superadmin = staff cabang).
+- **Kategori Produk** (`/master/kategori`) — Pengelompokan produk dengan proteksi hapus jika masih memiliki relasi produk. Akses: Owner & Superadmin.
+- **Master Produk** (`/master/produk`) — Katalog global terpusat dengan matriks stok multi-cabang, barcode scanner, deteksi duplikasi instan, dan kompresi WebP. Akses: Owner & Superadmin.
+- **Master PPN** (`/master/ppn`) — Opsi tarif pajak dinamis (`PPN 11%`, `PPN 12%`, `Tanpa PPN (0%)`) dengan proteksi hapus jika sudah tercatat di transaksi kasir. Akses: Owner.
+- **Master Customer / Data Pelanggan** (`/master/customer`) — Data pelanggan terisolasi per cabang dengan quick action WhatsApp langsung dan klasifikasi Member/Umum. Akses: Owner, Superadmin, Kasir, Teknisi.
+- **Nomor Urut Transaksi** — Generator counter atomik nomor invoice per cabang dan per jenis transaksi.
 
 ---
 
-## 9. Skema Database (ERD) â€” format Mermaid
+## 9. Skema Database (ERD) — format Mermaid
 
 ```mermaid
 erDiagram
@@ -258,10 +258,10 @@ erDiagram
 
 ## 10. Keputusan Final atas Logika Bisnis & Penyesuaian Terkini
 
-1. **Servis dibayar full lunas sekaligus** (tidak ada DP/cicilan). Relasi `SERVIS_MASUK` ke `PENJUALAN` tetap **one-to-one** seperti di skema â€” 1 servis hanya bisa punya 1 transaksi pembayaran.
-2. **Data Customer bersifat per cabang** (bukan global lintas cabang). Pelanggan yang terdaftar di Cabang A terisolasi dari Cabang B â€” sesuai dengan `CUSTOMER.cabang_id` yang sudah ada di skema.
+1. **Servis dibayar full lunas sekaligus** (tidak ada DP/cicilan). Relasi `SERVIS_MASUK` ke `PENJUALAN` tetap **one-to-one** seperti di skema — 1 servis hanya bisa punya 1 transaksi pembayaran.
+2. **Data Customer bersifat per cabang** (bukan global lintas cabang). Pelanggan yang terdaftar di Cabang A terisolasi dari Cabang B — sesuai dengan `CUSTOMER.cabang_id` yang sudah ada di skema.
 3. **Marketplace: pilih cabang manual vs auto-detect cabang terdekat.** Untuk versi sekarang tetap pakai **pilih cabang manual**.
-4. **Reserve stok saat ada pesanan WA belum dikonfirmasi â€” tidak diperlukan.** Stok tetap baru berkurang saat transaksi resmi diproses di kasir.
+4. **Reserve stok saat ada pesanan WA belum dikonfirmasi — tidak diperlukan.** Stok tetap baru berkurang saat transaksi resmi diproses di kasir.
 5. **Penjualan Non-Real (Nota Formalitas / Dummy Invoice) di POS Kasir:**
    - Fitur untuk mencetak nota/struk dengan harga dan rincian tertentu atas permintaan pelanggan/kebutuhan administratif.
    - Transaksi non-real ditandai `is_real = false`.
@@ -289,14 +289,14 @@ Barcode dipakai di **2 titik** dalam sistem ini, dan keduanya harus support **sc
 ### A. Input Master Produk (oleh Admin/Superadmin)
 - Saat tambah produk baru, admin scan barcode di kolom barcode.
 - Sistem cek dulu ke database sendiri:
-  - **Barcode sudah ada** â†’ muncul notifikasi deteksi duplikasi dengan 1-klik edit produk tersebut.
-  - **Barcode belum ada** â†’ (opsional) coba lookup ke API eksternal (UPCItemDB) untuk auto-isi nama produk.
-  - Kalau tetap tidak ketemu di manapun â†’ form kosong seperti biasa, admin isi manual.
+  - **Barcode sudah ada** -> muncul notifikasi deteksi duplikasi dengan 1-klik edit produk tersebut.
+  - **Barcode belum ada** -> (opsional) coba lookup ke API eksternal (UPCItemDB) untuk auto-isi nama produk.
+  - Kalau tetap tidak ketemu di manapun -> form kosong seperti biasa, admin isi manual.
 
 ### B. Cari Produk saat Transaksi Kasir Produk
 - Kolom cari produk di Kasir jadi 1 pintu untuk 3 cara input: ketik nama manual, scan pakai scanner fisik, atau scan pakai kamera (tombol ikon kamera di sebelah kolom).
-- Begitu barcode terdeteksi & cocok di database cabang â†’ produk **otomatis langsung masuk ke keranjang**.
-- Kalau barcode tidak dikenali â†’ notifikasi "Barcode tidak dikenali", TIDAK membuka form tambah produk baru.
+- Begitu barcode terdeteksi & cocok di database cabang -> produk **otomatis langsung masuk ke keranjang**.
+- Kalau barcode tidak dikenali -> notifikasi "Barcode tidak dikenali", TIDAK membuka form tambah produk baru.
 
 ---
 
@@ -312,7 +312,7 @@ Halaman antarmuka publik tanpa login yang dirancang khusus untuk layar TV/Monito
 
 Navigasi sistem dibagi menjadi **dua level konteks**:
 
-### A. Konteks Global / Kantor Pusat (HQ View) â€” Khusus Owner
+### A. Konteks Global / Kantor Pusat (HQ View) — Khusus Owner
 - Dashboard HQ (Konsolidasi Finansial & Omzet).
 - Master Cabang (`/master/cabang`).
 - Master Pengguna (`/master/users`).
@@ -363,11 +363,11 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
   - Akun baru hanya dapat didaftarkan secara berjenjang melalui Master Pengguna (`/master/users`) oleh **Owner** (global semua cabang/role) atau **Superadmin** (khusus staf cabangnya).
 - **Halaman Profil Pengguna Terintegrasi (`/user/profile`)**:
   - **Hero Overview Card**: Foto profil/inisial avatar, nama lengkap, username (`@username`), badge role (`Owner HQ`, `Superadmin`, `Teknisi`, `Kasir`), cabang tugas, email, nomor WhatsApp, serta indikator status perlindungan 2FA.
-  - **Tab 1 â€” Informasi Profil & Kontak**: Ubah nama lengkap, username (info read-only dari admin), email, nomor WhatsApp/HP, serta upload/hapus foto profil.
-  - **Tab 2 â€” Perbarui Kata Sandi**: Kata sandi saat ini, baru, dan konfirmasi dilengkapi tombol *show/hide password toggle* dan tips keamanan.
-  - **Tab 3 â€” Otentikasi Dua Faktor (2FA)**: Aktivasi 2FA via Google/Microsoft Authenticator, frame SVG QR code, pill kunci manual (*Setup Key*) dengan tombol salin, verifikasi OTP 6-digit, serta grid kode pemulihan darurat (*Recovery Codes*) dengan tombol salin semua.
-  - **Tab 4 â€” Sesi Perangkat & Browser**: Monitoring sesi aktif di perangkat lain dengan deteksi OS (Windows, macOS/iOS, Linux, Android) & browser, IP address, waktu aktif, badge *Perangkat Ini*, serta tombol *Keluarkan Sesi Perangkat Lain*.
-  - **Tab 5 â€” Zona Bahaya**: Opsi hapus akun permanen terlindungi konfirmasi kata sandi.
+  - **Tab 1 — Informasi Profil & Kontak**: Ubah nama lengkap, username (info read-only dari admin), email, nomor WhatsApp/HP, serta upload/hapus foto profil.
+  - **Tab 2 — Perbarui Kata Sandi**: Kata sandi saat ini, baru, dan konfirmasi dilengkapi tombol *show/hide password toggle* dan tips keamanan.
+  - **Tab 3 — Otentikasi Dua Faktor (2FA)**: Aktivasi 2FA via Google/Microsoft Authenticator, frame SVG QR code, pill kunci manual (*Setup Key*) dengan tombol salin, verifikasi OTP 6-digit, serta grid kode pemulihan darurat (*Recovery Codes*) dengan tombol salin semua.
+  - **Tab 4 — Sesi Perangkat & Browser**: Monitoring sesi aktif di perangkat lain dengan deteksi OS (Windows, macOS/iOS, Linux, Android) & browser, IP address, waktu aktif, badge *Perangkat Ini*, serta tombol *Keluarkan Sesi Perangkat Lain*.
+  - **Tab 5 — Zona Bahaya**: Opsi hapus akun permanen terlindungi konfirmasi kata sandi.
 - **Sinkronisasi Foto Profil**:
   - Method accessor `getProfilePhotoUrlAttribute()` pada model `User` secara cerdas memprioritaskan `profile_photo_path` (Jetstream) dan `foto_url` (upload Master Pengguna WebP $\le 40\text{ KB}$), dengan fallback inisial SVG avatar.
 - **Desain Solid Clean Anti-AI Slop**:

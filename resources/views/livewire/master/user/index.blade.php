@@ -260,7 +260,7 @@
                 </div>
             @elseif(count($users) > 0)
                 <div class="py-1 text-center text-xs font-medium text-gray-400">
-                    âœ“ Menampilkan seluruh {{ count($users) }} dari {{ $totalUsers ?? count($users) }} pengguna
+                    Menampilkan seluruh {{ count($users) }} dari {{ $totalUsers ?? count($users) }} pengguna
                 </div>
             @endif
         </div>

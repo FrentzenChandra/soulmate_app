@@ -80,7 +80,7 @@
                                    name="password" 
                                    required 
                                    autocomplete="current-password"
-                                   placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" 
+                                   placeholder="Masukkan kata sandi..." 
                                    class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 text-sm font-semibold text-gray-900 transition-all outline-none">
                             <button type="button" 
                                     @click="showPass = !showPass" 
