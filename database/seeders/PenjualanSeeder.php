@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Cabang;
 use App\Models\Customer;
 use App\Models\MasterPpn;
-use App\Models\NomorUrutTransaksi;
 use App\Models\Penjualan;
 use App\Models\PenjualanDetail;
 use App\Models\Produk;
@@ -24,214 +23,267 @@ class PenjualanSeeder extends Seeder
     public function run(): void
     {
         $pkp = Cabang::where('kode_cabang', 'CB-PKP')->first();
-        $kasirPkp = User::where('username', 'kasir_pkp')->first();
-        $teknisiPkp = User::where('username', 'teknisi_pkp')->first();
-        $customer = Customer::where('nama', 'Hendra Setiawan')->first();
-        $customer2 = Customer::where('nama', 'Mega Lestari')->first();
+        $sgl = Cabang::where('kode_cabang', 'CB-SGL')->first();
+        $kba = Cabang::where('kode_cabang', 'CB-KBA')->first();
+
+        $adminPkp = User::where('username', 'admin_pkp')->orWhere('username', 'kasir_pkp')->first()
+            ?? User::where('email', 'superadmin@soulmate.test')->first();
+        $adminSgl = User::where('username', 'admin_sgl')->orWhere('username', 'kasir_sgl')->first()
+            ?? $adminPkp;
+        $adminKba = User::where('username', 'admin_kba')->orWhere('username', 'kasir_kba')->first()
+            ?? $adminPkp;
+
+        $custHendra = Customer::where('nama', 'Hendra Setiawan')->first();
+        $custMega = Customer::where('nama', 'Mega Lestari')->first();
+        $custFajar = Customer::where('nama', 'PT Bangka Media Utama (Bpk. Fajar)')->first();
+        $custBudi = Customer::where('nama', 'Budi Walk-In')->first();
+        $custRizky = Customer::where('nama', 'Rizky Pratama')->first();
 
         $ppn11 = MasterPpn::where('persen', 11.00)->first();
         $tanpaPpn = MasterPpn::where('persen', 0.00)->first();
 
-        $ssd = Produk::where('barcode', '8991234560011')->first();
-        $ram = Produk::where('barcode', '8991234560028')->first();
-        $mouse = Produk::where('barcode', '8991234560080')->first();
-        $pasta = Produk::where('barcode', '8991234560059')->first();
+        $allProduks = Produk::all();
+        $ssd = $allProduks->where('barcode', '8991234560011')->first() ?? $allProduks->first();
+        $ram = $allProduks->where('barcode', '8991234560028')->first() ?? $allProduks->skip(1)->first();
+        $mouse = $allProduks->where('barcode', '8991234560080')->first() ?? $allProduks->skip(2)->first();
+        $pasta = $allProduks->where('barcode', '8991234560059')->first() ?? $allProduks->skip(3)->first();
+        $flashdisk = $allProduks->where('barcode', '8991234560073')->first() ?? $allProduks->skip(4)->first();
 
-        if (! $pkp || ! $kasirPkp) {
+        if (! $pkp || ! $adminPkp) {
             return;
         }
 
         $now = Carbon::now();
+        $yymmdd = $now->format('ymd');
 
-        // 1. Transaksi Penjualan Barang Kasir POS (INV-PJ-000001)
-        $subtotal1 = ($ssd ? $ssd->harga_jual : 600000) + ($mouse ? $mouse->harga_jual : 195000);
-        $diskon1 = 20000;
-        $dpp1 = $subtotal1 - $diskon1;
-        $ppnNominal1 = round($dpp1 * 0.11, 2);
-        $total1 = $dpp1 + $ppnNominal1;
+        // =========================================================================
+        // DATA TRANSAKSI CABANG PANGKALPINANG (CB-PKP)
+        // =========================================================================
 
-        $pj1 = Penjualan::updateOrCreate(
-            ['no_transaksi' => 'INV-PJ-000001'],
-            [
-                'cabang_id' => $pkp->id,
-                'kasir_id' => $kasirPkp->id,
-                'customer_id' => $customer?->id,
-                'servis_id' => null,
-                'tipe_transaksi' => 'penjualan_barang',
-                'tanggal' => $now->copy()->subHours(8),
-                'subtotal' => $subtotal1,
-                'diskon' => $diskon1,
-                'ppn_id' => $ppn11?->id,
-                'ppn_persen' => 11.00,
-                'ppn_nominal' => $ppnNominal1,
-                'total' => $total1,
-                'jumlah_bayar' => 870000,
-                'kembalian' => 870000 - $total1,
-                'metode_bayar' => 'qris',
-                'status' => 'lunas',
-                'catatan' => 'Pembelian aksesoris & SSD upgrade',
-            ]
-        );
-
-        if ($ssd) {
-            PenjualanDetail::firstOrCreate([
-                'penjualan_id' => $pj1->id,
-                'tipe_item' => 'barang',
-                'produk_id' => $ssd->id,
-                'nama_item' => $ssd->nama_produk,
-                'qty' => 1,
-                'harga' => $ssd->harga_jual,
-                'subtotal' => $ssd->harga_jual,
-            ]);
-        }
-        if ($mouse) {
-            PenjualanDetail::firstOrCreate([
-                'penjualan_id' => $pj1->id,
-                'tipe_item' => 'barang',
-                'produk_id' => $mouse->id,
-                'nama_item' => $mouse->nama_produk,
-                'qty' => 1,
-                'harga' => $mouse->harga_jual,
-                'subtotal' => $mouse->harga_jual,
-            ]);
-        }
-
-        // 2. Transaksi Penagihan Servis Selesai & Lunas (INV-SV-000001)
-        // Kita buat 1 unit servis yang statusnya sudah_dibayar & terkunci
-        $svLunas = ServisMasuk::updateOrCreate(
-            ['no_servis' => 'SRV-PKP-2609000'],
-            [
-                'cabang_id' => $pkp->id,
-                'customer_id' => $customer2->id,
-                'teknisi_id' => $teknisiPkp?->id ?? $kasirPkp->id,
-                'created_by' => $kasirPkp->id,
-                'kategori_perangkat' => 'laptop',
-                'tipe_unit' => 'Acer Aspire 5 A514',
-                'serial_number' => 'NXH9912001',
-                'kelengkapan' => 'Unit + Charger',
-                'keluhan' => 'Laptop lemot, ingin upgrade SSD + RAM dan instal ulang OS Windows 11',
-                'kondisi_barang' => 'Mulus',
-                'status' => 'sudah_dibayar',
-                'tanggal_masuk' => $now->copy()->subDays(5),
-                'tanggal_selesai' => $now->copy()->subDays(1),
-                'tanggal_ambil' => $now->copy()->subHours(2),
-                'estimasi_biaya' => 1050000,
-                'total_biaya' => 1045000,
-                'catatan' => 'Selesai upgrade dan sudah diambil customer',
-            ]
-        );
-
-        ServisDetail::firstOrCreate([
-            'servis_id' => $svLunas->id,
-            'nama_item' => 'SSD NVMe M.2 Kingston NV2 512GB PCIe 4.0',
-            'produk_id' => $ssd?->id,
-            'qty' => 1,
-            'harga' => 600000,
-            'subtotal' => 600000,
-        ]);
-        ServisDetail::firstOrCreate([
-            'servis_id' => $svLunas->id,
-            'nama_item' => 'RAM Sodimm DDR4 Kingston 8GB 3200MHz',
-            'produk_id' => $ram?->id,
-            'qty' => 1,
-            'harga' => 325000,
-            'subtotal' => 325000,
-        ]);
-        ServisDetail::firstOrCreate([
-            'servis_id' => $svLunas->id,
-            'nama_item' => 'Jasa Instalasi OS Windows 11 + Aplikasi Standar',
-            'produk_id' => null,
-            'qty' => 1,
-            'harga' => 120000,
-            'subtotal' => 120000,
-        ]);
-
-        ServisStatusLog::firstOrCreate([
-            'servis_id' => $svLunas->id,
-            'user_id' => $kasirPkp->id,
-            'status' => 'sudah_dibayar',
+        // 1. Transaksi Real Hari Ini (INV-PJ-CB-PKP-YYMMDD-00001)
+        $this->createSale([
+            'cabang_id' => $pkp->id,
+            'kasir_id' => $adminPkp->id,
+            'customer_id' => $custHendra?->id,
+            'no_transaksi' => "INV-PJ-CB-PKP-{$yymmdd}-00001",
+            'tipe_transaksi' => 'langsung',
             'tanggal' => $now->copy()->subHours(2),
-            'catatan' => 'Pembayaran lunas via kasir dan unit diserahkan kepada customer',
+            'diskon' => 20000,
+            'ppn' => $ppn11,
+            'is_real' => true,
+            'items' => [
+                ['produk' => $ssd, 'qty' => 1, 'harga' => $ssd?->harga_jual ?? 600000],
+                ['produk' => $mouse, 'qty' => 1, 'harga' => $mouse?->harga_jual ?? 195000],
+            ],
+            'catatan' => 'Pembelian SSD NVMe upgrade dan Mouse Wireless Logitech',
         ]);
 
-        $subtotalSv = 1045000;
-        $diskonSv = 45000;
-        $totalSv = $subtotalSv - $diskonSv;
+        // 2. Transaksi Real Hari Ini (INV-PJ-CB-PKP-YYMMDD-00002)
+        $this->createSale([
+            'cabang_id' => $pkp->id,
+            'kasir_id' => $adminPkp->id,
+            'customer_id' => $custMega?->id,
+            'no_transaksi' => "INV-PJ-CB-PKP-{$yymmdd}-00002",
+            'tipe_transaksi' => 'langsung',
+            'tanggal' => $now->copy()->subHours(4),
+            'diskon' => 0,
+            'ppn' => $tanpaPpn,
+            'is_real' => true,
+            'items' => [
+                ['produk' => $ram, 'qty' => 2, 'harga' => $ram?->harga_jual ?? 325000],
+                ['produk' => $pasta, 'qty' => 1, 'harga' => $pasta?->harga_jual ?? 45000],
+            ],
+            'catatan' => 'RAM DDR4 8GB 2 keping + Thermal paste',
+        ]);
 
-        $pjSv = Penjualan::updateOrCreate(
-            ['no_transaksi' => 'INV-SV-000001'],
+        // 3. Transaksi Non-Real / Formalitas Hari Ini (INV-PJ-CB-PKP-YYMMDD-00003)
+        $this->createSale([
+            'cabang_id' => $pkp->id,
+            'kasir_id' => $adminPkp->id,
+            'customer_id' => $custFajar?->id,
+            'no_transaksi' => "INV-PJ-CB-PKP-{$yymmdd}-00003",
+            'tipe_transaksi' => 'langsung',
+            'tanggal' => $now->copy()->subHours(5),
+            'diskon' => 50000,
+            'ppn' => $ppn11,
+            'is_real' => false,
+            'items' => [
+                ['produk' => $ssd, 'qty' => 3, 'harga' => $ssd?->harga_jual ?? 600000],
+                ['produk' => $flashdisk, 'qty' => 5, 'harga' => $flashdisk?->harga_jual ?? 85000],
+            ],
+            'catatan' => 'Nota formalitas pengadaan kantor PT Bangka Media Utama',
+        ]);
+
+        // 4. Transaksi Real Kemarin
+        $yesterdayYmd = $now->copy()->subDay()->format('ymd');
+        $this->createSale([
+            'cabang_id' => $pkp->id,
+            'kasir_id' => $adminPkp->id,
+            'customer_id' => $custBudi?->id,
+            'no_transaksi' => "INV-PJ-CB-PKP-{$yesterdayYmd}-00001",
+            'tipe_transaksi' => 'langsung',
+            'tanggal' => $now->copy()->subDay()->setHour(14)->setMinute(30),
+            'diskon' => 0,
+            'ppn' => $tanpaPpn,
+            'is_real' => true,
+            'items' => [
+                ['produk' => $mouse, 'qty' => 2, 'harga' => $mouse?->harga_jual ?? 195000],
+            ],
+            'catatan' => 'Pelanggan walk-in',
+        ]);
+
+        // 5. Transaksi Non-Real Kemarin
+        $this->createSale([
+            'cabang_id' => $pkp->id,
+            'kasir_id' => $adminPkp->id,
+            'customer_id' => $custHendra?->id,
+            'no_transaksi' => "INV-PJ-CB-PKP-{$yesterdayYmd}-00002",
+            'tipe_transaksi' => 'langsung',
+            'tanggal' => $now->copy()->subDay()->setHour(16)->setMinute(15),
+            'diskon' => 10000,
+            'ppn' => $tanpaPpn,
+            'is_real' => false,
+            'items' => [
+                ['produk' => $ram, 'qty' => 1, 'harga' => $ram?->harga_jual ?? 325000],
+            ],
+            'catatan' => 'Simulasi nota cetak',
+        ]);
+
+        // 6. Transaksi Real 5 Hari Lalu
+        $pastYmd = $now->copy()->subDays(5)->format('ymd');
+        $this->createSale([
+            'cabang_id' => $pkp->id,
+            'kasir_id' => $adminPkp->id,
+            'customer_id' => $custFajar?->id,
+            'no_transaksi' => "INV-PJ-CB-PKP-{$pastYmd}-00001",
+            'tipe_transaksi' => 'langsung',
+            'tanggal' => $now->copy()->subDays(5)->setHour(10)->setMinute(20),
+            'diskon' => 30000,
+            'ppn' => $ppn11,
+            'is_real' => true,
+            'items' => [
+                ['produk' => $ssd, 'qty' => 2, 'harga' => $ssd?->harga_jual ?? 600000],
+                ['produk' => $ram, 'qty' => 2, 'harga' => $ram?->harga_jual ?? 325000],
+            ],
+            'catatan' => 'Upgrade 2 unit PC kantor',
+        ]);
+
+        // =========================================================================
+        // DATA TRANSAKSI CABANG SUNGAILIAT (CB-SGL)
+        // =========================================================================
+        if ($sgl) {
+            // 7. Transaksi Real Sungailiat Hari Ini
+            $this->createSale([
+                'cabang_id' => $sgl->id,
+                'kasir_id' => $adminSgl->id,
+                'customer_id' => $custRizky?->id,
+                'no_transaksi' => "INV-PJ-CB-SGL-{$yymmdd}-00001",
+                'tipe_transaksi' => 'langsung',
+                'tanggal' => $now->copy()->subHours(3),
+                'diskon' => 15000,
+                'ppn' => $tanpaPpn,
+                'is_real' => true,
+                'items' => [
+                    ['produk' => $ssd, 'qty' => 1, 'harga' => $ssd?->harga_jual ?? 600000],
+                ],
+                'catatan' => 'Penjualan kasir Sungailiat',
+            ]);
+
+            // 8. Transaksi Non-Real Sungailiat Kemarin
+            $this->createSale([
+                'cabang_id' => $sgl->id,
+                'kasir_id' => $adminSgl->id,
+                'customer_id' => $custRizky?->id,
+                'no_transaksi' => "INV-PJ-CB-SGL-{$yesterdayYmd}-00001",
+                'tipe_transaksi' => 'langsung',
+                'tanggal' => $now->copy()->subDay()->setHour(11)->setMinute(0),
+                'diskon' => 0,
+                'ppn' => $tanpaPpn,
+                'is_real' => false,
+                'items' => [
+                    ['produk' => $mouse, 'qty' => 3, 'harga' => $mouse?->harga_jual ?? 195000],
+                ],
+                'catatan' => 'Simulasi nota cetak cabang SKB',
+            ]);
+        }
+
+        // =========================================================================
+        // DATA TRANSAKSI CABANG KOBA (CB-KBA)
+        // =========================================================================
+        if ($kba) {
+            $this->createSale([
+                'cabang_id' => $kba->id,
+                'kasir_id' => $adminKba->id,
+                'customer_id' => null,
+                'no_transaksi' => "INV-PJ-CB-KBA-{$yymmdd}-00001",
+                'tipe_transaksi' => 'langsung',
+                'tanggal' => $now->copy()->subHours(1),
+                'diskon' => 0,
+                'ppn' => $tanpaPpn,
+                'is_real' => true,
+                'items' => [
+                    ['produk' => $pasta, 'qty' => 2, 'harga' => $pasta?->harga_jual ?? 45000],
+                ],
+                'catatan' => 'Penjualan kasir Koba',
+            ]);
+        }
+    }
+
+    private function createSale(array $data): Penjualan
+    {
+        $subtotal = 0;
+        foreach ($data['items'] as $item) {
+            $subtotal += ($item['harga'] * $item['qty']);
+        }
+
+        $diskon = $data['diskon'] ?? 0;
+        $dpp = max(0, $subtotal - $diskon);
+
+        $ppnModel = $data['ppn'] ?? null;
+        $ppnPersen = $ppnModel ? (float) $ppnModel->persen : 0.00;
+        $ppnNominal = round($dpp * ($ppnPersen / 100), 2);
+        $total = $dpp + $ppnNominal;
+
+        $penjualan = Penjualan::updateOrCreate(
+            ['no_transaksi' => $data['no_transaksi']],
             [
-                'cabang_id' => $pkp->id,
-                'kasir_id' => $kasirPkp->id,
-                'customer_id' => $customer2->id,
-                'servis_id' => $svLunas->id,
-                'tipe_transaksi' => 'pembayaran_servis',
-                'tanggal' => $now->copy()->subHours(2),
-                'subtotal' => $subtotalSv,
-                'diskon' => $diskonSv,
-                'ppn_id' => $tanpaPpn?->id,
-                'ppn_persen' => 0.00,
-                'ppn_nominal' => 0.00,
-                'total' => $totalSv,
-                'jumlah_bayar' => 1000000,
+                'cabang_id' => $data['cabang_id'],
+                'kasir_id' => $data['kasir_id'],
+                'customer_id' => $data['customer_id'] ?? null,
+                'servis_id' => null,
+                'tipe_transaksi' => $data['tipe_transaksi'] ?? 'langsung',
+                'tanggal' => $data['tanggal'] ?? Carbon::now(),
+                'subtotal' => $subtotal,
+                'diskon' => $diskon,
+                'ppn_id' => $ppnModel?->id,
+                'ppn_persen' => $ppnPersen,
+                'ppn_nominal' => $ppnNominal,
+                'total' => $total,
+                'jumlah_bayar' => $total,
                 'kembalian' => 0,
-                'metode_bayar' => 'transfer',
+                'metode_bayar' => 'tunai',
                 'status' => 'lunas',
-                'catatan' => 'Pelunasan tagihan servis Acer Aspire 5 A514',
+                'is_real' => $data['is_real'] ?? true,
+                'catatan' => $data['catatan'] ?? null,
             ]
         );
 
-        PenjualanDetail::firstOrCreate([
-            'penjualan_id' => $pjSv->id,
-            'tipe_item' => 'barang',
-            'produk_id' => $ssd?->id,
-            'nama_item' => 'SSD NVMe M.2 Kingston NV2 512GB PCIe 4.0',
-            'qty' => 1,
-            'harga' => 600000,
-            'subtotal' => 600000,
-        ]);
-        PenjualanDetail::firstOrCreate([
-            'penjualan_id' => $pjSv->id,
-            'tipe_item' => 'barang',
-            'produk_id' => $ram?->id,
-            'nama_item' => 'RAM Sodimm DDR4 Kingston 8GB 3200MHz',
-            'qty' => 1,
-            'harga' => 325000,
-            'subtotal' => 325000,
-        ]);
-        PenjualanDetail::firstOrCreate([
-            'penjualan_id' => $pjSv->id,
-            'tipe_item' => 'jasa_servis',
-            'produk_id' => null,
-            'nama_item' => 'Jasa Instalasi OS Windows 11 + Aplikasi Standar',
-            'qty' => 1,
-            'harga' => 120000,
-            'subtotal' => 120000,
-        ]);
+        // Hapus detail lama jika ada agar bersih
+        PenjualanDetail::where('penjualan_id', $penjualan->id)->delete();
 
-        // Inisialisasi Counter Nomor Urut
-        NomorUrutTransaksi::updateOrCreate(
-            [
-                'cabang_id' => $pkp->id,
-                'tipe' => 'penjualan_barang',
-                'tahun' => (int) $now->format('Y'),
-            ],
-            [
-                'bulan' => (int) $now->format('m'),
-                'last_number' => 1,
-            ]
-        );
+        foreach ($data['items'] as $item) {
+            $prod = $item['produk'];
+            PenjualanDetail::create([
+                'penjualan_id' => $penjualan->id,
+                'tipe_item' => 'produk',
+                'produk_id' => $prod?->id,
+                'nama_item' => $prod?->nama_produk ?? 'Item Produk',
+                'qty' => $item['qty'],
+                'harga' => $item['harga'],
+                'subtotal' => $item['harga'] * $item['qty'],
+            ]);
+        }
 
-        NomorUrutTransaksi::updateOrCreate(
-            [
-                'cabang_id' => $pkp->id,
-                'tipe' => 'pembayaran_servis',
-                'tahun' => (int) $now->format('Y'),
-            ],
-            [
-                'bulan' => (int) $now->format('m'),
-                'last_number' => 1,
-            ]
-        );
+        return $penjualan;
     }
 }

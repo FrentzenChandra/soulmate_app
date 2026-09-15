@@ -8,9 +8,11 @@ echo "[1/6] Installing Composer dependencies..."
 composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # 2. Pastikan APP_KEY terpasang jika belum ada
-if [ -z "$APP_KEY" ]; then
-    echo "[2/6] Generating APP_KEY..."
+if ! grep -E -q "^APP_KEY=base64:[A-Za-z0-9+/=]+" /var/www/html/.env 2>/dev/null; then
+    echo "[2/6] Generating APP_KEY (first time setup)..."
     php artisan key:generate --force
+else
+    echo "[2/6] APP_KEY already configured. Skipping key generation..."
 fi
 
 # 3. Storage symlink (Linux native)

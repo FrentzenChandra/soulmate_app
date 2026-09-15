@@ -26,41 +26,42 @@ class ServisMasukSeeder extends Seeder
         $customer2 = Customer::where('nama', 'Mega Lestari')->first();
         $customer3 = Customer::where('nama', 'PT Bangka Media Utama (Bpk. Fajar)')->first();
 
-        $ram = Produk::where('barcode', '8991234560028')->first();
-        $ssd = Produk::where('barcode', '8991234560011')->first();
         $lcd = Produk::where('barcode', '8991234560035')->first();
         $head = Produk::where('barcode', '8991234560066')->first();
 
-        if (! $pkp || ! $teknisiPkp || ! $customer1) {
+        if (! $pkp || ! $customer1) {
             return;
         }
 
         $now = Carbon::now();
+        $dateCode = $now->format('ymd');
+        $kodeCabangClean = str_replace('-', '', $pkp->kode_cabang);
+        $prefix = "INV-SV-{$kodeCabangClean}-{$dateCode}-";
 
         // 1. Laptop - Status Pengecekan
         $sv1 = ServisMasuk::updateOrCreate(
-            ['no_servis' => 'SRV-PKP-2609001'],
+            ['no_servis' => "{$prefix}00001"],
             [
                 'cabang_id' => $pkp->id,
                 'customer_id' => $customer1->id,
-                'teknisi_id' => $teknisiPkp->id,
-                'created_by' => $admin?->id ?? $teknisiPkp->id,
+                'teknisi_id' => $teknisiPkp?->id,
+                'created_by' => $admin?->id ?? $teknisiPkp?->id,
                 'kategori_perangkat' => 'laptop',
                 'tipe_unit' => 'Asus TUF Gaming FX505',
                 'serial_number' => 'ASN12389088',
-                'kelengkapan' => 'Unit laptop + Adaptor original 150W',
+                'kelengkapan' => 'Unit, Adaptor / Charger',
                 'keluhan' => 'Laptop cepat panas lalu mati sendiri saat main game',
                 'kondisi_barang' => 'Fisik mulus, baut bawah lengkap',
                 'status' => 'pengecekan',
                 'tanggal_masuk' => $now->copy()->subDays(2),
-                'estimasi_biaya' => 150000,
+                'estimasi_biaya' => 0,
                 'total_biaya' => 0,
                 'catatan' => 'Diagnosa awal kemungkinan pasta kering dan kipas kotor',
             ]
         );
         ServisStatusLog::firstOrCreate([
             'servis_id' => $sv1->id,
-            'user_id' => $teknisiPkp->id,
+            'user_id' => $admin?->id ?? $teknisiPkp?->id,
             'status' => 'pengecekan',
             'tanggal' => $now->copy()->subDays(2),
             'catatan' => 'Unit diterima dan masuk tahap pengecekan diagnosa teknisi',
@@ -68,21 +69,21 @@ class ServisMasukSeeder extends Seeder
 
         // 2. Laptop - Status Pengerjaan (Ganti LCD)
         $sv2 = ServisMasuk::updateOrCreate(
-            ['no_servis' => 'SRV-PKP-2609002'],
+            ['no_servis' => "{$prefix}00002"],
             [
                 'cabang_id' => $pkp->id,
-                'customer_id' => $customer2->id,
-                'teknisi_id' => $teknisiPkp->id,
-                'created_by' => $teknisiPkp->id,
+                'customer_id' => $customer2?->id ?? $customer1->id,
+                'teknisi_id' => $teknisiPkp?->id,
+                'created_by' => $admin?->id ?? $teknisiPkp?->id,
                 'kategori_perangkat' => 'laptop',
                 'tipe_unit' => 'Lenovo Ideapad Slim 3 14ITL',
                 'serial_number' => 'PF288910',
-                'kelengkapan' => 'Unit laptop saja (tanpa charger)',
+                'kelengkapan' => 'Unit',
                 'keluhan' => 'Layar bergaris warna-warni setelah terbentur',
                 'kondisi_barang' => 'Body ada lecet sudut kanan atas',
                 'status' => 'pengerjaan',
                 'tanggal_masuk' => $now->copy()->subDays(3),
-                'estimasi_biaya' => 950000,
+                'estimasi_biaya' => 0,
                 'total_biaya' => 950000,
                 'catatan' => 'Sudah konfirmasi customer untuk ganti LCD FHD IPS',
             ]
@@ -105,7 +106,7 @@ class ServisMasukSeeder extends Seeder
         ]);
         ServisStatusLog::firstOrCreate([
             'servis_id' => $sv2->id,
-            'user_id' => $teknisiPkp->id,
+            'user_id' => $teknisiPkp?->id ?? $admin?->id,
             'status' => 'pengerjaan',
             'tanggal' => $now->copy()->subDays(1),
             'catatan' => 'Proses pembongkaran dan penggantian part panel layar baru',
@@ -113,22 +114,22 @@ class ServisMasukSeeder extends Seeder
 
         // 3. Printer - Status Selesai (Siap Diambil / Ditagih)
         $sv3 = ServisMasuk::updateOrCreate(
-            ['no_servis' => 'SRV-PKP-2609003'],
+            ['no_servis' => "{$prefix}00003"],
             [
                 'cabang_id' => $pkp->id,
-                'customer_id' => $customer3->id,
-                'teknisi_id' => $teknisiPkp->id,
-                'created_by' => $teknisiPkp->id,
+                'customer_id' => $customer3?->id ?? $customer1->id,
+                'teknisi_id' => $teknisiPkp?->id,
+                'created_by' => $admin?->id ?? $teknisiPkp?->id,
                 'kategori_perangkat' => 'printer',
                 'tipe_unit' => 'Epson EcoTank L3110',
                 'serial_number' => 'EPS992100',
-                'kelengkapan' => 'Unit printer + Kabel power + Kabel USB',
+                'kelengkapan' => 'Unit, Kabel Power',
                 'keluhan' => 'Hasil cetak teks putus-putus dan warna hitam tidak keluar sama sekali',
                 'kondisi_barang' => 'Tabung tinta terisi penuh',
                 'status' => 'selesai',
                 'tanggal_masuk' => $now->copy()->subDays(4),
                 'tanggal_selesai' => $now->copy()->subHours(5),
-                'estimasi_biaya' => 620000,
+                'estimasi_biaya' => 0,
                 'total_biaya' => 620000,
                 'catatan' => 'Ganti printhead baru & kuras saluran infus selang tinta',
             ]
@@ -151,7 +152,7 @@ class ServisMasukSeeder extends Seeder
         ]);
         ServisStatusLog::firstOrCreate([
             'servis_id' => $sv3->id,
-            'user_id' => $teknisiPkp->id,
+            'user_id' => $teknisiPkp?->id ?? $admin?->id,
             'status' => 'selesai',
             'tanggal' => $now->copy()->subHours(5),
             'catatan' => 'Test print 10 lembar dokumen warna hasil 100% jernih, unit siap diambil',
@@ -159,28 +160,28 @@ class ServisMasukSeeder extends Seeder
 
         // 4. Komputer PC - Status Pengecekan
         $sv4 = ServisMasuk::updateOrCreate(
-            ['no_servis' => 'SRV-PKP-2609004'],
+            ['no_servis' => "{$prefix}00004"],
             [
                 'cabang_id' => $pkp->id,
                 'customer_id' => $customer1->id,
-                'teknisi_id' => $teknisiPkp->id,
-                'created_by' => $teknisiPkp->id,
+                'teknisi_id' => $teknisiPkp?->id,
+                'created_by' => $admin?->id ?? $teknisiPkp?->id,
                 'kategori_perangkat' => 'komputer',
                 'tipe_unit' => 'PC Rakitan Core i5 Gen 10 / GTX 1650',
                 'serial_number' => 'PC-CUST-001',
-                'kelengkapan' => 'CPU Unit saja',
+                'kelengkapan' => 'Unit, Kabel Power',
                 'keluhan' => 'No display, kipas prosesor berputar kencang lalu restart berulang kali',
                 'kondisi_barang' => 'Debu cukup tebal di heatsink',
                 'status' => 'pengecekan',
                 'tanggal_masuk' => $now->copy()->subDay(),
-                'estimasi_biaya' => 200000,
+                'estimasi_biaya' => 0,
                 'total_biaya' => 0,
                 'catatan' => 'Testing RAM, PSU, dan motherboard',
             ]
         );
         ServisStatusLog::firstOrCreate([
             'servis_id' => $sv4->id,
-            'user_id' => $teknisiPkp->id,
+            'user_id' => $admin?->id ?? $teknisiPkp?->id,
             'status' => 'pengecekan',
             'tanggal' => $now->copy()->subDay(),
             'catatan' => 'Unit masuk diagnosa hardware',

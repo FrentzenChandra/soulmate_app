@@ -74,4 +74,39 @@ class ServisMasuk extends Model
     {
         return $this->hasOne(Penjualan::class, 'servis_id');
     }
+
+    public function getNoServisFrontendAttribute(): string
+    {
+        $raw = (string) $this->no_servis;
+        if (preg_match('/(?:INV-)?(SV)-[A-Za-z0-9_-]+?-(\d+-\d+)$/i', $raw, $matches)) {
+            return $matches[1] . '-' . $matches[2];
+        }
+
+        return preg_replace('/^INV-([A-Za-z]+)-[A-Za-z0-9_-]+-(\d+-\d+)$/i', '$1-$2', $raw);
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status) {
+            'pengecekan' => 'Pengecekan / Diagnosa',
+            'pengerjaan' => 'Sedang Dikerjakan',
+            'menunggu_sparepart' => 'Menunggu Sparepart',
+            'selesai' => 'Selesai (Siap Diambil)',
+            'sudah_dibayar' => 'Sudah Diambil (Lunas)',
+            'batal' => 'Dibatalkan',
+            default => ucfirst(str_replace('_', ' ', (string) $this->status)),
+        };
+    }
+
+    public function getKategoriPerangkatLabelAttribute(): string
+    {
+        return match (strtolower((string) $this->kategori_perangkat)) {
+            'laptop' => 'Laptop / Notebook',
+            'komputer' => 'PC Komputer / Desktop',
+            'printer' => 'Printer / Scanner',
+            'lainnya' => 'Perangkat Lainnya',
+            default => ucfirst((string) $this->kategori_perangkat),
+        };
+    }
 }
+

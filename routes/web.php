@@ -4,12 +4,14 @@ use App\Livewire\Auth\Login;
 use App\Livewire\Cabang\Stok\Index as CabangStokIndex;
 use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\Kasir\Produk\Index as KasirProdukIndex;
+use App\Livewire\Laporan\Penjualan\Index as LaporanPenjualanIndex;
 use App\Livewire\Master\Cabang\Index as MasterCabangIndex;
 use App\Livewire\Master\Customer\Index as MasterCustomerIndex;
 use App\Livewire\Master\Kategori\Index as MasterKategoriIndex;
 use App\Livewire\Master\Ppn\Index as MasterPpnIndex;
 use App\Livewire\Master\Produk\Index as MasterProdukIndex;
 use App\Livewire\Master\User\Index as MasterUserIndex;
+use App\Livewire\Servis\Masuk\Index as ServisMasukIndex;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -53,6 +55,20 @@ Route::middleware('auth')->group(function () {
         });
     });
 
+    // Layanan Servis & Reparasi (Owner, Superadmin, Admin, Teknisi, Kasir)
+    Route::middleware('role:Owner|Superadmin|Admin|Teknisi|Kasir')->group(function () {
+        Route::get('/servis/masuk', ServisMasukIndex::class)->name('servis.masuk');
+        Route::get('/servis/{servis}/tanda-terima', function (\App\Models\ServisMasuk $servis) {
+            $user = Auth::user();
+            if (! $user->isOwner() && $user->cabang_id !== $servis->cabang_id) {
+                abort(403, 'Akses tanda terima servis cabang lain dibatasi.');
+            }
+            $servis->load(['customer', 'cabang', 'pembuat', 'teknisi']);
+
+            return view('servis.tanda-terima', ['servis' => $servis]);
+        })->name('servis.tanda-terima');
+    });
+
     // Kasir POS & Penjualan (Owner, Superadmin, Admin, Kasir)
     Route::middleware('role:Owner|Superadmin|Admin|Kasir')->group(function () {
         Route::get('/kasir/produk', KasirProdukIndex::class)->name('kasir.produk');
@@ -65,6 +81,7 @@ Route::middleware('auth')->group(function () {
 
             return view('kasir.invoice', ['penjualan' => $penjualan]);
         })->name('kasir.produk.invoice');
+        Route::get('/laporan/penjualan', LaporanPenjualanIndex::class)->name('laporan.penjualan');
     });
 
     // Operasional Stok Cabang

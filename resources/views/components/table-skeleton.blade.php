@@ -1,13 +1,18 @@
 @props([
     'rows' => 5,
     'cols' => 5,
+    'columns' => null,
     'target' => 'search, kategoriFilter, stokFilter, perPage, sortField, sortDirection'
 ])
+
+@php
+    $colCount = $columns ?? $cols ?? 5;
+@endphp
 
 <tbody wire:loading.delay wire:target="{{ $target }}" class="divide-y divide-gray-100 bg-white">
     @for($i = 0; $i < $rows; $i++)
         <tr class="animate-pulse">
-            @for($j = 0; $j < $cols; $j++)
+            @for($j = 0; $j < $colCount; $j++)
                 <td class="py-4 px-4">
                     @if($j === 0)
                         <!-- Avatar / Icon / Left column -->

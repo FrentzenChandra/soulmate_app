@@ -377,10 +377,21 @@
                         <button type="button"
                                 wire:click="toggleRealMode"
                                 class="px-2 py-0.5 rounded-md transition-all cursor-pointer {{ !$isReal ? 'bg-amber-500 text-white shadow-2xs font-black' : 'text-gray-500 hover:text-gray-900' }}">
-                            Nota Non-Real (Formalitas)
+                            Non-Real (Tanpa Potong Stok)
                         </button>
                     </div>
                 </div>
+
+                @if(!$isReal)
+                    <!-- Note Non-Real di Sidebar Kasir -->
+                    <div class="mx-3 my-2 p-2.5 bg-amber-50 border-2 border-amber-300 rounded-xl flex items-start space-x-2 text-amber-900 shadow-2xs">
+                        <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <div class="text-[11px] leading-snug font-bold text-amber-800">
+                            <span class="font-black text-amber-950 uppercase block">Mode Non-Real Aktif:</span>
+                            Data <span class="underline font-black text-amber-950">TIDAK MASUK OMZET</span> &amp; <span class="underline font-black text-amber-950">TIDAK MERUBAH NILAI STOK</span>.
+                        </div>
+                    </div>
+                @endif
 
                 <!-- List Items Scrollable (Bounded Height: Never pushes Checkout button down) -->
                 <div class="space-y-2 max-h-[210px] overflow-y-auto custom-scrollbar p-2.5">
@@ -767,6 +778,21 @@
                             Rp {{ number_format($this->grandTotal, 0, ',', '.') }}
                         </span>
                     </div>
+
+                    @if(!$isReal)
+                        <!-- Note Non-Real di Modal Pembayaran Kasir -->
+                        <div class="mx-6 mt-4 p-3.5 bg-amber-50 border-2 border-amber-300 rounded-2xl flex items-start space-x-3 text-amber-900 shadow-xs">
+                            <div class="w-7 h-7 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            </div>
+                            <div class="text-xs">
+                                <span class="font-black text-amber-950 uppercase tracking-wide block">Pemberitahuan Transaksi Non-Real:</span>
+                                <p class="font-bold text-amber-800 mt-0.5 leading-snug">
+                                    Transaksi ini <span class="underline font-black text-amber-950">TIDAK AKAN MASUK KE PERHITUNGAN OMZET</span> dan <span class="underline font-black text-amber-950">TIDAK AKAN MERUBAH / MEMOTONG NILAI STOK</span> fisik toko.
+                                </p>
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- Body Modal -->
                     <form wire:submit.prevent="prosesPembayaran"

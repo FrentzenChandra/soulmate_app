@@ -67,16 +67,20 @@ class DatabaseSeederTest extends TestCase
 
         // 6. Servis Masuk
         $this->assertGreaterThan(0, ServisMasuk::count());
-        $this->assertDatabaseHas('servis_masuks', [
-            'no_servis' => 'SRV-PKP-2609001',
-            'status' => 'pengecekan',
-        ]);
+        $firstServis = ServisMasuk::first();
+        $this->assertNotNull($firstServis);
+        $this->assertStringContainsString('INV-SV-CBPKP-', $firstServis->no_servis);
+        $this->assertEquals('pengecekan', $firstServis->status);
 
         // 7. Penjualan POS
         $this->assertGreaterThan(0, Penjualan::count());
         $this->assertDatabaseHas('penjualans', [
-            'no_transaksi' => 'INV-PJ-000001',
-            'tipe_transaksi' => 'penjualan_barang',
+            'status' => 'lunas',
+            'is_real' => true,
+        ]);
+        $this->assertDatabaseHas('penjualans', [
+            'status' => 'lunas',
+            'is_real' => false,
         ]);
     }
 }
