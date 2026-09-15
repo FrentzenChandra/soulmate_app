@@ -77,6 +77,25 @@ class Index extends Component
 
     public string $edit_kategori_name = '';
 
+    // Modal Konfirmasi Hapus / Nonaktifkan Produk
+    public bool $modalDeleteOpen = false;
+
+    public ?int $deleteProdukId = null;
+
+    public ?string $deleteProdukNama = '';
+
+    public ?string $deleteProdukBarcode = '';
+
+    public ?string $deleteProdukFoto = null;
+
+    public ?string $deleteProdukKategori = '';
+
+    public int $deleteProdukStok = 0;
+
+    public bool $deleteProdukHasHistory = false;
+
+    public bool $deleteIsHQ = false;
+
     protected $queryString = [
         'search' => ['except' => ''],
         'kategoriFilter' => ['except' => 'semua'],
@@ -202,7 +221,7 @@ class Index extends Component
     public function selectExistingProduct(int $id): void
     {
         $this->openEditModal($id);
-        session()->flash('info', 'Produk dipilih dari katalog master. Anda dapat langsung menambah atau menyesuaikan alokasi stok cabang.');
+        session()->flash('info', 'Produk dipilih dari katalog master. Anda dapat langsung menambah atau menyesuaikan alokasi stok.');
     }
 
     public function updatedBarcode($val): void
@@ -414,20 +433,68 @@ class Index extends Component
         $this->foto = null;
     }
 
+    public function openDeleteConfirmation(int $id): void
+    {
+        $user = Auth::user();
+        $activeBranchId = session('active_branch_id', 'hq');
+        $this->deleteIsHQ = $user->isOwner() && ($activeBranchId === 'hq' || ! $activeBranchId);
+
+        $produk = Produk::with(['kategori', 'stoks'])->findOrFail($id);
+
+        $this->deleteProdukId = $produk->id;
+        $this->deleteProdukNama = $produk->nama_produk;
+        $this->deleteProdukBarcode = $produk->barcode ?? '-';
+        $this->deleteProdukFoto = $produk->foto_url;
+        $this->deleteProdukKategori = $produk->kategori?->nama_kategori ?? 'Umum';
+
+        $targetCabangId = $user->isOwner() ? (int) $activeBranchId : (int) $user->cabang_id;
+        $targetCabangId = $targetCabangId ?: 1;
+
+        if ($this->deleteIsHQ) {
+            $this->deleteProdukStok = (int) $produk->stoks->sum('jumlah');
+            $this->deleteProdukHasHistory = $produk->penjualanDetails()->exists() || $produk->servisDetails()->exists();
+        } else {
+            $stok = $produk->stoks->where('cabang_id', $targetCabangId)->first();
+            $this->deleteProdukStok = (int) ($stok?->jumlah ?? 0);
+            $this->deleteProdukHasHistory = false;
+        }
+
+        $this->modalDeleteOpen = true;
+    }
+
+    public function confirmDelete(): void
+    {
+        if (! $this->deleteProdukId) {
+            $this->modalDeleteOpen = false;
+
+            return;
+        }
+
+        $this->deleteProduk($this->deleteProdukId);
+        $this->modalDeleteOpen = false;
+        $this->deleteProdukId = null;
+    }
+
     public function deleteProduk(int $id): void
     {
         $user = Auth::user();
         $activeBranchId = session('active_branch_id', 'hq');
         $isHQ = $user->isOwner() && ($activeBranchId === 'hq' || ! $activeBranchId);
 
-        // Hanya Owner di konteks HQ yang berhak menghapus produk global
+        $produk = Produk::findOrFail($id);
+
         if (! $isHQ) {
-            session()->flash('error', 'Hanya Owner di Konteks Kantor Pusat (HQ) yang memiliki otorisasi menghapus produk global.');
+            $targetCabangId = $user->isOwner() ? (int) $activeBranchId : (int) $user->cabang_id;
+            $targetCabangId = $targetCabangId ?: 1;
+
+            Stok::where('produk_id', $id)
+                ->where('cabang_id', $targetCabangId)
+                ->update(['is_aktif' => false]);
+
+            session()->flash('success', "Status penjualan produk \"{$produk->nama_produk}\" berhasil dinonaktifkan di toko.");
 
             return;
         }
-
-        $produk = Produk::findOrFail($id);
 
         if ($produk->penjualanDetails()->exists() || $produk->servisDetails()->exists()) {
             session()->flash('error', "Produk \"{$produk->nama_produk}\" tidak dapat dihapus karena memiliki riwayat transaksi kasir atau servis.");
@@ -438,7 +505,7 @@ class Index extends Component
         $nama = $produk->nama_produk;
         $produk->delete();
 
-        session()->flash('success', "Produk \"{$nama}\" berhasil dihapus.");
+        session()->flash('success', "Produk \"{$nama}\" berhasil dihapus dari katalog master.");
     }
 
     // ==========================================
@@ -546,12 +613,27 @@ class Index extends Component
 
         $query = Produk::with(['kategori', 'stoks']);
 
+        if (! $isHQ && $activeCabang) {
+            $query->whereHas('stoks', function ($q) use ($activeCabang) {
+                $q->where('cabang_id', $activeCabang->id)->where('is_aktif', true);
+            });
+        }
+
         if (! empty($this->search)) {
-            $term = '%'.trim($this->search).'%';
-            $query->where(function ($q) use ($term) {
-                $q->where('nama_produk', 'like', $term)
-                    ->orWhere('barcode', 'like', $term)
-                    ->orWhere('deskripsi', 'like', $term);
+            $cleanSearch = trim($this->search);
+            $words = array_filter(explode(' ', $cleanSearch));
+            $query->where(function ($q) use ($words) {
+                foreach ($words as $word) {
+                    $pattern = '%'.strtolower($word).'%';
+                    $q->where(function ($sq) use ($pattern) {
+                        $sq->whereRaw('LOWER(nama_produk) LIKE ?', [$pattern])
+                            ->orWhereRaw('LOWER(barcode) LIKE ?', [$pattern])
+                            ->orWhereRaw('LOWER(COALESCE(deskripsi, \'\')) LIKE ?', [$pattern])
+                            ->orWhereHas('kategori', function ($kq) use ($pattern) {
+                                $kq->whereRaw('LOWER(nama_kategori) LIKE ?', [$pattern]);
+                            });
+                    });
+                }
             });
         }
 

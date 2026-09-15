@@ -4,14 +4,14 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-gray-400 mb-1">
-                <span>Operasional Cabang</span>
+                <span>{{ auth()->user()->isOwner() ? 'Operasional Cabang' : 'Menu Utama' }}</span>
                 <span>/</span>
                 <span class="text-blue-600 font-bold">Stok & Inventori</span>
             </div>
             <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">
-                Stok Cabang: {{ $cabang?->nama_cabang ?? 'Pilih Cabang' }}
+                {{ auth()->user()->isOwner() ? ('Stok Cabang: ' . ($cabang?->nama_cabang ?? 'Pilih Cabang')) : 'Manajemen Stok Produk' }}
             </h1>
-            <p class="text-xs text-gray-500 mt-0.5">Monitoring ketersediaan fisik suku cadang & barang dagang di outlet toko ini.</p>
+            <p class="text-xs text-gray-500 mt-0.5">Monitoring ketersediaan fisik suku cadang & barang dagang di toko.</p>
         </div>
 
         @if(auth()->user()->isOwner() || auth()->user()->hasRole('Superadmin'))
@@ -79,7 +79,6 @@
             </div>
             <input type="text" 
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Scan barcode / cari nama produk..." 
                    class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] transition-all">
         </div>
 
@@ -103,7 +102,7 @@
                 <select wire:model.live="stokFilter" 
                         class="bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400">
                     <option value="semua">Semua Status</option>
-                    <option value="aktif">Aktif Dijual di Cabang Ini</option>
+                    <option value="aktif">Aktif Dijual</option>
                     <option value="non_aktif">Non-Aktif / Belum Dijual</option>
                     <option value="tersedia">Stok Tersedia (&gt; Min Alert)</option>
                     <option value="kritis">Stok Kritis (&le; Min Alert)</option>
@@ -184,7 +183,7 @@
                                         </span>
                                         @if(!$isAktif)
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 text-gray-500 text-[10px] font-bold border border-gray-200">
-                                                Tidak Dijual di Cabang Ini
+                                                Tidak Dijual
                                             </span>
                                         @elseif($isZero)
                                             <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-rose-600 text-white text-[10px] font-black shadow-xs tracking-wider">
@@ -305,7 +304,7 @@
                             </div>
                             <div>
                                 <h3 class="text-base font-extrabold text-white">Penyesuaian Stok (Opname)</h3>
-                                <p class="text-xs text-blue-200">Outlet: {{ $cabang?->nama_cabang }}</p>
+                                <p class="text-xs text-blue-200">{{ auth()->user()->isOwner() ? ('Outlet: ' . ($cabang?->nama_cabang ?? 'Cabang')) : 'Soulmate Komputer' }}</p>
                             </div>
                         </div>
                         <button wire:click="$set('modalAdjustOpen', false)" class="text-gray-300 hover:text-white cursor-pointer">
@@ -356,7 +355,7 @@
                                     Input Jumlah Fisik Sebenarnya <span class="text-rose-500">*</span>
                                 </label>
                                 <input type="number" 
-                                       wire:model.live="newStock"
+                                       wire:model.live="newStock" 
                                        min="0"
                                        {{ !$isAktif ? 'disabled' : '' }}
                                        class="w-full text-center text-lg font-black py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] {{ !$isAktif ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white' }}">
@@ -372,14 +371,14 @@
                                 </div>
                             </div>
 
-                            <!-- Batas Minimum Stok & Status Alokasi Cabang -->
+                            <!-- Batas Minimum Stok & Status Alokasi -->
                             <div class="grid grid-cols-2 gap-3 pt-1 border-t border-gray-100">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                         Batas Min. Stok (Alert) <span class="text-rose-500">*</span>
                                     </label>
                                     <input type="number" 
-                                           wire:model="minStok"
+                                           wire:model="minStok" 
                                            min="0"
                                            {{ !$isAktif ? 'disabled' : '' }}
                                            class="w-full text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] {{ !$isAktif ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white' }} @error('minStok') border-rose-500 @enderror">
@@ -388,7 +387,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Status di Cabang Ini
+                                        Status Penjualan
                                     </label>
                                     <label class="flex items-center space-x-2 p-2 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer mt-0.5">
                                         <input type="checkbox" wire:model.live="isAktif" class="rounded text-[#0052FF] focus:ring-[#0052FF]">
@@ -405,7 +404,6 @@
                                 </label>
                                 <input type="text" 
                                        wire:model="catatan"
-                                       placeholder="Contoh: Hasil Stock Opname Mingguan / Suplai Masuk"
                                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] @error('catatan') border-rose-500 @enderror">
                                 @error('catatan') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>

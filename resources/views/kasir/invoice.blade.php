@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sales Invoice - {{ $penjualan->no_transaksi }} - Soulmate Komputer</title>
+    <title>Sales Invoice - {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }} - Soulmate Komputer</title>
     <link rel="icon" type="image/jpeg" href="{{ asset('images/logo_bulat.jpg') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />
@@ -44,7 +44,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 <span>Kembali ke POS</span>
             </a>
-            <span class="text-xs font-mono text-gray-500 font-semibold">| {{ $penjualan->no_transaksi }}</span>
+            <span class="text-xs font-mono text-gray-500 font-semibold">| {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}</span>
         </div>
 
         <div class="flex items-center space-x-2">
@@ -78,7 +78,7 @@
 
             const opt = {
                 margin:       [0.2, 0.25, 0.2, 0.25],
-                filename:     'Sales_Invoice_{{ Str::slug($penjualan->no_transaksi) }}.pdf',
+                filename:     'Sales_Invoice_{{ Str::slug($penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi) }}.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
                 jsPDF:        { unit: 'in', format: [9.5, 11], orientation: 'portrait' }

@@ -161,8 +161,6 @@ class MasterDataTest extends TestCase
         Livewire::test(MasterCustomerIndex::class)
             ->set('nama', 'Pelanggan Setia PKP')
             ->set('no_hp', '081987654321')
-            ->set('alamat', 'Jl. Sudirman Pangkalpinang')
-            ->set('tipe', 'langganan')
             ->call('save')
             ->assertHasNoErrors();
 
@@ -174,11 +172,11 @@ class MasterDataTest extends TestCase
         // Superadmin edits customer
         Livewire::test(MasterCustomerIndex::class)
             ->call('openEditModal', $customer->id)
-            ->set('alamat', 'Jl. Merdeka Baru No. 10')
+            ->set('no_hp', '081999000111')
             ->call('save')
             ->assertHasNoErrors();
 
-        $this->assertEquals('Jl. Merdeka Baru No. 10', $customer->fresh()->alamat);
+        $this->assertEquals('081999000111', $customer->fresh()->no_hp);
 
         // Delete customer
         Livewire::test(MasterCustomerIndex::class)

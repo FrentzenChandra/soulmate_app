@@ -130,9 +130,17 @@ STOCK ALERT & VISUAL WARNING SYSTEM:
 * Sisa Stok Fisik Highlight: Angka sisa stok diberikan kontainer berlatar kontras (`bg-rose-200` atau `bg-amber-200`) dengan font black tebal agar kasir/admin cabang dapat mengidentifikasi urgensi stok dalam hitungan detik saat skimming data.
 
 POINT OF SALE (POS) & THERMAL RECEIPT SYSTEM:
-* Split-Screen Ergonomics: Layout 2-kolom memisahkan secara jelas antara Area Pencarian/Katalog Produk (kiri) dan Keranjang Belanja/Checkout (kanan) dengan sticky positioning untuk meminimalkan scroll berlebih saat melayani pelanggan.
+* Split-Screen Ergonomics: Layout 2-kolom memisahkan secara jelas antara Area Pencarian/Katalog Produk (kiri) dan Keranjang Belanja/Checkout (kanan) dengan sticky positioning & scroll internal agar tombol bayar dan ringkasan transaksi selalu mudah dijangkau tanpa scroll halaman penuh.
+* Cart Item Hierarchy: Nama produk ditampilkan penuh (1 baris lebar), dengan subtotal harga item diletakkan rapi di bawah nama produk agar nama produk panjang tidak terpotong.
 * Keyboard-First Shortcuts: Mendukung tombol `[F4]` untuk memicu modal pembayaran instan dan `[Enter]` untuk pemrosesan scan barcode fisik.
-* Thermal Print Simulator & Precision: Tampilan struk kasir menggunakan font monospace dengan garis pemisah putus-putus (`border-dashed`), margin presisi untuk lebar kertas 58mm / 80mm, serta informasi garansi toko yang jelas tanpa elemen visual berlebih yang boros tinta/kertas thermal.
+* Thermal Print Simulator & Precision: Tampilan struk kasir menggunakan font monospace dengan garis pemisah putus-putus (`border-dashed`), margin presisi untuk lebar kertas 58mm / 80mm, format kuantiti berspasi (`1 UNIT`), serta informasi garansi toko yang jelas tanpa elemen visual berlebih yang boros tinta/kertas thermal.
 
+BRANCH OBFUSCATION & CLEAN WORKSPACE (ROLE ISOLATION):
+* Single-Store Perspective: Bagi non-owner (Superadmin/Admin, Kasir, Teknisi), UI didesain bersih sebagai toko mandiri "Soulmate Komputer".
+* Zero Branch Leakage: Navbar, notifikasi, breadcrumb, dan modal staf tidak menampilkan switcher cabang atau tag cabang lain.
+* Multi-Branch Management (Owner Only): Hanya akun Owner dengan konteks HQ yang menampilkan selector cabang, badge cabang global, dan dashboard konsolidasi.
 
-
+GLOBAL SEARCH & FORM ERGONOMICS:
+* Loose Multi-Word Search: Semua form pencarian (POS, Master Produk, Stok Cabang, User, Pelanggan, Kategori) mendukung pencarian multi-kata tokenized, case-insensitive, dan non-strict.
+* Streamlined Quick Customer Modal: Input pelanggan baru di POS dan Master Data difokuskan murni pada 2 field esensial: Nama Pelanggan dan Nomor Kontak / WhatsApp.
+* Humanized Indonesian Placeholders: Placeholder wajib deskriptif (contoh: `placeholder="Ketik nama produk, barcode, atau kategori..."`, `placeholder="Nama pelanggan atau perusahaan..."`, `placeholder="Contoh: 081234567890"`).

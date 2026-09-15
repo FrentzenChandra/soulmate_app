@@ -63,14 +63,15 @@ Sistem digunakan oleh banyak cabang sekaligus, jadi ada **data master Cabang**. 
 - Begitu diklik, muncul form ringkas: rincian biaya servis (dari `SERVIS_DETAIL` + `total_biaya`), input **diskon**, pilih **PPN** (dari master PPN), lalu **Bayar** -> langsung cetak nota.
 - Setelah dibayar, status servis otomatis berubah (misal jadi `sudah_dibayar` / `selesai_diambil`) dan **terkunci** — tidak bisa ditagih ulang oleh siapapun.
 
-### Penomoran Transaksi — Dipisah per Jenis
-Karena sekarang dipisah, nomor transaksi (`no_transaksi` di tabel `PENJUALAN`) juga harus punya **format/urutan angka sendiri-sendiri** per jenis, supaya gampang dikenali sekilas:
-- Transaksi dari penagihan servis -> format `INV-SV-[KODE_CABANG]-[YYMM]-[URUT]` (counter jalan sendiri, khusus servis)
-- Transaksi dari kasir produk -> format `INV-PJ-[KODE_CABANG]-[YYMM]-[URUT]` (counter jalan sendiri, khusus produk)
+### Penomoran Transaksi — Format Harian & Tampilan Frontend
+Nomor transaksi (`no_transaksi` di tabel `PENJUALAN`) menggunakan generator urutan harian per cabang (`YYMMDD`):
+- **Backend Servis:** `INV-SV-[KODE_CABANG]-[YYMMDD]-[00001]` -> **Frontend:** `SV-[YYMMDD]-[00001]`
+- **Backend Produk:** `INV-PJ-[KODE_CABANG]-[YYMMDD]-[00001]` -> **Frontend:** `PJ-[YYMMDD]-[00001]`
 
-Keduanya tetap masuk ke tabel `PENJUALAN` yang sama (supaya laporan keuangan bisa digabung kalau perlu), tapi dibedakan lewat kolom `tipe_transaksi` dan prefix nomor transaksinya — bukan bikin tabel terpisah, karena struktur datanya (subtotal, diskon, ppn, total, metode bayar) tetap sama persis.
+Keduanya tetap masuk ke tabel `PENJUALAN` yang sama, dibedakan lewat kolom `tipe_transaksi` dan prefix nomor transaksi.
+Nomor invoice ditampilkan ke kasir/pelanggan secara ringkas (`PJ-YYMMDD-00001`) melalui model accessor `getNoTransaksiFrontendAttribute()`.
 
-**Catatan implementasi:** counter nomor urut per jenis disimpan di tabel `NOMOR_URUT_TRANSAKSIS` dengan kolom `cabang_id`, `tipe`, `tahun`, `last_number` dibungkus `DB::transaction()` + row lock.
+**Catatan implementasi:** counter nomor urut harian per jenis disimpan di tabel `NOMOR_URUT_TRANSAKSIS` dengan kolom `cabang_id`, `tipe`, `tanggal` (atau format `y-m-d`), `last_number` dibungkus `DB::transaction()` + row lock.
 
 ---
 
@@ -91,7 +92,7 @@ Keduanya tetap masuk ke tabel `PENJUALAN` yang sama (supaya laporan keuangan bis
 - **Kategori Produk** (`/master/kategori`) — Pengelompokan produk dengan proteksi hapus jika masih memiliki relasi produk. Akses: Owner & Superadmin.
 - **Master Produk** (`/master/produk`) — Katalog global terpusat dengan matriks stok multi-cabang, barcode scanner, deteksi duplikasi instan, dan kompresi WebP. Akses: Owner & Superadmin.
 - **Master PPN** (`/master/ppn`) — Opsi tarif pajak dinamis (`PPN 11%`, `PPN 12%`, `Tanpa PPN (0%)`) dengan proteksi hapus jika sudah tercatat di transaksi kasir. Akses: Owner.
-- **Master Customer / Data Pelanggan** (`/master/customer`) — Data pelanggan terisolasi per cabang dengan quick action WhatsApp langsung dan klasifikasi Member/Umum. Akses: Owner, Superadmin, Kasir, Teknisi.
+- **Master Customer / Data Pelanggan** (`/master/customer`) — Data pelanggan disederhanakan murni menjadi Nama Pelanggan dan Nomor WhatsApp/HP (`nama`, `no_hp`), terisolasi per cabang dengan quick action WhatsApp langsung. Akses: Owner, Superadmin, Kasir, Teknisi.
 - **Nomor Urut Transaksi** — Generator counter atomik nomor invoice per cabang dan per jenis transaksi.
 
 ---
@@ -279,6 +280,13 @@ erDiagram
 9. **Hak Akses Pembuatan Akun Superadmin vs Owner:**
    - **Owner**: Berwenang membuat dan mengelola akun untuk semua peran (`Owner`, `Superadmin`, `Teknisi`, `Kasir`) di seluruh cabang atau HQ.
    - **Superadmin**: Berwenang membuat dan mengelola akun staff khusus di cabangnya sendiri (`Superadmin`, `Teknisi`, `Kasir`). Superadmin diblokir dari membuat akun `Owner` atau mengelola staff cabang lain.
+10. **Branch Obfuscation untuk Peran Non-Owner (Superadmin, Kasir, Teknisi):**
+   - Pengguna selain Owner melihat dan mengalami sistem sebagai aplikasi toko tunggal ("Soulmate Komputer").
+   - Seluruh elemen identifikasi cabang lain, badge nama cabang pada navbar/header, dropdown switcher cabang, dan keterangan cabang pada notifikasi disembunyikan/disterilisasi dari staf cabang.
+11. **Pencarian Multi-Kata Longgar Global (Global Loose Multi-Word Search):**
+   - Semua input pencarian (POS, Master Produk, Stok Cabang, Master User, Master Customer, Master Kategori) menggunakan mekanisme tokenized substring matching multi-kata (`explode(' ', $search)`), *case-insensitive* (`LOWER() LIKE ?`), dan non-strict per karakter.
+12. **Aksi Hapus Produk di Cabang:**
+   - Aksi hapus produk dari tampilan Cabang (oleh Superadmin) akan menonaktifkan status produk di cabang tersebut (`is_aktif = false`), bukan menghapus master produk global. Hapus master produk global hanya bisa dilakukan oleh Owner dalam Konteks HQ.
 
 ---
 
@@ -322,7 +330,7 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
 - Data Pelanggan Global (`/master/customer`).
 
 ### B. Konteks Operasional Cabang (Branch View)
-- Dashboard Cabang.
+- Dashboard Cabang (Single-store view "Soulmate Komputer" untuk non-owner).
 - Layanan Servis (Servis Masuk, Servis Selesai/Keluar).
 - Kasir POS Produk (`/kasir/produk`) & Riwayat Transaksi.
 - Katalog & Stok: Master Produk, Master Kategori, Stok Cabang (`/cabang/stok`), Data Pelanggan (`/master/customer`).
@@ -341,13 +349,14 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
 
 ## 15. Modul Kasir POS Penjualan Produk (`/kasir/produk`)
 
-- **Pencarian Cepat & Barcode Scanner:** Live input autofocus scan barcode / nama produk.
+- **Pencarian Cepat & Barcode Scanner:** Live input autofocus scan barcode / nama produk dengan loose multi-word search.
+- **Layout Keranjang Ergonomis:** Nama produk ditampilkan penuh, subtotal harga item diletakkan di bawah nama produk, dan area checkout dibuat fixed/sticky scroll internal.
 - **Validasi Stok Realtime:** Kuantiti barang dibatasi sisa stok fisik cabang aktif (`stok_max`).
 - **Kalkulasi Diskon & PPN Dinamis:** Diskon (Rp) dan tarif pajak dari `master_ppns`.
-- **Manajemen Pelanggan Fleksibel:** Transaksi Pelanggan Umum vs Pelanggan Terdaftar (modal tambah pelanggan baru & cari cepat).
-- **Multi-Metode Pembayaran:** Tunai (pecahan cepat & kembalian realtime), QRIS, Transfer Bank, dan toggle Penjualan Non-Real.
-- **Integritas Data Atomic:** Nomor invoice atomik `INV-PJ-[KODE_CABANG]-[YYMM]-[NOMOR_URUT]` dengan row lock.
-- **Cetak Struk Thermal:** Format nota struk standar 58mm / 80mm.
+- **Manajemen Pelanggan Fleksibel:** Transaksi Pelanggan Umum vs Pelanggan Terdaftar (modal tambah pelanggan baru ringkas: Nama & No. WA).
+- **Multi-Metode Pembayaran:** Tunai (nominal bayar fleksibel), QRIS, Transfer Bank, dan toggle Penjualan Non-Real.
+- **Integritas Data Atomic:** Nomor invoice atomik harian `INV-PJ-[KODE_CABANG]-[YYMMDD]-[NOMOR_URUT]` (frontend: `PJ-[YYMMDD]-[NOMOR_URUT]`) dengan row lock.
+- **Cetak Struk Thermal:** Format nota struk standar 58mm / 80mm dengan jarak kuantiti-unit yang rapi (`1 UNIT`).
 
 ---
 

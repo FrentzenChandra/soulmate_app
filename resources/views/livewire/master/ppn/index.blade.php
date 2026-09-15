@@ -47,7 +47,6 @@
             </div>
             <input type="text" 
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari nama tarif PPN..." 
                    class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-all">
         </div>
 
@@ -188,7 +187,6 @@
                                 </label>
                                 <input type="text" 
                                        wire:model="nama" 
-                                       placeholder="Contoh: PPN 11%, PPN 12%, Bebas Pajak"
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('nama') border-rose-500 @enderror">
                                 @error('nama') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
@@ -204,7 +202,6 @@
                                            min="0"
                                            max="100"
                                            wire:model="persen" 
-                                           placeholder="11"
                                            class="w-full text-xs font-bold pl-3.5 pr-8 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('persen') border-rose-500 @enderror">
                                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-bold text-xs">
                                         %

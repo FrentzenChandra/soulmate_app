@@ -153,10 +153,17 @@ class Index extends Component
     public function render()
     {
         $kategoriQuery = KategoriProduk::withCount('produks')
-            ->when($this->search, function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('nama_kategori', 'like', '%'.$this->search.'%')
-                        ->orWhere('slug', 'like', '%'.$this->search.'%');
+            ->when(! empty($this->search), function ($q) {
+                $cleanSearch = trim($this->search);
+                $words = array_filter(explode(' ', $cleanSearch));
+                $q->where(function ($sub) use ($words) {
+                    foreach ($words as $word) {
+                        $pattern = '%'.strtolower($word).'%';
+                        $sub->where(function ($sq) use ($pattern) {
+                            $sq->whereRaw('LOWER(nama_kategori) LIKE ?', [$pattern])
+                                ->orWhereRaw('LOWER(slug) LIKE ?', [$pattern]);
+                        });
+                    }
                 });
             });
 

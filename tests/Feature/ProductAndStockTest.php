@@ -477,4 +477,42 @@ class ProductAndStockTest extends TestCase
             ->set('nama_produk', 'keyboard mechanical rgb')
             ->assertSet('duplicateMasterProductId', $existing->id);
     }
+
+    public function test_inactive_branch_products_are_not_shown_in_notification_bell()
+    {
+        // 1. Buat produk yang stoknya 0 tapi NON-AKTIF di cabang PKP (tidak dijual / tidak aktif di cabang ini)
+        $inactiveProd = Produk::create([
+            'nama_produk' => 'Speaker Bluetooth Non Aktif',
+            'barcode' => '899999111222',
+            'harga_beli' => 100000,
+            'harga_jual' => 150000,
+        ]);
+
+        $stokPkp = Stok::create([
+            'produk_id' => $inactiveProd->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 0,
+            'min_stok' => 3,
+            'is_aktif' => false, // Non-aktif
+        ]);
+
+        // Login sebagai superadmin cabang PKP
+        $this->actingAs($this->superadmin);
+
+        // Harus 0 notifikasi karena produk non-aktif tidak memicu alert
+        Livewire::test(NotificationBell::class)
+            ->assertSet('emptyCount', 0)
+            ->assertSet('criticalCount', 0)
+            ->assertSet('totalAlerts', 0)
+            ->assertDontSee('Speaker Bluetooth Non Aktif');
+
+        // Jika produk diaktifkan di cabang ini
+        $stokPkp->update(['is_aktif' => true]);
+
+        // Sekarang harus memicu 1 alert stok habis
+        Livewire::test(NotificationBell::class)
+            ->assertSet('emptyCount', 1)
+            ->assertSet('totalAlerts', 1)
+            ->assertSee('Speaker Bluetooth Non Aktif');
+    }
 }

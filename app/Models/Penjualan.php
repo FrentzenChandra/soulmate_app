@@ -84,4 +84,15 @@ class Penjualan extends Model
     {
         return $this->hasMany(PenjualanDetail::class, 'penjualan_id');
     }
+
+    public function getNoTransaksiFrontendAttribute(): string
+    {
+        $raw = (string) $this->no_transaksi;
+        // Extracts PJ-2609-00002 from INV-PJ-CBPKP-2609-00002 or INV-PJ-CB-PKP-2609-00002
+        if (preg_match('/(?:INV-)?(PJ)-[A-Za-z0-9_-]+?-(\d+-\d+)$/i', $raw, $matches)) {
+            return $matches[1] . '-' . $matches[2];
+        }
+
+        return preg_replace('/^INV-([A-Za-z]+)-[A-Za-z0-9_-]+-(\d+-\d+)$/i', '$1-$2', $raw);
+    }
 }

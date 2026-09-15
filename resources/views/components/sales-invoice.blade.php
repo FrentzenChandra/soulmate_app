@@ -43,7 +43,7 @@
             </div>
             <div class="pt-1">
                 <span class="text-gray-600 block">No.Transaksi:</span>
-                <span class="font-bold font-mono text-gray-900 text-xs block">{{ $penjualan->no_transaksi }}</span>
+                <span class="font-bold font-mono text-gray-900 text-xs block">{{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}</span>
             </div>
         </div>
 
@@ -97,7 +97,7 @@
 
                         <!-- Jumlah -->
                         <td class="py-2.5 px-2 text-center align-top font-bold whitespace-nowrap text-gray-900">
-                            {{ $d->qty }}UNIT
+                            {{ $d->qty }} UNIT
                         </td>
 
                         <!-- Harga -->

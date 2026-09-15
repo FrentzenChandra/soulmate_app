@@ -73,7 +73,7 @@ class NotificationBell extends Component
             $targetCabangId = $isOwner ? (int) $activeBranchSession : $user->cabang_id;
             $cabang = Cabang::find($targetCabangId) ?? Cabang::first();
             $targetCabangId = $cabang?->id ?? 1;
-            $contextName = $cabang?->nama_cabang ?? 'Cabang';
+            $contextName = $isOwner ? ($cabang?->nama_cabang ?? 'Cabang') : 'Soulmate Komputer';
 
             $stoks = Stok::with('produk')
                 ->where('cabang_id', $targetCabangId)
@@ -108,6 +108,7 @@ class NotificationBell extends Component
             'alertItems' => $alertItems,
             'contextName' => $contextName,
             'isHQ' => $isHQ,
+            'isOwner' => $isOwner,
         ]);
     }
 }

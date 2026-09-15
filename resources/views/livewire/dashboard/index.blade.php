@@ -11,7 +11,7 @@
             <div>
                 <div class="inline-flex items-center space-x-2 bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-bold text-white mb-3 border border-white/20">
                     <img src="{{ asset('images/logo.jpeg') }}" alt="Logo" class="w-4 h-4 rounded object-contain">
-                    <span>Soulmate Komputer Multi-Branch System</span>
+                    <span>{{ $isHQ ? 'Soulmate Komputer Multi-Branch System' : 'Soulmate Komputer' }}</span>
                 </div>
                 <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
                     Halo, {{ auth()->user()->name }}!
@@ -19,8 +19,10 @@
                 <p class="text-purple-100 text-sm mt-1.5 max-w-xl leading-relaxed">
                     @if($isHQ)
                         Mode <strong>Kantor Pusat (HQ)</strong> — Pantau performa finansial gabungan, kelola cabang, dan distribusi akun admin secara terpusat.
+                    @elseif($isOwner)
+                        Mode Operasional <strong>{{ $activeCabang?->nama_cabang ?? 'Cabang' }}</strong> — Role: <strong>Owner</strong>.
                     @else
-                        Mode Operasional <strong>{{ $activeCabang?->nama_cabang ?? 'Cabang' }}</strong> — Role: <strong>{{ auth()->user()->role_name }}</strong>.
+                        Selamat datang di Sistem Operasional Soulmate Komputer — Role: <strong>{{ auth()->user()->role_name }}</strong>.
                     @endif
                 </p>
             </div>
@@ -132,10 +134,10 @@
                 </div>
             </div>
 
-            <!-- Branch Metric 3: Omzet Cabang Hari Ini -->
+            <!-- Branch Metric 3: Omzet Hari Ini -->
             <div class="bg-white card-custom p-5 rounded-2xl flex items-center justify-between border border-gray-100">
                 <div>
-                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Omzet Cabang Hari Ini</span>
+                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Omzet Hari Ini</span>
                     <span class="text-xl md:text-2xl font-extrabold text-[#1A1D20] mt-1 block">Rp {{ number_format($omzetHariIni, 0, ',', '.') }}</span>
                     <span class="text-xs font-semibold text-purple-600 mt-1 inline-block">
                         {{ $totalTransaksiHariIni }} Transaksi tercatat
@@ -146,10 +148,10 @@
                 </div>
             </div>
 
-            <!-- Branch Metric 4: Omzet Cabang Bulan Ini -->
+            <!-- Branch Metric 4: Omzet Bulan Ini -->
             <div class="bg-white card-custom p-5 rounded-2xl flex items-center justify-between border border-gray-100">
                 <div>
-                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Omzet Cabang Bulan Ini</span>
+                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Omzet Bulan Ini</span>
                     <span class="text-xl md:text-2xl font-extrabold text-[#E6007A] mt-1 block">Rp {{ number_format($omzetBulanIni, 0, ',', '.') }}</span>
                     <span class="text-xs font-semibold text-pink-600 mt-1 inline-block">
                         {{ $totalTransaksiBulanIni }} Transaksi tercatat
@@ -402,7 +404,7 @@
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h2 class="text-base font-extrabold text-gray-900">Servis Masuk Terbaru</h2>
-                        <p class="text-xs text-gray-400">Daftar unit yang baru masuk ke cabang ini</p>
+                        <p class="text-xs text-gray-400">Daftar unit servis yang baru diterima</p>
                     </div>
                 </div>
 
@@ -416,7 +418,7 @@
                                 <th class="py-2.5">Status</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y border-gray-100">
                             @forelse($recentServis as $srv)
                                 <tr class="hover:bg-gray-50/80 transition-colors">
                                     <td class="py-3 font-bold text-[#5E17EB]">{{ $srv->no_servis }}</td>
@@ -441,7 +443,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="py-6 text-center text-gray-400">Belum ada data servis masuk di cabang ini.</td>
+                                    <td colspan="4" class="py-6 text-center text-gray-400">Belum ada data servis masuk.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -484,7 +486,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="py-6 text-center text-gray-400">Belum ada transaksi kasir di cabang ini.</td>
+                                    <td colspan="4" class="py-6 text-center text-gray-400">Belum ada transaksi kasir.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -506,7 +508,7 @@
                         <div class="bg-amber-50/60 border border-amber-200/80 rounded-xl p-3">
                             <span class="text-[11px] font-bold text-gray-900 line-clamp-1">{{ $stk->produk?->nama_produk }}</span>
                             <div class="flex items-center justify-between mt-2">
-                                <span class="text-[10px] text-gray-500 font-medium">{{ $stk->cabang?->nama_cabang }}</span>
+                                <span class="text-[10px] text-gray-500 font-medium">{{ $isHQ ? ($stk->cabang?->nama_cabang ?? 'Toko') : ($stk->produk?->kategori?->nama_kategori ?? 'Umum') }}</span>
                                 <span class="text-xs font-extrabold text-amber-700 bg-amber-200/60 px-2 py-0.5 rounded-full">{{ $stk->jumlah }} Pcs</span>
                             </div>
                         </div>

@@ -72,7 +72,6 @@
             </div>
             <input type="text" 
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari nama kategori atau slug..." 
                    class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-all">
         </div>
     </div>
@@ -211,7 +210,6 @@
                                 </label>
                                 <input type="text" 
                                        wire:model.live.debounce.300ms="nama_kategori"
-                                       placeholder="Contoh: Storage & SSD"
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('nama_kategori') border-rose-500 @enderror">
                                 @error('nama_kategori') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
@@ -223,7 +221,6 @@
                                 </label>
                                 <input type="text" 
                                        wire:model="slug"
-                                       placeholder="storage-ssd"
                                        class="w-full text-xs font-mono px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('slug') border-rose-500 @enderror">
                                 <p class="text-[10px] text-gray-400 mt-1">Otomatis di-generate dari nama kategori jika dikosongkan.</p>
                                 @error('slug') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror

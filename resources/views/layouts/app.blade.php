@@ -90,7 +90,7 @@
                                     <span class="text-blue-300 font-semibold">Owner · Mode Cabang</span>
                                 @endif
                             @else
-                                <span class="text-gray-400">{{ auth()->user()->role_name }} · {{ auth()->user()->cabang?->nama_cabang ?? 'Cabang' }}</span>
+                                <span class="text-gray-400">{{ auth()->user()->role_name }} · Soulmate Komputer</span>
                             @endif
                         </p>
                     </div>
@@ -187,10 +187,10 @@
 
                 @else
                     <!-- ============================================== -->
-                    <!-- SIDEBAR: KONTEKS OPERASIONAL CABANG           -->
+                    <!-- SIDEBAR: KONTEKS OPERASIONAL                   -->
                     <!-- ============================================== -->
                     <p class="px-3 pt-3 pb-1 text-[10px] font-extrabold tracking-wider text-blue-400 uppercase flex items-center justify-between">
-                        <span>Operasional Cabang</span>
+                        <span>{{ $isOwner ? 'Operasional Cabang' : 'Menu Utama' }}</span>
                         @if($isOwner)
                             <span class="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded font-bold">Mode Cabang</span>
                         @endif
@@ -199,7 +199,7 @@
                     <a href="{{ route('dashboard') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('dashboard') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                        Dashboard Cabang
+                        Dashboard
                     </a>
 
                     <!-- Modul Servis -->
@@ -234,7 +234,7 @@
                     </a>
                     @endhasanyrole
 
-                    <!-- Master Data & Stok Cabang -->
+                    <!-- Master Data & Stok -->
                     @hasanyrole('Owner|Superadmin')
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Katalog & Stok</p>
 
@@ -260,7 +260,7 @@
                         class="group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('cabang.stok*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <div class="flex items-center">
                             <svg class="w-5 h-5 mr-3 {{ request()->routeIs('cabang.stok*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path></svg>
-                            <span>Stok Cabang</span>
+                            <span>{{ $isOwner ? 'Stok Cabang' : 'Manajemen Stok' }}</span>
                         </div>
                         @if($emptyStockSidebarCount > 0)
                             <span class="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black leading-none animate-pulse shadow-sm">
@@ -376,7 +376,7 @@
                             <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email ?? auth()->user()->username }}</p>
                             <div class="mt-2.5 inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-purple-50 text-[#5E17EB] border border-purple-200">
                                 <span>{{ auth()->user()->role_name }}</span>
-                                @if(auth()->user()->cabang)
+                                @if(auth()->user()->isOwner() && auth()->user()->cabang)
                                     <span class="inline-block w-1 h-1 rounded-full bg-gray-300 mx-1 align-middle"></span>
                                     <span>{{ auth()->user()->cabang->nama_cabang }}</span>
                                 @endif

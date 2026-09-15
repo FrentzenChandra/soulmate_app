@@ -205,7 +205,6 @@ class KasirPosTest extends TestCase
             ->call('openNewCustomerModal')
             ->set('newCustomerNama', 'Hendra Wijaya')
             ->set('newCustomerHp', '081234567890')
-            ->set('newCustomerAlamat', 'Jl. Jenderal Sudirman No. 45')
             ->call('saveNewCustomer')
             ->assertSet('customerType', 'langganan');
 
@@ -249,7 +248,8 @@ class KasirPosTest extends TestCase
 
         $penjualan = Penjualan::where('cabang_id', $this->cabangPkp->id)->first();
         $this->assertNotNull($penjualan);
-        $this->assertStringStartsWith('INV-PJ-', $penjualan->no_transaksi);
+        $this->assertStringStartsWith('INV-PJ-CBPKP-', $penjualan->no_transaksi);
+        $this->assertMatchesRegularExpression('/^PJ-\d{6}-\d{5}$/', $penjualan->no_transaksi_frontend);
 
         // Verifikasi detail penjualan
         $this->assertDatabaseHas('penjualan_details', [
@@ -364,19 +364,14 @@ class KasirPosTest extends TestCase
             ->assertSet('modalScanOpen', false);
     }
 
-    public function test_can_register_new_customer_with_photo()
+    public function test_can_register_new_customer()
     {
-        Storage::fake('public');
         $this->actingAs($this->kasir);
-
-        $file = UploadedFile::fake()->image('customer_avatar.jpg', 200, 200);
 
         Livewire::test(Index::class)
             ->call('openNewCustomerModal')
             ->set('newCustomerNama', 'Budi Santoso Langganan')
             ->set('newCustomerHp', '081999888777')
-            ->set('newCustomerAlamat', 'Jl. Selindung No. 10')
-            ->set('newCustomerFoto', $file)
             ->call('saveNewCustomer')
             ->assertSet('customerType', 'langganan')
             ->assertHasNoErrors();

@@ -24,8 +24,6 @@ class Index extends Component
 
     public string $search = '';
 
-    public string $tipeFilter = 'semua';
-
     public string $cabangFilter = 'semua';
 
     public int $perPage = 15;
@@ -41,19 +39,10 @@ class Index extends Component
 
     public string $no_hp = '';
 
-    public string $alamat = '';
-
-    public string $tipe = 'langganan';
-
     public ?int $cabang_id = null;
-
-    public $foto = null;
-
-    public ?string $existing_foto_url = null;
 
     protected $queryString = [
         'search' => ['except' => ''],
-        'tipeFilter' => ['except' => 'semua'],
         'cabangFilter' => ['except' => 'semua'],
         'sortField' => ['except' => 'nama'],
         'sortDirection' => ['except' => 'asc'],
@@ -90,12 +79,6 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function updatingTipeFilter()
-    {
-        $this->perPage = 15;
-        $this->resetPage();
-    }
-
     public function updatingCabangFilter()
     {
         $this->perPage = 15;
@@ -105,8 +88,7 @@ class Index extends Component
     public function openCreateModal(): void
     {
         $this->resetValidation();
-        $this->reset(['customerId', 'nama', 'no_hp', 'alamat', 'foto', 'existing_foto_url']);
-        $this->tipe = 'langganan';
+        $this->reset(['customerId', 'nama', 'no_hp']);
 
         $user = Auth::user();
         if (! $user->isOwner()) {
@@ -135,11 +117,7 @@ class Index extends Component
         $this->customerId = $customer->id;
         $this->nama = $customer->nama;
         $this->no_hp = $customer->no_hp ?? '';
-        $this->alamat = $customer->alamat ?? '';
-        $this->tipe = $customer->tipe ?? 'langganan';
         $this->cabang_id = $customer->cabang_id;
-        $this->existing_foto_url = $customer->foto_url;
-        $this->foto = null;
 
         $this->isEditMode = true;
         $this->modalOpen = true;
@@ -148,70 +126,7 @@ class Index extends Component
     public function closeModal(): void
     {
         $this->modalOpen = false;
-        $this->foto = null;
         $this->resetValidation();
-    }
-
-    public function cancelUploadFoto(): void
-    {
-        $this->foto = null;
-    }
-
-    public function removeExistingFoto(): void
-    {
-        $this->existing_foto_url = null;
-        $this->foto = null;
-    }
-
-    protected function processAndSaveWebp($uploadedFile): string
-    {
-        $imagePath = $uploadedFile->getRealPath();
-        $imageInfo = @getimagesize($imagePath);
-
-        if ($imageInfo && function_exists('imagecreatefromstring') && function_exists('imagewebp')) {
-            $source = @imagecreatefromstring(file_get_contents($imagePath));
-            if ($source !== false) {
-                $filename = 'cust_'.time().'_'.Str::random(6).'.webp';
-
-                $width = imagesx($source);
-                $height = imagesy($source);
-
-                $maxDim = 500;
-                if ($width > $maxDim || $height > $maxDim) {
-                    if ($width > $height) {
-                        $newWidth = $maxDim;
-                        $newHeight = (int) ($height * ($maxDim / $width));
-                    } else {
-                        $newHeight = $maxDim;
-                        $newWidth = (int) ($width * ($maxDim / $height));
-                    }
-                    $resized = imagecreatetruecolor($newWidth, $newHeight);
-                    imagealphablending($resized, false);
-                    imagesavealpha($resized, true);
-                    imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-                    ob_start();
-                    imagewebp($resized, null, 80);
-                    $webContent = ob_get_clean();
-                    imagedestroy($resized);
-                } else {
-                    ob_start();
-                    imagewebp($source, null, 80);
-                    $webContent = ob_get_clean();
-                }
-                imagedestroy($source);
-
-                if ($webContent !== false) {
-                    Storage::disk('public')->put('customers/'.$filename, $webContent);
-
-                    return 'storage/customers/'.$filename;
-                }
-            }
-        }
-
-        $fallbackName = 'cust_'.time().'_'.Str::random(6).'.'.($uploadedFile->getClientOriginalExtension() ?: 'jpg');
-        $storedPath = Storage::disk('public')->putFileAs('customers', $uploadedFile, $fallbackName);
-
-        return 'storage/'.$storedPath;
     }
 
     public function rules(): array
@@ -219,10 +134,7 @@ class Index extends Component
         return [
             'nama' => ['required', 'string', 'max:150'],
             'no_hp' => ['nullable', 'string', 'max:30'],
-            'alamat' => ['nullable', 'string'],
-            'tipe' => ['required', 'in:umum,langganan'],
             'cabang_id' => ['required', 'exists:cabangs,id'],
-            'foto' => ['nullable', 'image', 'max:4096'],
         ];
     }
 
@@ -231,8 +143,6 @@ class Index extends Component
         return [
             'nama.required' => 'Nama pelanggan wajib diisi.',
             'cabang_id.required' => 'Cabang pendaftaran wajib dipilih.',
-            'foto.image' => 'File foto harus berupa format gambar (JPG, PNG, WEBP).',
-            'foto.max' => 'Ukuran file foto maksimal 4MB.',
         ];
     }
 
@@ -249,15 +159,8 @@ class Index extends Component
             'cabang_id' => $this->cabang_id,
             'nama' => trim($this->nama),
             'no_hp' => ! empty($this->no_hp) ? trim($this->no_hp) : null,
-            'alamat' => ! empty($this->alamat) ? trim($this->alamat) : null,
-            'tipe' => $this->tipe,
+            'tipe' => 'langganan',
         ];
-
-        if ($this->foto) {
-            $data['foto_url'] = $this->processAndSaveWebp($this->foto);
-        } elseif ($this->isEditMode && $this->existing_foto_url === null) {
-            $data['foto_url'] = null;
-        }
 
         if ($this->isEditMode && $this->customerId) {
             $customer = Customer::findOrFail($this->customerId);
@@ -266,13 +169,6 @@ class Index extends Component
                 session()->flash('error', 'Anda tidak memiliki otoritas mengubah pelanggan ini.');
 
                 return;
-            }
-
-            if (isset($data['foto_url']) && $customer->foto_url && $customer->foto_url !== $data['foto_url']) {
-                if (str_starts_with($customer->foto_url, 'storage/')) {
-                    $oldPath = Str::after($customer->foto_url, 'storage/');
-                    Storage::disk('public')->delete($oldPath);
-                }
             }
 
             $customer->update($data);
@@ -330,18 +226,21 @@ class Index extends Component
             ->when($isOwner && $activeBranchSession === 'hq' && $this->cabangFilter !== 'semua', function ($q) {
                 $q->where('cabang_id', $this->cabangFilter);
             })
-            ->when($this->tipeFilter !== 'semua', function ($q) {
-                $q->where('tipe', $this->tipeFilter);
-            })
-            ->when($this->search, function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('nama', 'like', '%'.$this->search.'%')
-                        ->orWhere('no_hp', 'like', '%'.$this->search.'%')
-                        ->orWhere('alamat', 'like', '%'.$this->search.'%');
+            ->when(! empty($this->search), function ($q) {
+                $cleanSearch = trim($this->search);
+                $words = array_filter(explode(' ', $cleanSearch));
+                $q->where(function ($sub) use ($words) {
+                    foreach ($words as $word) {
+                        $pattern = '%'.strtolower($word).'%';
+                        $sub->where(function ($sq) use ($pattern) {
+                            $sq->whereRaw('LOWER(nama) LIKE ?', [$pattern])
+                                ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$pattern]);
+                        });
+                    }
                 });
             });
 
-        $allowedSorts = ['nama', 'no_hp', 'tipe', 'cabang_id', 'created_at', 'id'];
+        $allowedSorts = ['nama', 'no_hp', 'cabang_id', 'created_at', 'id'];
         $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'nama';
         $sortDir = strtolower($this->sortDirection) === 'desc' ? 'desc' : 'asc';
 

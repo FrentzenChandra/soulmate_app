@@ -28,7 +28,11 @@
                     <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black border border-emerald-200">Terminal Aktif</span>
                 </div>
                 <div class="flex items-center space-x-2 text-xs text-gray-500 font-medium mt-0.5">
-                    <span>Outlet: <strong class="text-[#0052FF] font-bold">{{ $cabang?->nama_cabang ?? 'Pilih Cabang' }}</strong></span>
+                    @if(auth()->user()->isOwner())
+                        <span>Outlet: <strong class="text-[#0052FF] font-bold">{{ $cabang?->nama_cabang ?? 'Pilih Cabang' }}</strong></span>
+                    @else
+                        <span>Toko: <strong class="text-[#0052FF] font-bold">Soulmate Komputer</strong></span>
+                    @endif
                     <span>Kasir: <strong class="text-gray-800 font-bold">{{ auth()->user()->name }}</strong></span>
                 </div>
             </div>
@@ -91,7 +95,6 @@
                            id="posSearchInput"
                            wire:model.live.debounce.300ms="search"
                            wire:keydown.enter.prevent="handleSearchOrScan"
-                           placeholder="Cari nama produk di katalog (bebas huruf besar/kecil)..."
                            class="w-full pl-11 pr-32 py-3 bg-gray-50/90 text-sm font-semibold border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-all">
 
                     <div class="absolute inset-y-0 right-1.5 flex items-center space-x-1.5">
@@ -298,7 +301,6 @@
                             <div class="relative">
                                 <input type="text"
                                        wire:model.live.debounce.300ms="customerSearch"
-                                       placeholder="Cari nama / nomor HP langganan..."
                                        class="w-full text-xs font-medium pl-8 pr-20 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-1 focus:ring-[#5E17EB]">
                                 <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 <button type="button"
@@ -384,14 +386,9 @@
                 <div class="space-y-2 max-h-[210px] overflow-y-auto custom-scrollbar p-2.5">
                     @forelse($cart as $item)
                         <div class="p-2.5 bg-white hover:bg-purple-50/30 border border-gray-100 rounded-2xl transition-all shadow-2xs space-y-2">
-                            <!-- Item Title & Delete Button -->
-                            <div class="flex items-start justify-between gap-2">
-                                <div class="min-w-0 flex-1">
-                                    <h4 class="text-xs font-black text-gray-900 leading-snug line-clamp-2">{{ $item['nama'] }}</h4>
-                                    <div class="text-[11px] font-medium text-gray-500 mt-0.5">
-                                        @ Rp {{ number_format($item['harga'], 0, ',', '.') }}
-                                    </div>
-                                </div>
+                            <!-- Item Title (Full Width Single Line) & Delete Button -->
+                            <div class="flex items-center justify-between gap-2">
+                                <h4 class="text-xs font-black text-gray-900 truncate leading-snug flex-1" title="{{ $item['nama'] }}">{{ $item['nama'] }}</h4>
                                 <button type="button"
                                         wire:click="removeFromCart({{ $item['id'] }})"
                                         wire:loading.attr="disabled"
@@ -401,7 +398,7 @@
                                 </button>
                             </div>
 
-                            <!-- Item Qty Stepper & Subtotal -->
+                            <!-- Item Qty Stepper & Subtotal Underneath -->
                             <div class="flex items-center justify-between pt-1.5 border-t border-gray-100">
                                 <!-- Stepper Qty -->
                                 <div class="flex items-center space-x-1 bg-gray-100/90 p-1 rounded-xl border border-gray-200/80">
@@ -428,10 +425,12 @@
                                     </button>
                                 </div>
 
-                                <!-- Subtotal Item -->
+                                <!-- Subtotal & Unit Price Item -->
                                 <div class="text-right">
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Subtotal</span>
-                                    <span class="text-xs font-black text-[#0052FF]">
+                                    <span class="text-[10px] text-gray-400 font-medium block leading-none mb-0.5">
+                                        {{ $item['qty'] }} &times; Rp {{ number_format($item['harga'], 0, ',', '.') }}
+                                    </span>
+                                    <span class="text-xs font-black text-[#0052FF] block leading-none">
                                         Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
                                     </span>
                                 </div>
@@ -459,7 +458,7 @@
                     <div class="flex items-center justify-between text-xs text-gray-600">
                         <span>Diskon Transaksi</span>
                         <div class="w-28">
-                            <x-input-rupiah wire:model.live.debounce.250ms="diskon" placeholder="0" inputClass="!py-1 !px-2 !text-right !text-xs !font-extrabold" />
+                            <x-input-rupiah wire:model.live.debounce.250ms="diskon" inputClass="!py-1 !px-2 !text-right !text-xs !font-extrabold" />
                         </div>
                     </div>
 
@@ -674,7 +673,6 @@
                                         <input type="text"
                                                id="dedicatedUsbScanInput"
                                                wire:model="scanBarcode"
-                                               placeholder="Arahkan scanner ke sini..."
                                                autofocus
                                                autocomplete="off"
                                                class="w-full text-center text-base font-mono font-black px-4 py-3.5 rounded-2xl border-2 border-[#5E17EB] bg-purple-50/40 text-gray-900 focus:ring-4 focus:ring-purple-200 focus:outline-hidden transition-all shadow-inner">
@@ -754,7 +752,7 @@
                             </div>
                             <div>
                                 <h3 class="text-base font-extrabold text-white">Selesaikan Pembayaran</h3>
-                                <p class="text-xs text-blue-200">Outlet: {{ $cabang?->nama_cabang }}</p>
+                                <p class="text-xs text-blue-200">{{ auth()->user()->isOwner() ? ('Outlet: ' . $cabang?->nama_cabang) : 'Soulmate Komputer' }}</p>
                             </div>
                         </div>
                         <button type="button" wire:click="$set('modalBayarOpen', false)" class="text-gray-300 hover:text-white cursor-pointer">
@@ -804,7 +802,7 @@
                                 <div class="flex items-center justify-between text-gray-600">
                                     <span class="font-medium">Diskon Transaksi</span>
                                     <div class="w-32">
-                                        <x-input-rupiah wire:model.live.debounce.250ms="diskon" placeholder="0" inputClass="!py-1 !px-2 !text-right !text-xs !font-extrabold !border-gray-300" />
+                                        <x-input-rupiah wire:model.live.debounce.250ms="diskon" inputClass="!py-1 !px-2 !text-right !text-xs !font-extrabold !border-gray-300" />
                                     </div>
                                 </div>
 
@@ -845,7 +843,6 @@
                                            inputmode="numeric"
                                            :value="formatRupiah(raw) === '0' ? '' : formatRupiah(raw)"
                                            @input="formatInput($event)"
-                                           placeholder="0"
                                            class="w-full pl-11 pr-4 py-3 text-lg font-black text-gray-900 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] bg-white">
                                 </div>
                                 @error('jumlahBayar') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
@@ -860,25 +857,6 @@
                                 </div>
                             </div>
 
-                            <!-- Box Kembalian -->
-                            <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 flex items-center justify-between">
-                                <div>
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Kembalian</span>
-                                    <span class="text-xl font-black text-emerald-600">
-                                        Rp <span x-text="formatRupiah(kembalian)">{{ number_format($this->kembalian, 0, ',', '.') }}</span>
-                                    </span>
-                                </div>
-                                <template x-if="kembalian > 0">
-                                    <span class="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 font-black text-[10px]">Ada Kembalian</span>
-                                </template>
-                                <template x-if="kembalian === 0 && (parseFloat(raw) || 0) >= grandTotal && grandTotal > 0">
-                                    <span class="px-2.5 py-1 rounded-md bg-blue-100 text-blue-800 font-black text-[10px]">Uang Pas</span>
-                                </template>
-                                <template x-if="(parseFloat(raw) || 0) > 0 && (parseFloat(raw) || 0) < grandTotal">
-                                    <span class="px-2.5 py-1 rounded-md bg-rose-100 text-rose-800 font-black text-[10px]">Kurang Rp <span x-text="formatRupiah(grandTotal - (parseFloat(raw) || 0))"></span></span>
-                                </template>
-                            </div>
-
                             <!-- Catatan Transaksi -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
@@ -886,7 +864,6 @@
                                 </label>
                                 <input type="text"
                                        wire:model="catatan"
-                                       placeholder="Contoh: Titip nota nama PT / Catatan garansi"
                                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB]">
                             </div>
                         </div>
@@ -1009,7 +986,7 @@
                                 </label>
                                 <input type="text"
                                        wire:model="newCustomerNama"
-                                       placeholder="Contoh: Budi Santoso"
+                                       placeholder="Masukkan nama pelanggan..."
                                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] @error('newCustomerNama') border-rose-500 @enderror">
                                 @error('newCustomerNama') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
@@ -1020,41 +997,8 @@
                                 </label>
                                 <input type="text"
                                        wire:model="newCustomerHp"
-                                       placeholder="0812xxxxxxxx"
+                                       placeholder="Contoh: 081234567890"
                                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB]">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Alamat Singkat
-                                </label>
-                                <input type="text"
-                                       wire:model="newCustomerAlamat"
-                                       placeholder="Contoh: Jl. Sudirman No. 12"
-                                       class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB]">
-                            </div>
-
-                            <!-- Upload Foto Langganan -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Foto Langganan (Opsional)
-                                </label>
-                                <div class="flex items-center space-x-3">
-                                    @if($newCustomerFoto)
-                                        <img src="{{ $newCustomerFoto->temporaryUrl() }}" class="w-12 h-12 rounded-xl object-cover border border-purple-200 shadow-xs">
-                                    @else
-                                        <div class="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                        </div>
-                                    @endif
-                                    <div class="flex-1">
-                                        <input type="file"
-                                               wire:model="newCustomerFoto"
-                                               accept="image/*"
-                                               class="w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-[#5E17EB] hover:file:bg-purple-100 cursor-pointer">
-                                        @error('newCustomerFoto') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -1066,9 +1010,9 @@
                             </button>
                             <button type="submit"
                                     wire:loading.attr="disabled"
-                                    wire:target="saveNewCustomer, newCustomerFoto"
+                                    wire:target="saveNewCustomer"
                                     class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 text-xs font-extrabold text-white shadow-md shadow-purple-900/20 transition-all cursor-pointer flex items-center space-x-2">
-                                <svg wire:loading wire:target="saveNewCustomer, newCustomerFoto" class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                <svg wire:loading wire:target="saveNewCustomer" class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                                 <span wire:loading.remove wire:target="saveNewCustomer">Simpan & Pilih</span>
                                 <span wire:loading wire:target="saveNewCustomer">Menyimpan...</span>
                             </button>

@@ -1,0 +1,21 @@
+#!/bin/sh
+echo "=== [Git Hook] Git Pull terdeteksi. Memulai otomatisasi build & refresh... ==="
+
+# 1. Pastikan build aset frontend terbaru
+if [ -f "package.json" ]; then
+    echo "[1/3] Menjalankan npm run build..."
+    npm run build || true
+fi
+
+# 2. Eksekusi database migration & cache optimization di dalam Docker
+if command -v docker >/dev/null 2>&1 && docker ps 2>/dev/null | grep -q "soulmate_apps"; then
+    echo "[2/3] Memperbarui migrasi database & clear cache di Docker container..."
+    docker exec soulmate_apps php artisan migrate --force || true
+    docker exec soulmate_apps php artisan optimize:clear || true
+    docker exec soulmate_apps php artisan view:cache || true
+    docker exec soulmate_apps php artisan route:cache || true
+else
+    echo "[2/3] Docker container soulmate_apps tidak berjalan, melewati docker artisan..."
+fi
+
+echo "=== [Git Hook] Otomatisasi post-merge selesai! ==="

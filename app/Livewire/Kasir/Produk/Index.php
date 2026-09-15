@@ -57,10 +57,6 @@ class Index extends Component
 
     public string $newCustomerHp = '';
 
-    public string $newCustomerAlamat = '';
-
-    public $newCustomerFoto = null;
-
     // Diskon & PPN
     public float $diskon = 0;
 
@@ -92,8 +88,8 @@ class Index extends Component
 
     public function mount()
     {
-        $defaultPpn = MasterPpn::where('is_aktif', true)->where('persen', '>', 0)->first()
-                   ?? MasterPpn::where('is_aktif', true)->first();
+        $defaultPpn = MasterPpn::where('is_aktif', true)->where('persen', 0)->first()
+                   ?? MasterPpn::where('is_aktif', true)->orderBy('persen', 'asc')->first();
         $this->selectedPpnId = $defaultPpn?->id;
     }
 
@@ -131,6 +127,10 @@ class Index extends Component
     public function getActiveCabangProperty(): ?Cabang
     {
         $user = Auth::user();
+        if (! $user) {
+            return null;
+        }
+
         if ($user->isOwner()) {
             $activeBranchId = session('active_branch_id', 'hq');
             if ($activeBranchId === 'hq' || ! $activeBranchId) {
@@ -204,7 +204,7 @@ class Index extends Component
     }
 
     /**
-     * Cari produk via Filter Kata Kunci Nama Produk (Bebas Huruf Besar/Kecil)
+     * Cari produk via Filter Kata Kunci Nama Produk / Barcode / Kategori (Bebas Huruf Besar/Kecil & Multi-Kata)
      */
     public function handleSearchOrScan(?string $inputQuery = null): void
     {
@@ -225,7 +225,11 @@ class Index extends Component
         foreach ($words as $word) {
             $pattern = '%'.$word.'%';
             $matchingQuery->where(function ($sq) use ($pattern) {
-                $sq->whereRaw('LOWER(nama_produk) LIKE ?', [$pattern]);
+                $sq->whereRaw('LOWER(nama_produk) LIKE ?', [$pattern])
+                    ->orWhereRaw('LOWER(barcode) LIKE ?', [$pattern])
+                    ->orWhereHas('kategori', function ($kq) use ($pattern) {
+                        $kq->whereRaw('LOWER(nama_kategori) LIKE ?', [$pattern]);
+                    });
             });
         }
 
@@ -418,56 +422,7 @@ class Index extends Component
         return max(0, (float) $this->jumlahBayar - (float) $this->grandTotal);
     }
 
-    protected function processAndSaveCustomerWebp($uploadedFile): string
-    {
-        $imagePath = $uploadedFile->getRealPath();
-        $imageInfo = @getimagesize($imagePath);
 
-        if ($imageInfo && function_exists('imagecreatefromstring') && function_exists('imagewebp')) {
-            $source = @imagecreatefromstring(file_get_contents($imagePath));
-            if ($source !== false) {
-                $filename = 'cust_'.time().'_'.Str::random(6).'.webp';
-
-                $width = imagesx($source);
-                $height = imagesy($source);
-
-                $maxDim = 500;
-                if ($width > $maxDim || $height > $maxDim) {
-                    if ($width > $height) {
-                        $newWidth = $maxDim;
-                        $newHeight = (int) ($height * ($maxDim / $width));
-                    } else {
-                        $newHeight = $maxDim;
-                        $newWidth = (int) ($width * ($maxDim / $height));
-                    }
-                    $resized = imagecreatetruecolor($newWidth, $newHeight);
-                    imagealphablending($resized, false);
-                    imagesavealpha($resized, true);
-                    imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-                    ob_start();
-                    imagewebp($resized, null, 80);
-                    $webContent = ob_get_clean();
-                    imagedestroy($resized);
-                } else {
-                    ob_start();
-                    imagewebp($source, null, 80);
-                    $webContent = ob_get_clean();
-                }
-                imagedestroy($source);
-
-                if ($webContent !== false) {
-                    Storage::disk('public')->put('customers/'.$filename, $webContent);
-
-                    return 'storage/customers/'.$filename;
-                }
-            }
-        }
-
-        $fallbackName = 'cust_'.time().'_'.Str::random(6).'.'.($uploadedFile->getClientOriginalExtension() ?: 'jpg');
-        $storedPath = Storage::disk('public')->putFileAs('customers', $uploadedFile, $fallbackName);
-
-        return 'storage/'.$storedPath;
-    }
 
     // Pelanggan
     public function selectCustomer(int $customerId): void
@@ -486,7 +441,7 @@ class Index extends Component
 
     public function openNewCustomerModal(): void
     {
-        $this->reset(['newCustomerNama', 'newCustomerHp', 'newCustomerAlamat', 'newCustomerFoto']);
+        $this->reset(['newCustomerNama', 'newCustomerHp']);
         $this->modalNewCustomerOpen = true;
     }
 
@@ -495,11 +450,8 @@ class Index extends Component
         $this->validate([
             'newCustomerNama' => 'required|string|max:100',
             'newCustomerHp' => 'nullable|string|max:20',
-            'newCustomerAlamat' => 'nullable|string|max:255',
-            'newCustomerFoto' => 'nullable|image|max:4096',
         ], [
             'newCustomerNama.required' => 'Nama pelanggan wajib diisi.',
-            'newCustomerFoto.image' => 'File foto harus berupa gambar valid.',
         ]);
 
         $cabang = $this->activeCabang;
@@ -507,25 +459,17 @@ class Index extends Component
             return;
         }
 
-        $fotoUrl = null;
-        if ($this->newCustomerFoto) {
-            $fotoUrl = $this->processAndSaveCustomerWebp($this->newCustomerFoto);
-        }
-
         $customer = Customer::create([
             'cabang_id' => $cabang->id,
             'nama' => trim($this->newCustomerNama),
             'no_hp' => trim($this->newCustomerHp) ?: null,
-            'alamat' => trim($this->newCustomerAlamat) ?: null,
             'tipe' => 'langganan',
-            'foto_url' => $fotoUrl,
         ]);
 
         $this->selectedCustomerId = $customer->id;
         $this->customerType = 'langganan';
         $this->modalNewCustomerOpen = false;
-        $this->newCustomerFoto = null;
-        $this->dispatch('swal:success', ['title' => 'Sukses', 'text' => "Pelanggan langganan '{$customer->nama}' berhasil ditambahkan."]);
+        $this->dispatch('swal:success', ['title' => 'Sukses', 'text' => "Pelanggan '{$customer->nama}' berhasil ditambahkan."]);
     }
 
     // Checkout
@@ -582,31 +526,24 @@ class Index extends Component
             DB::beginTransaction();
 
             $now = now();
-            $year = (int) $now->format('Y');
-            $month = (int) $now->format('m');
+            $dateCode = $now->format('ymd');
+            $kodeCabangClean = str_replace('-', '', $cabang->kode_cabang);
+            $prefix = "INV-PJ-{$kodeCabangClean}-{$dateCode}-";
 
-            // 1. Lock & Generate Nomor Transaksi
-            $counter = NomorUrutTransaksi::where('cabang_id', $cabang->id)
-                ->where('tipe', 'produk')
-                ->where('tahun', $year)
-                ->where('bulan', $month)
+            // 1. Lock & Generate Nomor Transaksi Harian Per Cabang
+            $lastTx = Penjualan::where('cabang_id', $cabang->id)
+                ->where('no_transaksi', 'LIKE', $prefix . '%')
                 ->lockForUpdate()
+                ->orderByDesc('id')
                 ->first();
 
-            if (! $counter) {
-                $counter = NomorUrutTransaksi::create([
-                    'cabang_id' => $cabang->id,
-                    'tipe' => 'produk',
-                    'tahun' => $year,
-                    'bulan' => $month,
-                    'last_number' => 0,
-                ]);
+            $nextSeq = 1;
+            if ($lastTx && preg_match('/-(\d+)$/', $lastTx->no_transaksi, $m)) {
+                $nextSeq = (int) $m[1] + 1;
             }
 
-            $counter->increment('last_number');
-            $noUrut = str_pad($counter->last_number, 5, '0', STR_PAD_LEFT);
-            $kodeCabangClean = str_replace('-', '', $cabang->kode_cabang);
-            $noTransaksi = "INV-PJ-{$kodeCabangClean}-{$now->format('ym')}-{$noUrut}";
+            $noUrut = str_pad((string) $nextSeq, 5, '0', STR_PAD_LEFT);
+            $noTransaksi = "{$prefix}{$noUrut}";
 
             // 2. Simpan Data Penjualan
             $penjualan = Penjualan::create([
@@ -690,11 +627,17 @@ class Index extends Component
 
         $customers = collect();
         if ($this->customerType === 'langganan' && ! empty($this->customerSearch) && $cabang) {
-            $term = '%'.strtolower(trim($this->customerSearch)).'%';
+            $cleanCustomerSearch = trim($this->customerSearch);
+            $words = array_filter(explode(' ', $cleanCustomerSearch));
             $customers = Customer::where('cabang_id', $cabang->id)
-                ->where(function ($q) use ($term) {
-                    $q->whereRaw('LOWER(nama) LIKE ?', [$term])
-                        ->orWhereRaw('LOWER(no_hp) LIKE ?', [$term]);
+                ->where(function ($q) use ($words) {
+                    foreach ($words as $word) {
+                        $pattern = '%'.strtolower($word).'%';
+                        $q->where(function ($sq) use ($pattern) {
+                            $sq->whereRaw('LOWER(nama) LIKE ?', [$pattern])
+                                ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$pattern]);
+                        });
+                    }
                 })
                 ->take(6)
                 ->get();
@@ -730,7 +673,11 @@ class Index extends Component
                 foreach ($words as $word) {
                     $pattern = '%'.strtolower($word).'%';
                     $q->where(function ($sq) use ($pattern) {
-                        $sq->whereRaw('LOWER(nama_produk) LIKE ?', [$pattern]);
+                        $sq->whereRaw('LOWER(nama_produk) LIKE ?', [$pattern])
+                            ->orWhereRaw('LOWER(barcode) LIKE ?', [$pattern])
+                            ->orWhereHas('kategori', function ($kq) use ($pattern) {
+                                $kq->whereRaw('LOWER(nama_kategori) LIKE ?', [$pattern]);
+                            });
                     });
                 }
             });

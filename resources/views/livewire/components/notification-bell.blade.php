@@ -130,7 +130,7 @@
         <div class="px-4 pt-2.5 flex items-center justify-between">
             <a href="{{ route('cabang.stok') }}" 
                class="text-xs font-bold text-[#5E17EB] hover:text-purple-700 flex items-center space-x-1 transition-colors">
-                <span>Kelola Stok Cabang</span>
+                <span>{{ $isOwner ? ($isHQ ? 'Kelola Stok Seluruh Cabang' : 'Kelola Stok Cabang') : 'Kelola Stok Produk' }}</span>
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </a>
             <a href="{{ route('master.produk') }}" 

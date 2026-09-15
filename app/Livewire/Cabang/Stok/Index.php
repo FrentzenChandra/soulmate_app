@@ -210,7 +210,11 @@ class Index extends Component
                     $pattern = '%'.strtolower($word).'%';
                     $q->where(function ($sq) use ($pattern) {
                         $sq->whereRaw('LOWER(nama_produk) LIKE ?', [$pattern])
-                            ->orWhereRaw('LOWER(barcode) LIKE ?', [$pattern]);
+                            ->orWhereRaw('LOWER(barcode) LIKE ?', [$pattern])
+                            ->orWhereRaw('LOWER(COALESCE(deskripsi, \'\')) LIKE ?', [$pattern])
+                            ->orWhereHas('kategori', function ($kq) use ($pattern) {
+                                $kq->whereRaw('LOWER(nama_kategori) LIKE ?', [$pattern]);
+                            });
                     });
                 }
             });

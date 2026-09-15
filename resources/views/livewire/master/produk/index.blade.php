@@ -4,7 +4,7 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-gray-400 mb-1">
-                <span>{{ $isHQ ? 'Kantor Pusat' : ($activeCabang?->nama_cabang ?? 'Cabang') }}</span>
+                <span>{{ $isHQ ? 'Kantor Pusat' : ($isOwner ? ($activeCabang?->nama_cabang ?? 'Cabang') : 'Soulmate Komputer') }}</span>
                 <span>/</span>
                 <span class="text-purple-600 font-bold">Katalog Master Produk</span>
             </div>
@@ -12,8 +12,10 @@
             <p class="text-xs text-gray-500 mt-0.5">
                 @if($isHQ)
                     Database produk global, harga modal, harga jual, dan distribusi stok seluruh cabang.
-                @else
+                @elseif($isOwner)
                     Database produk & ketersediaan stok fisik di <strong>{{ $activeCabang?->nama_cabang }}</strong>.
+                @else
+                    Database katalog produk & ketersediaan stok toko.
                 @endif
             </p>
         </div>
@@ -44,7 +46,6 @@
             </div>
             <input type="text"
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari nama produk, barcode/SKU..." 
                    class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-all">
         </div>
 
@@ -93,7 +94,7 @@
                             @endforeach
                             <x-th-sort field="stok_total" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Total Global</x-th-sort>
                         @else
-                            <th class="py-3.5 px-4 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Stok {{ $activeCabang?->nama_cabang ?? 'Cabang' }}</th>
+                            <th class="py-3.5 px-4 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">{{ $isOwner ? ('Stok ' . ($activeCabang?->nama_cabang ?? 'Cabang')) : 'Stok Toko' }}</th>
                         @endif
                         <th class="py-3.5 px-5 text-right font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi</th>
                     </tr>
@@ -205,11 +206,16 @@
                                     </button>
 
                                     @if($isHQ)
-                                        <button wire:click="deleteProduk({{ $p->id }})"
-                                                wire:confirm="PERINGATAN: Menghapus produk '{{ $p->nama_produk }}' akan menghapusnya dari seluruh cabang. Lanjutkan?"
+                                        <button wire:click="openDeleteConfirmation({{ $p->id }})"
                                                 class="p-2 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                                                 title="Hapus Produk Master">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    @else
+                                        <button wire:click="openDeleteConfirmation({{ $p->id }})"
+                                                class="p-2 rounded-xl text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
+                                                title="Nonaktifkan Produk di Toko">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                         </button>
                                     @endif
                                 </div>
@@ -263,7 +269,7 @@
                                     {{ $isEditMode ? 'Edit Data Produk' : 'Tambah Produk Baru' }}
                                 </h3>
                                 <p class="text-xs text-purple-200">
-                                    {{ $isHQ ? 'Katalog global untuk seluruh cabang toko' : 'Penugasan produk & stok untuk ' . ($activeCabang?->nama_cabang ?? 'Cabang') }}
+                                    {{ $isHQ ? 'Katalog global untuk seluruh cabang toko' : ($isOwner ? ('Penugasan produk & stok untuk ' . ($activeCabang?->nama_cabang ?? 'Cabang')) : 'Pengaturan katalog & stok produk toko') }}
                                 </p>
                             </div>
                         </div>
@@ -384,7 +390,6 @@
                                 </label>
                                 <input type="text"
                                        wire:model.live.debounce.300ms="nama_produk"
-                                       placeholder="Contoh: SSD NVMe Kingston NV2 512GB"
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('nama_produk') border-rose-500 @enderror">
                                 @error('nama_produk') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
 
@@ -433,7 +438,7 @@
                                                                 <span class="font-bold text-[#5E17EB]">Rp {{ number_format($dup->harga_jual, 0, ',', '.') }}</span>
                                                                 <span>·</span>
                                                                 <span class="font-semibold {{ $isAktifInBranch ? 'text-emerald-700' : 'text-amber-600' }}">
-                                                                    {{ $activeCabang?->nama_cabang ?? 'Cabang' }}: {{ $isAktifInBranch ? 'Stok ' . $dupStok->jumlah : 'Belum Aktif' }}
+                                                                    {{ $isOwner ? ($activeCabang?->nama_cabang ?? 'Cabang') : 'Status' }}: {{ $isAktifInBranch ? 'Stok ' . $dupStok->jumlah : 'Belum Aktif' }}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -476,7 +481,6 @@
                                     <div class="flex space-x-2">
                                         <input type="text"
                                                wire:model.live.debounce.350ms="barcode"
-                                               placeholder="Contoh: 8991234560011"
                                                class="w-full text-xs font-mono px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('barcode') border-rose-500 @enderror">
                                         <button type="button"
                                                 wire:click="generateBarcode"
@@ -495,7 +499,7 @@
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                         Harga Modal (Beli) <span class="text-rose-500">*</span>
                                     </label>
-                                    <x-input-rupiah wire:model.live="harga_beli" placeholder="0" />
+                                    <x-input-rupiah wire:model.live="harga_beli" />
                                     @error('harga_beli') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
 
@@ -503,16 +507,57 @@
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                         Harga Jual Toko (POS) <span class="text-rose-500">*</span>
                                     </label>
-                                    <x-input-rupiah wire:model.live="harga_jual" placeholder="0" />
+                                    <x-input-rupiah wire:model.live="harga_jual" />
                                     @error('harga_jual') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
 
-                                <div class="sm:col-span-2 text-right text-xs">
-                                    @php
-                                        $calcMargin = $harga_beli > 0 ? (($harga_jual - $harga_beli) / $harga_beli) * 100 : 0;
-                                        $laba = $harga_jual - $harga_beli;
-                                    @endphp
-                                    <span class="text-gray-500">Estimasi Laba Kotor: </span>
+                            <!-- Harga & Margin Profit Live Calculator -->
+                            <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80 space-y-4">
+                                <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Harga & Margin Keuntungan</h4>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <!-- Harga Beli / Modal -->
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            Harga Beli / Modal (Rp) <span class="text-rose-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-xs font-extrabold text-gray-400">Rp</span>
+                                            <input type="number" 
+                                                   wire:model.live.debounce.300ms="harga_beli" 
+                                                   min="0"
+                                                   class="w-full pl-9 pr-3 py-2 text-xs font-extrabold rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('harga_beli') border-rose-500 @enderror">
+                                        </div>
+                                        @error('harga_beli') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <!-- Harga Jual Toko -->
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            Harga Jual Toko / POS (Rp) <span class="text-rose-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-xs font-extrabold text-gray-400">Rp</span>
+                                            <input type="number" 
+                                                   wire:model.live.debounce.300ms="harga_jual" 
+                                                   min="0"
+                                                   class="w-full pl-9 pr-3 py-2 text-xs font-extrabold rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('harga_jual') border-rose-500 @enderror">
+                                        </div>
+                                        @error('harga_jual') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
+
+                                <!-- Live Profit Margin Indicator -->
+                                @php
+                                    $hb = (float)$harga_beli;
+                                    $hj = (float)$harga_jual;
+                                    $laba = $hj - $hb;
+                                    $calcMargin = $hb > 0 ? ($laba / $hb) * 100 : 0;
+                                @endphp
+                                <div class="p-3 rounded-xl {{ $laba >= 0 ? 'bg-emerald-50 border border-emerald-200 text-emerald-900' : 'bg-rose-50 border border-rose-200 text-rose-900' }} flex items-center justify-between text-xs font-bold">
+                                    <span class="flex items-center space-x-1.5">
+                                        <span>Estimasi Laba per Unit:</span>
+                                    </span>
                                     <span class="font-extrabold text-emerald-600">Rp {{ number_format(max(0, $laba), 0, ',', '.') }} ({{ number_format($calcMargin, 1) }}%)</span>
                                 </div>
                             </div>
@@ -520,7 +565,7 @@
                             <!-- Alokasi Stok Fisik (Dinamis: Sesuai Mode HQ vs Mode Cabang) -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                                    {{ $isHQ ? 'Alokasi & Manajemen Stok per Cabang' : 'Stok di ' . ($activeCabang?->nama_cabang ?? 'Cabang Ini') }}
+                                    {{ $isHQ ? 'Alokasi & Manajemen Stok per Cabang' : ($isOwner ? ('Stok di ' . ($activeCabang?->nama_cabang ?? 'Cabang Ini')) : 'Manajemen Stok Produk') }}
                                 </label>
 
                                 @if($isHQ)
@@ -543,7 +588,6 @@
                                                         <input type="number"
                                                                wire:model="initialStock.{{ $c->id }}"
                                                                min="0"
-                                                               placeholder="0"
                                                                {{ empty($isAktifStock[$c->id]) ? 'disabled' : '' }}
                                                                class="w-full text-xs font-extrabold px-2.5 py-1.5 rounded-lg border {{ empty($isAktifStock[$c->id]) ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed' : 'border-gray-300 bg-white focus:ring-2 focus:ring-[#5E17EB]' }}">
                                                     </div>
@@ -552,7 +596,6 @@
                                                         <input type="number"
                                                                wire:model="minStock.{{ $c->id }}"
                                                                min="1"
-                                                               placeholder="3"
                                                                {{ empty($isAktifStock[$c->id]) ? 'disabled' : '' }}
                                                                class="w-full text-xs font-extrabold px-2.5 py-1.5 rounded-lg border {{ empty($isAktifStock[$c->id]) ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed' : 'border-amber-300 bg-white focus:ring-2 focus:ring-amber-500' }}">
                                                     </div>
@@ -569,9 +612,11 @@
                                                     <input type="checkbox"
                                                            wire:model.live="isAktifStock.{{ $activeCabang->id }}"
                                                            class="rounded text-[#0052FF] focus:ring-[#0052FF] h-4 w-4 border-blue-300">
-                                                    <span class="text-xs font-extrabold text-gray-900">{{ $activeCabang->nama_cabang }} (Aktif Dijual)</span>
+                                                    <span class="text-xs font-extrabold text-gray-900">{{ $isOwner ? ($activeCabang->nama_cabang . ' (Aktif Dijual)') : 'Status Penjualan (Aktif)' }}</span>
                                                 </label>
-                                                <span class="text-[10px] font-bold text-blue-600 uppercase">{{ $activeCabang->kode_cabang }}</span>
+                                                @if($isOwner)
+                                                    <span class="text-[10px] font-bold text-blue-600 uppercase">{{ $activeCabang->kode_cabang }}</span>
+                                                @endif
                                             </div>
                                             <div class="grid grid-cols-2 gap-3">
                                                 <div>
@@ -579,7 +624,6 @@
                                                     <input type="number"
                                                            wire:model="initialStock.{{ $activeCabang->id }}"
                                                            min="0"
-                                                           placeholder="0"
                                                            {{ empty($isAktifStock[$activeCabang->id]) ? 'disabled' : '' }}
                                                            class="w-full text-sm font-extrabold px-3 py-1.5 rounded-xl border {{ empty($isAktifStock[$activeCabang->id]) ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed' : 'border-blue-300 bg-white focus:ring-2 focus:ring-[#0052FF]' }}">
                                                 </div>
@@ -588,7 +632,6 @@
                                                     <input type="number"
                                                            wire:model="minStock.{{ $activeCabang->id }}"
                                                            min="1"
-                                                           placeholder="3"
                                                            {{ empty($isAktifStock[$activeCabang->id]) ? 'disabled' : '' }}
                                                            class="w-full text-sm font-extrabold px-3 py-1.5 rounded-xl border {{ empty($isAktifStock[$activeCabang->id]) ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed' : 'border-amber-300 bg-white focus:ring-2 focus:ring-amber-500' }}">
                                                 </div>
@@ -605,7 +648,6 @@
                                 </label>
                                 <textarea wire:model="deskripsi"
                                           rows="2"
-                                          placeholder="Catatan kompatibilitas, garansi, atau spesifikasi detail..."
                                           class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"></textarea>
                             </div>
 
@@ -681,7 +723,6 @@
                                 <input type="text"
                                        wire:model="new_kategori_name"
                                        wire:keydown.enter="saveNewKategori"
-                                       placeholder="Nama kategori baru..."
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-[#5E17EB] @error('new_kategori_name') border-rose-500 @enderror">
                                 <button type="button"
                                         wire:click="saveNewKategori"
@@ -739,6 +780,151 @@
                                 class="px-4 py-2.5 rounded-xl bg-gray-200 hover:bg-gray-300 text-xs font-bold text-gray-800 transition-colors cursor-pointer">
                             Tutup
                         </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- ============================================== -->
+    <!-- MODAL KONFIRMASI HAPUS / NONAKTIFKAN PRODUK    -->
+    <!-- ============================================== -->
+    @if($modalDeleteOpen)
+        <div class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="$set('modalDeleteOpen', false)"></div>
+
+            <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
+                    
+                    <!-- Header Modal with Icon & Context -->
+                    <div class="p-6 pb-4">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 rounded-2xl {{ $deleteIsHQ ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-amber-50 text-amber-600 border border-amber-100' }} flex items-center justify-center shrink-0 shadow-xs">
+                                @if($deleteIsHQ)
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                @else
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                @endif
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <h3 class="text-lg font-black text-gray-900 leading-tight">
+                                        {{ $deleteIsHQ ? 'Hapus Produk Master' : 'Nonaktifkan Produk' }}
+                                    </h3>
+                                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full {{ $deleteIsHQ ? 'bg-purple-100 text-purple-800 border border-purple-200' : 'bg-blue-100 text-blue-800 border border-blue-200' }}">
+                                        {{ $deleteIsHQ ? 'Konteks HQ' : 'Toko Ini' }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ $deleteIsHQ ? 'Konfirmasi penghapusan data produk dari basis data master global.' : 'Konfirmasi status ketersediaan dan penjualan produk di cabang ini.' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Snapshot Card -->
+                    <div class="px-6 py-3">
+                        <div class="p-3.5 rounded-2xl bg-gray-50 border border-gray-200/90 flex items-center space-x-3.5">
+                            @if($deleteProdukFoto && file_exists(public_path($deleteProdukFoto)))
+                                <img src="{{ asset($deleteProdukFoto) }}" alt="{{ $deleteProdukNama }}" class="w-13 h-13 rounded-xl object-cover border border-gray-200 shadow-xs shrink-0">
+                            @elseif($deleteProdukFoto && (str_starts_with($deleteProdukFoto, 'http') || str_starts_with($deleteProdukFoto, 'storage/') || str_starts_with($deleteProdukFoto, 'images/')))
+                                <img src="{{ asset($deleteProdukFoto) }}" alt="{{ $deleteProdukNama }}" class="w-13 h-13 rounded-xl object-cover border border-gray-200 shadow-xs shrink-0" onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.jpg') }}';">
+                            @else
+                                <div class="w-13 h-13 rounded-xl bg-purple-50 text-[#5E17EB] border border-purple-100 flex items-center justify-center shrink-0">
+                                    <svg class="w-6 h-6 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                </div>
+                            @endif
+
+                            <div class="min-w-0 flex-1">
+                                <h4 class="text-sm font-extrabold text-gray-900 truncate leading-snug">{{ $deleteProdukNama }}</h4>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <span class="font-mono text-[11px] text-gray-500 bg-white px-1.5 py-0.5 rounded border border-gray-200">{{ $deleteProdukBarcode ?: '-' }}</span>
+                                    <span class="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">{{ $deleteProdukKategori }}</span>
+                                </div>
+                            </div>
+
+                            <div class="shrink-0 text-right">
+                                <span class="text-[10px] font-bold text-gray-400 block uppercase">Sisa Stok</span>
+                                <span class="text-sm font-black text-gray-900 block mt-0.5">{{ $deleteProdukStok }} Unit</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informational Impact Alert -->
+                    <div class="px-6 py-2">
+                        @if($deleteIsHQ && $deleteProdukHasHistory)
+                            <div class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs">
+                                <div class="flex items-start space-x-2.5">
+                                    <svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                    <div>
+                                        <p class="font-extrabold">Proteksi Transaksi Aktif</p>
+                                        <p class="text-[11px] text-rose-700 mt-0.5 leading-relaxed">
+                                            Produk ini <strong>tidak dapat dihapus permanen</strong> karena sudah memiliki riwayat penjualan di kasir atau servis. Untuk menjaga integritas pembukuan, Anda dapat menonaktifkan status penjualannya.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($deleteIsHQ)
+                            <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs">
+                                <div class="flex items-start space-x-2.5">
+                                    <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                    <div>
+                                        <p class="font-extrabold">Peringatan Penghapusan Master</p>
+                                        <p class="text-[11px] text-amber-700 mt-0.5 leading-relaxed">
+                                            Produk akan dihapus dari katalog master global (Soft Delete). Produk tidak akan lagi dapat diakses atau dijual di seluruh cabang.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-blue-900 text-xs">
+                                <div class="flex items-start space-x-2.5">
+                                    <svg class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <div>
+                                        <p class="font-extrabold">Deaktivasi Status Penjualan</p>
+                                        <p class="text-[11px] text-blue-700 mt-0.5 leading-relaxed">
+                                            Produk ini akan disembunyikan dari POS Kasir dan tidak memicu notifikasi peringatan stok di cabang ini. Data master produk tetap tersimpan dan dapat diaktifkan kembali sewaktu-waktu.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Footer Action Buttons -->
+                    <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-3 rounded-b-3xl border-t border-gray-100 mt-4">
+                        <button type="button"
+                                wire:click="$set('modalDeleteOpen', false)"
+                                class="px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
+                            Batal
+                        </button>
+
+                        @if($deleteIsHQ && $deleteProdukHasHistory)
+                            <button type="button"
+                                    wire:click="$set('modalDeleteOpen', false)"
+                                    class="px-4 py-2.5 rounded-xl bg-gray-200 text-xs font-bold text-gray-600 cursor-pointer hover:bg-gray-300">
+                                Mengerti
+                            </button>
+                        @elseif($deleteIsHQ)
+                            <button type="button"
+                                    wire:click="confirmDelete"
+                                    wire:loading.attr="disabled"
+                                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white transition-all shadow-md shadow-rose-600/20 cursor-pointer disabled:opacity-50">
+                                <svg wire:loading wire:target="confirmDelete" class="w-3.5 h-3.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <span wire:loading.remove wire:target="confirmDelete">Ya, Hapus Produk</span>
+                                <span wire:loading wire:target="confirmDelete">Menghapus...</span>
+                            </button>
+                        @else
+                            <button type="button"
+                                    wire:click="confirmDelete"
+                                    wire:loading.attr="disabled"
+                                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-xs font-bold text-white transition-all shadow-md shadow-amber-600/20 cursor-pointer disabled:opacity-50">
+                                <svg wire:loading wire:target="confirmDelete" class="w-3.5 h-3.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <span wire:loading.remove wire:target="confirmDelete">Ya, Nonaktifkan</span>
+                                <span wire:loading wire:target="confirmDelete">Memproses...</span>
+                            </button>
+                        @endif
                     </div>
 
                 </div>

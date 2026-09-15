@@ -45,12 +45,14 @@
                     </div>
                     <p class="text-xs font-semibold text-gray-400 mt-0.5">
                         <span class="text-gray-600 font-bold">@ {{ auth()->user()->username ?? 'user' }}</span>
-                        @if(auth()->user()->cabang)
-                            <span class="inline-block w-1 h-1 rounded-full bg-gray-300 mx-1.5 align-middle"></span>
-                            <span>{{ auth()->user()->cabang->nama_cabang }}</span>
-                        @elseif(auth()->user()->isOwner())
-                            <span class="inline-block w-1 h-1 rounded-full bg-gray-300 mx-1.5 align-middle"></span>
-                            <span class="text-purple-600 font-bold">Kantor Pusat (HQ)</span>
+                        @if(auth()->user()->isOwner())
+                            @if(auth()->user()->cabang)
+                                <span class="inline-block w-1 h-1 rounded-full bg-gray-300 mx-1.5 align-middle"></span>
+                                <span>{{ auth()->user()->cabang->nama_cabang }}</span>
+                            @else
+                                <span class="inline-block w-1 h-1 rounded-full bg-gray-300 mx-1.5 align-middle"></span>
+                                <span class="text-purple-600 font-bold">Kantor Pusat (HQ)</span>
+                            @endif
                         @endif
                     </p>
                     <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-gray-500">

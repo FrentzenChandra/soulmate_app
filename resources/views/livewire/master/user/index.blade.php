@@ -28,18 +28,18 @@
                     <span>/</span>
                     <span class="text-purple-600 font-bold">Master Pengguna</span>
                 @else
-                    <span>Cabang {{ auth()->user()->cabang?->nama_cabang }}</span>
+                    <span>Soulmate Komputer</span>
                     <span>/</span>
                     <span class="text-blue-600 font-bold">Manajemen Staff</span>
                 @endif
             </div>
             <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">
-                {{ $isOwner ? 'Master Pengguna & Staff' : 'Manajemen Staff Cabang' }}
+                {{ $isOwner ? 'Master Pengguna & Staff' : 'Manajemen Pengguna' }}
             </h1>
             <p class="text-xs text-gray-500 mt-0.5">
                 {{ $isOwner
                     ? 'Kelola akun Owner, Superadmin cabang, Teknisi, dan Kasir secara menyeluruh.'
-                    : 'Kelola akun Superadmin, Teknisi, dan Kasir khusus untuk Cabang ' . (auth()->user()->cabang?->nama_cabang ?? '') }}
+                    : 'Kelola akun Superadmin, Teknisi, dan Admin Kasir toko.' }}
             </p>
         </div>
 
@@ -59,7 +59,6 @@
             </div>
             <input type="text"
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari nama, username, email, HP..."
                    class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50/80 border border-gray-200 rounded-xl focus:ring-2 {{ $isOwner ? 'focus:ring-[#5E17EB] focus:border-[#5E17EB]' : 'focus:ring-[#0052FF] focus:border-[#0052FF]' }} transition-all">
         </div>
 
@@ -75,7 +74,7 @@
                     @endif
                     <option value="Superadmin">Superadmin</option>
                     <option value="Teknisi">Teknisi</option>
-                    <option value="Kasir">Kasir</option>
+                    <option value="Kasir">Admin</option>
                 </select>
             </div>
 
@@ -104,13 +103,15 @@
                         <x-th-sort field="name" :sortField="$sortField" :sortDirection="$sortDirection" class="px-5">Nama Pengguna</x-th-sort>
                         <x-th-sort field="username" :sortField="$sortField" :sortDirection="$sortDirection">Username & Email</x-th-sort>
                         <th class="py-3.5 px-4 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Tipe Role</th>
-                        <x-th-sort field="cabang_id" :sortField="$sortField" :sortDirection="$sortDirection">Wilayah Tugas / Cabang</x-th-sort>
+                        @if($isOwner)
+                            <x-th-sort field="cabang_id" :sortField="$sortField" :sortDirection="$sortDirection">Wilayah Tugas / Cabang</x-th-sort>
+                        @endif
                         <x-th-sort field="no_hp" :sortField="$sortField" :sortDirection="$sortDirection">No. HP</x-th-sort>
                         <x-th-sort field="status" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Status</x-th-sort>
                         <th class="py-3.5 px-5 text-right font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi</th>
                     </tr>
                 </thead>
-                <x-table-skeleton :columns="7" :rows="6" target="search, roleFilter, cabangFilter, statusFilter, sortField, sortDirection" />
+                <x-table-skeleton :columns="$isOwner ? 7 : 6" :rows="6" target="search, roleFilter, cabangFilter, statusFilter, sortField, sortDirection" />
                 <tbody wire:loading.remove wire:target="search, roleFilter, cabangFilter, statusFilter, sortField, sortDirection" class="divide-y divide-gray-100">
                     @forelse($users as $u)
                         @php
@@ -167,25 +168,27 @@
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-pink-50 text-pink-700 font-extrabold text-[11px] border border-pink-200">
-                                        <span>Kasir</span>
+                                        <span>Admin</span>
                                     </span>
                                 @endif
                             </td>
 
                             <!-- Cabang -->
-                            <td class="py-4 px-4">
-                                @if($u->isOwner())
-                                    <span class="inline-flex items-center space-x-1 text-gray-600 font-bold">
-                                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span>Semua Cabang (Global HQ)</span>
-                                    </span>
-                                @else
-                                    <div class="flex items-center space-x-1.5">
-                                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                                        <span class="font-bold text-gray-800">{{ $u->cabang?->nama_cabang ?? 'Belum Ditugaskan' }}</span>
-                                    </div>
-                                @endif
-                            </td>
+                            @if($isOwner)
+                                <td class="py-4 px-4">
+                                    @if($u->isOwner())
+                                        <span class="inline-flex items-center space-x-1 text-gray-600 font-bold">
+                                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span>Semua Cabang (Global HQ)</span>
+                                        </span>
+                                    @else
+                                        <div class="flex items-center space-x-1.5">
+                                            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                            <span class="font-bold text-gray-800">{{ $u->cabang?->nama_cabang ?? 'Belum Ditugaskan' }}</span>
+                                        </div>
+                                    @endif
+                                </td>
+                            @endif
 
                             <!-- Kontak -->
                             <td class="py-4 px-4">
@@ -225,7 +228,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-12 text-center">
+                            <td colspan="{{ $isOwner ? 7 : 6 }}" class="py-12 text-center">
                                 <div class="flex flex-col items-center justify-center text-gray-400">
                                     <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                                     <p class="font-bold text-gray-600">Tidak ada pengguna ditemukan</p>
@@ -310,7 +313,7 @@
                                             </span>
                                             <span class="text-xs font-extrabold text-gray-900">Superadmin</span>
                                         </div>
-                                        <span class="text-[9px] text-gray-500 mt-1 leading-tight">Admin operasional cabang</span>
+                                        <span class="text-[9px] text-gray-500 mt-1 leading-tight">Admin operasional sistem</span>
                                     </label>
 
                                     <!-- Role Teknisi Card -->
@@ -325,14 +328,14 @@
                                         <span class="text-[9px] text-gray-500 mt-1 leading-tight">Pengerjaan & status servis</span>
                                     </label>
 
-                                    <!-- Role Kasir Card -->
+                                    <!-- Role Kasir / Admin Card -->
                                     <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Kasir' ? 'border-pink-500 bg-pink-50/50' : 'border-gray-200 hover:border-gray-300' }}">
                                         <input type="radio" wire:model.live="role_name" value="Kasir" class="sr-only">
                                         <div class="flex items-center space-x-1.5">
                                             <span class="w-5 h-5 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center shrink-0">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                             </span>
-                                            <span class="text-xs font-extrabold text-gray-900">Kasir</span>
+                                            <span class="text-xs font-extrabold text-gray-900">Admin</span>
                                         </div>
                                         <span class="text-[9px] text-gray-500 mt-1 leading-tight">POS penjualan & tagihan</span>
                                     </label>
@@ -359,18 +362,13 @@
                                     </select>
                                     @error('cabang_id') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
-                            @else
-                                <div class="p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs flex items-center space-x-2">
-                                    <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                    <span>Staff ini akan ditugaskan ke: <strong>{{ auth()->user()->cabang?->nama_cabang }}</strong></span>
-                                </div>
                             @endif
 
                             <!-- Upload Foto Profil User & Live Preview -->
                             <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80">
                                 <div class="flex items-center justify-between mb-2">
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                        Foto Profil Pengguna
+                                        Foto Profil (Opsional)
                                     </label>
                                     <span class="text-[10px] font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
                                         WebP Otomatis (&le;40 KB)
@@ -448,7 +446,6 @@
                                 </label>
                                 <input type="text"
                                        wire:model="name"
-                                       placeholder="Contoh: Budi Santoso"
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('name') border-rose-500 @enderror">
                                 @error('name') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
@@ -461,7 +458,6 @@
                                     </label>
                                     <input type="text"
                                            wire:model="username"
-                                           placeholder="budi_santoso"
                                            class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('username') border-rose-500 @enderror">
                                     @error('username') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
@@ -471,7 +467,6 @@
                                     </label>
                                     <input type="email"
                                            wire:model="email"
-                                           placeholder="budi@soulmate.test"
                                            class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('email') border-rose-500 @enderror">
                                     @error('email') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
@@ -485,7 +480,6 @@
                                     </label>
                                     <input type="password"
                                            wire:model="password"
-                                           placeholder="{{ $isEditMode ? 'Kosongkan jika tidak diubah' : 'Minimal 6 karakter' }}"
                                            class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('password') border-rose-500 @enderror">
                                     @error('password') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
@@ -495,7 +489,6 @@
                                     </label>
                                     <input type="text"
                                            wire:model="no_hp"
-                                           placeholder="081234567890"
                                            class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('no_hp') border-rose-500 @enderror">
                                     @error('no_hp') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>

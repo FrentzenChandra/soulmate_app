@@ -91,15 +91,15 @@
             </div>
         </div>
     @else
-        <!-- Fixed Branch Indicator for Non-Owner Roles -->
+        <!-- Store Brand / Info for Non-Owner Roles -->
         <div class="flex items-center space-x-3 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200/80">
-            <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <div class="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
             </div>
             <div>
-                <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider block leading-none">Cabang Aktif</span>
-                <span class="text-sm font-bold text-gray-800 block leading-tight">
-                    {{ $activeCabang?->nama_cabang ?? 'Cabang Pusat' }}
+                <span class="text-[10px] uppercase font-extrabold text-purple-600 tracking-wider block leading-none">Point of Sale</span>
+                <span class="text-sm font-bold text-gray-900 block leading-tight">
+                    Soulmate Komputer
                 </span>
             </div>
         </div>

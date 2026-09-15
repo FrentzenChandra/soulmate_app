@@ -431,12 +431,19 @@ class Index extends Component
                     $q->where('cabang_id', $this->cabangFilter);
                 }
             })
-            ->when($this->search, function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('name', 'like', '%'.$this->search.'%')
-                        ->orWhere('username', 'like', '%'.$this->search.'%')
-                        ->orWhere('email', 'like', '%'.$this->search.'%')
-                        ->orWhere('no_hp', 'like', '%'.$this->search.'%');
+            ->when(! empty($this->search), function ($q) {
+                $cleanSearch = trim($this->search);
+                $words = array_filter(explode(' ', $cleanSearch));
+                $q->where(function ($sub) use ($words) {
+                    foreach ($words as $word) {
+                        $pattern = '%'.strtolower($word).'%';
+                        $sub->where(function ($sq) use ($pattern) {
+                            $sq->whereRaw('LOWER(name) LIKE ?', [$pattern])
+                                ->orWhereRaw('LOWER(username) LIKE ?', [$pattern])
+                                ->orWhereRaw('LOWER(email) LIKE ?', [$pattern])
+                                ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$pattern]);
+                        });
+                    }
                 });
             });
 

@@ -28,7 +28,6 @@
             </div>
             <input type="text"
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari kode, nama cabang, WA, alamat..."
                    class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-all">
         </div>
 
@@ -215,7 +214,6 @@
                                     </label>
                                     <input type="text"
                                            wire:model="kode_cabang"
-                                           placeholder="Contoh: CB-PKP"
                                            class="w-full text-xs uppercase font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('kode_cabang') border-rose-500 @enderror">
                                     @error('kode_cabang') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
@@ -241,7 +239,6 @@
                                 </label>
                                 <input type="text"
                                        wire:model="nama_cabang"
-                                       placeholder="Contoh: Cabang Pangkalpinang"
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('nama_cabang') border-rose-500 @enderror">
                                 @error('nama_cabang') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
@@ -254,7 +251,6 @@
                                     </label>
                                     <input type="text"
                                            wire:model="no_wa"
-                                           placeholder="Contoh: 08123456789"
                                            class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('no_wa') border-rose-500 @enderror">
                                     <span class="text-[10px] text-gray-400 block mt-0.5">Digunakan pada marketplace publik WA</span>
                                     @error('no_wa') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
@@ -267,7 +263,6 @@
                                     </label>
                                     <input type="text"
                                            wire:model="no_telp"
-                                           placeholder="Contoh: 0717-432123"
                                            class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]">
                                     @error('no_telp') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
@@ -280,7 +275,6 @@
                                 </label>
                                 <textarea wire:model="alamat"
                                           rows="3"
-                                          placeholder="Alamat jalan, nomor, kecamatan, kota..."
                                           class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"></textarea>
                                 @error('alamat') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>

@@ -1,5 +1,5 @@
 @props([
-    'placeholder' => '0',
+    'placeholder' => '',
     'class' => '',
     'inputClass' => '',
     'disabled' => false,
@@ -32,7 +32,7 @@
            inputmode="numeric"
            :value="display"
            @input="update($event)"
-           placeholder="{{ $placeholder }}"
+           @if($placeholder) placeholder="{{ $placeholder }}" @endif
            @if($disabled) disabled @endif
            {{ $attributes->whereDoesntStartWith('wire:model')->merge(['class' => 'w-full pl-10 pr-3.5 py-2.5 text-xs font-bold rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] bg-white ' . $inputClass]) }}>
 </div>

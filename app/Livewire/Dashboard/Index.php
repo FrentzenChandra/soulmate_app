@@ -117,9 +117,12 @@ class Index extends Component
             ->take(5)
             ->get();
 
-        // Stok Menipis (< 5)
+        // Stok Menipis (< 5) Produk Aktif
         $lowStocks = Stok::with(['produk', 'cabang'])
             ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
+            ->where('is_aktif', true)
+            ->whereHas('produk')
+            ->whereHas('cabang', fn ($q) => $q->where('status', 'aktif'))
             ->where('jumlah', '<=', 5)
             ->orderBy('jumlah', 'asc')
             ->take(5)

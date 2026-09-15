@@ -83,7 +83,7 @@
         <!-- No HP / WhatsApp -->
         <div class="col-span-6 sm:col-span-4">
             <x-label for="no_hp" value="No. WhatsApp / HP" />
-            <x-input id="no_hp" type="text" class="mt-1 block w-full" wire:model="state.no_hp" placeholder="08123456789" />
+            <x-input id="no_hp" type="text" class="mt-1 block w-full" wire:model="state.no_hp" />
             <x-input-error for="no_hp" class="mt-2" />
         </div>
 

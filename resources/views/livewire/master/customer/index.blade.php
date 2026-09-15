@@ -25,8 +25,10 @@
             <div class="flex items-center space-x-2 text-xs font-semibold text-gray-400 mb-1">
                 @if($isHQ)
                     <span>Kantor Pusat (HQ)</span>
-                @else
+                @elseif($isOwner)
                     <span>Cabang {{ auth()->user()->cabang?->nama_cabang ?? 'Aktif' }}</span>
+                @else
+                    <span>Soulmate Komputer</span>
                 @endif
                 <span>/</span>
                 <span class="text-purple-600 font-bold">Data Pelanggan</span>
@@ -51,23 +53,13 @@
             </div>
             <input type="text" 
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari nama pelanggan, no HP, alamat..." 
+                   placeholder="Cari nama pelanggan atau nomor WhatsApp..."
                    class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-all">
         </div>
 
-        <!-- Filter Tipe & Cabang -->
-        <div class="flex items-center space-x-3 w-full md:w-auto">
-            <div class="flex items-center space-x-2">
-                <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Tipe:</span>
-                <select wire:model.live="tipeFilter" 
-                        class="bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl px-3 py-2 text-gray-700 focus:ring-2 focus:ring-purple-400">
-                    <option value="semua">Semua Tipe</option>
-                    <option value="langganan">Langganan / Member</option>
-                    <option value="umum">Umum</option>
-                </select>
-            </div>
-
-            @if($isHQ)
+        <!-- Filter Cabang (Owner/HQ Only) -->
+        @if($isHQ)
+            <div class="flex items-center space-x-3 w-full md:w-auto">
                 <div class="flex items-center space-x-2">
                     <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Cabang:</span>
                     <select wire:model.live="cabangFilter" 
@@ -78,8 +70,8 @@
                         @endforeach
                     </select>
                 </div>
-            @endif
-        </div>
+            </div>
+        @endif
     </div>
 
     <!-- Table Card -->
@@ -90,14 +82,14 @@
                     <tr>
                         <x-th-sort field="nama" :sortField="$sortField" :sortDirection="$sortDirection" class="px-5">Nama Pelanggan</x-th-sort>
                         <x-th-sort field="no_hp" :sortField="$sortField" :sortDirection="$sortDirection">Kontak & WhatsApp</x-th-sort>
-                        <x-th-sort field="tipe" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Tipe Pelanggan</x-th-sort>
-                        <x-th-sort field="cabang_id" :sortField="$sortField" :sortDirection="$sortDirection">Cabang Terdaftar</x-th-sort>
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Alamat</th>
+                        @if($isHQ)
+                            <x-th-sort field="cabang_id" :sortField="$sortField" :sortDirection="$sortDirection">Cabang Terdaftar</x-th-sort>
+                        @endif
                         <th class="py-3.5 px-5 text-right font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi</th>
                     </tr>
                 </thead>
-                <x-table-skeleton :columns="6" :rows="6" target="search, tipeFilter, cabangFilter, sortField, sortDirection" />
-                <tbody wire:loading.remove wire:target="search, tipeFilter, cabangFilter, sortField, sortDirection" class="divide-y divide-gray-100">
+                <x-table-skeleton :columns="$isHQ ? 4 : 3" :rows="6" target="search, cabangFilter, sortField, sortDirection" />
+                <tbody wire:loading.remove wire:target="search, cabangFilter, sortField, sortDirection" class="divide-y divide-gray-100">
                     @forelse($customers as $c)
                         @php
                             $waNumber = $c->no_hp ? preg_replace('/[^0-9]/', '', $c->no_hp) : '';
@@ -110,17 +102,7 @@
                             <td class="py-4 px-5">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-9 h-9 rounded-xl overflow-hidden bg-purple-50 text-purple-700 font-extrabold flex items-center justify-center text-xs shadow-xs shrink-0 border border-purple-100">
-                                        @if($c->foto_url)
-                                            <img src="{{ asset($c->foto_url) }}" 
-                                                 loading="lazy"
-                                                 decoding="async"
-                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" 
-                                                 alt="{{ $c->nama }}" 
-                                                 class="w-full h-full object-cover">
-                                            <span style="display:none;">{{ strtoupper(substr($c->nama, 0, 1)) }}</span>
-                                        @else
-                                            <span>{{ strtoupper(substr($c->nama, 0, 1)) }}</span>
-                                        @endif
+                                        <span>{{ strtoupper(substr($c->nama, 0, 1)) }}</span>
                                     </div>
                                     <div>
                                         <span class="font-extrabold text-sm text-gray-900 block leading-tight">{{ $c->nama }}</span>
@@ -149,31 +131,15 @@
                                 @endif
                             </td>
 
-                            <!-- Tipe Badge -->
-                            <td class="py-4 px-4 text-center">
-                                @if($c->tipe === 'langganan')
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 font-extrabold text-[11px] border border-purple-200">
-                                        Langganan
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 font-bold text-[11px] border border-gray-200">
-                                        Umum
-                                    </span>
-                                @endif
-                            </td>
-
                             <!-- Cabang -->
-                            <td class="py-4 px-4">
-                                <div class="flex items-center space-x-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-[#5E17EB]"></span>
-                                    <span class="font-bold text-gray-800">{{ $c->cabang?->nama_cabang ?? '-' }}</span>
-                                </div>
-                            </td>
-
-                            <!-- Alamat -->
-                            <td class="py-4 px-4 max-w-xs truncate text-gray-600">
-                                {{ $c->alamat ?: '-' }}
-                            </td>
+                            @if($isHQ)
+                                <td class="py-4 px-4">
+                                    <div class="flex items-center space-x-1.5">
+                                        <span class="w-2 h-2 rounded-full bg-[#5E17EB]"></span>
+                                        <span class="font-bold text-gray-800">{{ $c->cabang?->nama_cabang ?? '-' }}</span>
+                                    </div>
+                                </td>
+                            @endif
 
                             <!-- Actions -->
                             <td class="py-4 px-5 text-right">
@@ -194,11 +160,10 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-12 text-center">
-                                <div class="flex flex-col items-center justify-center text-gray-400">
-                                    <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                    <p class="font-bold text-gray-600">Tidak ada pelanggan ditemukan</p>
-                                    <p class="text-xs text-gray-400 mt-0.5">Daftarkan pelanggan baru saat transaksi kasir atau di menu ini.</p>
+                            <td colspan="{{ $isHQ ? 4 : 3 }}" class="py-12 text-center text-gray-400">
+                                <div class="flex flex-col items-center justify-center space-y-2">
+                                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                    <span class="text-xs font-medium">Tidak ada data pelanggan yang sesuai kriteria pencarian.</span>
                                 </div>
                             </td>
                         </tr>
@@ -207,40 +172,41 @@
             </table>
         </div>
 
-        <!-- Infinite Scroll Sentinel & Status -->
-        <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
-            <x-infinite-scroll-sentinel 
-                :has-more="$hasMore ?? false" 
-                target="loadMore" 
-                label="pelanggan" 
-                :current="count($customers)" 
-                :total="$totalCustomers ?? count($customers)" 
-                color="purple" />
-        </div>
+        <!-- Infinite Scroll / Load More -->
+        @if($hasMore)
+            <div class="p-4 border-t border-gray-100 flex items-center justify-center bg-gray-50/50">
+                <button wire:click="loadMore" 
+                        wire:loading.attr="disabled"
+                        class="px-5 py-2 rounded-xl bg-white border border-gray-200 text-xs font-extrabold text-[#5E17EB] hover:bg-purple-50 transition-all shadow-2xs cursor-pointer flex items-center space-x-2">
+                    <svg wire:loading wire:target="loadMore" class="animate-spin w-3.5 h-3.5 text-[#5E17EB]" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span>Muat Lebih Banyak Pelanggan ({{ $totalCustomers - $customers->count() }} tersisa)</span>
+                </button>
+            </div>
+        @endif
     </div>
 
     <!-- Modal Form Tambah / Edit Pelanggan -->
     @if($modalOpen)
-        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
             <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-xs transition-opacity" wire:click="closeModal"></div>
 
-            <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
                     
-                    <!-- Header Modal -->
-                    <div class="bg-gradient-to-r from-[#0E1726] to-[#5E17EB] px-6 py-5 text-white flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-md">
-                                <svg class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-extrabold text-white" id="modal-title">
-                                    {{ $isEditMode ? 'Edit Data Pelanggan' : 'Daftar Pelanggan Baru' }}
-                                </h3>
-                                <p class="text-xs text-purple-200">Lengkapi biodata dan informasi kontak pelanggan</p>
-                            </div>
+                    <!-- Modal Header -->
+                    <div class="bg-[#0E1726] px-6 py-5 text-white flex items-center justify-between">
+                        <div>
+                            <h3 class="text-base font-extrabold text-white">
+                                {{ $isEditMode ? 'Ubah Data Pelanggan' : 'Daftar Pelanggan Baru' }}
+                            </h3>
+                            <p class="text-xs text-gray-400 mt-0.5">
+                                {{ $isEditMode ? 'Perbarui informasi kontak pelanggan.' : 'Masukkan nama dan nomor WhatsApp pelanggan.' }}
+                            </p>
                         </div>
-                        <button wire:click="closeModal" class="text-gray-300 hover:text-white cursor-pointer">
+                        <button type="button" wire:click="closeModal" class="text-gray-400 hover:text-white cursor-pointer">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -255,33 +221,19 @@
                                 </label>
                                 <input type="text" 
                                        wire:model="nama" 
-                                       placeholder="Contoh: Budi Santoso"
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('nama') border-rose-500 @enderror">
                                 @error('nama') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- No HP & Tipe Pelanggan -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        No. WhatsApp / HP
-                                    </label>
-                                    <input type="text" 
-                                           wire:model="no_hp" 
-                                           placeholder="081234567890"
-                                           class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('no_hp') border-rose-500 @enderror">
-                                    @error('no_hp') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Tipe Keanggotaan <span class="text-rose-500">*</span>
-                                    </label>
-                                    <select wire:model="tipe" 
-                                            class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]">
-                                        <option value="langganan">Pelanggan Langganan</option>
-                                        <option value="umum">Pelanggan Umum</option>
-                                    </select>
-                                </div>
+                            <!-- No HP / WhatsApp -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                    No. WhatsApp / HP
+                                </label>
+                                <input type="text" 
+                                       wire:model="no_hp" 
+                                       class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('no_hp') border-rose-500 @enderror">
+                                @error('no_hp') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
                             <!-- Cabang Assignment -->
@@ -299,83 +251,7 @@
                                     </select>
                                     @error('cabang_id') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
-                            @else
-                                <div class="p-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center space-x-2">
-                                    <svg class="w-4 h-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                    <span>Pelanggan ini terdaftar pada cabang: <strong>{{ auth()->user()->cabang?->nama_cabang }}</strong></span>
-                                </div>
                             @endif
-
-                            <!-- Alamat -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Alamat Lengkap
-                                </label>
-                                <textarea wire:model="alamat" 
-                                          rows="2" 
-                                          placeholder="Jl. Merdeka No. 12, Kota..."
-                                          class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"></textarea>
-                            </div>
-
-                            <!-- Upload Foto Pelanggan (WebP) -->
-                            <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80">
-                                <div class="flex items-center justify-between mb-2">
-                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                        Foto Pelanggan (Opsional)
-                                    </label>
-                                    <span class="text-[10px] font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
-                                        WebP Otomatis (&le;40 KB)
-                                    </span>
-                                </div>
-
-                                <!-- Upload Foto Loading State -->
-                                <x-photo-upload-loading target="foto" color="purple" />
-
-                                <div wire:loading.remove wire:target="foto">
-                                    @if($foto)
-                                        <div class="p-3.5 bg-white rounded-2xl border-2 border-[#5E17EB]/30 shadow-xs flex items-center space-x-4">
-                                            <div class="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 border border-purple-200 shrink-0">
-                                                <img src="{{ $foto->temporaryUrl() }}" alt="Preview Foto" class="w-full h-full object-cover">
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
-                                                    Foto Baru Terpilih
-                                                </span>
-                                                <div class="mt-1 flex items-center space-x-2">
-                                                    <button type="button" wire:click="cancelUploadFoto" class="text-[11px] font-bold text-rose-600 hover:underline cursor-pointer">
-                                                        Batal
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @elseif($existing_foto_url)
-                                        <div class="p-3.5 bg-white rounded-2xl border border-gray-200 shadow-xs flex items-center space-x-4">
-                                            <div class="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
-                                                <img src="{{ asset($existing_foto_url) }}" alt="Foto Saat Ini" class="w-full h-full object-cover">
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <span class="text-[10px] font-bold text-gray-500">Foto Tersimpan</span>
-                                                <div class="mt-1 flex items-center space-x-3">
-                                                    <label class="text-[11px] font-bold text-purple-600 hover:underline cursor-pointer">
-                                                        Ganti Foto
-                                                        <input type="file" wire:model="foto" accept="image/*" class="sr-only">
-                                                    </label>
-                                                    <button type="button" wire:click="removeExistingFoto" class="text-[11px] font-bold text-rose-600 hover:underline cursor-pointer">
-                                                        Hapus
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <label class="flex flex-col items-center justify-center p-3 border-2 border-dashed border-gray-300 hover:border-purple-400 rounded-2xl cursor-pointer bg-white transition-all group">
-                                            <svg class="w-6 h-6 text-gray-400 group-hover:text-purple-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                            <span class="text-xs font-bold text-gray-700 group-hover:text-purple-600">Klik untuk upload foto</span>
-                                            <input type="file" wire:model="foto" accept="image/*" class="sr-only">
-                                        </label>
-                                    @endif
-                                </div>
-                                @error('foto') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-                            </div>
                         </div>
 
                         <!-- Footer Modal -->
@@ -388,7 +264,7 @@
                             <button type="submit" 
                                     wire:loading.attr="disabled"
                                     class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-purple-900/30 transition-all cursor-pointer">
-                                <svg wire:loading wire:target="save, foto" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <svg wire:loading wire:target="save" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                 </svg>
