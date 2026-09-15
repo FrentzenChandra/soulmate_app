@@ -3,19 +3,37 @@ echo "=== [Git Hook] Git Pull terdeteksi. Memulai otomatisasi build & refresh...
 
 # 1. Pastikan build aset frontend terbaru
 if [ -f "package.json" ]; then
-    echo "[1/3] Menjalankan npm run build..."
+    echo "[1/4] Menjalankan npm run build..."
     npm run build || true
 fi
 
-# 2. Eksekusi database migration & cache optimization di dalam Docker
+# 2. Eksekusi migrasi database, seeding, dan cache optimization
 if command -v docker >/dev/null 2>&1 && docker ps 2>/dev/null | grep -q "soulmate_apps"; then
-    echo "[2/3] Memperbarui migrasi database & clear cache di Docker container..."
+    echo "[2/4] Menjalankan migrasi database di Docker..."
     docker exec soulmate_apps php artisan migrate --force || true
+
+    echo "[3/4] Menjalankan database seeding di Docker..."
+    docker exec soulmate_apps php artisan db:seed --force || true
+
+    echo "[4/4] Memperbarui storage link & cache optimization di Docker..."
+    docker exec soulmate_apps php artisan storage:link --force || true
     docker exec soulmate_apps php artisan optimize:clear || true
     docker exec soulmate_apps php artisan view:cache || true
     docker exec soulmate_apps php artisan route:cache || true
+elif command -v php >/dev/null 2>&1 && [ -f "artisan" ]; then
+    echo "[2/4] Menjalankan migrasi database lokal..."
+    php artisan migrate --force || true
+
+    echo "[3/4] Menjalankan database seeding lokal..."
+    php artisan db:seed --force || true
+
+    echo "[4/4] Memperbarui storage link & cache optimization lokal..."
+    php artisan storage:link --force || true
+    php artisan optimize:clear || true
+    php artisan view:cache || true
+    php artisan route:cache || true
 else
-    echo "[2/3] Docker container soulmate_apps tidak berjalan, melewati docker artisan..."
+    echo "[2/4] Runtime PHP / Docker tidak terdeteksi, melewati perintah artisan..."
 fi
 
 echo "=== [Git Hook] Otomatisasi post-merge selesai! ==="
