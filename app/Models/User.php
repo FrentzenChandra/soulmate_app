@@ -97,9 +97,14 @@ class User extends Authenticatable
         return $this->hasRole('Teknisi');
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('Admin') || $this->hasRole('Kasir');
+    }
+
     public function isKasir(): bool
     {
-        return $this->hasRole('Kasir');
+        return $this->hasRole('Admin') || $this->hasRole('Kasir');
     }
 
     public function getProfilePhotoUrlAttribute(): string

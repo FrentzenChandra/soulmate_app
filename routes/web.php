@@ -47,14 +47,14 @@ Route::middleware('auth')->group(function () {
             Route::get('/kategori', MasterKategoriIndex::class)->name('kategori');
         });
 
-        // Customer / Pelanggan (Owner, Superadmin, Kasir, Teknisi)
-        Route::middleware('role:Owner|Superadmin|Kasir|Teknisi')->group(function () {
+        // Customer / Pelanggan (Owner, Superadmin, Admin, Kasir, Teknisi)
+        Route::middleware('role:Owner|Superadmin|Admin|Kasir|Teknisi')->group(function () {
             Route::get('/customer', MasterCustomerIndex::class)->name('customer');
         });
     });
 
-    // Kasir POS & Penjualan (Owner, Superadmin, Kasir)
-    Route::middleware('role:Owner|Superadmin|Kasir')->group(function () {
+    // Kasir POS & Penjualan (Owner, Superadmin, Admin, Kasir)
+    Route::middleware('role:Owner|Superadmin|Admin|Kasir')->group(function () {
         Route::get('/kasir/produk', KasirProdukIndex::class)->name('kasir.produk');
         Route::get('/kasir/produk/invoice/{penjualan}', function (\App\Models\Penjualan $penjualan) {
             $user = Auth::user();

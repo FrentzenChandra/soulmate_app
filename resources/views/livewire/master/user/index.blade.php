@@ -328,9 +328,9 @@
                                         <span class="text-[9px] text-gray-500 mt-1 leading-tight">Pengerjaan & status servis</span>
                                     </label>
 
-                                    <!-- Role Kasir / Admin Card -->
-                                    <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Kasir' ? 'border-pink-500 bg-pink-50/50' : 'border-gray-200 hover:border-gray-300' }}">
-                                        <input type="radio" wire:model.live="role_name" value="Kasir" class="sr-only">
+                                    <!-- Role Admin (Staf / Kasir POS) Card -->
+                                    <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ in_array($role_name, ['Admin', 'Kasir']) ? 'border-pink-500 bg-pink-50/50' : 'border-gray-200 hover:border-gray-300' }}">
+                                        <input type="radio" wire:model.live="role_name" value="Admin" class="sr-only">
                                         <div class="flex items-center space-x-1.5">
                                             <span class="w-5 h-5 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center shrink-0">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>

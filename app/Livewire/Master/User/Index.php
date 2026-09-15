@@ -45,7 +45,7 @@ class Index extends Component
 
     public string $password = '';
 
-    public string $role_name = 'Kasir';
+    public string $role_name = 'Admin';
 
     public ?int $cabang_id = null;
 
@@ -77,7 +77,7 @@ class Index extends Component
 
         if (! $user->isOwner()) {
             $this->cabang_id = $user->cabang_id;
-            $this->role_name = 'Kasir';
+            $this->role_name = 'Admin';
         } else {
             $this->role_name = 'Superadmin';
         }
@@ -114,7 +114,7 @@ class Index extends Component
         $currentUser = Auth::user();
         if (! $currentUser->isOwner()) {
             $this->cabang_id = $currentUser->cabang_id;
-            $this->role_name = 'Kasir';
+            $this->role_name = 'Admin';
         } else {
             $this->cabang_id = null;
             $this->role_name = 'Superadmin';
@@ -230,8 +230,8 @@ class Index extends Component
     {
         $currentUser = Auth::user();
         $allowedRoles = $currentUser->isOwner()
-            ? ['Owner', 'Superadmin', 'Teknisi', 'Kasir']
-            : ['Superadmin', 'Teknisi', 'Kasir'];
+            ? ['Owner', 'Superadmin', 'Teknisi', 'Admin', 'Kasir']
+            : ['Superadmin', 'Teknisi', 'Admin', 'Kasir'];
 
         $rules = [
             'name' => 'required|string|max:255',

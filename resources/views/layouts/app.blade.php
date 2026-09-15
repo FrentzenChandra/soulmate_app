@@ -218,7 +218,7 @@
                     @endhasanyrole
 
                     <!-- Modul Kasir POS -->
-                    @hasanyrole('Owner|Superadmin|Kasir')
+                    @hasanyrole('Owner|Superadmin|Admin|Kasir')
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Kasir & Penjualan</p>
 
                     <a href="{{ route('kasir.produk') }}"

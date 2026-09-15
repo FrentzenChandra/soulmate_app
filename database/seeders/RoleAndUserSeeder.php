@@ -19,6 +19,7 @@ class RoleAndUserSeeder extends Seeder
         $superadminRole = Role::firstOrCreate(['name' => 'Superadmin']);
         $ownerRole = Role::firstOrCreate(['name' => 'Owner']);
         $teknisiRole = Role::firstOrCreate(['name' => 'Teknisi']);
+        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
         $kasirRole = Role::firstOrCreate(['name' => 'Kasir']);
 
         $cabangPkp = Cabang::where('kode_cabang', 'CB-PKP')->first();
@@ -115,8 +116,36 @@ class RoleAndUserSeeder extends Seeder
             $user->syncRoles([$teknisiRole]);
         }
 
-        // 5. Akun Kasir per Cabang
-        $kasirUsers = [
+        // 5. Akun Admin (Staf Kasir POS) per Cabang
+        $adminUsers = [
+            [
+                'name' => 'Siti Admin PKP',
+                'email' => 'admin.pkp@soulmate.test',
+                'username' => 'admin_pkp',
+                'password' => Hash::make('password'),
+                'cabang_id' => $cabangPkp?->id,
+                'no_hp' => '08127222001',
+                'status' => 'aktif',
+            ],
+            [
+                'name' => 'Dewi Admin SGL',
+                'email' => 'admin.sgl@soulmate.test',
+                'username' => 'admin_sgl',
+                'password' => Hash::make('password'),
+                'cabang_id' => $cabangSgl?->id,
+                'no_hp' => '08127222002',
+                'status' => 'aktif',
+            ],
+            [
+                'name' => 'Rina Admin KBA',
+                'email' => 'admin.kba@soulmate.test',
+                'username' => 'admin_kba',
+                'password' => Hash::make('password'),
+                'cabang_id' => $cabangKba?->id,
+                'no_hp' => '08127222003',
+                'status' => 'aktif',
+            ],
+            // Alias akun lama kasir.pkp untuk kompatibilitas
             [
                 'name' => 'Siti Kasir PKP',
                 'email' => 'kasir.pkp@soulmate.test',
@@ -126,29 +155,11 @@ class RoleAndUserSeeder extends Seeder
                 'no_hp' => '08127222001',
                 'status' => 'aktif',
             ],
-            [
-                'name' => 'Dewi Kasir SGL',
-                'email' => 'kasir.sgl@soulmate.test',
-                'username' => 'kasir_sgl',
-                'password' => Hash::make('password'),
-                'cabang_id' => $cabangSgl?->id,
-                'no_hp' => '08127222002',
-                'status' => 'aktif',
-            ],
-            [
-                'name' => 'Rina Kasir KBA',
-                'email' => 'kasir.kba@soulmate.test',
-                'username' => 'kasir_kba',
-                'password' => Hash::make('password'),
-                'cabang_id' => $cabangKba?->id,
-                'no_hp' => '08127222003',
-                'status' => 'aktif',
-            ],
         ];
 
-        foreach ($kasirUsers as $data) {
+        foreach ($adminUsers as $data) {
             $user = User::updateOrCreate(['email' => $data['email']], $data);
-            $user->syncRoles([$kasirRole]);
+            $user->syncRoles([$adminRole]);
         }
     }
 }
