@@ -12,6 +12,7 @@ use App\Livewire\Master\Ppn\Index as MasterPpnIndex;
 use App\Livewire\Master\Produk\Index as MasterProdukIndex;
 use App\Livewire\Master\User\Index as MasterUserIndex;
 use App\Livewire\Servis\Masuk\Index as ServisMasukIndex;
+use App\Livewire\Servis\Pengerjaan\Index as ServisPengerjaanIndex;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -58,6 +59,7 @@ Route::middleware('auth')->group(function () {
     // Layanan Servis & Reparasi (Owner, Superadmin, Admin, Teknisi, Kasir)
     Route::middleware('role:Owner|Superadmin|Admin|Teknisi|Kasir')->group(function () {
         Route::get('/servis/masuk', ServisMasukIndex::class)->name('servis.masuk');
+        Route::get('/servis/pengerjaan', ServisPengerjaanIndex::class)->name('servis.pengerjaan');
         Route::get('/servis/{servis}/tanda-terima', function (\App\Models\ServisMasuk $servis) {
             $user = Auth::user();
             if (! $user->isOwner() && $user->cabang_id !== $servis->cabang_id) {
@@ -67,6 +69,15 @@ Route::middleware('auth')->group(function () {
 
             return view('servis.tanda-terima', ['servis' => $servis]);
         })->name('servis.tanda-terima');
+        Route::get('/servis/{servis}/invoice', function (\App\Models\ServisMasuk $servis) {
+            $user = Auth::user();
+            if (! $user->isOwner() && $user->cabang_id !== $servis->cabang_id) {
+                abort(403, 'Akses faktur servis cabang lain dibatasi.');
+            }
+            $servis->load(['customer', 'cabang', 'pembuat', 'teknisi', 'kasir', 'details.produk']);
+
+            return view('servis.invoice', ['servis' => $servis]);
+        })->name('servis.invoice');
     });
 
     // Kasir POS & Penjualan (Owner, Superadmin, Admin, Kasir)

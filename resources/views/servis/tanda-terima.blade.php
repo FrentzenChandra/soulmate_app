@@ -25,11 +25,11 @@
                 box-shadow: none !important;
                 border: none !important;
                 padding: 0 !important;
-                width: 100% !important;
-                max-width: 100% !important;
+                width: 9.5in !important;
+                max-width: 9.5in !important;
             }
             @page {
-                size: 210mm 148mm; /* A5 Landscape */
+                size: 9.5in 11in;
                 margin: 6mm 10mm;
             }
         }
@@ -50,7 +50,7 @@
         <div class="flex items-center space-x-2">
             <button id="btnSavePdf" onclick="saveReceiptAsPdf()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-md shadow-emerald-900/20 inline-flex items-center space-x-1.5 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                <span id="txtSavePdf">Simpan PDF</span>
+                <span id="txtSavePdf">Simpan PDF (9.5 &times; 11 Inci)</span>
             </button>
             <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold transition-all shadow-md inline-flex items-center space-x-1.5 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -193,18 +193,18 @@
 
             const opt = {
                 margin:       [0.2, 0.25, 0.2, 0.25],
-                filename:     'Tanda_Terima_Servis_' + '{{ Str::slug($servis->no_servis_frontend ?? $servis->no_servis) }}' + '.pdf',
+                filename:     'Tanda_Terima_Servis_{{ Str::slug($servis->no_servis_frontend ?? $servis->no_servis) }}.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-                jsPDF:        { unit: 'in', format: [8.27, 5.83], orientation: 'landscape' }
+                jsPDF:        { unit: 'in', format: [9.5, 11], orientation: 'portrait' }
             };
 
             return html2pdf().set(opt).from(element).save().then(() => {
-                if (txt) txt.innerHTML = 'Simpan PDF';
+                if (txt) txt.innerHTML = 'Simpan PDF (9.5 &times; 11 Inci)';
                 if (btn) btn.disabled = false;
             }).catch(err => {
                 console.error('PDF export error:', err);
-                if (txt) txt.innerHTML = 'Simpan PDF';
+                if (txt) txt.innerHTML = 'Simpan PDF (9.5 &times; 11 Inci)';
                 if (btn) btn.disabled = false;
             });
         }

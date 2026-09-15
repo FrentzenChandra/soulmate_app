@@ -23,7 +23,7 @@
                                 <div class="h-2.5 bg-gray-100 rounded-md w-1/2"></div>
                             </div>
                         </div>
-                    @elseif($j === $cols - 1)
+                    @elseif($j === $colCount - 1)
                         <!-- Action Buttons -->
                         <div class="flex items-center justify-end space-x-2">
                             <div class="w-8 h-8 bg-gray-100 rounded-xl"></div>

@@ -186,5 +186,50 @@ class ServisMasukSeeder extends Seeder
             'tanggal' => $now->copy()->subDay(),
             'catatan' => 'Unit masuk diagnosa hardware',
         ]);
+
+        // 5. Laptop - Status Sudah Dibayar / Diambil (Dengan Garansi Toko 30 Hari)
+        $sv5 = ServisMasuk::updateOrCreate(
+            ['no_servis' => "{$prefix}00005"],
+            [
+                'cabang_id' => $pkp->id,
+                'customer_id' => $customer2?->id ?? $customer1->id,
+                'teknisi_id' => $teknisiPkp?->id,
+                'kasir_id' => $admin?->id,
+                'created_by' => $admin?->id ?? $teknisiPkp?->id,
+                'kategori_perangkat' => 'laptop',
+                'tipe_unit' => 'Acer Aspire 3 A314',
+                'serial_number' => 'ACER-991288',
+                'kelengkapan' => 'Unit, Adaptor / Charger',
+                'keluhan' => 'Windows error bluescreen dan lambat',
+                'kondisi_barang' => 'Mulus',
+                'status' => 'sudah_dibayar',
+                'tanggal_masuk' => $now->copy()->subDays(5),
+                'tanggal_selesai' => $now->copy()->subDays(2),
+                'tanggal_ambil' => $now->copy()->subDay(),
+                'estimasi_biaya' => 0,
+                'total_biaya' => 125000,
+                'metode_pembayaran' => 'tunai',
+                'bayar' => 150000,
+                'kembalian' => 25000,
+                'garansi_hari' => 30,
+                'garansi_sampai' => $now->copy()->subDay()->addDays(30)->toDateString(),
+                'catatan' => 'Install ulang Windows 11 + Software Standar',
+            ]
+        );
+        ServisDetail::firstOrCreate([
+            'servis_id' => $sv5->id,
+            'nama_item' => 'Jasa Install Ulang Windows 11 & Optimasi Driver',
+            'produk_id' => null,
+            'qty' => 1,
+            'harga' => 125000,
+            'subtotal' => 125000,
+        ]);
+        ServisStatusLog::firstOrCreate([
+            'servis_id' => $sv5->id,
+            'user_id' => $admin?->id ?? $teknisiPkp?->id,
+            'status' => 'sudah_dibayar',
+            'tanggal' => $now->copy()->subDay(),
+            'catatan' => 'Unit diambil pelanggan dan lunas tunai. Garansi toko 30 hari aktif.',
+        ]);
     }
 }
