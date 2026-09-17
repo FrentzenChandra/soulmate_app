@@ -8,7 +8,7 @@
 - Semua input pencarian wajib multi-kata tokenized (`explode(' ', $search)`), case-insensitive (`LOWER() LIKE ?`), non-strict per huruf/kata across relevant columns.
 
 ## 3. Branch Obfuscation & Role Isolation
-- Non-owner roles (Superadmin, Kasir, Teknisi) melihat aplikasi sebagai 1 toko mandiri ("Soulmate Komputer").
+- Non-owner roles (Superadmin, Admin, Teknisi) melihat aplikasi sebagai 1 toko mandiri ("Soulmate Komputer").
 - Sembunyikan label cabang, switcher, dan badge cabang di navbar, header, notifikasi untuk non-owner. Hanya Owner yang punya akses multi-cabang / HQ.
 
 ## 4. Simplified Customer Data & POS Specs

@@ -9,10 +9,10 @@ Saya sedang membangun sebuah sistem internal untuk usaha servis elektronik (misa
 Sistem digunakan oleh banyak cabang sekaligus, jadi ada **data master Cabang**. Setiap User terikat ke 1 cabang tertentu (kecuali **Owner** yang bisa akses semua cabang dan beralih konteks antara Kantor Pusat/HQ dan Cabang).
 
 **Role & Hierarki Hak Akses:**
-- **Owner (Pemilik Bisnis)** — Memegang otoritas tertinggi (level Organisasi/Pusat). Memiliki akses ke **HQ Context** dan seluruh cabang. Berhak menambah dan mengelola akun semua peran (**Owner baru**, **Superadmin**, **Teknisi**, **Kasir**) di seluruh cabang maupun HQ, mengelola **Cabang baru**, mengatur **Tarif PPN**, serta melihat konsolidasi finansial/laporan performa seluruh cabang.
-- **Superadmin (Admin Cabang)** — Administrator operasional cabang. Akses dibatasi ketat **hanya pada 1 cabang yang dipegangnya**. Dapat mengelola transaksi kasir, katalog produk cabang, stok, laporan cabang, dan **mengelola/membuat akun staf di cabangnya sendiri** (role **Superadmin**, **Teknisi**, dan **Kasir** khusus untuk cabangnya). Superadmin **tidak bisa** menambah cabang baru, beralih ke cabang lain, mengelola akun Owner, atau mengelola staf di cabang lain.
+- **Owner (Pemilik Bisnis)** — Memegang otoritas tertinggi (level Organisasi/Pusat). Memiliki akses ke **HQ Context** dan seluruh cabang. Berhak menambah dan mengelola akun semua peran (**Owner baru**, **Superadmin**, **Teknisi**, **Admin**) di seluruh cabang maupun HQ, mengelola **Cabang baru**, mengatur **Tarif PPN**, serta melihat konsolidasi finansial/laporan performa seluruh cabang.
+- **Superadmin (Admin Cabang)** — Administrator operasional cabang. Akses dibatasi ketat **hanya pada 1 cabang yang dipegangnya**. Dapat mengelola transaksi kasir, katalog produk cabang, stok, laporan cabang, dan **mengelola/membuat akun staf di cabangnya sendiri** (role **Superadmin**, **Teknisi**, dan **Admin** khusus untuk cabangnya). Superadmin **tidak bisa** menambah cabang baru, beralih ke cabang lain, mengelola akun Owner, atau mengelola staf di cabang lain.
 - **Teknisi** — Akses menu servis (servis masuk, servis keluar, ubah status pengerjaan) serta pencatatan data pelanggan pada cabang yang ditugaskan.
-- **Kasir** — Akses menu kasir POS/penjualan produk, penagihan servis, riwayat transaksi, dan data pelanggan pada cabang yang ditugaskan.
+- **Admin (Staf POS / Kasir)** — Akses menu kasir POS/penjualan produk, penagihan servis, riwayat transaksi, dan data pelanggan pada cabang yang ditugaskan.
 
 ---
 
@@ -88,11 +88,11 @@ Nomor invoice ditampilkan ke kasir/pelanggan secara ringkas (`PJ-YYMMDD-00001`) 
 ## 8. Data Master yang Dibutuhkan
 
 - **Cabang** (`/master/cabang`) — Termasuk nomor WA khusus per cabang & status aktif/nonaktif (data cabang tidak boleh dihapus permanen karena berkaitan dengan histori transaksi lama — pakai status, bukan delete). Akses: Owner.
-- **Role & Manajemen Pengguna** (`/master/users`) — Mengelola akun Owner, Superadmin, Teknisi, dan Kasir dengan otorisasi bertingkat (Owner = global, Superadmin = staff cabang).
+- **Role & Manajemen Pengguna** (`/master/users`) — Mengelola akun Owner, Superadmin, Teknisi, dan Admin dengan otorisasi bertingkat (Owner = global, Superadmin = staff cabang).
 - **Kategori Produk** (`/master/kategori`) — Pengelompokan produk dengan proteksi hapus jika masih memiliki relasi produk. Akses: Owner & Superadmin.
 - **Master Produk** (`/master/produk`) — Katalog global terpusat dengan matriks stok multi-cabang, barcode scanner, deteksi duplikasi instan, dan kompresi WebP. Akses: Owner & Superadmin.
 - **Master PPN** (`/master/ppn`) — Opsi tarif pajak dinamis (`PPN 11%`, `PPN 12%`, `Tanpa PPN (0%)`) dengan proteksi hapus jika sudah tercatat di transaksi kasir. Akses: Owner.
-- **Master Customer / Data Pelanggan** (`/master/customer`) — Data pelanggan disederhanakan murni menjadi Nama Pelanggan dan Nomor WhatsApp/HP (`nama`, `no_hp`), terisolasi per cabang dengan quick action WhatsApp langsung. Akses: Owner, Superadmin, Kasir, Teknisi.
+- **Master Customer / Data Pelanggan** (`/master/customer`) — Data pelanggan disederhanakan murni menjadi Nama Pelanggan dan Nomor WhatsApp/HP (`nama`, `no_hp`), terisolasi per cabang dengan quick action WhatsApp langsung. Akses: Owner, Superadmin, Admin, Teknisi.
 - **Nomor Urut Transaksi** — Generator counter atomik nomor invoice per cabang dan per jenis transaksi.
 
 ---
@@ -140,7 +140,7 @@ erDiagram
     }
     ROLE {
         int id PK
-        string nama_role "Superadmin, Owner, Teknisi, Kasir"
+        string nama_role "Superadmin, Owner, Teknisi, Admin"
     }
     USER {
         int id PK
@@ -278,9 +278,9 @@ erDiagram
 8. **Deteksi Duplikasi Produk Realtime (Smart Duplicate Detection):**
    - Saat input produk di modal Master Produk, sistem secara realtime mendeteksi apakah barcode atau nama produk sudah ada di master global. Jika ditemukan, sistem menampilkan notifikasi ramah & tombol 1-klik untuk langsung beralih ke mode edit/aktifkan produk di cabang saat ini.
 9. **Hak Akses Pembuatan Akun Superadmin vs Owner:**
-   - **Owner**: Berwenang membuat dan mengelola akun untuk semua peran (`Owner`, `Superadmin`, `Teknisi`, `Kasir`) di seluruh cabang atau HQ.
-   - **Superadmin**: Berwenang membuat dan mengelola akun staff khusus di cabangnya sendiri (`Superadmin`, `Teknisi`, `Kasir`). Superadmin diblokir dari membuat akun `Owner` atau mengelola staff cabang lain.
-10. **Branch Obfuscation untuk Peran Non-Owner (Superadmin, Kasir, Teknisi):**
+   - **Owner**: Berwenang membuat dan mengelola akun untuk semua peran (`Owner`, `Superadmin`, `Teknisi`, `Admin`) di seluruh cabang atau HQ.
+   - **Superadmin**: Berwenang membuat dan mengelola akun staff khusus di cabangnya sendiri (`Superadmin`, `Teknisi`, `Admin`). Superadmin diblokir dari membuat akun `Owner` atau mengelola staff cabang lain.
+10. **Branch Obfuscation untuk Peran Non-Owner (Superadmin, Admin, Teknisi):**
    - Pengguna selain Owner melihat dan mengalami sistem sebagai aplikasi toko tunggal ("Soulmate Komputer").
    - Seluruh elemen identifikasi cabang lain, badge nama cabang pada navbar/header, dropdown switcher cabang, dan keterangan cabang pada notifikasi disembunyikan/disterilisasi dari staf cabang.
 11. **Pencarian Multi-Kata Longgar Global (Global Loose Multi-Word Search):**
@@ -371,7 +371,7 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
   - `Features::registration()` dinonaktifkan di `config/fortify.php`.
   - Akun baru hanya dapat didaftarkan secara berjenjang melalui Master Pengguna (`/master/users`) oleh **Owner** (global semua cabang/role) atau **Superadmin** (khusus staf cabangnya).
 - **Halaman Profil Pengguna Terintegrasi (`/user/profile`)**:
-  - **Hero Overview Card**: Foto profil/inisial avatar, nama lengkap, username (`@username`), badge role (`Owner HQ`, `Superadmin`, `Teknisi`, `Kasir`), cabang tugas, email, nomor WhatsApp, serta indikator status perlindungan 2FA.
+  - **Hero Overview Card**: Foto profil/inisial avatar, nama lengkap, username (`@username`), badge role (`Owner HQ`, `Superadmin`, `Teknisi`, `Admin`), cabang tugas, email, nomor WhatsApp, serta indikator status perlindungan 2FA.
   - **Tab 1 — Informasi Profil & Kontak**: Ubah nama lengkap, username (info read-only dari admin), email, nomor WhatsApp/HP, serta upload/hapus foto profil.
   - **Tab 2 — Perbarui Kata Sandi**: Kata sandi saat ini, baru, dan konfirmasi dilengkapi tombol *show/hide password toggle* dan tips keamanan.
   - **Tab 3 — Otentikasi Dua Faktor (2FA)**: Aktivasi 2FA via Google/Microsoft Authenticator, frame SVG QR code, pill kunci manual (*Setup Key*) dengan tombol salin, verifikasi OTP 6-digit, serta grid kode pemulihan darurat (*Recovery Codes*) dengan tombol salin semua.

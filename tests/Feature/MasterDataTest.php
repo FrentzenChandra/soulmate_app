@@ -98,19 +98,29 @@ class MasterDataTest extends TestCase
         $this->actingAs($owner);
 
         Livewire::test(MasterUserIndex::class)
-            ->set('name', 'Staff Kasir SGL')
-            ->set('username', 'kasir_sgl_2')
-            ->set('email', 'kasir2.sgl@soulmate.test')
+            ->set('name', 'Staff Admin SGL')
+            ->set('username', 'admin_sgl_2')
+            ->set('email', 'admin2.sgl@soulmate.test')
             ->set('password', 'secret123')
-            ->set('role_name', 'Kasir')
+            ->set('role_name', 'Admin')
             ->set('cabang_id', $cabangSgl->id)
             ->call('save')
             ->assertHasNoErrors();
 
-        $user = User::where('email', 'kasir2.sgl@soulmate.test')->first();
+        $user = User::where('email', 'admin2.sgl@soulmate.test')->first();
         $this->assertNotNull($user);
         $this->assertEquals($cabangSgl->id, $user->cabang_id);
-        $this->assertTrue($user->hasRole('Kasir'));
+        $this->assertTrue($user->hasRole('Admin'));
+    }
+
+    public function test_superadmin_can_view_and_filter_admin_users_in_their_branch()
+    {
+        $superadminPkp = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadminPkp);
+
+        Livewire::test(MasterUserIndex::class)
+            ->set('roleFilter', 'Admin')
+            ->assertSee('Siti Admin PKP');
     }
 
     public function test_master_ppn_crud_and_protections()

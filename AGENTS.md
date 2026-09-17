@@ -19,7 +19,7 @@
 - Berlaku di Kasir POS, Master Produk, Stok Cabang, Master Pelanggan, Master User, Master Kategori, dsb.
 
 ## 4. Branch Obfuscation for Non-Owner Roles
-- **Single-Store Experience untuk Staf:** Pengguna dengan peran non-owner (**Superadmin / Admin**, **Kasir**, **Teknisi**) WAJIB melihat aplikasi seolah-olah hanya 1 toko mandiri ("Soulmate Komputer").
+- **Single-Store Experience untuk Staf:** Pengguna dengan peran non-owner (**Superadmin**, **Admin**, **Teknisi**) WAJIB melihat aplikasi seolah-olah hanya 1 toko mandiri ("Soulmate Komputer").
 - Dilarang menampilkan label cabang, switcher cabang, tag nama cabang, atau breadcrumb cabang pada navbar, header, notifikasi, dan katalog bagi non-owner.
 - Hanya role **Owner** yang memiliki akses ke switcher cabang, konteks Kantor Pusat (HQ), dan visibilitas multi-cabang.
 

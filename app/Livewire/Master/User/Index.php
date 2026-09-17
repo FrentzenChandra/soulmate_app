@@ -145,7 +145,8 @@ class Index extends Component
         $this->email = $user->email;
         $this->username = $user->username ?? '';
         $this->password = ''; // kosongkan password saat edit kecuali ingin diubah
-        $this->role_name = $user->getRoleNames()->first() ?? 'Kasir';
+        $roleName = $user->getRoleNames()->first() ?? 'Admin';
+        $this->role_name = $roleName === 'Kasir' ? 'Admin' : $roleName;
         $this->cabang_id = $user->cabang_id;
         $this->no_hp = $user->no_hp ?? '';
         $this->status = $user->status;
@@ -409,15 +410,23 @@ class Index extends Component
         $query = User::with(['cabang', 'roles'])
             ->whereHas('roles', function ($q) use ($isOwner) {
                 if (! $isOwner) {
-                    // Superadmin hanya mengelola Superadmin, Teknisi, Kasir di cabangnya
+                    // Superadmin hanya mengelola Superadmin, Teknisi, Admin (dan Kasir untuk kompatibilitas) di cabangnya
                     if ($this->roleFilter === 'semua') {
-                        $q->whereIn('name', ['Superadmin', 'Teknisi', 'Kasir']);
+                        $q->whereIn('name', ['Superadmin', 'Teknisi', 'Admin', 'Kasir']);
                     } else {
-                        $q->where('name', $this->roleFilter);
+                        if ($this->roleFilter === 'Admin') {
+                            $q->whereIn('name', ['Admin', 'Kasir']);
+                        } else {
+                            $q->where('name', $this->roleFilter);
+                        }
                     }
                 } else {
                     if ($this->roleFilter !== 'semua') {
-                        $q->where('name', $this->roleFilter);
+                        if ($this->roleFilter === 'Admin') {
+                            $q->whereIn('name', ['Admin', 'Kasir']);
+                        } else {
+                            $q->where('name', $this->roleFilter);
+                        }
                     }
                 }
             })

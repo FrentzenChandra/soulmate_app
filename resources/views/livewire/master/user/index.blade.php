@@ -38,8 +38,8 @@
             </h1>
             <p class="text-xs text-gray-500 mt-0.5">
                 {{ $isOwner
-                    ? 'Kelola akun Owner, Superadmin cabang, Teknisi, dan Kasir secara menyeluruh.'
-                    : 'Kelola akun Superadmin, Teknisi, dan Admin Kasir toko.' }}
+                    ? 'Kelola akun Owner, Superadmin cabang, Teknisi, dan Admin secara menyeluruh.'
+                    : 'Kelola akun Superadmin, Teknisi, dan Admin toko.' }}
             </p>
         </div>
 
@@ -74,7 +74,7 @@
                     @endif
                     <option value="Superadmin">Superadmin</option>
                     <option value="Teknisi">Teknisi</option>
-                    <option value="Kasir">Admin</option>
+                    <option value="Admin">Admin</option>
                 </select>
             </div>
 
