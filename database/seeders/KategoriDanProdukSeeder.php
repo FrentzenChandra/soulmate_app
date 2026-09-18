@@ -23,11 +23,11 @@ class KategoriDanProdukSeeder extends Seeder
         // 1. Kategori Produk
         $kategoris = [
             'Penyimpanan & Memori',
-            'Sparepart Laptop',
-            'Sparepart Printer',
+            'Komponen Laptop',
+            'Printer & Tinta',
             'Komputer & PC',
             'Aksesoris & Peripheral',
-            'Jasa & Layanan Servis',
+            'Networking & Jaringan',
         ];
 
         $katModels = [];
@@ -140,7 +140,7 @@ class KategoriDanProdukSeeder extends Seeder
 
             // --- SPAREPART LAPTOP ---
             [
-                'kategori' => 'Sparepart Laptop',
+                'kategori' => 'Komponen Laptop',
                 'barcode' => '8991234560035',
                 'nama_produk' => 'LED / LCD Laptop 14.0 Slim 30 Pin FHD IPS',
                 'harga_beli' => 580000,
@@ -152,7 +152,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 1,
             ],
             [
-                'kategori' => 'Sparepart Laptop',
+                'kategori' => 'Komponen Laptop',
                 'barcode' => '8991234560042',
                 'nama_produk' => 'Baterai Laptop Asus Vivobook A412 / A412D C21N1818',
                 'harga_beli' => 280000,
@@ -164,7 +164,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 0,
             ],
             [
-                'kategori' => 'Sparepart Laptop',
+                'kategori' => 'Komponen Laptop',
                 'barcode' => '8991234560059',
                 'nama_produk' => 'Thermal Paste Arctic MX-4 4 Gram Original',
                 'harga_beli' => 65000,
@@ -176,7 +176,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 6,
             ],
             [
-                'kategori' => 'Sparepart Laptop',
+                'kategori' => 'Komponen Laptop',
                 'barcode' => '8991234560172',
                 'nama_produk' => 'LED / LCD Laptop 15.6 Slim 30 Pin FHD 144Hz Gaming',
                 'harga_beli' => 780000,
@@ -188,7 +188,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 1,
             ],
             [
-                'kategori' => 'Sparepart Laptop',
+                'kategori' => 'Komponen Laptop',
                 'barcode' => '8991234560189',
                 'nama_produk' => 'Keyboard Laptop Lenovo IdeaPad 3 14ADA05 / 14IIL05 Grey',
                 'harga_beli' => 110000,
@@ -200,7 +200,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 2,
             ],
             [
-                'kategori' => 'Sparepart Laptop',
+                'kategori' => 'Komponen Laptop',
                 'barcode' => '8991234560196',
                 'nama_produk' => 'Baterai Laptop Acer Aspire 3 A314 / A315 AP16M5J',
                 'harga_beli' => 260000,
@@ -212,7 +212,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 1,
             ],
             [
-                'kategori' => 'Sparepart Laptop',
+                'kategori' => 'Komponen Laptop',
                 'barcode' => '8991234560202',
                 'nama_produk' => 'Fan Kipas Processor Laptop HP 14-CF / 14-CK / 14-DK',
                 'harga_beli' => 45000,
@@ -224,7 +224,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 2,
             ],
             [
-                'kategori' => 'Sparepart Laptop',
+                'kategori' => 'Komponen Laptop',
                 'barcode' => '8991234560219',
                 'nama_produk' => 'DC Power Jack Socket Laptop Asus Zenbook UX303 / UX305',
                 'harga_beli' => 25000,
@@ -236,7 +236,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 3,
             ],
             [
-                'kategori' => 'Sparepart Laptop',
+                'kategori' => 'Komponen Laptop',
                 'barcode' => '8991234560103',
                 'nama_produk' => 'Keyboard Asus X441 / X441N / X441U Non-Frame (Discontinue)',
                 'harga_beli' => 90000,
@@ -253,7 +253,7 @@ class KategoriDanProdukSeeder extends Seeder
 
             // --- SPAREPART PRINTER ---
             [
-                'kategori' => 'Sparepart Printer',
+                'kategori' => 'Printer & Tinta',
                 'barcode' => '8991234560066',
                 'nama_produk' => 'Printhead Epson L3110 / L1110 / L3210 Original',
                 'harga_beli' => 370000,
@@ -265,7 +265,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 1,
             ],
             [
-                'kategori' => 'Sparepart Printer',
+                'kategori' => 'Printer & Tinta',
                 'barcode' => '8991234560073',
                 'nama_produk' => 'Tinta Epson 003 Original 4 Warna (CMYK)',
                 'harga_beli' => 75000,
@@ -277,7 +277,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 15,
             ],
             [
-                'kategori' => 'Sparepart Printer',
+                'kategori' => 'Printer & Tinta',
                 'barcode' => '8991234560226',
                 'nama_produk' => 'Tinta Canon GI-790 Original Black 135ml',
                 'harga_beli' => 90000,
@@ -289,7 +289,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 6,
             ],
             [
-                'kategori' => 'Sparepart Printer',
+                'kategori' => 'Printer & Tinta',
                 'barcode' => '8991234560233',
                 'nama_produk' => 'Roller Pickup Karet Penarik Kertas Epson L1110 L3110 L3210',
                 'harga_beli' => 22000,
@@ -301,7 +301,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 5,
             ],
             [
-                'kategori' => 'Sparepart Printer',
+                'kategori' => 'Printer & Tinta',
                 'barcode' => '8991234560240',
                 'nama_produk' => 'Kabel Fleksibel Head Print Epson L3110 / L3210',
                 'harga_beli' => 18000,
@@ -313,7 +313,7 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 4,
             ],
             [
-                'kategori' => 'Sparepart Printer',
+                'kategori' => 'Printer & Tinta',
                 'barcode' => '8991234560257',
                 'nama_produk' => 'Mainboard Formatter Logic Board Canon IP2770 Original Cabutan',
                 'harga_beli' => 120000,
@@ -497,66 +497,66 @@ class KategoriDanProdukSeeder extends Seeder
                 'stok_kba' => 3,
             ],
 
-            // --- JASA & LAYANAN SERVIS ---
+            // --- NETWORKING & JARINGAN ---
             [
-                'kategori' => 'Jasa & Layanan Servis',
+                'kategori' => 'Networking & Jaringan',
                 'barcode' => '8991234560387',
-                'nama_produk' => 'Jasa Install Ulang OS Windows 10/11 + Software Standar',
-                'harga_beli' => 0,
-                'harga_jual' => 75000,
+                'nama_produk' => 'Router TP-Link TL-WR840N 300Mbps Wireless N',
+                'harga_beli' => 140000,
+                'harga_jual' => 185000,
                 'ready_marketplace' => true,
-                'deskripsi' => 'Instalasi sistem operasi bersih, driver update, Microsoft Office, PDF, browser, antivirus.',
-                'stok_pkp' => 999,
-                'stok_sgl' => 999,
-                'stok_kba' => 999,
+                'deskripsi' => 'Router wifi 300Mbps dengan 2 antena eksternal sinyal kuat.',
+                'stok_pkp' => 10,
+                'stok_sgl' => 5,
+                'stok_kba' => 3,
             ],
             [
-                'kategori' => 'Jasa & Layanan Servis',
+                'kategori' => 'Networking & Jaringan',
                 'barcode' => '8991234560394',
-                'nama_produk' => 'Jasa Maintenance Deep Clean Laptop + Repasta Arctic MX-4',
-                'harga_beli' => 15000,
-                'harga_jual' => 100000,
+                'nama_produk' => 'Switch Hub Mercusys MS105G 5-Port Gigabit Desktop',
+                'harga_beli' => 95000,
+                'harga_jual' => 135000,
                 'ready_marketplace' => true,
-                'deskripsi' => 'Pembersihan total debu heatsink kipas laptop dan penggantian pasta pendingin premium.',
-                'stok_pkp' => 999,
-                'stok_sgl' => 999,
-                'stok_kba' => 999,
+                'deskripsi' => '5 port 10/100/1000Mbps auto negotiation RJ45.',
+                'stok_pkp' => 8,
+                'stok_sgl' => 4,
+                'stok_kba' => 2,
             ],
             [
-                'kategori' => 'Jasa & Layanan Servis',
+                'kategori' => 'Networking & Jaringan',
                 'barcode' => '8991234560400',
-                'nama_produk' => 'Jasa Penggantian Keyboard / Layar LCD Laptop',
-                'harga_beli' => 0,
-                'harga_jual' => 65000,
+                'nama_produk' => 'Crimping Tool RJ45 RJ11 Cat5 Cat6 + LAN Tester',
+                'harga_beli' => 60000,
+                'harga_jual' => 90000,
                 'ready_marketplace' => false,
-                'deskripsi' => 'Ongkos pasang sparepart keyboard atau panel layar LCD laptop garansi rapi.',
-                'stok_pkp' => 999,
-                'stok_sgl' => 999,
-                'stok_kba' => 999,
+                'deskripsi' => 'Tang crimping kabel jaringan LAN beserta alat tes koneksi.',
+                'stok_pkp' => 6,
+                'stok_sgl' => 3,
+                'stok_kba' => 2,
             ],
             [
-                'kategori' => 'Jasa & Layanan Servis',
+                'kategori' => 'Networking & Jaringan',
                 'barcode' => '8991234560417',
-                'nama_produk' => 'Jasa Servis Head & Pembersihan Saluran Tinta Printer',
-                'harga_beli' => 10000,
-                'harga_jual' => 85000,
+                'nama_produk' => 'Konektor RJ45 Cat6 UTP Isi 50 Pcs',
+                'harga_beli' => 35000,
+                'harga_jual' => 55000,
                 'ready_marketplace' => false,
-                'deskripsi' => 'Flushing nozzle head buntu, kuras selang infus, dan kalibrasi cetak.',
-                'stok_pkp' => 999,
-                'stok_sgl' => 999,
-                'stok_kba' => 999,
+                'deskripsi' => 'Konektor RJ45 pin emas konduksi tinggi 1 pak isi 50 buah.',
+                'stok_pkp' => 15,
+                'stok_sgl' => 8,
+                'stok_kba' => 4,
             ],
             [
-                'kategori' => 'Jasa & Layanan Servis',
+                'kategori' => 'Networking & Jaringan',
                 'barcode' => '8991234560424',
-                'nama_produk' => 'Jasa Perbaikan Jalur Power / Motherboard Komputer',
-                'harga_beli' => 30000,
-                'harga_jual' => 250000,
-                'ready_marketplace' => false,
-                'deskripsi' => 'Diagnosa skematik dan pergantian komponen IC/mosfet korsleting.',
-                'stok_pkp' => 999,
-                'stok_sgl' => 999,
-                'stok_kba' => 999,
+                'nama_produk' => 'Access Point TP-Link EAP110 Ceiling Mount 300Mbps',
+                'harga_beli' => 350000,
+                'harga_jual' => 450000,
+                'ready_marketplace' => true,
+                'deskripsi' => 'Access point plafon PoE pasif untuk jangkauan wifi kantor/toko.',
+                'stok_pkp' => 4,
+                'stok_sgl' => 2,
+                'stok_kba' => 1,
             ],
         ];
 

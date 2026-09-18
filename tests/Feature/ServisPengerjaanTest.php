@@ -112,44 +112,39 @@ class ServisPengerjaanTest extends TestCase
             'total_biaya' => 0,
         ]);
 
-        $katJasa = KategoriProduk::create(['nama_kategori' => 'Jasa Servis']);
-        $produkJasa = Produk::create([
-            'kategori_id' => $katJasa->id,
-            'nama_produk' => 'Jasa Ganti Keyboard & Cleaning',
-            'barcode' => null,
-            'harga_beli' => 0,
+        $itemJasa = \App\Models\MasterServis::create([
+            'kode_item' => 'JS-001',
+            'nama_item' => 'Jasa Ganti Keyboard & Cleaning',
+            'jenis' => 'jasa',
+            'kategori_perangkat' => 'laptop',
+            'harga_modal' => 0,
             'harga_jual' => 75000,
+            'garansi_default_hari' => 30,
+            'is_aktif' => true,
         ]);
-        Stok::updateOrCreate(
-            ['cabang_id' => $this->cabang1->id, 'produk_id' => $produkJasa->id],
-            ['jumlah' => 999, 'is_aktif' => true]
-        );
 
-        $katSparepart = KategoriProduk::create(['nama_kategori' => 'Sparepart']);
-        $produkSparepart = Produk::create([
-            'kategori_id' => $katSparepart->id,
-            'nama_produk' => 'SSD M.2 NVMe 512GB',
-            'barcode' => '880123456789',
-            'harga_beli' => 300000,
+        $itemSparepart = \App\Models\MasterServis::create([
+            'kode_item' => 'SP-001',
+            'nama_item' => 'SSD M.2 NVMe 512GB',
+            'jenis' => 'sparepart',
+            'kategori_perangkat' => 'laptop',
+            'harga_modal' => 300000,
             'harga_jual' => 450000,
+            'garansi_default_hari' => 365,
+            'is_aktif' => true,
         ]);
 
-        Stok::updateOrCreate(
-            ['cabang_id' => $this->cabang1->id, 'produk_id' => $produkSparepart->id],
-            ['jumlah' => 5, 'is_aktif' => true]
-        );
-
-        // Livewire interaction: Buka workspace, tambah jasa & tambah sparepart via katalog produk
+        // Livewire interaction: Buka workspace, tambah jasa & tambah sparepart via Master Servis
         Livewire::test(\App\Livewire\Servis\Pengerjaan\Index::class)
             ->call('openPengerjaanModal', $servis->id)
             ->assertSet('modalPengerjaanOpen', true)
-            // Tambah Jasa (dari master produk)
-            ->call('selectProduk', $produkJasa->id)
+            // Tambah Jasa (dari Master Servis)
+            ->call('selectMasterServis', $itemJasa->id)
             ->set('sparepartQty', 1)
             ->call('tambahItemBilling')
             ->assertHasNoErrors()
             // Tambah Sparepart
-            ->call('selectProduk', $produkSparepart->id)
+            ->call('selectMasterServis', $itemSparepart->id)
             ->set('sparepartQty', 1)
             ->call('tambahItemBilling')
             ->assertHasNoErrors()
@@ -159,13 +154,11 @@ class ServisPengerjaanTest extends TestCase
             ->assertHasNoErrors();
 
         $servis->refresh();
-        $this->assertEquals(525000, $servis->total_biaya); // 75000 + 450000
+        $this->assertEquals(525000, $servis->total_biaya);
+        $this->assertEquals(75000, $servis->total_jasa);
+        $this->assertEquals(450000, $servis->total_sparepart);
         $this->assertEquals('selesai', $servis->status);
         $this->assertNotNull($servis->tanggal_selesai);
-
-        // Verifikasi stok berkurang
-        $stokRecord = Stok::where('cabang_id', $this->cabang1->id)->where('produk_id', $produkSparepart->id)->first();
-        $this->assertEquals(4, $stokRecord->jumlah); // 5 - 1
     }
 
     public function test_can_process_cashier_payment_with_warranty(): void

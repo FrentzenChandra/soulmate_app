@@ -216,7 +216,7 @@
                     <td class="text-center font-mono text-muted">{{ $idx + 1 }}</td>
                     <td>
                         <span class="font-bold">{{ $det->nama_item }}</span>
-                        <span class="text-muted" style="font-size: 7pt;">({{ $det->produk_id ? 'Sparepart' : 'Jasa' }})</span>
+                        <span class="text-muted" style="font-size: 7pt;">({{ ($det->jenis === 'sparepart' || $det->masterServis?->jenis === 'sparepart' || $det->produk_id) ? 'Sparepart' : 'Jasa' }})</span>
                     </td>
                     <td class="text-center font-mono font-bold">{{ $det->qty }}</td>
                     <td class="text-right font-mono">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>

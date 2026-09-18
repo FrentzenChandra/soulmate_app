@@ -69,39 +69,54 @@
         <div class="py-1 max-h-80 overflow-y-auto divide-y divide-gray-50 custom-scrollbar overscroll-contain">
             @forelse($alertItems as $item)
                 @php
+                    $type = is_object($item) ? ($item->type ?? 'produk') : ($item['type'] ?? 'produk');
                     $qty = is_object($item) ? $item->jumlah : ($item['jumlah'] ?? 0);
-                    $nama = is_object($item) ? ($item->nama_produk ?? $item->produk?->nama_produk ?? 'Produk') : ($item['nama_produk'] ?? 'Produk');
-                    $barcode = is_object($item) ? ($item->barcode ?? $item->produk?->barcode ?? null) : null;
-                    $cabangTag = is_object($item) ? ($item->cabang_nama ?? $item->cabang?->kode_cabang ?? null) : null;
-                    $fotoUrl = is_object($item) ? ($item->foto_url ?? $item->produk?->foto_url ?? null) : null;
+                    $nama = is_object($item) ? ($item->nama ?? $item->nama_produk ?? 'Item') : ($item['nama'] ?? 'Item');
+                    $kode = is_object($item) ? ($item->kode ?? $item->barcode ?? null) : null;
+                    $cabangTag = is_object($item) ? ($item->cabang_nama ?? null) : null;
+                    $fotoUrl = is_object($item) ? ($item->foto_url ?? null) : null;
                     $isZero = $qty <= 0;
                 @endphp
                 <div class="px-4 py-2.5 hover:bg-gray-50/90 transition-colors flex items-center justify-between space-x-3">
-                    <!-- Foto Thumbnail Kecil -->
+                    <!-- Foto Thumbnail / Icon Box -->
                     <div class="relative shrink-0">
                         @if($fotoUrl && file_exists(public_path($fotoUrl)))
                             <img src="{{ asset($fotoUrl) }}" alt="{{ $nama }}" class="w-9 h-9 rounded-lg object-cover border border-gray-200">
                         @elseif($fotoUrl && (str_starts_with($fotoUrl, 'http') || str_starts_with($fotoUrl, 'storage/') || str_starts_with($fotoUrl, 'images/')))
                             <img src="{{ asset($fotoUrl) }}" alt="{{ $nama }}" class="w-9 h-9 rounded-lg object-cover border border-gray-200" onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.png') }}';">
                         @else
-                            <div class="w-9 h-9 rounded-lg {{ $isZero ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-amber-50 text-amber-600 border border-amber-100' }} flex items-center justify-center">
-                                <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <div class="w-9 h-9 rounded-lg {{ $type === 'sparepart' ? 'bg-purple-50 text-[#5E17EB] border border-purple-100' : ($isZero ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-blue-50 text-blue-600 border border-blue-100') }} flex items-center justify-center">
+                                @if($type === 'sparepart')
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+                                @else
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                @endif
                             </div>
                         @endif
                     </div>
 
                     <div class="min-w-0 flex-1">
+                        <div class="flex items-center space-x-1.5 mb-0.5">
+                            @if($type === 'sparepart')
+                                <span class="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-purple-50 text-[#5E17EB] border border-purple-200">
+                                    Sparepart
+                                </span>
+                            @else
+                                <span class="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
+                                    Produk
+                                </span>
+                            @endif
+
+                            @if($isHQ && $cabangTag)
+                                <span class="px-1.5 py-0.2 rounded bg-gray-100 text-gray-600 text-[9px] font-bold border border-gray-200">{{ $cabangTag }}</span>
+                            @endif
+                        </div>
                         <p class="text-xs font-bold text-gray-900 truncate leading-tight">
                             {{ $nama }}
                         </p>
-                        <div class="flex items-center space-x-1.5 mt-0.5 text-[10px] text-gray-400 font-mono">
-                            @if($barcode)
-                                <span>{{ $barcode }}</span>
-                            @endif
-                            @if($isHQ && $cabangTag)
-                                <span class="px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 font-bold border border-purple-100">{{ $cabangTag }}</span>
-                            @endif
-                        </div>
+                        @if($kode)
+                            <span class="text-[10px] text-gray-400 font-mono block mt-0.5">{{ $kode }}</span>
+                        @endif
                     </div>
                     <div class="shrink-0">
                         @if($isZero)
@@ -121,7 +136,7 @@
                 <div class="px-4 py-6 text-center text-gray-400">
                     <svg class="w-8 h-8 text-emerald-400 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <p class="text-xs font-bold text-gray-700">Kondisi Stok Aman</p>
-                    <p class="text-[10px] text-gray-400 mt-0.5">Tidak ada produk dengan stok habis atau menipis.</p>
+                    <p class="text-[10px] text-gray-400 mt-0.5">Tidak ada produk atau sparepart dengan stok habis / menipis.</p>
                 </div>
             @endforelse
         </div>
@@ -130,13 +145,15 @@
         <div class="px-4 pt-2.5 flex items-center justify-between">
             <a href="{{ route('cabang.stok') }}"
                class="text-xs font-bold text-[#5E17EB] hover:text-purple-700 flex items-center space-x-1 transition-colors">
-                <span>{{ $isOwner ? ($isHQ ? 'Kelola Stok Seluruh Cabang' : 'Kelola Stok Cabang') : 'Kelola Stok Produk' }}</span>
+                <span>Stok Produk</span>
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </a>
-            <a href="{{ route('master.produk') }}"
-               class="text-[11px] font-semibold text-gray-400 hover:text-gray-600 transition-colors">
-                Katalog Produk
+            <a href="{{ route('master.servis') }}"
+               class="text-xs font-bold text-gray-500 hover:text-[#5E17EB] flex items-center space-x-1 transition-colors">
+                <span>Master Servis</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </a>
         </div>
     </div>
 </div>
+

@@ -8,7 +8,7 @@
                 <span>/</span>
                 <span class="text-purple-600 font-bold">Katalog Master Produk</span>
             </div>
-            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Katalog Produk & Sparepart</h1>
+            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Katalog Master Produk</h1>
             <p class="text-xs text-gray-500 mt-0.5">
                 @if($isHQ)
                     Database produk global, harga modal, harga jual, dan distribusi stok seluruh cabang.
@@ -386,7 +386,7 @@
                             <!-- Nama Produk -->
                             <div class="relative">
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Nama Produk / Sparepart <span class="text-rose-500">*</span>
+                                    Nama Produk <span class="text-rose-500">*</span>
                                 </label>
                                 <input type="text"
                                        wire:model.live.debounce.300ms="nama_produk"
@@ -705,7 +705,7 @@
                             </div>
                             <div>
                                 <h3 class="text-base font-extrabold text-white">Manajemen Kategori</h3>
-                                <p class="text-xs text-purple-200">Kelompokkan produk dan suku cadang servis</p>
+                                <p class="text-xs text-purple-200">Kelompokkan kategori produk retail dan toko</p>
                             </div>
                         </div>
                         <button wire:click="$set('modalKategoriOpen', false)" class="text-gray-300 hover:text-white cursor-pointer">

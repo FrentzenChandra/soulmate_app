@@ -156,9 +156,9 @@
             <!-- Filter Kategori Perangkat -->
             <select wire:model.live="kategoriFilter" class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-700 focus:bg-white focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB]">
                 <option value="semua">Semua Perangkat</option>
-                <option value="laptop">Laptop / Notebook</option>
-                <option value="komputer">PC Desktop</option>
+                <option value="laptop">Laptop</option>
                 <option value="printer">Printer</option>
+                <option value="komputer">Komputer</option>
                 <option value="lainnya">Lainnya</option>
             </select>
 
@@ -467,7 +467,8 @@
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead>
                                     <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-bold text-gray-500 uppercase">
-                                        <th class="py-2.5 px-3">Nama Produk / Jasa Servis</th>
+                                        <th class="py-2.5 px-3">Rincian Jasa / Sparepart Servis</th>
+                                        <th class="py-2.5 px-3 text-center">Tipe</th>
                                         <th class="py-2.5 px-3 text-center">Qty</th>
                                         <th class="py-2.5 px-3 text-right">Harga</th>
                                         <th class="py-2.5 px-3 text-right">Subtotal</th>
@@ -479,8 +480,19 @@
                                         <tr class="hover:bg-gray-50/50">
                                             <td class="py-2.5 px-3">
                                                 <span class="font-bold text-gray-900 block">{{ $item->nama_item }}</span>
-                                                @if($item->produk?->kategori)
-                                                    <span class="text-[10px] text-gray-400 font-semibold block">{{ $item->produk->kategori->nama_kategori }}</span>
+                                                @if($item->masterServis?->keterangan)
+                                                    <span class="text-[10px] text-gray-400 font-medium block">{{ $item->masterServis->keterangan }}</span>
+                                                @endif
+                                            </td>
+                                            <td class="py-2.5 px-3 text-center whitespace-nowrap">
+                                                @if(($item->jenis === 'jasa') || ($item->masterServis?->jenis === 'jasa') || (is_null($item->produk_id) && ! $item->master_servis_id))
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
+                                                        Jasa
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-purple-50 text-[#5E17EB] border border-purple-200">
+                                                        Sparepart
+                                                    </span>
                                                 @endif
                                             </td>
                                             <td class="py-2.5 px-3 text-center font-mono font-bold">
@@ -504,8 +516,8 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="py-5 text-center text-gray-400 italic font-medium">
-                                                Belum ada rincian produk atau jasa servis yang ditambahkan.
+                                            <td colspan="6" class="py-5 text-center text-gray-400 italic font-medium">
+                                                Belum ada rincian jasa servis atau sparepart yang ditambahkan.
                                             </td>
                                         </tr>
                                     @endforelse
@@ -513,14 +525,14 @@
                             </table>
                         </div>
 
-                        <!-- Form Input Tambah Produk / Jasa -->
+                        <!-- Form Input Tambah Jasa / Sparepart dari Master Servis -->
                         <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200/90 space-y-3">
                             <div class="flex items-center justify-between">
                                 <span class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
                                     <svg class="w-4 h-4 text-[#5E17EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                    Tambah Produk / Jasa Servis ke Rincian Biaya
+                                    Tambah Jasa / Sparepart dari Master Servis
                                 </span>
-                                @if($selectedProdukId)
+                                @if($selectedMasterServisId)
                                     <button type="button" wire:click="resetBillingInput" class="text-[11px] font-bold text-rose-600 hover:underline cursor-pointer">
                                         Reset Pilihan
                                     </button>
@@ -529,15 +541,20 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                                 
-                                <!-- Input Pencarian Produk / Jasa -->
+                                <!-- Input Pencarian Master Servis -->
                                 <div class="sm:col-span-7 relative">
-                                    <label class="block text-[11px] font-bold text-gray-600 mb-1">Cari Produk / Jasa Servis dari Katalog:</label>
+                                    <label class="block text-[11px] font-bold text-gray-600 mb-1">Cari dari Katalog Master Servis:</label>
                                     
-                                    @if($selectedProdukId)
+                                    @if($selectedMasterServisId)
                                         <div class="flex items-center justify-between px-3 py-2 bg-purple-50 border border-purple-200 rounded-xl text-xs">
-                                            <div class="truncate">
-                                                <span class="font-black text-gray-900 block truncate">{{ $selectedProdukNama }}</span>
-                                                <span class="text-[10px] text-purple-700 font-bold font-mono">Rp {{ number_format($selectedProdukHarga, 0, ',', '.') }}</span>
+                                            <div class="truncate pr-2">
+                                                <div class="flex items-center space-x-1.5">
+                                                    <span class="font-black text-gray-900 block truncate">{{ $selectedMasterServisNama }}</span>
+                                                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded {{ $selectedMasterServisJenis === 'jasa' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
+                                                        {{ $selectedMasterServisJenis === 'jasa' ? 'Jasa' : 'Sparepart' }}
+                                                    </span>
+                                                </div>
+                                                <span class="text-[10px] text-purple-700 font-bold font-mono">Rp {{ number_format($selectedMasterServisHarga, 0, ',', '.') }}</span>
                                             </div>
                                             <button type="button" wire:click="resetBillingInput" class="text-gray-400 hover:text-rose-600 p-1 cursor-pointer shrink-0">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -547,24 +564,28 @@
                                         <div class="relative">
                                             <input type="text"
                                                    wire:model.live.debounce.250ms="sparepartSearch"
-                                                   placeholder="Ketik nama produk, jasa servis, atau scan barcode..."
+                                                   placeholder="Ketik nama jasa, ganti part, SSD, install ulang..."
                                                    class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB]" />
                                             
                                             <!-- Dropdown Suggestions -->
-                                            @if($sparepartSuggestions->isNotEmpty() && ! $selectedProdukId)
+                                            @if($sparepartSuggestions->isNotEmpty() && ! $selectedMasterServisId)
                                                 <div class="absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-gray-200 z-50 max-h-56 overflow-y-auto divide-y divide-gray-100">
                                                     @foreach($sparepartSuggestions as $sp)
-                                                        @php $stk = $sp->stoks->first()?->jumlah ?? 0; @endphp
                                                         <button type="button"
-                                                                wire:click="selectProduk({{ $sp->id }})"
+                                                                wire:click="selectMasterServis({{ $sp->id }})"
                                                                 class="w-full p-2.5 text-left hover:bg-purple-50 flex items-center justify-between text-xs cursor-pointer transition-colors">
                                                             <div class="truncate pr-2">
-                                                                <span class="font-bold text-gray-900 block truncate">{{ $sp->nama_produk }}</span>
-                                                                <span class="text-[10px] text-gray-400 font-mono">{{ $sp->barcode ?: ($sp->kategori?->nama_kategori ?? '-') }}</span>
+                                                                <div class="flex items-center space-x-1.5">
+                                                                    <span class="font-bold text-gray-900 block truncate">{{ $sp->nama_item }}</span>
+                                                                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded {{ $sp->jenis === 'jasa' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-purple-50 text-[#5E17EB] border border-purple-200' }}">
+                                                                        {{ $sp->jenis === 'jasa' ? 'Jasa' : 'Sparepart' }}
+                                                                    </span>
+                                                                </div>
+                                                                <span class="text-[10px] text-gray-400 font-mono">{{ $sp->kode_item ?: ($sp->kategori_perangkat_label ?? '-') }}</span>
                                                             </div>
                                                             <div class="text-right shrink-0">
                                                                 <span class="font-mono font-black text-[#5E17EB] block">Rp {{ number_format($sp->harga_jual, 0, ',', '.') }}</span>
-                                                                <span class="text-[10px] font-bold text-emerald-600">Stok: {{ $stk }}</span>
+                                                                <span class="text-[10px] text-gray-400">{{ $sp->garansi_default_hari > 0 ? 'Garansi ' . $sp->garansi_default_hari . 'hr' : 'No Garansi' }}</span>
                                                             </div>
                                                         </button>
                                                     @endforeach
@@ -572,13 +593,13 @@
                                             @endif
                                         </div>
                                     @endif
-                                    @error('selectedProdukId') <span class="text-[10px] text-rose-600 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                    @error('selectedMasterServisId') <span class="text-[10px] text-rose-600 font-bold block mt-0.5">{{ $message }}</span> @enderror
                                 </div>
 
                                 <!-- Input Qty -->
                                 <div class="sm:col-span-2">
                                     <label class="block text-[11px] font-bold text-gray-600 mb-1">
-                                        Qty {{ $selectedProdukId ? "(Stok: {$selectedProdukStok})" : '' }}:
+                                        Jumlah / Qty:
                                     </label>
                                     <input type="number"
                                            wire:model="sparepartQty"

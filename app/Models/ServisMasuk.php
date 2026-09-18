@@ -125,21 +125,29 @@ class ServisMasuk extends Model
     public function getKategoriPerangkatLabelAttribute(): string
     {
         return match (strtolower($this->kategori_perangkat)) {
-            'laptop' => 'Laptop / Notebook',
+            'laptop' => 'Laptop',
             'printer' => 'Printer',
-            'komputer', 'pc' => 'PC Desktop',
+            'komputer', 'pc' => 'Komputer',
             default => ucfirst($this->kategori_perangkat ?: 'Lainnya'),
         };
     }
 
     public function getTotalJasaAttribute(): float
     {
-        return (float) $this->details->whereNull('produk_id')->sum('subtotal');
+        return (float) $this->details->filter(function ($d) {
+            if ($d->jenis) return $d->jenis === 'jasa';
+            if ($d->masterServis) return $d->masterServis->jenis === 'jasa';
+            return is_null($d->produk_id);
+        })->sum('subtotal');
     }
 
     public function getTotalSparepartAttribute(): float
     {
-        return (float) $this->details->whereNotNull('produk_id')->sum('subtotal');
+        return (float) $this->details->filter(function ($d) {
+            if ($d->jenis) return $d->jenis === 'sparepart';
+            if ($d->masterServis) return $d->masterServis->jenis === 'sparepart';
+            return ! is_null($d->produk_id);
+        })->sum('subtotal');
     }
 
     public function getIsBergaransiAttribute(): bool

@@ -146,7 +146,7 @@
                             <td class="py-1 font-mono text-gray-500 text-[10px]">{{ $idx + 1 }}</td>
                             <td class="py-1 font-semibold text-gray-900">
                                 {{ $det->nama_item }}
-                                <span class="text-[9px] font-normal text-gray-500 ml-1">({{ $det->produk_id ? 'Sparepart' : 'Jasa Perbaikan' }})</span>
+                                <span class="text-[9px] font-normal text-gray-500 ml-1">({{ ($det->jenis === 'sparepart' || $det->masterServis?->jenis === 'sparepart' || $det->produk_id) ? 'Sparepart' : 'Jasa Servis' }})</span>
                             </td>
                             <td class="py-1 text-center font-mono font-bold">{{ $det->qty }}</td>
                             <td class="py-1 text-right font-mono">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>

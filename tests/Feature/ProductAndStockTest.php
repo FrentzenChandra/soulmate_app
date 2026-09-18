@@ -70,8 +70,8 @@ class ProductAndStockTest extends TestCase
         $this->superadmin->syncRoles([$superadminRole]);
 
         $this->kategori = KategoriProduk::create([
-            'nama_kategori' => 'Sparepart Laptop',
-            'slug' => 'sparepart-laptop',
+            'nama_kategori' => 'Penyimpanan & Memori',
+            'slug' => 'penyimpanan-memori',
         ]);
     }
 

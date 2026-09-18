@@ -10,6 +10,7 @@ use App\Livewire\Master\Customer\Index as MasterCustomerIndex;
 use App\Livewire\Master\Kategori\Index as MasterKategoriIndex;
 use App\Livewire\Master\Ppn\Index as MasterPpnIndex;
 use App\Livewire\Master\Produk\Index as MasterProdukIndex;
+use App\Livewire\Master\Servis\Index as MasterServisIndex;
 use App\Livewire\Master\User\Index as MasterUserIndex;
 use App\Livewire\Servis\Masuk\Index as ServisMasukIndex;
 use App\Livewire\Servis\Pengerjaan\Index as ServisPengerjaanIndex;
@@ -50,6 +51,11 @@ Route::middleware('auth')->group(function () {
             Route::get('/users', MasterUserIndex::class)->name('users');
             Route::get('/produk', MasterProdukIndex::class)->name('produk');
             Route::get('/kategori', MasterKategoriIndex::class)->name('kategori');
+        });
+
+        // Master Servis (Owner, Superadmin, Admin, Teknisi)
+        Route::middleware('role:Owner|Superadmin|Admin|Teknisi')->group(function () {
+            Route::get('/servis', MasterServisIndex::class)->name('servis');
         });
 
         // Customer / Pelanggan (Owner, Superadmin, Admin, Kasir, Teknisi)

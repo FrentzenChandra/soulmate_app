@@ -35,10 +35,15 @@ Sistem digunakan oleh banyak cabang sekaligus, jadi ada **data master Cabang**. 
 ## 3. Fitur Servis Masuk
 
 - Form input servis baru: pilih **Customer** — bisa pilih dari data lama (sudah pernah servis sebelumnya) atau input Customer Baru.
+- **Kategori Perangkat (Urutan Standar)**: `Laptop`, `Printer` (tanpa "/Scanner"), `Komputer` (tanpa "PC Komputer"), `Lainnya`.
+- **Penyederhanaan Kolom**:
+  - Kolom *Nomor Seri / Serial Number* dan *Kondisi Fisik / Bodi Awal* **dihapus**.
+  - Pilihan Kelengkapan: `Charger`, `Box`, `Flashdisk`, `Harddisk` (dipisah), opsi `Mouse` dihapus.
+  - Kolom *Catatan Servis* diposisikan di sisi kiri dengan ukuran lebih besar untuk kenyamanan teknisi mencatat riwayat keluhan.
 - Setelah input, bisa **cetak Tanda Terima Servis** untuk diberikan ke customer (pakai printer thermal/dot matrix, ukuran struk — referensi printer Epson LX-310).
 - Servis punya **status** yang bisa diubah: `pengecekan` -> `pengerjaan` -> `selesai` (atau `batal`).
 - Setiap perubahan status **dicatat sebagai log** (siapa yang ubah, kapan, status apa) — untuk histori/audit trail, bukan cuma overwrite status terakhir.
-- Servis bisa punya detail sparepart yang dipakai (misal ganti LCD, ganti baterai) dengan qty & harga masing-masing — ini yang nanti dipakai untuk hitung total biaya servis.
+- Servis menggunakan detail jasa & suku cadang dari **Master Servis** (`MASTER_SERVIS` & `MASTER_SERVIS_STOK`), terpisah dari Master Produk retail kasir.
 
 ## 4. Fitur Servis Keluar
 
@@ -54,7 +59,7 @@ Sistem digunakan oleh banyak cabang sekaligus, jadi ada **data master Cabang**. 
 
 ### A. Kasir Produk (menu tersendiri)
 - Kasir cari barang -> masuk keranjang -> bayar (diskon + PPN) -> cetak nota.
-- Ini murni transaksi jual-beli barang biasa, tidak ada kaitan dengan servis.
+- Ini murni transaksi jual-beli barang retail biasa, tidak ada kaitan dengan servis.
 - Mendukung **Penjualan Non-Real (Nota Formalitas)**: mode cetak struk tanpa memotong stok dan tanpa masuk ke pembukuan finansial / dashboard.
 
 ### B. Penagihan Servis (masuk dari Index/List Servis, BUKAN dari menu Kasir)
@@ -90,7 +95,8 @@ Nomor invoice ditampilkan ke kasir/pelanggan secara ringkas (`PJ-YYMMDD-00001`) 
 - **Cabang** (`/master/cabang`) — Termasuk nomor WA khusus per cabang & status aktif/nonaktif (data cabang tidak boleh dihapus permanen karena berkaitan dengan histori transaksi lama — pakai status, bukan delete). Akses: Owner.
 - **Role & Manajemen Pengguna** (`/master/users`) — Mengelola akun Owner, Superadmin, Teknisi, dan Admin dengan otorisasi bertingkat (Owner = global, Superadmin = staff cabang).
 - **Kategori Produk** (`/master/kategori`) — Pengelompokan produk dengan proteksi hapus jika masih memiliki relasi produk. Akses: Owner & Superadmin.
-- **Master Produk** (`/master/produk`) — Katalog global terpusat dengan matriks stok multi-cabang, barcode scanner, deteksi duplikasi instan, dan kompresi WebP. Akses: Owner & Superadmin.
+- **Master Produk** (`/master/produk`) — Katalog retail global untuk Kasir POS dan marketplace online, dengan matriks stok cabang, barcode scanner, deteksi duplikasi instan, dan kompresi WebP. Akses: Owner & Superadmin.
+- **Master Servis & Sparepart** (`/master/servis`) — Katalog master layanan jasa perbaikan & suku cadang khusus servis (terpisah dari Master Produk). Mendukung stok cabang & threshold alert minimum stok sparepart, estimasi margin laba, preset masa garansi (0, 7, 14, 30, 90 hari), dan checklist status aktif di bawah catatan. Akses: Owner, Superadmin, Admin, Teknisi.
 - **Master PPN** (`/master/ppn`) — Opsi tarif pajak dinamis (`PPN 11%`, `PPN 12%`, `Tanpa PPN (0%)`) dengan proteksi hapus jika sudah tercatat di transaksi kasir. Akses: Owner.
 - **Master Customer / Data Pelanggan** (`/master/customer`) — Data pelanggan disederhanakan murni menjadi Nama Pelanggan dan Nomor WhatsApp/HP (`nama`, `no_hp`), terisolasi per cabang dengan quick action WhatsApp langsung. Akses: Owner, Superadmin, Admin, Teknisi.
 - **Nomor Urut Transaksi** — Generator counter atomik nomor invoice per cabang dan per jenis transaksi.
@@ -106,6 +112,7 @@ erDiagram
     CABANG ||--o{ SERVIS_MASUK : memiliki
     CABANG ||--o{ PENJUALAN : memiliki
     CABANG ||--o{ STOK : memiliki
+    CABANG ||--o{ MASTER_SERVIS_STOK : memiliki
 
     ROLE ||--o{ USER : memiliki
 
@@ -120,7 +127,9 @@ erDiagram
     SERVIS_MASUK ||--o{ SERVIS_STATUS_LOG : memiliki
     SERVIS_MASUK ||--o{ SERVIS_DETAIL : menggunakan
 
-    PRODUK ||--o{ SERVIS_DETAIL : dipakai
+    MASTER_SERVIS ||--o{ SERVIS_DETAIL : digunakan
+    MASTER_SERVIS ||--o{ MASTER_SERVIS_STOK : memiliki
+
     PRODUK ||--o{ PENJUALAN_DETAIL : dijual
     PRODUK ||--o{ STOK : tersedia
     KATEGORI_PRODUK ||--o{ PRODUK : mengelompokkan
@@ -191,6 +200,27 @@ erDiagram
         int min_stok
         boolean is_aktif "default false, isolasi katalog per cabang"
     }
+    MASTER_SERVIS {
+        int id PK
+        string kode_item "unique, nullable"
+        string nama_item
+        string jenis "jasa / sparepart"
+        string kategori_perangkat "semua, laptop, printer, komputer, lainnya"
+        decimal harga_modal
+        decimal harga_jual
+        int garansi_default_hari "default 30"
+        string keterangan "nullable"
+        boolean is_aktif "default true"
+        datetime deleted_at "soft deletes"
+    }
+    MASTER_SERVIS_STOK {
+        int id PK
+        int master_servis_id FK
+        int cabang_id FK
+        int jumlah "stok fisik per cabang khusus sparepart"
+        int min_stok "ambang batas peringatan stok kritis"
+        boolean is_aktif "default true"
+    }
     MASTER_PPN {
         int id PK
         string nama "PPN 11 persen / Tanpa PPN"
@@ -205,8 +235,10 @@ erDiagram
         int teknisi_id FK
         int created_by FK
         date tanggal_masuk
+        string kategori_perangkat "laptop, printer, komputer, lainnya"
         string keluhan
-        string kondisi_barang
+        string catatan_servis
+        json kelengkapan "charger, box, flashdisk, harddisk, lainnya"
         string status "pengecekan, pengerjaan, selesai, batal"
         decimal estimasi_biaya
         decimal total_biaya
@@ -214,9 +246,12 @@ erDiagram
     SERVIS_DETAIL {
         int id PK
         int servis_id FK
-        int produk_id FK
+        int master_servis_id FK
+        string nama_item
+        string jenis "jasa / sparepart"
         int qty
-        decimal harga
+        decimal harga_satuan
+        decimal subtotal
     }
     SERVIS_STATUS_LOG {
         int id PK
@@ -248,7 +283,7 @@ erDiagram
         int penjualan_id FK
         string tipe_item "barang / jasa_servis"
         int produk_id FK "nullable, diisi jika tipe_item=barang"
-        string nama_item "diisi manual jika tipe_item=jasa_servis, misal Biaya Jasa Servis"
+        string nama_item "diisi nama produk atau jasa servis"
         int qty
         decimal harga
         decimal subtotal
@@ -274,7 +309,7 @@ erDiagram
    - Saat Cabang A mendaftarkan produk baru, stok di Cabang B dan C otomatis berstatus non-aktif (0 stok) agar tidak mengotori katalog POS kasir cabang lain sebelum staf cabang bersangkutan mengaktifkannya.
    - Katalog Kasir POS hanya menampilkan produk dengan `is_aktif = true` di cabang yang sedang aktif.
 7. **Standar Masking Format Rupiah (`Rp 17.000`):**
-   - Seluruh input nominal uang (Harga Beli, Harga Jual, Diskon, Nominal Bayar) menggunakan format Rupiah dengan separator ribuan titik (`.`) di frontend via komponen Alpine.js `input-rupiah`, dengan tetap mengalirkan nilai numeric murni ke Livewire.
+   - Seluruh input nominal uang (Harga Beli, Harga Jual, Diskon, Nominal Bayar, Tarif Servis, Modal Servis) menggunakan format Rupiah dengan separator ribuan titik (`.`) di frontend via komponen Alpine.js `input-rupiah`, dengan tetap mengalirkan nilai numeric murni ke Livewire.
 8. **Deteksi Duplikasi Produk Realtime (Smart Duplicate Detection):**
    - Saat input produk di modal Master Produk, sistem secara realtime mendeteksi apakah barcode atau nama produk sudah ada di master global. Jika ditemukan, sistem menampilkan notifikasi ramah & tombol 1-klik untuk langsung beralih ke mode edit/aktifkan produk di cabang saat ini.
 9. **Hak Akses Pembuatan Akun Superadmin vs Owner:**
@@ -284,9 +319,18 @@ erDiagram
    - Pengguna selain Owner melihat dan mengalami sistem sebagai aplikasi toko tunggal ("Soulmate Komputer").
    - Seluruh elemen identifikasi cabang lain, badge nama cabang pada navbar/header, dropdown switcher cabang, dan keterangan cabang pada notifikasi disembunyikan/disterilisasi dari staf cabang.
 11. **Pencarian Multi-Kata Longgar Global (Global Loose Multi-Word Search):**
-   - Semua input pencarian (POS, Master Produk, Stok Cabang, Master User, Master Customer, Master Kategori) menggunakan mekanisme tokenized substring matching multi-kata (`explode(' ', $search)`), *case-insensitive* (`LOWER() LIKE ?`), dan non-strict per karakter.
+   - Semua input pencarian (POS, Master Produk, Master Servis, Stok Cabang, Master User, Master Customer, Master Kategori) menggunakan mekanisme tokenized substring matching multi-kata (`explode(' ', $search)`), *case-insensitive* (`LOWER() LIKE ?`), dan non-strict per karakter.
 12. **Aksi Hapus Produk di Cabang:**
    - Aksi hapus produk dari tampilan Cabang (oleh Superadmin) akan menonaktifkan status produk di cabang tersebut (`is_aktif = false`), bukan menghapus master produk global. Hapus master produk global hanya bisa dilakukan oleh Owner dalam Konteks HQ.
+13. **Pemisahan Total Master Produk vs Master Servis:**
+   - Master Produk: Khusus barang retail kasir/online.
+   - Master Servis: Khusus item jasa perbaikan & suku cadang nota servis. Memiliki tabel dan alokasi stok cabang mandiri (`master_servis` & `master_servis_stoks`).
+14. **Threshold Alert & Notifikasi Bell Khusus Sparepart Servis:**
+   - Sparepart dengan stok $\le$ batas minimum (`min_stok`) otomatis memicu alert peringatan stok kritis pada dropdown lonceng notifikasi header secara realtime.
+15. **Standardisasi Form Servis Masuk:**
+   - Kategori perangkat: `Laptop`, `Printer`, `Komputer`, `Lainnya`.
+   - Kelengkapan: `Charger`, `Box`, `Flashdisk`, `Harddisk`.
+   - Catatan servis diperluas di sebelah kiri, kolom nomor seri dan kondisi fisik ditiadakan.
 
 ---
 

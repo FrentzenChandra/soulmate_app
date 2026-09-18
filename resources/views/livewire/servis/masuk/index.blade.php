@@ -153,10 +153,10 @@
                 <select wire:model.live="kategoriFilter"
                         class="w-full py-2.5 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all cursor-pointer">
                     <option value="semua">Semua Kategori Perangkat</option>
-                    <option value="laptop">Laptop / Notebook</option>
-                    <option value="komputer">PC Komputer / Desktop</option>
-                    <option value="printer">Printer / Scanner</option>
-                    <option value="lainnya">Perangkat Lainnya</option>
+                    <option value="laptop">Laptop</option>
+                    <option value="printer">Printer</option>
+                    <option value="komputer">Komputer</option>
+                    <option value="lainnya">Lainnya</option>
                 </select>
             </div>
 
@@ -462,14 +462,14 @@
                                         Laptop
                                     </button>
                                     <button type="button"
-                                            wire:click="$set('kategoriPerangkat', 'komputer')"
-                                            class="py-2 px-3 rounded-xl font-bold border text-center transition-all cursor-pointer {{ $kategoriPerangkat === 'komputer' ? 'bg-purple-50 border-[#5E17EB] text-[#5E17EB] shadow-2xs font-black' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50' }}">
-                                        PC Komputer
-                                    </button>
-                                    <button type="button"
                                             wire:click="$set('kategoriPerangkat', 'printer')"
                                             class="py-2 px-3 rounded-xl font-bold border text-center transition-all cursor-pointer {{ $kategoriPerangkat === 'printer' ? 'bg-purple-50 border-[#5E17EB] text-[#5E17EB] shadow-2xs font-black' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50' }}">
-                                        Printer / Scan
+                                        Printer
+                                    </button>
+                                    <button type="button"
+                                            wire:click="$set('kategoriPerangkat', 'komputer')"
+                                            class="py-2 px-3 rounded-xl font-bold border text-center transition-all cursor-pointer {{ $kategoriPerangkat === 'komputer' ? 'bg-purple-50 border-[#5E17EB] text-[#5E17EB] shadow-2xs font-black' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50' }}">
+                                        Komputer
                                     </button>
                                     <button type="button"
                                             wire:click="$set('kategoriPerangkat', 'lainnya')"
@@ -478,27 +478,20 @@
                                     </button>
                                 </div>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Tipe / Merk Perangkat *</label>
-                                        <input type="text"
-                                               wire:model="tipeUnit"
-                                               class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
-                                        @error('tipeUnit') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
-                                    </div>
-                                    <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Nomor Seri / Serial Number (Opsional)</label>
-                                        <input type="text"
-                                               wire:model="serialNumber"
-                                               class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-mono font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
-                                    </div>
+                                <div>
+                                    <label class="block font-bold text-gray-700 mb-1">Tipe / Merk Perangkat *</label>
+                                    <input type="text"
+                                           wire:model="tipeUnit"
+                                           placeholder="Contoh: Asus ROG Strix G15, Epson L3110, Lenovo IdeaPad..."
+                                           class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                    @error('tipeUnit') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
                                 </div>
 
                                 <!-- Kelengkapan Bawaan Chips -->
                                 <div>
                                     <label class="block font-bold text-gray-700 mb-1.5">Kelengkapan Bawaan Unit</label>
                                     <div class="flex flex-wrap gap-1.5 mb-2">
-                                        @foreach(['Unit', 'Adaptor / Charger', 'Kabel Power', 'Tas Laptop', 'Dus / Box', 'Mouse', 'Flashdisk / Harddisk'] as $chip)
+                                        @foreach(['Unit', 'Charger', 'Kabel Power', 'Tas Laptop', 'Box', 'Flashdisk', 'Harddisk'] as $chip)
                                             <button type="button"
                                                     wire:key="chip-{{ Str::slug($chip) }}"
                                                     wire:click="toggleKelengkapanChip('{{ $chip }}')"
@@ -509,34 +502,31 @@
                                     </div>
                                     <input type="text"
                                            wire:model="customKelengkapan"
-                                           class="w-full px-3 py-1.5 rounded-xl border border-gray-200 bg-gray-50/60 text-xs font-semibold text-gray-800 focus:bg-white focus:ring-1 focus:ring-[#5E17EB]">
+                                           placeholder="Kelengkapan lain (contoh: dongle, stylus, kabel usb)..."
+                                           class="w-full px-3.5 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-xs font-semibold text-gray-800 focus:bg-white focus:ring-1 focus:ring-[#5E17EB]">
                                 </div>
                             </div>
 
-                            <!-- Section 3: Diagnosa Keluhan & Kondisi Fisik -->
+                            <!-- Section 3: Keluhan & Catatan Servis -->
                             <div class="space-y-3">
-                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">3. Keluhan &amp; Kondisi Fisik</span>
+                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">3. Keluhan &amp; Catatan Servis</span>
                                 
-                                <div>
-                                    <label class="block font-bold text-gray-700 mb-1">Keluhan Kerusakan / Permasalahan *</label>
-                                    <textarea wire:model="keluhan"
-                                              rows="2"
-                                              class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"></textarea>
-                                    @error('keluhan') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
-                                </div>
-
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Kondisi Fisik / Bodi Awal</label>
-                                        <input type="text"
-                                               wire:model="kondisiBarang"
-                                               class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                        <label class="block font-bold text-gray-700 mb-1">Keluhan Kerusakan / Permasalahan *</label>
+                                        <textarea wire:model="keluhan"
+                                                  rows="3"
+                                                  placeholder="Jelaskan kendala, gejala kerusakan, atau permasalahan unit..."
+                                                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"></textarea>
+                                        @error('keluhan') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
                                     </div>
                                     <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Catatan Tambahan (Opsional)</label>
-                                        <input type="text"
-                                               wire:model="catatan"
-                                               class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                        <label class="block font-bold text-gray-700 mb-1">Catatan Servis (Opsional)</label>
+                                        <textarea wire:model="catatan"
+                                                  rows="3"
+                                                  placeholder="Catatan servis, instruksi khusus teknisi, password unit, dll..."
+                                                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"></textarea>
+                                        @error('catatan') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                             </div>

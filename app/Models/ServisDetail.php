@@ -12,8 +12,10 @@ class ServisDetail extends Model
 
     protected $fillable = [
         'servis_id',
+        'master_servis_id',
         'produk_id',
         'nama_item',
+        'jenis',
         'qty',
         'harga',
         'subtotal',
@@ -31,6 +33,11 @@ class ServisDetail extends Model
     public function servis(): BelongsTo
     {
         return $this->belongsTo(ServisMasuk::class, 'servis_id');
+    }
+
+    public function masterServis(): BelongsTo
+    {
+        return $this->belongsTo(MasterServis::class, 'master_servis_id');
     }
 
     public function produk(): BelongsTo

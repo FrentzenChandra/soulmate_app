@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             MasterPpnSeeder::class,
             CustomerSeeder::class,
             KategoriDanProdukSeeder::class,
+            MasterServisSeeder::class,
             ServisMasukSeeder::class,
             PenjualanSeeder::class,
         ]);

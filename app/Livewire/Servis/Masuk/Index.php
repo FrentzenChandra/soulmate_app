@@ -189,12 +189,12 @@ class Index extends Component
 
         // Validasi Form
         $rules = [
-            'kategoriPerangkat' => 'required|in:laptop,komputer,printer,lainnya',
+            'kategoriPerangkat' => 'required|in:laptop,printer,komputer,lainnya',
             'tipeUnit' => 'required|string|max:150',
             'serialNumber' => 'nullable|string|max:100',
             'keluhan' => 'required|string|min:3',
             'kondisiBarang' => 'nullable|string|max:500',
-            'catatan' => 'nullable|string|max:500',
+            'catatan' => 'nullable|string|max:1000',
         ];
 
         if ($this->customerType === 'baru') {
