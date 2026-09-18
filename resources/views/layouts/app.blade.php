@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Dashboard' }} - Soulmate Komputer</title>
-    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo_bulat.jpg') }}">
+    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo_bulat.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -61,11 +61,11 @@
         <!-- Sidebar Desktop & Mobile -->
         <aside class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0E1726] text-white flex flex-col transition-transform duration-300 ease-in-out md:static md:translate-x-0"
                :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
-            
+
             <!-- Brand Logo -->
             <div class="flex items-center justify-between px-5 py-4 border-b border-gray-800/80">
                 <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
-                    <img src="{{ asset('images/logo.jpeg') }}" alt="Logo Soulmate" class="w-10 h-10 rounded-xl object-contain bg-white/5 p-1 border border-white/10 shadow-lg shadow-purple-950/50">
+                    <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo Soulmate" class="w-10 h-10 rounded-xl object-contain bg-white/5 p-1 border border-white/10 shadow-lg shadow-purple-950/50">
                     <div>
                         <span class="text-base font-extrabold tracking-tight block leading-tight text-white">SOULMATE</span>
                         <span class="text-[10px] text-purple-400 font-bold tracking-wider uppercase">Komputer & Servis</span>
@@ -383,7 +383,7 @@
 
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-            
+
             <!-- Topbar Header -->
             <header class="bg-white border-b border-gray-200/80 px-6 py-3.5 flex items-center justify-between relative z-30">
                 <div class="flex items-center space-x-4">
@@ -402,7 +402,7 @@
 
                     <!-- User Profile Dropdown -->
                     <div class="relative" x-data="{ profileOpen: false }" @click.outside="profileOpen = false">
-                    <button @click="profileOpen = !profileOpen" 
+                    <button @click="profileOpen = !profileOpen"
                             type="button"
                             class="flex items-center space-x-3 p-1 rounded-xl hover:bg-gray-100 transition-colors focus:outline-none cursor-pointer group">
                         <div class="hidden sm:flex flex-col text-right">
@@ -411,9 +411,9 @@
                         </div>
                         <div class="w-10 h-10 rounded-xl overflow-hidden bg-brand-gradient text-white flex items-center justify-center font-bold text-base shadow-sm ring-2 ring-purple-100 group-hover:ring-purple-200 transition-all shrink-0">
                             @if(auth()->user()->profile_photo_url || auth()->user()->foto_url)
-                                <img src="{{ auth()->user()->profile_photo_url ?? asset(auth()->user()->foto_url) }}" 
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
-                                     alt="{{ auth()->user()->name }}" 
+                                <img src="{{ auth()->user()->profile_photo_url ?? asset(auth()->user()->foto_url) }}"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                     alt="{{ auth()->user()->name }}"
                                      class="w-full h-full object-cover">
                                 <span style="display:none;" class="w-full h-full flex items-center justify-center">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
                             @else
@@ -426,7 +426,7 @@
                     </button>
 
                     <!-- Profile Dropdown Menu -->
-                    <div x-show="profileOpen" 
+                    <div x-show="profileOpen"
                          x-cloak
                          x-transition:enter="transition ease-out duration-150"
                          x-transition:enter-start="opacity-0 translate-y-2 scale-95"
@@ -436,7 +436,7 @@
                          x-transition:leave-end="opacity-0 translate-y-2 scale-95"
                          class="absolute right-0 mt-2 w-64 rounded-2xl bg-white shadow-2xl shadow-purple-950/15 border border-gray-100 py-2 z-50 divide-y divide-gray-100"
                          style="display: none;">
-                        
+
                         <div class="px-4 py-3">
                             <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Masuk sebagai</p>
                             <p class="text-sm font-extrabold text-gray-900 truncate mt-0.5">{{ auth()->user()->name }}</p>

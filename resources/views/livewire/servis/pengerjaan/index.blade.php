@@ -135,14 +135,13 @@
         <!-- Filter Controls -->
         <div class="w-full lg:w-auto flex flex-wrap items-center gap-2">
             
-            <!-- Filter Status -->
+            <!-- Filter Status (5 Status Utama) -->
             <select wire:model.live="statusFilter" class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-700 focus:bg-white focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB]">
                 <option value="semua">Semua Status</option>
-                <option value="selesai">Siap Diambil</option>
-                <option value="pengerjaan">Dalam Pengerjaan</option>
                 <option value="pengecekan">Pengecekan</option>
-                <option value="menunggu_sparepart">Menunggu Sparepart</option>
-                <option value="sudah_dibayar">Sudah Diambil (Lunas)</option>
+                <option value="perbaikan">Perbaikan</option>
+                <option value="selesai">Selesai</option>
+                <option value="sudah_diambil">Sudah Diambil</option>
                 <option value="batal">Batal</option>
             </select>
 
@@ -178,9 +177,9 @@
     </div>
 
     <!-- ============================================== -->
-    <!-- TABEL SERVIS KELUAR & PELUNASAN               -->
+    <!-- TABEL SERVIS KELUAR & PELUNASAN (COMPACT)     -->
     <!-- ============================================== -->
-    <div class="card-custom bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden relative">
+    <div class="card-custom bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden relative">
         
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse table-fixed min-w-[950px]">
@@ -198,17 +197,17 @@
                 </colgroup>
 
                 <thead>
-                    <tr class="border-b border-gray-100 bg-gray-50/70 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">
-                        <x-th-sort field="tanggal_masuk" :sortField="$sortField" :sortDirection="$sortDirection" class="py-3.5 px-4">Waktu / Tiket</x-th-sort>
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Pelanggan</th>
-                        <x-th-sort field="tipe_unit" :sortField="$sortField" :sortDirection="$sortDirection" class="py-3.5 px-4">Unit &amp; Keluhan</x-th-sort>
+                    <tr class="border-b border-gray-200 bg-gray-50/80 text-[10px] font-extrabold text-gray-500 uppercase tracking-wider">
+                        <x-th-sort field="tanggal_masuk" :sortField="$sortField" :sortDirection="$sortDirection" class="py-2.5 px-3">Waktu / Tiket</x-th-sort>
+                        <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500">Pelanggan</th>
+                        <x-th-sort field="tipe_unit" :sortField="$sortField" :sortDirection="$sortDirection" class="py-2.5 px-3">Unit &amp; Keluhan</x-th-sort>
                         @if($isHQ)
-                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Cabang</th>
+                            <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500">Cabang</th>
                         @endif
-                        <x-th-sort field="status" :sortField="$sortField" :sortDirection="$sortDirection" align="center" class="py-3.5 px-4 text-center">Status Pengerjaan</x-th-sort>
-                        <x-th-sort field="tanggal_ambil" :sortField="$sortField" :sortDirection="$sortDirection" class="py-3.5 px-4">Waktu Diambil</x-th-sort>
-                        <x-th-sort field="total_biaya" :sortField="$sortField" :sortDirection="$sortDirection" align="right" class="py-3.5 px-4 text-right">Total Biaya</x-th-sort>
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400 text-center">Aksi</th>
+                        <x-th-sort field="status" :sortField="$sortField" :sortDirection="$sortDirection" align="center" class="py-2.5 px-3 text-center">Status</x-th-sort>
+                        <x-th-sort field="tanggal_ambil" :sortField="$sortField" :sortDirection="$sortDirection" class="py-2.5 px-3">Waktu Diambil</x-th-sort>
+                        <x-th-sort field="total_biaya" :sortField="$sortField" :sortDirection="$sortDirection" align="right" class="py-2.5 px-3 text-right">Total Biaya</x-th-sort>
+                        <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500 text-center">Aksi</th>
                     </tr>
                 </thead>
 
@@ -219,16 +218,16 @@
                        class="divide-y divide-gray-100 bg-white">
                     @for($i = 0; $i < 6; $i++)
                         <tr class="animate-pulse">
-                            <td class="py-4 px-4"><div class="h-3.5 bg-gray-200 rounded-md w-28"></div></td>
-                            <td class="py-4 px-4"><div class="h-3.5 bg-gray-200 rounded-md w-24"></div></td>
-                            <td class="py-4 px-4"><div class="h-3.5 bg-gray-200 rounded-md w-40"></div></td>
+                            <td class="py-2 px-3"><div class="h-3 bg-gray-200 rounded w-24"></div></td>
+                            <td class="py-2 px-3"><div class="h-3 bg-gray-200 rounded w-24"></div></td>
+                            <td class="py-2 px-3"><div class="h-3 bg-gray-200 rounded w-36"></div></td>
                             @if($isHQ)
-                                <td class="py-4 px-4"><div class="h-3 bg-gray-200 rounded-md w-16"></div></td>
+                                <td class="py-2 px-3"><div class="h-3 bg-gray-200 rounded w-16"></div></td>
                             @endif
-                            <td class="py-4 px-4 text-center"><div class="h-5 bg-gray-200 rounded-lg w-24 mx-auto"></div></td>
-                            <td class="py-4 px-4"><div class="h-3.5 bg-gray-200 rounded-md w-24"></div></td>
-                            <td class="py-4 px-4 text-right"><div class="h-3.5 bg-gray-200 rounded-md w-20 ml-auto"></div></td>
-                            <td class="py-4 px-4 text-center"><div class="h-6 bg-gray-100 rounded-lg w-20 mx-auto"></div></td>
+                            <td class="py-2 px-3 text-center"><div class="h-4 bg-gray-200 rounded-full w-20 mx-auto"></div></td>
+                            <td class="py-2 px-3"><div class="h-3 bg-gray-200 rounded w-20"></div></td>
+                            <td class="py-2 px-3 text-right"><div class="h-3 bg-gray-200 rounded w-20 ml-auto"></div></td>
+                            <td class="py-2 px-3 text-center"><div class="h-5 bg-gray-100 rounded w-16 mx-auto"></div></td>
                         </tr>
                     @endfor
                 </tbody>
@@ -239,43 +238,43 @@
                        wire:target="search, statusFilter, ambilFilter, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore" 
                        class="divide-y divide-gray-100 text-xs">
                     @forelse($servisList as $sv)
-                        <tr wire:key="pengerjaan-row-{{ $sv->id }}" class="hover:bg-gray-50/70 transition-colors {{ $sv->status === 'selesai' ? 'bg-emerald-50/30' : '' }}">
+                        <tr wire:key="pengerjaan-row-{{ $sv->id }}" class="hover:bg-gray-50/70 transition-colors {{ $sv->status === 'selesai' ? 'bg-emerald-50/20' : '' }}">
                             
                             <!-- Tiket & Waktu -->
-                            <td class="py-3.5 px-4 min-w-[130px]">
-                                <span class="font-mono font-black text-[#5E17EB] text-sm block">
+                            <td class="py-2 px-3 min-w-[120px] whitespace-nowrap">
+                                <span class="font-mono font-black text-[#5E17EB] text-xs block leading-tight">
                                     {{ $sv->no_servis_frontend }}
                                 </span>
-                                <span class="text-[11px] text-gray-400 font-mono">
+                                <span class="text-[10px] text-gray-400 font-mono block leading-tight">
                                     {{ $sv->tanggal_masuk ? $sv->tanggal_masuk->format('d/m/Y H:i') : '-' }}
                                 </span>
                             </td>
 
                             <!-- Pelanggan -->
-                            <td class="py-3.5 px-4 min-w-[140px]">
-                                <span class="font-extrabold text-gray-900 block truncate max-w-[150px]" title="{{ $sv->customer?->nama }}">
+                            <td class="py-2 px-3 min-w-[130px]">
+                                <span class="font-bold text-gray-900 block truncate max-w-[140px] leading-tight" title="{{ $sv->customer?->nama }}">
                                     {{ $sv->customer?->nama ?? 'Pelanggan Umum' }}
                                 </span>
-                                <span class="text-[11px] font-mono text-gray-500 block">
+                                <span class="text-[10px] font-mono text-gray-500 block leading-tight">
                                     {{ $sv->customer?->no_hp ?? '-' }}
                                 </span>
                             </td>
 
                             <!-- Unit & Keluhan -->
-                            <td class="py-3.5 px-4 min-w-[180px] max-w-[220px]">
-                                <span class="font-bold text-gray-900 block truncate" title="{{ $sv->tipe_unit }}">
+                            <td class="py-2 px-3 min-w-[170px] max-w-[220px]">
+                                <span class="font-bold text-gray-900 block truncate leading-tight" title="{{ $sv->tipe_unit }}">
                                     {{ $sv->tipe_unit ?: $sv->kategori_perangkat_label }}
                                 </span>
-                                <p class="text-[11px] text-gray-500 truncate" title="{{ $sv->keluhan }}">
+                                <p class="text-[10px] text-gray-500 truncate mt-0.5 leading-tight" title="{{ $sv->keluhan }}">
                                     {{ $sv->keluhan ?: '-' }}
                                 </p>
                             </td>
 
                             <!-- Cabang (HQ Only) -->
                             @if($isHQ)
-                                <td class="py-3.5 px-4 w-32">
+                                <td class="py-2 px-3 w-28 whitespace-nowrap">
                                     @if($sv->cabang)
-                                        <span class="inline-block text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200">
+                                        <span class="inline-block text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
                                             {{ $sv->cabang->nama_cabang }}
                                         </span>
                                     @else
@@ -285,63 +284,63 @@
                             @endif
 
                             <!-- Badge Status -->
-                            <td class="py-3.5 px-4 w-36 text-center">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-extrabold border {{ $sv->status_badge_class }}">
+                            <td class="py-2 px-3 w-32 text-center whitespace-nowrap">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $sv->status_badge_class }}">
                                     {{ $sv->status_label }}
                                 </span>
-                                @if($sv->garansi_hari > 0 && $sv->status === 'sudah_dibayar')
-                                    <span class="block text-[10px] font-bold text-emerald-600 mt-0.5">
+                                @if($sv->garansi_hari > 0 && ($sv->status === 'sudah_diambil' || $sv->status === 'sudah_dibayar'))
+                                    <span class="block text-[9px] font-bold text-emerald-600 mt-0.5 leading-tight">
                                         Garansi s/d {{ $sv->garansi_sampai ? $sv->garansi_sampai->format('d/m/Y') : '-' }}
                                     </span>
                                 @endif
                             </td>
 
                             <!-- Waktu Diambil -->
-                            <td class="py-3.5 px-4 w-36">
+                            <td class="py-2 px-3 w-32 whitespace-nowrap">
                                 @if($sv->tanggal_ambil)
-                                    <span class="font-mono font-bold text-gray-900 text-xs block">
+                                    <span class="font-mono font-bold text-gray-900 text-xs block leading-tight">
                                         {{ $sv->tanggal_ambil->format('d/m/Y') }}
                                     </span>
-                                    <span class="text-[10px] text-gray-500 font-mono block">
+                                    <span class="text-[10px] text-gray-500 font-mono block leading-tight">
                                         {{ $sv->tanggal_ambil->format('H:i') }} WIB
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-gray-100 text-gray-500 border border-gray-200">
+                                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium bg-gray-100 text-gray-500 border border-gray-200">
                                         Belum Diambil
                                     </span>
                                 @endif
                             </td>
 
                             <!-- Total Biaya -->
-                            <td class="py-3.5 px-4 w-36 text-right">
-                                <span class="font-mono font-black text-gray-900 text-sm block">
+                            <td class="py-2 px-3 w-32 text-right whitespace-nowrap">
+                                <span class="font-mono font-black text-gray-900 text-xs block leading-tight">
                                     Rp {{ number_format($sv->total_biaya, 0, ',', '.') }}
                                 </span>
-                                <span class="text-[10px] text-gray-400 font-medium">
-                                    {{ $sv->details->count() }} item rincian
+                                <span class="text-[10px] text-gray-400 font-medium block leading-tight">
+                                    {{ $sv->details->count() }} item
                                 </span>
                             </td>
 
                             <!-- Aksi -->
-                            <td class="py-3.5 px-4 w-28 text-center">
-                                <div class="flex items-center justify-center space-x-1.5">
+                            <td class="py-2 px-3 w-28 text-center whitespace-nowrap">
+                                <div class="flex items-center justify-center space-x-1">
                                     
                                     <!-- Tombol Workspace Pengerjaan -->
                                     <button type="button"
                                             wire:click="openPengerjaanModal({{ $sv->id }})"
                                             wire:loading.attr="disabled"
                                             title="Buka Workspace Pengerjaan & Billing"
-                                            class="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 disabled:opacity-50 text-[#0052FF] font-bold text-xs transition-all cursor-pointer border border-blue-200">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                            class="p-1 rounded-md bg-blue-50 hover:bg-blue-100 disabled:opacity-50 text-[#0052FF] font-bold text-xs transition-all cursor-pointer border border-blue-200">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
 
                                     <!-- Tombol Kasir Pelunasan (Jika status belum lunas & belum batal) -->
-                                    @if($sv->status !== 'sudah_dibayar' && $sv->status !== 'batal')
+                                    @if($sv->status !== 'sudah_diambil' && $sv->status !== 'sudah_dibayar' && $sv->status !== 'batal')
                                         <button type="button"
                                                 wire:click="openCheckoutModal({{ $sv->id }})"
                                                 wire:loading.attr="disabled"
                                                 title="Kasir Pelunasan & Pengambilan Unit"
-                                                class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs transition-all cursor-pointer shadow-xs inline-flex items-center space-x-1">
+                                                class="px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs transition-all cursor-pointer shadow-2xs inline-flex items-center space-x-1">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                             <span>Bayar</span>
                                         </button>
@@ -350,8 +349,8 @@
                                         <a href="{{ route('servis.invoice', $sv->id) }}"
                                            target="_blank"
                                            title="Cetak Faktur Pelunasan"
-                                           class="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition-all cursor-pointer">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                           class="p-1 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition-all cursor-pointer">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                         </a>
                                     @endif
 
@@ -444,12 +443,11 @@
                     <!-- Section Update Status Pengerjaan -->
                     <div class="p-4 rounded-2xl bg-blue-50/50 border border-blue-100 text-xs">
                         <label class="block text-gray-700 font-bold mb-1.5">Status Pengerjaan Saat Ini:</label>
-                        <select wire:model="pengerjaanStatus" class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl font-black text-gray-800 text-xs focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF]">
+                        <select wire:model="pengerjaanStatus" class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl font-bold text-gray-800 text-xs focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF]">
                             <option value="pengecekan">Pengecekan</option>
-                            <option value="pengerjaan">Dalam Pengerjaan</option>
-                            <option value="menunggu_sparepart">Menunggu Sparepart</option>
-                            <option value="selesai">Siap Diambil (Selesai Pengerjaan)</option>
-                            <option value="batal">Batal Servis</option>
+                            <option value="perbaikan">Perbaikan</option>
+                            <option value="selesai">Selesai</option>
+                            <option value="batal">Batal</option>
                         </select>
                     </div>
 

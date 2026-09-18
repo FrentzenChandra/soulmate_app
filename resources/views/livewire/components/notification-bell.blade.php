@@ -1,6 +1,6 @@
 <div class="relative" x-data="{ bellOpen: false }" @click.outside="bellOpen = false">
     <!-- Trigger Button -->
-    <button @click="bellOpen = !bellOpen" 
+    <button @click="bellOpen = !bellOpen"
             type="button"
             class="relative p-2.5 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none cursor-pointer group"
             title="Notifikasi Stok & Peringatan">
@@ -21,7 +21,7 @@
     </button>
 
     <!-- Dropdown Panel -->
-    <div x-show="bellOpen" 
+    <div x-show="bellOpen"
          x-cloak
          x-transition:enter="transition ease-out duration-150"
          x-transition:enter-start="opacity-0 translate-y-2 scale-95"
@@ -31,7 +31,7 @@
          x-transition:leave-end="opacity-0 translate-y-2 scale-95"
          class="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white shadow-2xl shadow-purple-950/15 border border-gray-100 py-3 z-50 divide-y divide-gray-100"
          style="display: none;">
-        
+
         <!-- Dropdown Header -->
         <div class="px-4 pb-3">
             <div class="flex items-center justify-between">
@@ -82,7 +82,7 @@
                         @if($fotoUrl && file_exists(public_path($fotoUrl)))
                             <img src="{{ asset($fotoUrl) }}" alt="{{ $nama }}" class="w-9 h-9 rounded-lg object-cover border border-gray-200">
                         @elseif($fotoUrl && (str_starts_with($fotoUrl, 'http') || str_starts_with($fotoUrl, 'storage/') || str_starts_with($fotoUrl, 'images/')))
-                            <img src="{{ asset($fotoUrl) }}" alt="{{ $nama }}" class="w-9 h-9 rounded-lg object-cover border border-gray-200" onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.jpg') }}';">
+                            <img src="{{ asset($fotoUrl) }}" alt="{{ $nama }}" class="w-9 h-9 rounded-lg object-cover border border-gray-200" onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.png') }}';">
                         @else
                             <div class="w-9 h-9 rounded-lg {{ $isZero ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-amber-50 text-amber-600 border border-amber-100' }} flex items-center justify-center">
                                 <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -128,12 +128,12 @@
 
         <!-- Dropdown Footer -->
         <div class="px-4 pt-2.5 flex items-center justify-between">
-            <a href="{{ route('cabang.stok') }}" 
+            <a href="{{ route('cabang.stok') }}"
                class="text-xs font-bold text-[#5E17EB] hover:text-purple-700 flex items-center space-x-1 transition-colors">
                 <span>{{ $isOwner ? ($isHQ ? 'Kelola Stok Seluruh Cabang' : 'Kelola Stok Cabang') : 'Kelola Stok Produk' }}</span>
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </a>
-            <a href="{{ route('master.produk') }}" 
+            <a href="{{ route('master.produk') }}"
                class="text-[11px] font-semibold text-gray-400 hover:text-gray-600 transition-colors">
                 Katalog Produk
             </a>

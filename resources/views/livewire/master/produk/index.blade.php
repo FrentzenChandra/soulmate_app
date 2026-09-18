@@ -117,7 +117,7 @@
                                     <img src="{{ asset($p->foto_url) }}"
                                          alt="{{ $p->nama_produk }}"
                                          class="w-11 h-11 rounded-xl object-cover border border-gray-200 shadow-xs mx-auto"
-                                         onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.jpg') }}';">
+                                         onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.png') }}';">
                                 @else
                                     <div class="w-11 h-11 rounded-xl bg-purple-50 border border-purple-100 text-[#5E17EB] flex items-center justify-center mx-auto shadow-2xs">
                                         <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -238,12 +238,12 @@
 
         <!-- Infinite Scroll Sentinel & Status -->
         <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
-            <x-infinite-scroll-sentinel 
-                :has-more="$hasMore" 
-                target="loadMore" 
-                label="produk" 
-                :current="$produks->count()" 
-                :total="$totalProduk" 
+            <x-infinite-scroll-sentinel
+                :has-more="$hasMore"
+                target="loadMore"
+                label="produk"
+                :current="$produks->count()"
+                :total="$totalProduk"
                 color="purple" />
         </div>
     </div>
@@ -337,7 +337,7 @@
                                         <div class="p-3 bg-white rounded-2xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                                             <div class="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
                                                 <img src="{{ asset($existing_foto_url) }}"
-                                                     onerror="this.src='{{ asset('images/logo_bulat.jpg') }}';"
+                                                     onerror="this.src='{{ asset('images/logo_bulat.png') }}';"
                                                      alt="Foto Saat Ini"
                                                      class="w-full h-full object-cover">
                                             </div>
@@ -514,7 +514,7 @@
                             <!-- Harga & Margin Profit Live Calculator -->
                             <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80 space-y-4">
                                 <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Harga & Margin Keuntungan</h4>
-                                
+
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <!-- Harga Beli / Modal -->
                                     <div>
@@ -523,8 +523,8 @@
                                         </label>
                                         <div class="relative">
                                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-xs font-extrabold text-gray-400">Rp</span>
-                                            <input type="number" 
-                                                   wire:model.live.debounce.300ms="harga_beli" 
+                                            <input type="number"
+                                                   wire:model.live.debounce.300ms="harga_beli"
                                                    min="0"
                                                    class="w-full pl-9 pr-3 py-2 text-xs font-extrabold rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('harga_beli') border-rose-500 @enderror">
                                         </div>
@@ -538,8 +538,8 @@
                                         </label>
                                         <div class="relative">
                                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-xs font-extrabold text-gray-400">Rp</span>
-                                            <input type="number" 
-                                                   wire:model.live.debounce.300ms="harga_jual" 
+                                            <input type="number"
+                                                   wire:model.live.debounce.300ms="harga_jual"
                                                    min="0"
                                                    class="w-full pl-9 pr-3 py-2 text-xs font-extrabold rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('harga_jual') border-rose-500 @enderror">
                                         </div>
@@ -796,7 +796,7 @@
 
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
-                    
+
                     <!-- Header Modal with Icon & Context -->
                     <div class="p-6 pb-4">
                         <div class="flex items-start space-x-4">
@@ -829,7 +829,7 @@
                             @if($deleteProdukFoto && file_exists(public_path($deleteProdukFoto)))
                                 <img src="{{ asset($deleteProdukFoto) }}" alt="{{ $deleteProdukNama }}" class="w-13 h-13 rounded-xl object-cover border border-gray-200 shadow-xs shrink-0">
                             @elseif($deleteProdukFoto && (str_starts_with($deleteProdukFoto, 'http') || str_starts_with($deleteProdukFoto, 'storage/') || str_starts_with($deleteProdukFoto, 'images/')))
-                                <img src="{{ asset($deleteProdukFoto) }}" alt="{{ $deleteProdukNama }}" class="w-13 h-13 rounded-xl object-cover border border-gray-200 shadow-xs shrink-0" onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.jpg') }}';">
+                                <img src="{{ asset($deleteProdukFoto) }}" alt="{{ $deleteProdukNama }}" class="w-13 h-13 rounded-xl object-cover border border-gray-200 shadow-xs shrink-0" onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.png') }}';">
                             @else
                                 <div class="w-13 h-13 rounded-xl bg-purple-50 text-[#5E17EB] border border-purple-100 flex items-center justify-center shrink-0">
                                     <svg class="w-6 h-6 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>

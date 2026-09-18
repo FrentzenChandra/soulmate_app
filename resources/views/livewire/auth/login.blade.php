@@ -1,18 +1,18 @@
 <div class="relative bg-white rounded-3xl shadow-2xl shadow-purple-950/40 border border-gray-100/10 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
 
     <!-- Full-screen Loading Modal Overlay on Submit -->
-    <div wire:loading.flex 
-         wire:target="authenticate" 
+    <div wire:loading.flex
+         wire:target="authenticate"
          class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/75 backdrop-blur-sm transition-opacity"
          style="display: none;">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-11/12 shadow-2xl border border-gray-100 flex flex-col items-center text-center">
             <div class="relative mb-5">
                 <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#5E17EB] to-[#E6007A] flex items-center justify-center text-white shadow-xl shadow-purple-500/30 overflow-hidden">
-                    <img src="{{ asset('images/logo_bulat.jpg') }}" alt="Logo" class="w-full h-full object-cover">
+                    <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-full h-full object-cover">
                 </div>
                 <div class="absolute -inset-1.5 rounded-2xl border-2 border-[#5E17EB] animate-ping opacity-40"></div>
             </div>
-            
+
             <h3 class="text-lg font-extrabold text-gray-900">Memproses Masuk...</h3>
             <p class="text-xs text-gray-500 mt-1 leading-relaxed">
                 Sedang memverifikasi kredensial & otorisasi sistem Soulmate Komputer.
@@ -26,15 +26,15 @@
     </div>
 
     <!-- Left Hero Display Section (Desktop Only / Wide) -->
-    <div class="lg:col-span-6 relative hidden lg:flex flex-col justify-between p-8 bg-cover bg-center overflow-hidden" 
+    <div class="lg:col-span-6 relative hidden lg:flex flex-col justify-between p-8 bg-cover bg-center overflow-hidden"
          style="background-image: url('{{ asset('images/hero_display.jpeg') }}');">
-        
+
         <!-- Dark Gradient Overlay for Readability -->
         <div class="absolute inset-0 bg-gradient-to-t from-[#0E1726] via-[#0E1726]/80 to-[#0E1726]/60"></div>
 
         <!-- Top Header inside Hero -->
         <div class="relative z-10 flex items-center space-x-3">
-            <img src="{{ asset('images/logo_bulat.jpg') }}" alt="Logo Soulmate" class="w-11 h-11 rounded-xl object-contain bg-white/10 backdrop-blur-md p-1 border border-white/20 shadow-md">
+            <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo Soulmate" class="w-11 h-11 rounded-xl object-contain bg-white/10 backdrop-blur-md p-1 border border-white/20 shadow-md">
             <div>
                 <span class="text-lg font-extrabold text-white tracking-tight block leading-tight">SOULMATE</span>
                 <span class="text-[11px] text-purple-300 font-semibold tracking-wider uppercase">Pusat Servis & Point of Sale</span>
@@ -75,10 +75,10 @@
 
     <!-- Right Login Form Section -->
     <div class="lg:col-span-6 p-7 sm:p-10 flex flex-col justify-center bg-white">
-        
+
         <!-- Mobile Logo Display -->
         <div class="lg:hidden flex items-center space-x-3 mb-6">
-            <img src="{{ asset('images/logo_bulat.jpg') }}" alt="Logo Soulmate" class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm p-0.5">
+            <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo Soulmate" class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm p-0.5">
             <div>
                 <span class="text-lg font-extrabold text-gray-900 tracking-tight block leading-tight">SOULMATE KOMPUTER</span>
                 <span class="text-[10px] text-purple-600 font-bold uppercase tracking-wider">Servis & POS System</span>
@@ -107,9 +107,9 @@
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     </div>
-                    <input type="text" 
-                           id="identity" 
-                           wire:model="identity" 
+                    <input type="text"
+                           id="identity"
+                           wire:model="identity"
                            class="w-full pl-10 pr-4 py-2.5 bg-[#F8F9FA] border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB] transition-all"
                            required autofocus />
                 </div>
@@ -127,9 +127,9 @@
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     </div>
-                    <input :type="show ? 'text' : 'password'" 
-                           id="password" 
-                           wire:model="password" 
+                    <input :type="show ? 'text' : 'password'"
+                           id="password"
+                           wire:model="password"
                            class="w-full pl-10 pr-10 py-2.5 bg-[#F8F9FA] border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB] transition-all"
                            required />
                     <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
@@ -151,7 +151,7 @@
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" 
+            <button type="submit"
                     wire:loading.attr="disabled"
                     class="btn-brand w-full py-3 px-4 rounded-xl text-white font-bold text-sm shadow-md shadow-purple-500/20 flex items-center justify-center space-x-2 cursor-pointer mt-2 disabled:opacity-50">
                 <span wire:loading.remove wire:target="authenticate">Masuk ke Dashboard</span>
@@ -166,20 +166,20 @@
         <div class="mt-6 pt-5 border-t border-gray-100">
             <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2 text-center">Akses Cepat Login</p>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                <button type="button" 
-                        wire:click="fillCredentials('superadmin')" 
+                <button type="button"
+                        wire:click="fillCredentials('superadmin')"
                         class="px-2.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-950 font-extrabold text-left transition-colors flex items-center justify-between cursor-pointer shadow-2xs">
                     <span>Super Admin</span>
                     <span class="text-[9px] text-[#5E17EB] font-black bg-white px-1.5 py-0.5 rounded border border-purple-200">Utama</span>
                 </button>
-                <button type="button" 
-                        wire:click="fillCredentials('kasir_pkp')" 
+                <button type="button"
+                        wire:click="fillCredentials('kasir_pkp')"
                         class="px-2.5 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-800 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
                     <span>Admin</span>
                     <span class="text-[9px] text-gray-500 font-normal">Kasir</span>
                 </button>
-                <button type="button" 
-                        wire:click="fillCredentials('teknisi_pkp')" 
+                <button type="button"
+                        wire:click="fillCredentials('teknisi_pkp')"
                         class="px-2.5 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-800 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
                     <span>Teknisi</span>
                     <span class="text-[9px] text-gray-500 font-normal">Servis</span>

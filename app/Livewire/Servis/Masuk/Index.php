@@ -63,7 +63,7 @@ class Index extends Component
     // State Modal Update Status Cepat
     public bool $modalStatusOpen = false;
     public ?ServisMasuk $servisToUpdate = null;
-    public string $updateStatus = 'pengerjaan';
+    public string $updateStatus = 'perbaikan';
     public string $updateCatatan = '';
 
     // State Modal Konfirmasi Sukses & Cetak
@@ -341,7 +341,7 @@ class Index extends Component
         if (! $this->servisToUpdate) return;
 
         $this->validate([
-            'updateStatus' => 'required|in:pengecekan,pengerjaan,menunggu_sparepart,selesai,sudah_dibayar,batal',
+            'updateStatus' => 'required|in:pengecekan,perbaikan,pengerjaan,selesai,sudah_diambil,sudah_dibayar,batal',
             'updateCatatan' => 'nullable|string|max:500',
         ]);
 
@@ -350,11 +350,12 @@ class Index extends Component
 
             $now = Carbon::now();
             $oldStatus = $this->servisToUpdate->status;
-            $this->servisToUpdate->status = $this->updateStatus;
+            $newStatus = $this->updateStatus;
+            $this->servisToUpdate->status = $newStatus;
 
-            if ($this->updateStatus === 'selesai' && ! $this->servisToUpdate->tanggal_selesai) {
+            if ($newStatus === 'selesai' && ! $this->servisToUpdate->tanggal_selesai) {
                 $this->servisToUpdate->tanggal_selesai = $now;
-            } elseif ($this->updateStatus === 'sudah_dibayar' && ! $this->servisToUpdate->tanggal_ambil) {
+            } elseif (($newStatus === 'sudah_diambil' || $newStatus === 'sudah_dibayar') && ! $this->servisToUpdate->tanggal_ambil) {
                 $this->servisToUpdate->tanggal_ambil = $now;
             }
 
@@ -363,16 +364,16 @@ class Index extends Component
             ServisStatusLog::create([
                 'servis_id' => $this->servisToUpdate->id,
                 'user_id' => Auth::id(),
-                'status' => $this->updateStatus,
+                'status' => $newStatus,
                 'tanggal' => $now,
-                'catatan' => trim($this->updateCatatan) ?: "Status diperbarui dari {$oldStatus} ke {$this->updateStatus}.",
+                'catatan' => trim($this->updateCatatan) ?: "Status diperbarui dari {$oldStatus} ke {$this->servisToUpdate->status_label}.",
             ]);
 
             DB::commit();
 
             // Broadcast real-time Reverb event
             try {
-                broadcast(new ServisStatusUpdated($this->servisToUpdate->id, $this->updateStatus, $this->servisToUpdate->no_servis_frontend, $this->servisToUpdate->cabang_id));
+                broadcast(new ServisStatusUpdated($this->servisToUpdate->id, $newStatus, $this->servisToUpdate->no_servis_frontend, $this->servisToUpdate->cabang_id));
             } catch (\Throwable $th) {
                 // Silently continue
             }
@@ -425,7 +426,13 @@ class Index extends Component
 
         // Filter Status
         if ($this->statusFilter !== 'semua' && ! empty($this->statusFilter)) {
-            $query->where('status', $this->statusFilter);
+            if ($this->statusFilter === 'perbaikan' || $this->statusFilter === 'pengerjaan') {
+                $query->whereIn('status', ['perbaikan', 'pengerjaan']);
+            } elseif ($this->statusFilter === 'sudah_diambil' || $this->statusFilter === 'sudah_dibayar') {
+                $query->whereIn('status', ['sudah_diambil', 'sudah_dibayar']);
+            } else {
+                $query->where('status', $this->statusFilter);
+            }
         }
 
         // Filter Kategori Perangkat
@@ -460,7 +467,7 @@ class Index extends Component
 
         $totalUnitMasuk = $allCurrent->count();
         $totalPengecekan = $allCurrent->where('status', 'pengecekan')->count();
-        $totalPengerjaan = $allCurrent->whereIn('status', ['pengerjaan', 'menunggu_sparepart'])->count();
+        $totalPengerjaan = $allCurrent->whereIn('status', ['perbaikan', 'pengerjaan'])->count();
         $totalSelesai = $allCurrent->where('status', 'selesai')->count();
 
         // Sorting

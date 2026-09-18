@@ -102,10 +102,9 @@ class ServisMasuk extends Model
     {
         return match ($this->status) {
             'pengecekan' => 'Pengecekan',
-            'pengerjaan' => 'Pengerjaan',
-            'menunggu_sparepart' => 'Menunggu Sparepart',
-            'selesai' => 'Siap Diambil',
-            'sudah_dibayar' => 'Sudah Diambil (Lunas)',
+            'perbaikan', 'pengerjaan' => 'Perbaikan',
+            'selesai' => 'Selesai',
+            'sudah_diambil', 'sudah_dibayar' => 'Sudah Diambil',
             'batal' => 'Batal',
             default => ucfirst(str_replace('_', ' ', $this->status)),
         };
@@ -115,10 +114,9 @@ class ServisMasuk extends Model
     {
         return match ($this->status) {
             'pengecekan' => 'bg-amber-50 text-amber-700 border-amber-200',
-            'pengerjaan' => 'bg-blue-50 text-blue-700 border-blue-200',
-            'menunggu_sparepart' => 'bg-purple-50 text-purple-700 border-purple-200',
+            'perbaikan', 'pengerjaan' => 'bg-blue-50 text-blue-700 border-blue-200',
             'selesai' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-            'sudah_dibayar' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
+            'sudah_diambil', 'sudah_dibayar' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
             'batal' => 'bg-rose-50 text-rose-700 border-rose-200',
             default => 'bg-gray-50 text-gray-700 border-gray-200',
         };

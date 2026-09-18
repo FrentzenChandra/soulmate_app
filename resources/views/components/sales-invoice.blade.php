@@ -22,7 +22,7 @@
         <!-- Left: Logo & Company Address -->
         <div class="md:col-span-6 flex items-start space-x-3">
             <div class="w-12 h-12 rounded-lg border-2 border-gray-900 flex items-center justify-center shrink-0 p-1">
-                <img src="{{ asset('images/logo_bulat.jpg') }}" alt="Soulmate Logo" class="w-full h-full object-contain">
+                <img src="{{ asset('images/logo_bulat.png') }}" alt="Soulmate Logo" class="w-full h-full object-contain">
             </div>
             <div>
                 <h2 class="text-lg font-bold text-gray-900 tracking-tight leading-none">Soulmate Komputer</h2>

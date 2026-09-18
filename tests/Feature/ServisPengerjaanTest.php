@@ -205,7 +205,7 @@ class ServisPengerjaanTest extends TestCase
             ->assertDispatched('open-print-invoice');
 
         $servis->refresh();
-        $this->assertEquals('sudah_dibayar', $servis->status);
+        $this->assertEquals('sudah_diambil', $servis->status);
         $this->assertEquals(150000, $servis->bayar);
         $this->assertEquals(0, $servis->kembalian);
         $this->assertEquals(30, $servis->garansi_hari);

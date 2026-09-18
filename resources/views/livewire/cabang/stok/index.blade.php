@@ -15,7 +15,7 @@
         </div>
 
         @if(auth()->user()->isOwner() || auth()->user()->hasRole('Superadmin'))
-            <a href="{{ route('master.produk') }}" 
+            <a href="{{ route('master.produk') }}"
                class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-white hover:bg-gray-50 text-gray-700 font-bold text-xs border border-gray-200 shadow-sm transition-all">
                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 <span>Kelola Katalog Master</span>
@@ -77,7 +77,7 @@
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
-            <input type="text" 
+            <input type="text"
                    wire:model.live.debounce.300ms="search"
                    class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] transition-all">
         </div>
@@ -87,7 +87,7 @@
             <!-- Filter Kategori -->
             <div class="flex items-center space-x-2">
                 <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Kategori:</span>
-                <select wire:model.live="kategoriFilter" 
+                <select wire:model.live="kategoriFilter"
                         class="bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400">
                     <option value="semua">Semua Kategori</option>
                     @foreach($kategoris as $k)
@@ -99,7 +99,7 @@
             <!-- Filter Status Stok -->
             <div class="flex items-center space-x-2">
                 <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Status:</span>
-                <select wire:model.live="stokFilter" 
+                <select wire:model.live="stokFilter"
                         class="bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400">
                     <option value="semua">Semua Status</option>
                     <option value="aktif">Aktif Dijual</option>
@@ -143,18 +143,18 @@
                             <td class="py-4 px-4 text-center">
                                 <div class="relative inline-block">
                                     @if($item->foto_url && file_exists(public_path($item->foto_url)))
-                                        <img src="{{ asset($item->foto_url) }}" 
-                                             alt="{{ $item->nama_produk }}" 
+                                        <img src="{{ asset($item->foto_url) }}"
+                                             alt="{{ $item->nama_produk }}"
                                              loading="lazy"
                                              decoding="async"
                                              class="w-12 h-12 rounded-xl object-cover border {{ $isZero ? 'border-rose-300 ring-2 ring-rose-200' : ($isCrit ? 'border-amber-300 ring-2 ring-amber-200' : 'border-gray-200') }} shadow-xs mx-auto">
                                     @elseif($item->foto_url && (str_starts_with($item->foto_url, 'http') || str_starts_with($item->foto_url, 'storage/') || str_starts_with($item->foto_url, 'images/')))
-                                        <img src="{{ asset($item->foto_url) }}" 
-                                             alt="{{ $item->nama_produk }}" 
+                                        <img src="{{ asset($item->foto_url) }}"
+                                             alt="{{ $item->nama_produk }}"
                                              loading="lazy"
                                              decoding="async"
                                              class="w-12 h-12 rounded-xl object-cover border {{ $isZero ? 'border-rose-300 ring-2 ring-rose-200' : ($isCrit ? 'border-amber-300 ring-2 ring-amber-200' : 'border-gray-200') }} shadow-xs mx-auto"
-                                             onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.jpg') }}';">
+                                             onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.png') }}';">
                                     @else
                                         <div class="w-12 h-12 rounded-xl {{ $isZero ? 'bg-rose-100 text-rose-600 border border-rose-200' : ($isCrit ? 'bg-amber-100 text-amber-600 border border-amber-200' : 'bg-blue-50 text-[#0052FF] border border-blue-100') }} flex items-center justify-center mx-auto shadow-2xs">
                                             <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -252,7 +252,7 @@
 
                             <!-- Tombol Penyesuaian -->
                             <td class="py-4 px-5 text-right">
-                                <button wire:click="openAdjustModal({{ $item->id }})" 
+                                <button wire:click="openAdjustModal({{ $item->id }})"
                                         class="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-[#0052FF] text-[#0052FF] hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer group">
                                     <svg class="w-3.5 h-3.5 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                                     <span>Penyesuaian</span>
@@ -276,12 +276,12 @@
 
         <!-- Infinite Scroll Sentinel & Status -->
         <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
-            <x-infinite-scroll-sentinel 
-                :has-more="$hasMore ?? false" 
-                target="loadMore" 
-                label="produk" 
-                :current="count($stokItems)" 
-                :total="$totalItems ?? count($stokItems)" 
+            <x-infinite-scroll-sentinel
+                :has-more="$hasMore ?? false"
+                target="loadMore"
+                label="produk"
+                :current="count($stokItems)"
+                :total="$totalItems ?? count($stokItems)"
                 color="blue" />
         </div>
     </div>
@@ -295,7 +295,7 @@
 
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
-                    
+
                     <!-- Header Modal -->
                     <div class="bg-gradient-to-r from-[#0E1726] to-[#0052FF] px-6 py-5 text-white flex items-center justify-between">
                         <div class="flex items-center space-x-3">
@@ -318,14 +318,14 @@
                             <!-- Info Produk dengan Foto -->
                             <div class="p-3.5 rounded-2xl bg-gray-50 border border-gray-200 flex items-center space-x-3">
                                 @if($selectedProdukFoto && file_exists(public_path($selectedProdukFoto)))
-                                    <img src="{{ asset($selectedProdukFoto) }}" 
-                                         alt="{{ $selectedProdukName }}" 
+                                    <img src="{{ asset($selectedProdukFoto) }}"
+                                         alt="{{ $selectedProdukName }}"
                                          class="w-12 h-12 rounded-xl object-cover border border-gray-200 shadow-xs shrink-0">
                                 @elseif($selectedProdukFoto && (str_starts_with($selectedProdukFoto, 'http') || str_starts_with($selectedProdukFoto, 'storage/') || str_starts_with($selectedProdukFoto, 'images/')))
-                                    <img src="{{ asset($selectedProdukFoto) }}" 
-                                         alt="{{ $selectedProdukName }}" 
+                                    <img src="{{ asset($selectedProdukFoto) }}"
+                                         alt="{{ $selectedProdukName }}"
                                          class="w-12 h-12 rounded-xl object-cover border border-gray-200 shadow-xs shrink-0"
-                                         onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.jpg') }}';">
+                                         onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.png') }}';">
                                 @else
                                     <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#0052FF] border border-blue-100 flex items-center justify-center shrink-0">
                                         <svg class="w-6 h-6 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -354,8 +354,8 @@
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
                                     Input Jumlah Fisik Sebenarnya <span class="text-rose-500">*</span>
                                 </label>
-                                <input type="number" 
-                                       wire:model.live="newStock" 
+                                <input type="number"
+                                       wire:model.live="newStock"
                                        min="0"
                                        {{ !$isAktif ? 'disabled' : '' }}
                                        class="w-full text-center text-lg font-black py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] {{ !$isAktif ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white' }}">
@@ -377,8 +377,8 @@
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                         Batas Min. Stok (Alert) <span class="text-rose-500">*</span>
                                     </label>
-                                    <input type="number" 
-                                           wire:model="minStok" 
+                                    <input type="number"
+                                           wire:model="minStok"
                                            min="0"
                                            {{ !$isAktif ? 'disabled' : '' }}
                                            class="w-full text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] {{ !$isAktif ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white' }} @error('minStok') border-rose-500 @enderror">
@@ -402,7 +402,7 @@
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                     Alasan / Keterangan Penyesuaian <span class="text-rose-500">*</span>
                                 </label>
-                                <input type="text" 
+                                <input type="text"
                                        wire:model="catatan"
                                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] @error('catatan') border-rose-500 @enderror">
                                 @error('catatan') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
@@ -411,12 +411,12 @@
 
                         <!-- Footer Modal -->
                         <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-3 rounded-b-3xl">
-                            <button type="button" 
+                            <button type="button"
                                     wire:click="$set('modalAdjustOpen', false)"
                                     class="px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
                                 Batal
                             </button>
-                            <button type="submit" 
+                            <button type="submit"
                                     wire:loading.attr="disabled"
                                     class="px-5 py-2.5 rounded-xl bg-[#0052FF] hover:bg-blue-700 disabled:opacity-50 text-xs font-bold text-white shadow-lg shadow-blue-900/30 transition-all cursor-pointer inline-flex items-center space-x-2">
                                 <svg wire:loading wire:target="saveAdjust" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">

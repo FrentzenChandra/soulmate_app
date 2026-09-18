@@ -16,6 +16,8 @@ use App\Livewire\Servis\Pengerjaan\Index as ServisPengerjaanIndex;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 // Redirect root to dashboard or login
 Route::get('/', function () {
@@ -67,6 +69,16 @@ Route::middleware('auth')->group(function () {
             }
             $servis->load(['customer', 'cabang', 'pembuat', 'teknisi']);
 
+            if (request()->query('format') === 'pdf' || request()->has('pdf') || request()->query('autosave') === '1') {
+                $pdf = Pdf::loadView('pdf.servis-tanda-terima', ['servis' => $servis])
+                    ->setPaper([0, 0, 680.315, 425.197]);
+                $filename = 'Tanda_Terima_Servis_' . Str::slug($servis->no_servis_frontend ?? $servis->no_servis) . '.pdf';
+
+                return request()->query('download') === '1'
+                    ? $pdf->download($filename)
+                    : $pdf->stream($filename);
+            }
+
             return view('servis.tanda-terima', ['servis' => $servis]);
         })->name('servis.tanda-terima');
         Route::get('/servis/{servis}/invoice', function (\App\Models\ServisMasuk $servis) {
@@ -75,6 +87,16 @@ Route::middleware('auth')->group(function () {
                 abort(403, 'Akses faktur servis cabang lain dibatasi.');
             }
             $servis->load(['customer', 'cabang', 'pembuat', 'teknisi', 'kasir', 'details.produk']);
+
+            if (request()->query('format') === 'pdf' || request()->has('pdf') || request()->query('autosave') === '1') {
+                $pdf = Pdf::loadView('pdf.servis-invoice', ['servis' => $servis])
+                    ->setPaper([0, 0, 680.315, 425.197]);
+                $filename = 'Faktur_Servis_' . Str::slug($servis->no_servis_frontend ?? $servis->no_servis) . '.pdf';
+
+                return request()->query('download') === '1'
+                    ? $pdf->download($filename)
+                    : $pdf->stream($filename);
+            }
 
             return view('servis.invoice', ['servis' => $servis]);
         })->name('servis.invoice');
@@ -89,6 +111,16 @@ Route::middleware('auth')->group(function () {
                 abort(403, 'Akses invoice cabang lain dibatasi.');
             }
             $penjualan->load(['details.produk', 'cabang', 'kasir', 'customer', 'ppn']);
+
+            if (request()->query('format') === 'pdf' || request()->has('pdf') || request()->query('autosave') === '1') {
+                $pdf = Pdf::loadView('pdf.kasir-invoice', ['penjualan' => $penjualan])
+                    ->setPaper([0, 0, 684.0, 396.0]);
+                $filename = 'Sales_Invoice_' . Str::slug($penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi) . '.pdf';
+
+                return request()->query('download') === '1'
+                    ? $pdf->download($filename)
+                    : $pdf->stream($filename);
+            }
 
             return view('kasir.invoice', ['penjualan' => $penjualan]);
         })->name('kasir.produk.invoice');

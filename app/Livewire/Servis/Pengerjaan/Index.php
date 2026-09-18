@@ -47,7 +47,7 @@ class Index extends Component
     public bool $modalPengerjaanOpen = false;
     public ?int $activeServisId = null;
     public ?ServisMasuk $activeServis = null;
-    public string $pengerjaanStatus = 'pengerjaan';
+    public string $pengerjaanStatus = 'perbaikan';
     public string $catatanPengerjaan = '';
 
     // Billing Item State (Produk & Jasa dari Master Produk)
@@ -214,7 +214,7 @@ class Index extends Component
         if (! $this->activeServis) return;
 
         $this->validate([
-            'pengerjaanStatus' => 'required|in:pengecekan,pengerjaan,menunggu_sparepart,selesai,batal',
+            'pengerjaanStatus' => 'required|in:pengecekan,perbaikan,pengerjaan,selesai,batal',
             'catatanPengerjaan' => 'nullable|string|max:500',
         ]);
 
@@ -232,7 +232,7 @@ class Index extends Component
                 $this->activeServis->tanggal_selesai = $now;
 
                 // Potong stok sparepart jika sebelumnya belum dipotong
-                if ($oldStatus !== 'selesai' && $oldStatus !== 'sudah_dibayar') {
+                if ($oldStatus !== 'selesai' && $oldStatus !== 'sudah_dibayar' && $oldStatus !== 'sudah_diambil') {
                     $this->potongStokSparepart($this->activeServis);
                 }
             }
@@ -320,12 +320,12 @@ class Index extends Component
             $garansiSampai = $effectiveGaransi > 0 ? $now->copy()->addDays($effectiveGaransi)->toDateString() : null;
 
             // Jika sebelumnya belum dipotong stok (misal langsung dari pengecekan ke pembayaran)
-            if ($this->checkoutServis->status !== 'selesai' && $this->checkoutServis->status !== 'sudah_dibayar') {
+            if ($this->checkoutServis->status !== 'selesai' && $this->checkoutServis->status !== 'sudah_dibayar' && $this->checkoutServis->status !== 'sudah_diambil') {
                 $this->potongStokSparepart($this->checkoutServis);
                 $this->checkoutServis->tanggal_selesai = $now;
             }
 
-            $this->checkoutServis->status = 'sudah_dibayar';
+            $this->checkoutServis->status = 'sudah_diambil';
             $this->checkoutServis->tanggal_ambil = $now;
             $this->checkoutServis->metode_pembayaran = 'tunai';
             $this->checkoutServis->bayar = $totalBiaya;
@@ -338,7 +338,7 @@ class Index extends Component
             ServisStatusLog::create([
                 'servis_id' => $this->checkoutServis->id,
                 'user_id' => Auth::id(),
-                'status' => 'sudah_dibayar',
+                'status' => 'sudah_diambil',
                 'tanggal' => $now,
                 'catatan' => 'Unit diambil dan tagihan dilunasi. ' . ($effectiveGaransi > 0 ? "Garansi toko {$effectiveGaransi} hari." : 'Tanpa garansi.') . ($this->catatanPelunasan ? " Catatan: {$this->catatanPelunasan}" : ''),
             ]);
@@ -347,7 +347,7 @@ class Index extends Component
 
             // Broadcast real-time Reverb event
             try {
-                broadcast(new ServisStatusUpdated($this->checkoutServis->id, 'sudah_dibayar', $this->checkoutServis->no_servis_frontend, $this->checkoutServis->cabang_id));
+                broadcast(new ServisStatusUpdated($this->checkoutServis->id, 'sudah_diambil', $this->checkoutServis->no_servis_frontend, $this->checkoutServis->cabang_id));
             } catch (\Throwable $th) {}
 
             $this->modalCheckoutOpen = false;
@@ -417,7 +417,13 @@ class Index extends Component
 
         // Filter Status
         if ($this->statusFilter !== 'semua') {
-            $query->where('status', $this->statusFilter);
+            if ($this->statusFilter === 'perbaikan' || $this->statusFilter === 'pengerjaan') {
+                $query->whereIn('status', ['perbaikan', 'pengerjaan']);
+            } elseif ($this->statusFilter === 'sudah_diambil' || $this->statusFilter === 'sudah_dibayar') {
+                $query->whereIn('status', ['sudah_diambil', 'sudah_dibayar']);
+            } else {
+                $query->where('status', $this->statusFilter);
+            }
         }
 
         // Filter Pengambilan

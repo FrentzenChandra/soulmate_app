@@ -6,7 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Soulmate Komputer') }}</title>
-        <link rel="icon" type="image/jpeg" href="{{ asset('images/logo_bulat.jpg') }}">
+        <link rel="icon" type="image/jpeg" href="{{ asset('images/logo_bulat.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
