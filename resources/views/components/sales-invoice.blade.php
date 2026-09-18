@@ -9,7 +9,7 @@
     $metodeBayar = strtolower($penjualan->metode_bayar ?? 'cash');
 @endphp
 
-<div id="salesInvoicePrintArea" class="sales-invoice-container bg-white text-gray-900 font-sans p-6 sm:p-8 max-w-[9.5in] w-full mx-auto rounded-xl border border-gray-200 shadow-sm print:shadow-none print:border-none print:p-0">
+<div id="salesInvoicePrintArea" class="sales-invoice-container bg-white text-gray-900 font-sans p-6 sm:p-8 max-w-[24cm] w-full mx-auto rounded-xl border border-gray-200 shadow-sm print:shadow-none print:border-none print:p-0">
 
     <!-- Top System Header Label -->
     <div class="flex justify-between items-center text-[10px] text-gray-500 font-mono mb-2">
@@ -27,7 +27,7 @@
             <div>
                 <h2 class="text-lg font-bold text-gray-900 tracking-tight leading-none">Soulmate Komputer</h2>
                 <p class="text-[11px] text-gray-600 mt-1 leading-snug">{{ $address }}</p>
-                <p class="text-[11px] text-gray-800 font-medium mt-0.5">Hp/Telp. {{ $phone }}</p>
+                <p class="text-[11px] text-gray-800 font-medium mt-0.5">WhatsApp: {{ $phone }}</p>
             </div>
         </div>
 

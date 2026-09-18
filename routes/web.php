@@ -13,6 +13,8 @@ use App\Livewire\Master\Produk\Index as MasterProdukIndex;
 use App\Livewire\Master\Servis\Index as MasterServisIndex;
 use App\Livewire\Master\User\Index as MasterUserIndex;
 use App\Livewire\Servis\Masuk\Index as ServisMasukIndex;
+use App\Livewire\Servis\Keluar\Index as ServisKeluarIndex;
+use App\Livewire\Servis\Batal\Index as ServisBatalIndex;
 use App\Livewire\Servis\Pengerjaan\Index as ServisPengerjaanIndex;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -67,7 +69,9 @@ Route::middleware('auth')->group(function () {
     // Layanan Servis & Reparasi (Owner, Superadmin, Admin, Teknisi, Kasir)
     Route::middleware('role:Owner|Superadmin|Admin|Teknisi|Kasir')->group(function () {
         Route::get('/servis/masuk', ServisMasukIndex::class)->name('servis.masuk');
-        Route::get('/servis/pengerjaan', ServisPengerjaanIndex::class)->name('servis.pengerjaan');
+        Route::get('/servis/keluar', ServisKeluarIndex::class)->name('servis.keluar');
+        Route::get('/servis/batal', ServisBatalIndex::class)->name('servis.batal');
+        Route::get('/servis/pengerjaan', fn () => redirect()->route('servis.keluar'))->name('servis.pengerjaan');
         Route::get('/servis/{servis}/tanda-terima', function (\App\Models\ServisMasuk $servis) {
             $user = Auth::user();
             if (! $user->isOwner() && $user->cabang_id !== $servis->cabang_id) {
@@ -120,7 +124,7 @@ Route::middleware('auth')->group(function () {
 
             if (request()->query('format') === 'pdf' || request()->has('pdf') || request()->query('autosave') === '1') {
                 $pdf = Pdf::loadView('pdf.kasir-invoice', ['penjualan' => $penjualan])
-                    ->setPaper([0, 0, 684.0, 396.0]);
+                    ->setPaper([0, 0, 680.315, 396.850]);
                 $filename = 'Sales_Invoice_' . Str::slug($penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi) . '.pdf';
 
                 return request()->query('download') === '1'
