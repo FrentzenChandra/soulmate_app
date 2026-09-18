@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Cabang;
 use App\Models\MasterServis;
+use App\Models\MasterServisStok;
 use App\Models\ServisDetail;
 use App\Models\ServisMasuk;
 use App\Models\User;
@@ -336,5 +337,53 @@ class MasterServisTest extends TestCase
             ->assertSee('Keyboard Lenovo Ideapad 320')
             ->assertSee('Sparepart')
             ->assertSee('Sisa 1');
+    }
+
+    public function test_can_sort_by_stock_and_other_columns(): void
+    {
+        $this->actingAs($this->owner);
+
+        $sp1 = MasterServis::create([
+            'kode_item' => 'SP-A',
+            'nama_item' => 'Sparepart A Low',
+            'jenis' => 'sparepart',
+            'kategori_perangkat' => 'laptop',
+            'harga_modal' => 50000,
+            'harga_jual' => 100000,
+            'is_aktif' => true,
+        ]);
+        MasterServisStok::create([
+            'master_servis_id' => $sp1->id,
+            'cabang_id' => $this->cabang->id,
+            'jumlah' => 2,
+            'min_stok' => 1,
+            'is_aktif' => true,
+        ]);
+
+        $sp2 = MasterServis::create([
+            'kode_item' => 'SP-B',
+            'nama_item' => 'Sparepart B High',
+            'jenis' => 'sparepart',
+            'kategori_perangkat' => 'laptop',
+            'harga_modal' => 80000,
+            'harga_jual' => 150000,
+            'is_aktif' => true,
+        ]);
+        MasterServisStok::create([
+            'master_servis_id' => $sp2->id,
+            'cabang_id' => $this->cabang->id,
+            'jumlah' => 20,
+            'min_stok' => 5,
+            'is_aktif' => true,
+        ]);
+
+        Livewire::test(\App\Livewire\Master\Servis\Index::class)
+            ->call('sortBy', 'stok')
+            ->assertSet('sortField', 'stok')
+            ->assertSet('sortDirection', 'asc')
+            ->call('sortBy', 'stok')
+            ->assertSet('sortDirection', 'desc')
+            ->call('sortBy', 'harga_jual')
+            ->assertSet('sortField', 'harga_jual');
     }
 }

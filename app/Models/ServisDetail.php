@@ -19,6 +19,7 @@ class ServisDetail extends Model
         'qty',
         'harga',
         'subtotal',
+        'garansi_hari',
     ];
 
     protected function casts(): array
@@ -27,6 +28,7 @@ class ServisDetail extends Model
             'qty' => 'integer',
             'harga' => 'decimal:2',
             'subtotal' => 'decimal:2',
+            'garansi_hari' => 'integer',
         ];
     }
 
@@ -43,5 +45,13 @@ class ServisDetail extends Model
     public function produk(): BelongsTo
     {
         return $this->belongsTo(Produk::class, 'produk_id');
+    }
+
+    public function getGaransiLabelAttribute(): string
+    {
+        if ($this->garansi_hari <= 0) {
+            return 'Non-Garansi';
+        }
+        return "{$this->garansi_hari} Hari";
     }
 }

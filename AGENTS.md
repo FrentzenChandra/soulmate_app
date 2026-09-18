@@ -13,6 +13,9 @@
   * **Upload Foto/Media:** Loading indicator WAJIB terpusat di tengah parent (`flex-col items-center justify-center`) dengan spinner dan progress bar animasi di bagian tengah container.
   * **Aksi Form (POST, PUT/PATCH, DELETE, EDIT):** Semua tombol aksi WAJIB dilengkapi `wire:loading` spinner, status disabled (`wire:loading.attr="disabled"`), dan teks proses deskriptif.
   * **Query / Data Fetching (GET, Search, Filter, Sort):** Tabel dan katalog grid WAJIB menampilkan **Skeleton Loader** (`<x-table-skeleton />` / `<x-grid-skeleton />`) dengan efek shimmer `animate-pulse` saat request query berlangsung.
+- **Standar Label Tunggal & Tegas (Anti-Ambiguitas):**
+  * Dilarang menggunakan label majemuk bergaris miring (`/`) atau ampersand (`&` / `&amp;`) pada UI frontend seperti nama kolom tabel, header modal, tombol aksi, dan cetakan nota (contoh DILARANG: `Unit & Keluhan`, `Hp/WA`, `Teknisi / Kasir`, `Servis & Kelengkapan`, `Status & Waktu Ambil`).
+  * WAJIB menggunakan **SATU NAMA TUNGGAL** yang spesifik dan jelas (contoh: `Perangkat`, `WhatsApp`, `Petugas`, `Tindakan`, `Status`, `Pelunasan`).
 
 ## 3. Global Multi-Word Loose Search Standard
 - **Universal Non-Strict Multi-Word Search:** Semua fitur pencarian di seluruh project WAJIB menggunakan tokenized substring matching multi-kata (`explode(' ', $search)`), *case-insensitive* (`LOWER(col) LIKE ?`), dan tidak *strict* per huruf/kata. Pencarian harus mencocokkan setiap kata kunci di berbagai kolom relevan (nama, barcode, no hp, username, kategori, dll).

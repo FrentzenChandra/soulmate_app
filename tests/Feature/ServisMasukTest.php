@@ -238,9 +238,9 @@ class ServisMasukTest extends TestCase
 
         // Filter status
         Livewire::test(ServisMasukIndex::class)
-            ->set('statusFilter', 'pengerjaan')
+            ->set('statusFilter', 'perbaikan')
             ->assertSee('MacBook Pro M1 2020')
-            ->set('statusFilter', 'selesai')
+            ->set('statusFilter', 'pengecekan')
             ->assertDontSee('MacBook Pro M1 2020');
     }
 

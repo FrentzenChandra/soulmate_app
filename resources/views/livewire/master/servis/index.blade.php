@@ -38,7 +38,7 @@
                 <span class="text-[#5E17EB] font-bold">Master Servis &amp; Sparepart</span>
             </div>
             <h1 class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
-                Master Layanan Servis &amp; Sparepart
+                Master Servis
             </h1>
             <p class="text-xs text-gray-500 mt-1">
                 Katalog master jasa perbaikan dan suku cadang untuk penerbitan nota servis.
@@ -49,7 +49,7 @@
             <button wire:click="openCreateModal"
                     class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-bold text-white transition-all shadow-md shadow-purple-600/20 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                <span>Tambah Layanan / Sparepart</span>
+                <span>Tambah Servis</span>
             </button>
         </div>
     </div>
@@ -149,19 +149,31 @@
     <!-- ============================================== -->
     <div class="card-custom bg-white overflow-hidden border border-gray-200/80 shadow-xs rounded-2xl">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left text-xs table-fixed min-w-[960px] border-collapse">
+                <colgroup>
+                    <col style="width: 90px;">
+                    <col style="width: 250px;">
+                    <col style="width: 105px;">
+                    <col style="width: 95px;">
+                    <col style="width: 110px;">
+                    <col style="width: 120px;">
+                    <col style="width: 130px;">
+                    <col style="width: 95px;">
+                    <col style="width: 95px;">
+                    <col style="width: 80px;">
+                </colgroup>
                 <thead>
                     <tr class="border-b border-gray-200/80 bg-gray-50/80 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">
-                        <x-th-sort field="kode_item" :sortField="$sortField" :sortDirection="$sortDirection" class="py-3.5 px-4 w-24">Kode</x-th-sort>
-                        <x-th-sort field="nama_item" :sortField="$sortField" :sortDirection="$sortDirection" class="py-3.5 px-4 min-w-[200px]">Nama Layanan / Sparepart</x-th-sort>
-                        <x-th-sort field="jenis" :sortField="$sortField" :sortDirection="$sortDirection" class="py-3.5 px-4 w-28">Jenis</x-th-sort>
-                        <x-th-sort field="kategori_perangkat" :sortField="$sortField" :sortDirection="$sortDirection" class="py-3.5 px-4 w-28">Kategori</x-th-sort>
-                        <th class="py-3.5 px-4 w-32 text-right">Harga Modal</th>
-                        <x-th-sort field="harga_jual" :sortField="$sortField" :sortDirection="$sortDirection" align="right" class="py-3.5 px-4 w-36 text-right">Tarif / Harga Jual</x-th-sort>
-                        <th class="py-3.5 px-4 w-28 text-center">Stok</th>
-                        <th class="py-3.5 px-4 w-32 text-center">Garansi Default</th>
-                        <th class="py-3.5 px-4 w-24 text-center">Status</th>
-                        <th class="py-3.5 px-4 w-24 text-right">Aksi</th>
+                        <x-th-sort field="kode_item" :sortField="$sortField" :sortDirection="$sortDirection">Kode</x-th-sort>
+                        <x-th-sort field="nama_item" :sortField="$sortField" :sortDirection="$sortDirection">Nama Servis</x-th-sort>
+                        <x-th-sort field="jenis" :sortField="$sortField" :sortDirection="$sortDirection">Jenis</x-th-sort>
+                        <x-th-sort field="kategori_perangkat" :sortField="$sortField" :sortDirection="$sortDirection">Kategori</x-th-sort>
+                        <x-th-sort field="harga_modal" :sortField="$sortField" :sortDirection="$sortDirection" align="right">Harga Modal</x-th-sort>
+                        <x-th-sort field="harga_jual" :sortField="$sortField" :sortDirection="$sortDirection" align="right">Tarif Jual</x-th-sort>
+                        <x-th-sort field="stok" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Stok</x-th-sort>
+                        <x-th-sort field="garansi_default_hari" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Garansi</x-th-sort>
+                        <x-th-sort field="is_aktif" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Status</x-th-sort>
+                        <th class="py-3.5 px-4 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi</th>
                     </tr>
                 </thead>
 
@@ -172,16 +184,16 @@
                        class="divide-y divide-gray-100 bg-white">
                     @for($i = 0; $i < 6; $i++)
                         <tr class="animate-pulse">
-                            <td class="py-3.5 px-4 w-24"><div class="h-3.5 bg-gray-200 rounded w-16"></div></td>
-                            <td class="py-3.5 px-4 min-w-[200px]"><div class="h-3.5 bg-gray-200 rounded w-3/4 mb-1.5"></div><div class="h-2.5 bg-gray-100 rounded w-1/2"></div></td>
-                            <td class="py-3.5 px-4 w-28"><div class="h-5 bg-gray-200 rounded-full w-20"></div></td>
-                            <td class="py-3.5 px-4 w-28"><div class="h-3.5 bg-gray-200 rounded w-16"></div></td>
-                            <td class="py-3.5 px-4 w-32 text-right"><div class="h-3.5 bg-gray-200 rounded w-20 ml-auto"></div></td>
-                            <td class="py-3.5 px-4 w-36 text-right"><div class="h-4 bg-gray-200 rounded w-24 ml-auto"></div></td>
-                            <td class="py-3.5 px-4 w-28 text-center"><div class="h-5 bg-gray-200 rounded-full w-16 mx-auto"></div></td>
-                            <td class="py-3.5 px-4 w-32 text-center"><div class="h-3.5 bg-gray-200 rounded w-14 mx-auto"></div></td>
-                            <td class="py-3.5 px-4 w-24 text-center"><div class="h-5 bg-gray-200 rounded-full w-14 mx-auto"></div></td>
-                            <td class="py-3.5 px-4 w-24 text-right"><div class="h-7 bg-gray-100 rounded-xl w-16 ml-auto"></div></td>
+                            <td class="py-3.5 px-4"><div class="h-3.5 bg-gray-200 rounded w-14"></div></td>
+                            <td class="py-3.5 px-4"><div class="h-3.5 bg-gray-200 rounded w-44 mb-1"></div><div class="h-2.5 bg-gray-100 rounded w-24"></div></td>
+                            <td class="py-3.5 px-4"><div class="h-5 bg-gray-200 rounded-full w-16"></div></td>
+                            <td class="py-3.5 px-4"><div class="h-3.5 bg-gray-200 rounded w-14"></div></td>
+                            <td class="py-3.5 px-4 text-right"><div class="h-3.5 bg-gray-200 rounded w-16 ml-auto"></div></td>
+                            <td class="py-3.5 px-4 text-right"><div class="h-4 bg-gray-200 rounded w-20 ml-auto"></div></td>
+                            <td class="py-3.5 px-4 text-center"><div class="h-5 bg-gray-200 rounded-full w-20 mx-auto"></div></td>
+                            <td class="py-3.5 px-4 text-center"><div class="h-3.5 bg-gray-200 rounded w-12 mx-auto"></div></td>
+                            <td class="py-3.5 px-4 text-center"><div class="h-5 bg-gray-200 rounded-full w-14 mx-auto"></div></td>
+                            <td class="py-3.5 px-4 text-center"><div class="h-7 bg-gray-100 rounded-xl w-14 mx-auto"></div></td>
                         </tr>
                     @endfor
                 </tbody>
@@ -192,27 +204,49 @@
                        wire:target="search, jenisFilter, kategoriFilter, statusFilter, stokFilter, sortBy, sortField, sortDirection, loadMore"
                        class="divide-y divide-gray-100 text-xs">
                     @forelse($items as $item)
-                        <tr wire:key="ms-row-{{ $item->id }}" class="hover:bg-purple-50/20 transition-colors group">
+                        @php
+                            $stk = $item->jenis === 'sparepart' ? $item->stoks->firstWhere('cabang_id', $activeCabang?->id) : null;
+                            $stkQty = $stk ? $stk->jumlah : 0;
+                            $stkMin = $stk ? $stk->min_stok : 0;
+                            $isZero = $item->jenis === 'sparepart' && $item->is_aktif && $stkQty <= 0;
+                            $isCrit = $item->jenis === 'sparepart' && $item->is_aktif && ! $isZero && $stkQty <= $stkMin;
+                        @endphp
+                        <tr wire:key="ms-row-{{ $item->id }}" class="transition-colors group {{ $isZero ? 'bg-rose-50/40 hover:bg-rose-50/60' : ($isCrit ? 'bg-amber-50/30 hover:bg-amber-50/50' : 'hover:bg-purple-50/20') }}">
 
                             <!-- Kode Item -->
-                            <td class="py-3.5 px-4 w-24 font-mono font-bold text-gray-500">
+                            <td class="py-3.5 px-4 font-mono font-bold text-gray-500 {{ $isZero ? 'border-l-4 border-rose-500 pl-3' : ($isCrit ? 'border-l-4 border-amber-500 pl-3' : '') }}">
                                 {{ $item->kode_item ?: '-' }}
                             </td>
 
                             <!-- Nama Item & Keterangan -->
                             <td class="py-3.5 px-4 min-w-[200px]">
-                                <span class="font-bold text-gray-900 block group-hover:text-[#5E17EB] transition-colors">
-                                    {{ $item->nama_item }}
-                                </span>
-                                @if($item->keterangan)
-                                    <span class="text-[10px] text-gray-400 block line-clamp-1 mt-0.5">
-                                        {{ $item->keterangan }}
-                                    </span>
-                                @endif
+                                <div class="space-y-1">
+                                    <div class="flex items-center flex-wrap gap-1.5">
+                                        <span class="font-bold text-gray-900 block group-hover:text-[#5E17EB] transition-colors">
+                                            {{ $item->nama_item }}
+                                        </span>
+                                        @if($isZero)
+                                            <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-rose-600 text-white text-[10px] font-black shadow-xs tracking-wider">
+                                                <svg class="w-3 h-3 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                <span>HABIS</span>
+                                            </span>
+                                        @elseif($isCrit)
+                                            <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-amber-500 text-white text-[10px] font-black shadow-xs tracking-wider">
+                                                <svg class="w-3 h-3 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                <span>KRITIS (SISA {{ $stkQty }})</span>
+                                            </span>
+                                        @endif
+                                    </div>
+                                    @if($item->keterangan)
+                                        <span class="text-[10px] text-gray-400 block line-clamp-1">
+                                            {{ $item->keterangan }}
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
 
                             <!-- Jenis Badge -->
-                            <td class="py-3.5 px-4 w-28 whitespace-nowrap">
+                            <td class="py-3.5 px-4 whitespace-nowrap">
                                 @if($item->jenis === 'jasa')
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/80">
                                         Jasa Servis
@@ -225,39 +259,37 @@
                             </td>
 
                             <!-- Kategori Perangkat -->
-                            <td class="py-3.5 px-4 w-28 whitespace-nowrap font-medium text-gray-700">
+                            <td class="py-3.5 px-4 whitespace-nowrap font-medium text-gray-700">
                                 {{ $item->kategori_perangkat_label }}
                             </td>
 
                             <!-- Harga Modal -->
-                            <td class="py-3.5 px-4 w-32 text-right font-mono text-gray-500 whitespace-nowrap">
+                            <td class="py-3.5 px-4 text-right font-mono text-gray-500 whitespace-nowrap">
                                 {{ $item->harga_modal > 0 ? 'Rp ' . number_format($item->harga_modal, 0, ',', '.') : '-' }}
                             </td>
 
                             <!-- Harga Jual -->
-                            <td class="py-3.5 px-4 w-36 text-right font-mono font-bold text-gray-900 whitespace-nowrap">
+                            <td class="py-3.5 px-4 text-right font-mono font-bold text-gray-900 whitespace-nowrap">
                                 Rp {{ number_format($item->harga_jual, 0, ',', '.') }}
                             </td>
 
                             <!-- Stok Fisik (Khusus Sparepart) -->
-                            <td class="py-3.5 px-4 w-28 text-center whitespace-nowrap font-mono">
+                            <td class="py-3.5 px-4 text-center whitespace-nowrap font-mono">
                                 @if($item->jenis === 'sparepart')
-                                    @php
-                                        $stk = $item->stoks->firstWhere('cabang_id', $activeCabang?->id);
-                                        $stkQty = $stk ? $stk->jumlah : 0;
-                                        $stkMin = $stk ? $stk->min_stok : 0;
-                                    @endphp
                                     @if($stkQty <= 0)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-50 text-rose-700 border border-rose-200">
-                                            0 Unit (Habis)
+                                        <span class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                            <span>0 Unit (Habis)</span>
                                         </span>
                                     @elseif($stkQty <= $stkMin)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200">
-                                            {{ $stkQty }} Unit (Kritis)
+                                        <span class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                            <span>{{ $stkQty }} Unit (Kritis)</span>
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            {{ $stkQty }} Unit
+                                        <span class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            <span>{{ $stkQty }} Unit</span>
                                         </span>
                                     @endif
                                 @else
@@ -266,12 +298,12 @@
                             </td>
 
                             <!-- Garansi Default -->
-                            <td class="py-3.5 px-4 w-32 text-center whitespace-nowrap font-mono text-gray-600">
+                            <td class="py-3.5 px-4 text-center whitespace-nowrap font-mono text-gray-600">
                                 {{ $item->garansi_default_hari > 0 ? $item->garansi_default_hari . ' Hari' : 'Tanpa Garansi' }}
                             </td>
 
                             <!-- Status Aktif -->
-                            <td class="py-3.5 px-4 w-24 text-center whitespace-nowrap">
+                            <td class="py-3.5 px-4 text-center whitespace-nowrap">
                                 <button type="button"
                                         wire:click="toggleAktif({{ $item->id }})"
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer transition-colors {{ $item->is_aktif ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-200' }}">
@@ -280,8 +312,8 @@
                             </td>
 
                             <!-- Aksi -->
-                            <td class="py-3.5 px-4 w-24 text-right whitespace-nowrap">
-                                <div class="inline-flex items-center space-x-1">
+                            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                <div class="inline-flex items-center justify-center space-x-1">
                                     <button type="button"
                                             wire:click="editItem({{ $item->id }})"
                                             class="p-1.5 rounded-lg text-gray-500 hover:text-[#5E17EB] hover:bg-purple-50 transition-colors cursor-pointer"
@@ -357,7 +389,7 @@
                                 </div>
                                 <div>
                                     <h3 class="text-base font-black text-gray-900 leading-tight">
-                                        {{ $isEditMode ? 'Edit Master Servis / Sparepart' : 'Tambah Layanan Servis / Sparepart' }}
+                                        {{ $isEditMode ? 'Edit Servis ' : 'Tambah Servis ' }}
                                     </h3>
                                     <p class="text-xs text-gray-500 mt-0.5">Konfigurasi tarif jasa, suku cadang, dan stok nota servis.</p>
                                 </div>
@@ -420,13 +452,13 @@
                             <div class="bg-gray-50/70 p-4 sm:p-5 rounded-2xl border border-gray-200/80 space-y-4">
                                 <div class="flex items-center space-x-2">
                                     <div class="w-2 h-2 rounded-full bg-[#5E17EB]"></div>
-                                    <h4 class="text-xs font-extrabold text-gray-800 uppercase tracking-wider">Identitas Layanan / Sparepart</h4>
+                                    <h4 class="text-xs font-extrabold text-gray-800 uppercase tracking-wider">Nama Servis</h4>
                                 </div>
 
-                                <!-- Nama Layanan / Sparepart -->
+                                <!-- Nama Servis -->
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 mb-1.5">
-                                        Nama Layanan / Sparepart <span class="text-rose-500">*</span>
+                                        Nama Servis <span class="text-rose-500">*</span>
                                     </label>
                                     <input type="text"
                                            wire:model="nama_item"
@@ -468,7 +500,7 @@
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-2">
                                         <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                        <h4 class="text-xs font-extrabold text-gray-800 uppercase tracking-wider">Harga &amp; Tarif Nota Servis</h4>
+                                        <h4 class="text-xs font-extrabold text-gray-800 uppercase tracking-wider">Harga & Margin Keuntungan</h4>
                                     </div>
                                     @if((float) $harga_jual > 0 && (float) $harga_modal > 0 && (float) $harga_jual >= (float) $harga_modal)
                                         @php
@@ -505,7 +537,7 @@
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center space-x-2">
                                             <div class="w-2 h-2 rounded-full bg-[#5E17EB]"></div>
-                                            <h4 class="text-xs font-extrabold text-[#5E17EB] uppercase tracking-wider">Manajemen Stok Fisik Cabang</h4>
+                                            <h4 class="text-xs font-extrabold text-[#5E17EB] uppercase tracking-wider">Manajemen Stok</h4>
                                         </div>
                                         <span class="text-[11px] text-purple-600 font-medium">Peringatan otomatis saat stok &le; batas minimum</span>
                                     </div>

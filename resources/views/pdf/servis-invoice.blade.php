@@ -146,7 +146,7 @@
                         <td style="vertical-align: top;">
                             <div style="font-size: 11pt; font-weight: bold; color: #111; line-height: 1.1;">Soulmate Komputer</div>
                             <div class="text-muted" style="font-size: 7.5pt; margin-top: 2px;">{{ $address }}</div>
-                            <div style="font-size: 7.5pt; font-weight: bold; margin-top: 1px;">Hp/WA: {{ $phone }}</div>
+                            <div style="font-size: 7.5pt; font-weight: bold; margin-top: 1px;">WhatsApp: {{ $phone }}</div>
                         </td>
                     </tr>
                 </table>
@@ -156,9 +156,9 @@
             <td style="width: 48%; padding-left: 10px;">
                 <table class="w-full" style="font-size: 8pt;">
                     <tr>
-                        <td class="text-muted" style="width: 34%;">Tgl Masuk / Ambil</td>
+                        <td class="text-muted" style="width: 34%;">Tanggal Selesai</td>
                         <td style="width: 5%;">:</td>
-                        <td class="font-bold font-mono">{{ $tglMasuk }} &rarr; {{ $tglAmbil }}</td>
+                        <td class="font-bold font-mono">{{ $tglAmbil !== '-' ? $tglAmbil : $tglMasuk }}</td>
                     </tr>
                     <tr>
                         <td class="text-muted">Pelanggan</td>
@@ -179,7 +179,7 @@
 
     <!-- Title Bar -->
     <div class="divider-title">
-        FAKTUR PELUNASAN SERVIS &amp; PENGAMBILAN UNIT
+        FAKTUR PELUNASAN SERVIS
     </div>
 
     <!-- Unit & PIC Info -->
@@ -193,8 +193,8 @@
                 @endif
             </td>
             <td style="width: 40%; vertical-align: middle; text-align: right;">
-                <span class="text-muted font-bold uppercase">Teknisi / Kasir :</span>
-                <strong>{{ $servis->teknisi?->name ?? '-' }} / {{ $servis->kasir?->name ?? 'Kasir Toko' }}</strong>
+                <span class="text-muted font-bold uppercase">Petugas Kasir :</span>
+                <strong>{{ $servis->kasir?->name ?? ($servis->teknisi?->name ?? 'Soulmate Komputer') }}</strong>
             </td>
         </tr>
     </table>
@@ -203,11 +203,12 @@
     <table class="w-full items-table table-layout">
         <thead>
             <tr>
-                <th class="text-center" style="width: 6%;">No</th>
-                <th class="text-left" style="width: 46%;">Rincian Jasa / Sparepart</th>
-                <th class="text-center" style="width: 10%;">Qty</th>
-                <th class="text-right" style="width: 19%;">Harga</th>
-                <th class="text-right" style="width: 19%;">Subtotal</th>
+                <th class="text-center" style="width: 5%;">No</th>
+                <th class="text-left" style="width: 40%;">Rincian Tindakan</th>
+                <th class="text-center" style="width: 15%;">Garansi</th>
+                <th class="text-center" style="width: 8%;">Qty</th>
+                <th class="text-right" style="width: 16%;">Harga</th>
+                <th class="text-right" style="width: 16%;">Subtotal</th>
             </tr>
         </thead>
         <tbody>
@@ -218,13 +219,16 @@
                         <span class="font-bold">{{ $det->nama_item }}</span>
                         <span class="text-muted" style="font-size: 7pt;">({{ ($det->jenis === 'sparepart' || $det->masterServis?->jenis === 'sparepart' || $det->produk_id) ? 'Sparepart' : 'Jasa' }})</span>
                     </td>
+                    <td class="text-center font-mono" style="font-size: 7.5pt;">
+                        {{ $det->garansi_label }}
+                    </td>
                     <td class="text-center font-mono font-bold">{{ $det->qty }}</td>
                     <td class="text-right font-mono">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
                     <td class="text-right font-mono font-bold">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="text-center text-muted" style="padding: 6px;">Biaya Servis Standar</td>
+                    <td colspan="6" class="text-center text-muted" style="padding: 6px;">Biaya Servis Standar</td>
                 </tr>
             @endforelse
         </tbody>
@@ -235,7 +239,7 @@
         <tr>
             <!-- Customer Sign (28%) -->
             <td style="width: 28%; text-align: center; vertical-align: top;">
-                <div class="sign-title">Penerima / Pelanggan,</div>
+                <div class="sign-title">Pelanggan,</div>
                 <div>
                     <span class="sign-name">{{ $customerName }}</span>
                 </div>
@@ -243,7 +247,7 @@
 
             <!-- Cashier Sign (28%) -->
             <td style="width: 28%; text-align: center; vertical-align: top;">
-                <div class="sign-title">Kasir / Teknisi,</div>
+                <div class="sign-title">Kasir Toko,</div>
                 <div>
                     <span class="sign-name">{{ $kasirTeknisi }}</span>
                 </div>
@@ -275,20 +279,23 @@
 
     <!-- Warranty Box -->
     <div class="warranty-box">
-        @if($servis->garansi_hari > 0 && $servis->garansi_sampai)
+        @php
+            $hasGaransi = $servis->details->where('garansi_hari', '>', 0)->count() > 0;
+        @endphp
+        @if($hasGaransi)
             <div style="font-weight: bold; color: #065f46; text-transform: uppercase;">
-                GARANSI TOKO RESMI ({{ $servis->garansi_hari }} HARI)
+                KETENTUAN GARANSI PER ITEM
             </div>
             <div style="margin-top: 1px;">
-                Unit ini mendapatkan garansi perbaikan hingga: <strong class="font-mono" style="background: #fff; padding: 1px 4px; border-radius: 2px; border: 1px solid #a7f3d0;">{{ $servis->garansi_sampai->format('d F Y') }}</strong>.
+                Garansi berlaku per item sesuai rincian pada tabel di atas terhitung sejak tanggal pengambilan unit.
             </div>
             <div class="text-muted" style="margin-top: 1px; font-size: 7pt;">
-                Garansi tidak berlaku jika segel rusak, terkena cairan, atau kesalahan pemakaian/kelistrikan pengguna.
+                Garansi tidak berlaku jika nota hilang, segel rusak, terkena cairan, atau akibat kelalaian pemakaian/kelistrikan.
             </div>
         @else
             <div style="font-weight: bold; color: #333;">KETENTUAN LAYANAN</div>
             <div class="text-muted" style="margin-top: 1px; font-size: 7pt;">
-                Barang yang telah diambil telah dicek dan berfungsi normal di depan pelanggan.
+                Barang yang telah diambil telah dicek dan berfungsi normal di depan pelanggan (Non-Garansi).
             </div>
         @endif
     </div>

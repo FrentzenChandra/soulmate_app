@@ -372,8 +372,24 @@ class Index extends Component
         }
 
         // Sorting
-        $items = $query->orderBy($this->sortField, $this->sortDirection)
-            ->paginate($this->perPage);
+        $sortDir = strtolower($this->sortDirection) === 'desc' ? 'desc' : 'asc';
+
+        if ($this->sortField === 'stok' || $this->sortField === 'stok_jumlah') {
+            $cabId = $activeCabang?->id;
+            $query->orderBy(
+                MasterServisStok::select('jumlah')
+                    ->whereColumn('master_servis_stoks.master_servis_id', 'master_servis.id')
+                    ->where('master_servis_stoks.cabang_id', $cabId)
+                    ->limit(1),
+                $sortDir
+            );
+        } else {
+            $allowedSorts = ['id', 'kode_item', 'nama_item', 'jenis', 'kategori_perangkat', 'harga_modal', 'harga_jual', 'garansi_default_hari', 'is_aktif', 'created_at'];
+            $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'id';
+            $query->orderBy($sortColumn, $sortDir);
+        }
+
+        $items = $query->paginate($this->perPage);
 
         // Stats Ringkas
         $totalJasa = MasterServis::where('jenis', 'jasa')->where('is_aktif', true)->count();

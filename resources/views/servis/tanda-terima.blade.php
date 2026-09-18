@@ -80,7 +80,7 @@
                         {{ $servis->cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang' }}
                     </p>
                     <p class="text-[10px] font-semibold text-gray-700 mt-0.5">
-                        Hp/WA: {{ $servis->cabang?->no_wa ?? '081995466255' }}
+                        WhatsApp: {{ $servis->cabang?->no_wa ?? '081995466255' }}
                     </p>
                 </div>
             </div>
@@ -118,7 +118,7 @@
 
             <!-- Row 1: Nama Barang / Unit & Keluhan -->
             <div class="border-b border-dashed border-gray-200 pb-1.5">
-                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Nama Barang / Unit :</span>
+                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Unit Perangkat :</span>
                 <span class="text-xs font-bold text-gray-900 mt-0.5 block">
                     {{ $servis->tipe_unit ?? ($servis->kategori_perangkat_label . ' (Tanpa Tipe)') }}
                 </span>
@@ -129,7 +129,7 @@
             </div>
 
             <div class="border-b border-dashed border-gray-200 pb-1.5">
-                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Permasalahan / Keluhan :</span>
+                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Keluhan Kerusakan :</span>
                 <span class="text-[10px] font-semibold text-gray-800 mt-0.5 block whitespace-pre-line leading-tight">
                     {{ $servis->keluhan ?: '-' }}
                 </span>
@@ -137,14 +137,14 @@
 
             <!-- Row 2: Kelengkapan & Catatan / Kondisi Fisik -->
             <div>
-                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Kelengkapan Bawaan :</span>
+                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Kelengkapan Unit :</span>
                 <span class="text-[10px] font-medium text-gray-800 mt-0.5 block whitespace-pre-line leading-tight">
                     {{ $servis->kelengkapan ?: 'Hanya Unit' }}
                 </span>
             </div>
 
             <div>
-                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Catatan / Kondisi Fisik :</span>
+                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Kondisi Fisik :</span>
                 <span class="text-[10px] font-medium text-gray-800 mt-0.5 block whitespace-pre-line leading-tight">
                     {{ $servis->kondisi_barang ?: ($servis->catatan ?: '-') }}
                 </span>

@@ -122,7 +122,7 @@
                         <td style="vertical-align: top;">
                             <div style="font-size: 11pt; font-weight: bold; color: #111; line-height: 1.1;">Soulmate Komputer</div>
                             <div class="text-muted" style="font-size: 7.5pt; margin-top: 2px;">{{ $address }}</div>
-                            <div style="font-size: 7.5pt; font-weight: bold; margin-top: 1px;">Hp/WA: {{ $phone }}</div>
+                            <div style="font-size: 7.5pt; font-weight: bold; margin-top: 1px;">WhatsApp: {{ $phone }}</div>
                         </td>
                     </tr>
                 </table>
@@ -164,7 +164,7 @@
             <!-- Col 1: Unit & Keluhan -->
             <td class="spec-cell" style="width: 50%; padding-left: 0;">
                 <div class="spec-box" style="margin-bottom: 6px;">
-                    <div class="text-muted font-bold uppercase" style="font-size: 7pt;">Nama Barang / Unit :</div>
+                    <div class="text-muted font-bold uppercase" style="font-size: 7pt;">Unit Perangkat :</div>
                     <div class="font-bold" style="font-size: 8.5pt; margin-top: 1px;">
                         {{ $servis->tipe_unit ?: ($servis->kategori_perangkat_label . ' (Tanpa Tipe)') }}
                     </div>
@@ -175,7 +175,7 @@
                 </div>
 
                 <div class="spec-box">
-                    <div class="text-muted font-bold uppercase" style="font-size: 7pt;">Permasalahan / Keluhan :</div>
+                    <div class="text-muted font-bold uppercase" style="font-size: 7pt;">Keluhan Kerusakan :</div>
                     <div style="margin-top: 2px; font-size: 7.5pt; line-height: 1.25;">
                         {{ $servis->keluhan ?: '-' }}
                     </div>
@@ -185,14 +185,14 @@
             <!-- Col 2: Kelengkapan & Catatan -->
             <td class="spec-cell" style="width: 50%; padding-right: 0;">
                 <div class="spec-box" style="margin-bottom: 6px;">
-                    <div class="text-muted font-bold uppercase" style="font-size: 7pt;">Kelengkapan Bawaan :</div>
+                    <div class="text-muted font-bold uppercase" style="font-size: 7pt;">Kelengkapan Unit :</div>
                     <div style="margin-top: 2px; font-size: 7.5pt; line-height: 1.25;">
                         {{ $servis->kelengkapan ?: 'Hanya Unit' }}
                     </div>
                 </div>
 
                 <div class="spec-box">
-                    <div class="text-muted font-bold uppercase" style="font-size: 7pt;">Catatan / Kondisi Fisik :</div>
+                    <div class="text-muted font-bold uppercase" style="font-size: 7pt;">Kondisi Fisik :</div>
                     <div style="margin-top: 2px; font-size: 7.5pt; line-height: 1.25;">
                         {{ $servis->kondisi_barang ?: ($servis->catatan ?: '-') }}
                     </div>

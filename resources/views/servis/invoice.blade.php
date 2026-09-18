@@ -80,7 +80,7 @@
                         {{ $servis->cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang' }}
                     </p>
                     <p class="text-[10px] font-semibold text-gray-700 mt-0.5">
-                        Hp/WA: {{ $servis->cabang?->no_wa ?? '081995466255' }}
+                        WhatsApp: {{ $servis->cabang?->no_wa ?? '081995466255' }}
                     </p>
                 </div>
             </div>
@@ -88,8 +88,8 @@
             <!-- Right: Meta Info (Tanggal, Jam, Kode Servis, Pelanggan) -->
             <div class="col-span-5 grid grid-cols-2 gap-1.5 text-[11px]">
                 <div>
-                    <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Tgl Masuk / Ambil :</span>
-                    <span class="font-bold text-gray-800 font-mono text-[10px] block mt-0.5">{{ $servis->tanggal_masuk ? $servis->tanggal_masuk->format('d/m/y') : '-' }} &rarr; {{ $servis->tanggal_ambil ? $servis->tanggal_ambil->format('d/m/y') : '-' }}</span>
+                    <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Tanggal Selesai :</span>
+                    <span class="font-bold text-gray-800 font-mono text-[10px] block mt-0.5">{{ $servis->tanggal_ambil ? $servis->tanggal_ambil->format('d/m/y') : ($servis->tanggal_selesai ? $servis->tanggal_selesai->format('d/m/y') : '-') }}</span>
                 </div>
                 <div>
                     <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Pelanggan :</span>
@@ -110,7 +110,7 @@
 
         <!-- Divider Strip -->
         <div class="border-t border-b border-dashed border-gray-400 py-0.5 text-center font-bold tracking-widest text-[10px] uppercase text-gray-700 select-none">
-            &middot;&middot;&middot;&middot;&middot; FAKTUR PELUNASAN SERVIS &amp; PENGAMBILAN UNIT &middot;&middot;&middot;&middot;&middot;
+            &middot;&middot;&middot;&middot;&middot; FAKTUR PELUNASAN SERVIS &middot;&middot;&middot;&middot;&middot;
         </div>
 
         <!-- Info Unit -->
@@ -123,8 +123,8 @@
                 @endif
             </div>
             <div class="text-right">
-                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Teknisi / Kasir :</span>
-                <span class="font-semibold text-gray-800 text-[10px] mt-0.5 inline-block">{{ $servis->teknisi?->name ?? '-' }} / {{ $servis->kasir?->name ?? 'Kasir Toko' }}</span>
+                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Petugas Kasir :</span>
+                <span class="font-semibold text-gray-800 text-[10px] mt-0.5 inline-block">{{ $servis->kasir?->name ?? ($servis->teknisi?->name ?? 'Soulmate Komputer') }}</span>
             </div>
         </div>
 
@@ -134,7 +134,8 @@
                 <thead>
                     <tr class="border-b border-gray-800 text-[10px] font-bold uppercase text-gray-700">
                         <th class="py-1">No</th>
-                        <th class="py-1">Rincian Jasa / Sparepart</th>
+                        <th class="py-1">Rincian Tindakan</th>
+                        <th class="py-1 text-center">Garansi</th>
                         <th class="py-1 text-center">Qty</th>
                         <th class="py-1 text-right">Harga</th>
                         <th class="py-1 text-right">Subtotal</th>
@@ -148,28 +149,31 @@
                                 {{ $det->nama_item }}
                                 <span class="text-[9px] font-normal text-gray-500 ml-1">({{ ($det->jenis === 'sparepart' || $det->masterServis?->jenis === 'sparepart' || $det->produk_id) ? 'Sparepart' : 'Jasa Servis' }})</span>
                             </td>
+                            <td class="py-1 text-center font-mono text-[10px] text-gray-700">
+                                {{ $det->garansi_label }}
+                            </td>
                             <td class="py-1 text-center font-mono font-bold">{{ $det->qty }}</td>
                             <td class="py-1 text-right font-mono">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
                             <td class="py-1 text-right font-mono font-bold text-gray-900">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-1 text-center text-gray-400 italic">Biaya Servis Standar</td>
+                            <td colspan="6" class="py-1 text-center text-gray-400 italic">Biaya Servis Standar</td>
                         </tr>
                     @endforelse
                 </tbody>
                 <tfoot>
                     <tr class="border-t border-gray-800 font-bold text-xs">
-                        <td colspan="4" class="py-1 text-right uppercase">TOTAL TAGIHAN :</td>
+                        <td colspan="5" class="py-1 text-right uppercase">TOTAL TAGIHAN :</td>
                         <td class="py-1 text-right font-mono text-[#5E17EB]">Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}</td>
                     </tr>
                     @if($servis->bayar > 0)
                         <tr class="font-medium text-[10px] text-gray-600">
-                            <td colspan="4" class="py-0.5 text-right">Bayar ({{ strtoupper($servis->metode_pembayaran ?: 'Tunai') }}) :</td>
+                            <td colspan="5" class="py-0.5 text-right">Bayar ({{ strtoupper($servis->metode_pembayaran ?: 'Tunai') }}) :</td>
                             <td class="py-0.5 text-right font-mono">Rp {{ number_format($servis->bayar, 0, ',', '.') }}</td>
                         </tr>
                         <tr class="font-medium text-[10px] text-gray-600">
-                            <td colspan="4" class="py-0.5 text-right">Kembalian :</td>
+                            <td colspan="5" class="py-0.5 text-right">Kembalian :</td>
                             <td class="py-0.5 text-right font-mono">Rp {{ number_format($servis->kembalian, 0, ',', '.') }}</td>
                         </tr>
                     @endif
@@ -180,14 +184,14 @@
         <!-- Tanda Tangan Section -->
         <div class="grid grid-cols-2 gap-6 pt-1 text-center text-[10px]">
             <div>
-                <p class="font-medium text-gray-500">Penerima / Pelanggan,</p>
+                <p class="font-medium text-gray-500">Pelanggan,</p>
                 <div class="h-6"></div>
                 <p class="font-bold text-gray-900 border-t border-gray-300 pt-0.5 inline-block min-w-[120px]">
                     {{ $servis->customer?->nama ?? 'Pelanggan' }}
                 </p>
             </div>
             <div>
-                <p class="font-medium text-gray-500">Kasir / Teknisi,</p>
+                <p class="font-medium text-gray-500">Kasir Toko,</p>
                 <div class="h-6"></div>
                 <p class="font-bold text-gray-900 border-t border-gray-300 pt-0.5 inline-block min-w-[120px]">
                     {{ $servis->kasir?->name ?? ($servis->teknisi?->name ?? 'Soulmate Komputer') }}
@@ -201,13 +205,16 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
             </div>
             <div class="text-[10px] leading-snug text-gray-800">
-                @if($servis->garansi_hari > 0 && $servis->garansi_sampai)
-                    <strong class="text-emerald-800 font-bold block uppercase">GARANSI TOKO RESMI ({{ $servis->garansi_hari }} HARI)</strong>
-                    Unit ini mendapatkan garansi perbaikan hingga: <strong class="font-mono text-emerald-900 bg-white px-1.5 py-0.2 rounded border border-emerald-300">{{ $servis->garansi_sampai->format('d F Y') }}</strong>.
-                    <span class="block text-[9px] text-gray-500 mt-0.5">Garansi tidak berlaku jika segel rusak, terkena cairan, atau kesalahan pemakaian/kelistrikan pengguna.</span>
+                @php
+                    $hasGaransi = $servis->details->where('garansi_hari', '>', 0)->count() > 0;
+                @endphp
+                @if($hasGaransi)
+                    <strong class="text-emerald-800 font-bold block uppercase">KETENTUAN GARANSI PER ITEM</strong>
+                    Garansi berlaku per item sesuai rincian pada tabel di atas terhitung sejak tanggal pengambilan unit.
+                    <span class="block text-[9px] text-gray-500 mt-0.5">Garansi tidak berlaku jika nota hilang, segel rusak, terkena cairan, atau akibat kelalaian pemakaian/kelistrikan.</span>
                 @else
                     <strong class="text-gray-700 font-bold block">KETENTUAN LAYANAN</strong>
-                    Barang yang telah diambil telah dicek dan berfungsi normal di depan pelanggan.
+                    Barang yang telah diambil telah dicek dan berfungsi normal di depan pelanggan (Non-Garansi).
                 @endif
             </div>
         </div>
