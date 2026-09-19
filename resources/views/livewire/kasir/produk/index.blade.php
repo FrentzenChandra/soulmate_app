@@ -850,6 +850,25 @@
                                 @endif
                             </div>
 
+                            <!-- Pilihan Metode Pembayaran Dinamis -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                                    Metode Pembayaran
+                                </label>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                    @foreach($masterMetodePembayarans as $metode)
+                                        <button type="button"
+                                                wire:click="selectMetodeBayar('{{ $metode->nama }}')"
+                                                class="py-2.5 px-2 rounded-xl border text-xs font-bold transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer text-center {{ $metodeBayar === $metode->nama ? 'bg-[#5E17EB] text-white border-[#5E17EB] shadow-md shadow-purple-900/20 ring-2 ring-purple-300' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50' }}">
+                                            <span class="truncate w-full">{{ $metode->nama }}</span>
+                                            @if($metode->nomor_rekening)
+                                                <span class="text-[9px] font-mono {{ $metodeBayar === $metode->nama ? 'text-purple-200' : 'text-gray-400' }}">{{ $metode->nomor_rekening }}</span>
+                                            @endif
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+
                             <!-- Input Uang Diterima & Quick Money Stepper -->
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">

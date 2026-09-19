@@ -6,6 +6,7 @@ use App\Models\Cabang;
 use App\Models\Customer;
 use App\Models\KategoriProduk;
 use App\Models\MasterPpn;
+use App\Models\MetodePembayaran;
 use App\Models\NomorUrutTransaksi;
 use App\Models\Penjualan;
 use App\Models\PenjualanDetail;
@@ -481,10 +482,20 @@ class Index extends Component
             return;
         }
 
-        $this->metodeBayar = $this->metodeBayar ?: 'cash';
+        $defaultMetode = MetodePembayaran::aktif()->first();
+        $this->metodeBayar = $this->metodeBayar ?: ($defaultMetode?->nama ?? 'Tunai');
         $this->jumlahBayar = $this->grandTotal;
         $this->catatan = '';
         $this->modalBayarOpen = true;
+    }
+
+    public function selectMetodeBayar(string $namaMetode): void
+    {
+        $this->metodeBayar = $namaMetode;
+        $metode = MetodePembayaran::where('nama', $namaMetode)->first();
+        if ($metode && $metode->kategori !== 'tunai') {
+            $this->jumlahBayar = $this->grandTotal;
+        }
     }
 
     public function setUangPas(): void
@@ -646,6 +657,8 @@ class Index extends Component
         $selectedCustomer = $this->selectedCustomerId ? Customer::find($this->selectedCustomerId) : null;
         $lastPenjualan = $this->lastPenjualanId ? Penjualan::with(['details.produk', 'cabang', 'kasir', 'customer', 'ppn'])->find($this->lastPenjualanId) : null;
 
+        $masterMetodePembayarans = MetodePembayaran::aktif()->get();
+
         if (! $cabang) {
             return view('livewire.kasir.produk.index', [
                 'cabang' => null,
@@ -654,6 +667,7 @@ class Index extends Component
                 'totalProduk' => 0,
                 'kategoris' => $kategoris,
                 'masterPpns' => $masterPpns,
+                'masterMetodePembayarans' => $masterMetodePembayarans,
                 'customers' => $customers,
                 'selectedCustomer' => null,
                 'lastPenjualan' => null,
@@ -698,6 +712,7 @@ class Index extends Component
             'totalProduk' => $totalProduk,
             'kategoris' => $kategoris,
             'masterPpns' => $masterPpns,
+            'masterMetodePembayarans' => $masterMetodePembayarans,
             'customers' => $customers,
             'selectedCustomer' => $selectedCustomer,
             'lastPenjualan' => $lastPenjualan,

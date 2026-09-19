@@ -8,6 +8,7 @@ use App\Livewire\Laporan\Penjualan\Index as LaporanPenjualanIndex;
 use App\Livewire\Master\Cabang\Index as MasterCabangIndex;
 use App\Livewire\Master\Customer\Index as MasterCustomerIndex;
 use App\Livewire\Master\Kategori\Index as MasterKategoriIndex;
+use App\Livewire\Master\Pembayaran\Index as MasterPembayaranIndex;
 use App\Livewire\Master\Ppn\Index as MasterPpnIndex;
 use App\Livewire\Master\Produk\Index as MasterProdukIndex;
 use App\Livewire\Master\Servis\Index as MasterServisIndex;
@@ -15,7 +16,14 @@ use App\Livewire\Master\User\Index as MasterUserIndex;
 use App\Livewire\Servis\Masuk\Index as ServisMasukIndex;
 use App\Livewire\Servis\Keluar\Index as ServisKeluarIndex;
 use App\Livewire\Servis\Batal\Index as ServisBatalIndex;
-use App\Livewire\Servis\Pengerjaan\Index as ServisPengerjaanIndex;
+use App\Livewire\KasKeluar\Index as KasKeluarIndex;
+use App\Livewire\ModalAwal\Index as ModalAwalIndex;
+use App\Livewire\Master\SumberDana\Index as MasterSumberDanaIndex;
+use App\Livewire\Master\KategoriKas\Index as MasterKategoriKasIndex;
+use App\Livewire\SerialNumber\Index as SerialNumberIndex;
+use App\Livewire\Transaksi\Full as TransaksiFull;
+use App\Livewire\Transaksi\Harian as TransaksiHarian;
+use App\Livewire\TutupKas\Index as TutupKasIndex;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -53,6 +61,9 @@ Route::middleware('auth')->group(function () {
             Route::get('/users', MasterUserIndex::class)->name('users');
             Route::get('/produk', MasterProdukIndex::class)->name('produk');
             Route::get('/kategori', MasterKategoriIndex::class)->name('kategori');
+            Route::get('/metode-pembayaran', MasterPembayaranIndex::class)->name('metode-pembayaran');
+            Route::get('/sumber-dana', MasterSumberDanaIndex::class)->name('sumber-dana');
+            Route::get('/kategori-kas', MasterKategoriKasIndex::class)->name('kategori-kas');
         });
 
         // Master Servis (Owner, Superadmin, Admin, Teknisi)
@@ -135,6 +146,23 @@ Route::middleware('auth')->group(function () {
             return view('kasir.invoice', ['penjualan' => $penjualan]);
         })->name('kasir.produk.invoice');
         Route::get('/laporan/penjualan', LaporanPenjualanIndex::class)->name('laporan.penjualan');
+    });
+
+    // Keuangan & Kas (Kas Keluar & Modal Awal & Tutup Kas)
+    Route::middleware('role:Owner|Superadmin|Admin')->group(function () {
+        Route::get('/kas-keluar', KasKeluarIndex::class)->name('kas-keluar');
+        Route::get('/transaksi/full', TransaksiFull::class)->name('transaksi.full');
+    });
+
+    Route::middleware('role:Owner|Superadmin|Admin|Kasir')->group(function () {
+        Route::get('/modal-awal', ModalAwalIndex::class)->name('modal-awal');
+        Route::get('/tutup-kas', TutupKasIndex::class)->name('tutup-kas');
+        Route::get('/transaksi/harian', TransaksiHarian::class)->name('transaksi.harian');
+    });
+
+    // Serial Number (Owner, Superadmin, Admin, Teknisi)
+    Route::middleware('role:Owner|Superadmin|Admin|Teknisi')->group(function () {
+        Route::get('/serial-number', SerialNumberIndex::class)->name('serial-number');
     });
 
     // Operasional Stok Cabang

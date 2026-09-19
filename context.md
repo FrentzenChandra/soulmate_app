@@ -52,20 +52,54 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
   - Tidak pernah ditampilkan di katalog publik/marketplace.
   - Form modal terstruktur: Tipe (Jasa vs Sparepart), Identitas, Harga Modal & Jual (format rupiah), Alokasi Stok Cabang (khusus sparepart), Garansi Default (preset 0-90 hari), Catatan Teknis, dan Checklist Status Aktif di bawah Catatan.
 
-### B. Form Servis Masuk (`/servis/masuk` / Tambah Servis)
-- **Kategori Perangkat**: Urutan standar: `Laptop`, `Printer` (tanpa "/Scanner"), `Komputer` (tanpa "PC Komputer"), `Lainnya`.
-- **Penyederhanaan Input**:
-  - Kolom *Nomor Seri / Serial Number* dan *Kondisi Fisik / Bodi Awal* **dihapus**.
-  - Pilihan Kelengkapan: `Charger`, `Box`, `Flashdisk`, `Harddisk` (dipisah), opsi `Mouse` dihapus.
-  - Kolom *Catatan Servis* diposisikan di sebelah kiri dengan layout yang lebih luas dan nyaman.
+### B. Alur & Pemisahan 3 Menu Servis (`/servis/masuk`, `/servis/keluar`, `/servis/batal`)
+- **1. Servis Masuk** (`/servis/masuk`):
+  - Khusus unit dalam tahap pengerjaan (status: `pengecekan` dan `perbaikan`).
+  - Fitur tambah item/komponen jasa & sparepart dari Master Servis, rincian masa garansi per item, dan tombol "Selesai" untuk mengubah status menjadi `selesai` serta mencetak nota tanda terima / faktur.
+- **2. Servis Keluar** (`/servis/keluar`):
+  - Khusus unit yang telah tuntas (status: `selesai` dan `sudah_diambil`).
+  - Default sorting memprioritaskan unit yang belum diambil (`selesai` muncul di atas, `sudah_diambil` di bawah).
+  - Validasi penyerahan unit & pelunasan. Unit yang berstatus `sudah_diambil` terkunci otomatis dan tidak dapat diedit lagi.
+- **3. Servis Batal** (`/servis/batal`):
+  - Khusus unit dengan status `batal`.
+  - Dilengkapi fitur penyerahan unit batal tanpa tagihan biaya (Rp 0) serta cetak tanda terima pembatalan.
 
-### C. Kasir POS & Penagihan Servis
-- **Kasir POS Produk** (`/kasir/produk`): Penjualan produk retail biasa dengan keranjang belanja, diskon, PPN, opsi Penjualan Non-Real, dan cetak struk 58mm/80mm.
-- **Penagihan Servis**: Dilakukan dari Index Servis pada item berstatus `selesai` via tombol *Tagih & Cetak* (terkunci otomatis setelah dibayar).
+### C. Kasir POS, Invoice & Standardisasi Cetak
+- **Kasir POS Produk** (`/kasir/produk`): Penjualan produk retail biasa dengan keranjang belanja, diskon, PPN, opsi Penjualan Non-Real, dan cetak invoice.
 - **Nomor Transaksi Atomik Harian**:
   - Backend Penjualan: `INV-PJ-[KODE_CABANG]-[YYMMDD]-[00001]` -> Frontend: `PJ-[YYMMDD]-[00001]`
-  - Backend Servis: `INV-SV-[KODE_CABANG]-[YYMMDD]-[00001]` -> Frontend: `SV-[YYMMDD]-[00001]`
-  - Cetakan Struk: Format kuantiti berspasi (`1 UNIT`).
+### D. Manajemen Kas Keluar & Serial Number (Superadmin)
+- **Kas Keluar** (`/kas-keluar`):
+  - Pencatatan pengeluaran kas cabang dengan waktu input, keterangan, total uang, sumber dana (Master Sumber Dana: Cash, BCA, TF BCA), dan kategori (Master Kategori Kas Keluar).
+- **Serial Number** (`/serial-number`):
+  - Registrasi & pelacakan unit/perangkat dengan kolom Nama, Merk Tipe Spek, Serial Number (SN), dan Distributor.
+
+### E. Modul Transaksi Berbasis Tabulator.js (Transaksi FULL & Transaksi Harian)
+- **1. Transaksi FULL** (`/transaksi/full` - Superadmin):
+  - Menggunakan library **Tabulator.js**.
+  - Rekapitulasi: Penjualan Real (Cash) + Penjualan Servis Selesai/Diambil (Cash) - Kas Keluar (Cash).
+  - Kolom Data: Modal (HPP), Harga Jual, Status Pembayaran (Lunas, Bon), Transaksi (Penjualan / Servis auto-detect), Pajak (PPN atau `-`), Metode Pembayaran, Teknisi (pengguna role teknisi di cabang terkait).
+- **2. Transaksi Harian** (`/transaksi/harian` - Admin & Superadmin):
+  - Menggunakan library **Tabulator.js**.
+  - Histori transaksi real hari ini saja (*today only*): Penjualan produk & Servis diambil.
+  - Kolom Data: Modal, Harga Jual, Nett (Harga Jual - Modal), Pajak, Metode Pembayaran, Keterangan.
+- **3. Modal Awal & Rekonsiliasi Saldo Kas Harian** (`/modal-awal`):
+  - Pencatatan kas modal awal kasir untuk memastikan kesesuaian fisik uang cash:
+    $$\text{Total Cash Sistem} = \text{Modal Awal (Cash)} + \text{Penjualan Cash} + \text{Servis Cash} - \text{Kas Keluar Cash}$$
+  - Deteksi status cash harian (klop, minus, atau surplus).
+- **4. Tutup Kasir & Riwayat Tutup Kas** (`/tutup-kas`):
+  - Fitur closing kasir di akhir hari/shift pada halaman Transaksi Harian untuk mencocokkan fisik uang tunai laci dengan hitungan sistem.
+  - Kasir menginput **Kas Fisik** (hasil hitung uang riil di laci).
+  - Sistem menghitung selisih:
+    $$\text{Selisih} = \text{Kas Fisik} - \text{Kas Sistem}$$
+    - `Rp 0` (Klop / Cocok)
+    - Negatif (Minus / Tekor)
+    - Positif (Surplus / Lebih)
+  - Riwayat tersimpan pada tabel `tutup_kas` dan ditampilkan di menu **Tutup Kas** lengkap dengan rincian modal awal, omzet cash, kas keluar, kas fisik, selisih, dan catatan kasir.
+
+### F. Metrik Pendapatan Topbar Superadmin
+- Header navbar khusus Superadmin menampilkan ringkasan performa finansial cabang secara real-time:
+  - Total Penjualan Produk, Total Servis, HPP (Total Modal Barang Terjual), dan Pendapatan Nett (Penjualan - HPP).
 
 ---
 

@@ -425,3 +425,76 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
   - Method accessor `getProfilePhotoUrlAttribute()` pada model `User` secara cerdas memprioritaskan `profile_photo_path` (Jetstream) dan `foto_url` (upload Master Pengguna WebP $\le 40\text{ KB}$), dengan fallback inisial SVG avatar.
 - **Desain Solid Clean Anti-AI Slop**:
   - Warna solid: Brand Purple (`#5E17EB`), Tech Blue (`#0052FF`), Accent Pink (`#E6007A`), neutral slate/gray, kartu putih dengan border crisp, dan typography *Plus Jakarta Sans*.
+
+---
+
+## 17. Modul Kas Keluar, Master Sumber Dana & Kategori Kas Keluar
+
+- **Kas Keluar** (`/kas-keluar` - Superadmin & Owner):
+  - Pencatatan pengeluaran operasional cabang: Waktu Input, Keterangan, Total Uang / Nominal, Sumber Dana, Kategori Kas Keluar.
+  - **Master Sumber Dana** (`/master/sumber-dana`): Pilihan asal uang (Cash / Tunai, BCA, TF BCA, dll).
+  - **Master Kategori Kas Keluar** (`/master/kategori-kas`): Klasifikasi biaya (Operasional Toko, Listrik & Air, Konsumsi Karyawan, ATK, Maintenance, Lainnya).
+
+---
+
+## 18. Modul Pelacakan Serial Number (`/serial-number`)
+
+- CRUD Serial Number untuk mencatat dan melacak identitas perangkat barang/unit:
+  - Kolom: Nama Produk / Barang, Merk Tipe Spek, Serial Number (SN), Distributor Pemasok.
+  - Pencarian cepat multi-kata berdasarkan SN, merk, nama, maupun distributor.
+
+---
+
+## 19. Modul Transaksi Berbasis Tabulator.js (`/transaksi/full` & `/transaksi/harian`)
+
+- Sesuai standar arsitektur sistem, seluruh menu yang berawalan **TRANSAKSI** dibangun menggunakan library spreadsheet grid **Tabulator.js**:
+- **Transaksi FULL (`/transaksi/full` - Superadmin & Owner)**:
+  - Rekapitulasi: Penjualan Real (Cash) + Penjualan Servis (Cash) - Kas Keluar (Cash).
+  - Kolom Grid Tabulator:
+    - Modal (HPP / Harga Beli Awal)
+    - Harga Jual
+    - Status Pembayaran (Lunas / Bon)
+    - Transaksi (Penjualan / Servis auto-detect)
+    - Pajak (PPN terhitung atau `-` jika servis)
+    - Metode Pembayaran (Master Metode Pembayaran)
+    - Teknisi (Daftar teknisi cabang terkait)
+- **Transaksi Harian (`/transaksi/harian` - Admin & Superadmin)**:
+  - Menampilkan transaksi khusus hari ini saja (*today only*): Penjualan produk real + Servis yang sudah diambil hari itu.
+  - Kolom Grid Tabulator: Modal, Harga Jual, Nett (Harga Jual - Modal), Pajak, Metode Pembayaran, Keterangan.
+- **Modal Awal & Rekonsiliasi Saldo Kas Harian (`/modal-awal`)**:
+  - Pencatatan modal awal kasir untuk memastikan kesesuaian fisik uang cash closing:
+    $$\text{Total Saldo Cash Fisik} = \text{Modal Awal Cash} + \text{Penjualan Cash} + \text{Servis Cash} - \text{Kas Keluar Cash}$$
+  - Deteksi status selisih kas harian (Klop, Minus, atau Surplus).
+
+---
+
+## 20. Modul Tutup Kasir & Riwayat Tutup Kas (`/tutup-kas`)
+
+- **Aksi Closing Kasir Harian**:
+  - Tombol modal **"Tutup Kasir"** pada halaman Transaksi Harian di akhir jam operasional.
+  - Ringkasan perhitungan otomatis:
+    - Modal Awal (Cash)
+    - Total Penjualan Produk (Cash)
+    - Total Pembayaran Servis (Cash)
+    - Total Kas Keluar (Cash)
+    - **Total Kas Sistem (Seharusnya di Laci)**
+  - Input form:
+    - **Kas Fisik** (Uang tunai riil yang dihitung kasir)
+    - **Catatan Closing** (Keterangan opsional)
+  - Kalkulasi selisih realtime:
+    - `Minus (Merah)`: Tekor / uang kurang.
+    - `Pas / Klop (Hijau)`: Rp 0, cocok presisi.
+    - `Plus (Biru)`: Uang laci berlebih.
+- **Menu Riwayat Tutup Kas (`/tutup-kas`)**:
+  - Tabel riwayat closing kas harian per cabang: Tanggal, Waktu Tutup Kas, Petugas / Kasir, Modal Awal, Penjualan Cash, Servis Cash, Kas Keluar Cash, Kas Sistem, Kas Fisik, Selisih, Status, Catatan.
+  - Filter rentang tanggal dan pencarian riwayat closing.
+
+---
+
+## 21. Metrik Finansial Realtime Topbar Superadmin
+
+- Header atas Superadmin menampilkan metrik finansial cabang:
+  - **Penjualan**: Total omzet penjualan produk retail.
+  - **Servis**: Total omzet servis selesai/diambil.
+  - **HPP**: Total modal barang & sparepart terjual.
+  - **Pendapatan Nett**: Selisih total omzet dengan total modal HPP (Laba Kotor).
