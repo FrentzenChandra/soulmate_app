@@ -156,3 +156,25 @@
     background: #f3f4f6 !important;
 }
 
+/* Tabulator Dynamic Font Size Modifiers */
+.tabulator-size-sm .tabulator .tabulator-header .tabulator-col-title { font-size: 9.5px !important; }
+.tabulator-size-sm .tabulator .tabulator-header .tabulator-col-filter input,
+.tabulator-size-sm .tabulator .tabulator-header .tabulator-col-filter select { font-size: 9px !important; height: 22px !important; }
+.tabulator-size-sm .tabulator .tabulator-row { min-height: 32px !important; }
+.tabulator-size-sm .tabulator .tabulator-cell { font-size: 10px !important; padding: 4px 6px !important; }
+.tabulator-size-sm .tabulator .tabulator-cell span { font-size: 10px !important; }
+
+.tabulator-size-md .tabulator .tabulator-header .tabulator-col-title { font-size: 10.5px !important; }
+.tabulator-size-md .tabulator .tabulator-header .tabulator-col-filter input,
+.tabulator-size-md .tabulator .tabulator-header .tabulator-col-filter select { font-size: 10px !important; height: 24px !important; }
+.tabulator-size-md .tabulator .tabulator-row { min-height: 40px !important; }
+.tabulator-size-md .tabulator .tabulator-cell { font-size: 11.5px !important; padding: 6px 8px !important; }
+
+.tabulator-size-lg .tabulator .tabulator-header .tabulator-col-title { font-size: 12px !important; }
+.tabulator-size-lg .tabulator .tabulator-header .tabulator-col-filter input,
+.tabulator-size-lg .tabulator .tabulator-header .tabulator-col-filter select { font-size: 11.5px !important; height: 28px !important; }
+.tabulator-size-lg .tabulator .tabulator-row { min-height: 48px !important; }
+.tabulator-size-lg .tabulator .tabulator-cell { font-size: 13.5px !important; padding: 8px 10px !important; }
+.tabulator-size-lg .tabulator .tabulator-cell span { font-size: 13px !important; }
+
+

@@ -102,8 +102,7 @@
             </div>
             <input type="text"
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari kode, nama layanan jasa, sparepart..."
-                   class="w-full pl-10 pr-4 py-2.5 bg-gray-50/80 border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB] transition-all" />
+                   class="w-full pl-10 pr-4 py-2.5 bg-gray-50/80 border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:bg-white focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB] transition-all" />
         </div>
 
         <!-- Filter Controls -->
@@ -462,7 +461,6 @@
                                     </label>
                                     <input type="text"
                                            wire:model="nama_item"
-                                           placeholder="Contoh: Install Ulang Windows 11 Pro, Ganti Keyboard Laptop..."
                                            class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 font-semibold text-gray-800 focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB] bg-white transition-all text-xs @error('nama_item') border-rose-400 focus:border-rose-500 focus:ring-rose-200 @enderror">
                                     @error('nama_item') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
@@ -488,7 +486,6 @@
                                         </label>
                                         <input type="text"
                                                wire:model="kode_item"
-                                               placeholder="Contoh: JS-001 / SP-001"
                                                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 font-mono font-semibold text-gray-800 focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB] bg-white transition-all text-xs @error('kode_item') border-rose-400 @enderror">
                                         @error('kode_item') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                     </div>
@@ -518,14 +515,14 @@
                                         <label class="block text-xs font-bold text-gray-700 mb-1.5">
                                             Harga Modal
                                         </label>
-                                        <x-input-rupiah wire:model.live="harga_modal" placeholder="0" />
+                                        <x-input-rupiah wire:model.live="harga_modal" />
                                         @error('harga_modal') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                     </div>
                                     <div>
                                         <label class="block text-xs font-bold text-gray-700 mb-1.5">
                                             Harga Jual Servis <span class="text-rose-500">*</span>
                                         </label>
-                                        <x-input-rupiah wire:model.live="harga_jual" placeholder="0" />
+                                        <x-input-rupiah wire:model.live="harga_jual" />
                                         @error('harga_jual') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
@@ -550,7 +547,6 @@
                                             <input type="number"
                                                    min="0"
                                                    wire:model="initialStock.{{ $activeCabang->id }}"
-                                                   placeholder="0"
                                                    class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 font-mono font-bold text-gray-800 focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB] bg-white transition-all text-xs">
                                         </div>
                                         <div>
@@ -560,7 +556,6 @@
                                             <input type="number"
                                                    min="0"
                                                    wire:model="minStock.{{ $activeCabang->id }}"
-                                                   placeholder="3"
                                                    class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 font-mono font-bold text-gray-800 focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB] bg-white transition-all text-xs">
                                         </div>
                                     </div>
@@ -583,7 +578,6 @@
                                         <input type="number"
                                                wire:model="garansi_default_hari"
                                                min="0"
-                                               placeholder="30"
                                                class="w-full sm:w-32 px-3.5 py-2.5 rounded-xl border border-gray-200 font-mono font-semibold text-gray-800 focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB] bg-white transition-all text-xs">
 
                                         <!-- Quick Preset Pills -->
@@ -604,7 +598,6 @@
                                     </label>
                                     <textarea wire:model="keterangan"
                                               rows="2"
-                                              placeholder="Deskripsi singkat mengenai cakupan pengerjaan jasa atau spesifikasi suku cadang..."
                                               class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 font-semibold text-gray-800 focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB] bg-white transition-all text-xs"></textarea>
                                 </div>
 

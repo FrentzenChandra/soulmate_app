@@ -128,7 +128,6 @@
             </div>
             <input type="text"
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari no servis, nama pelanggan, no WA, unit..."
                    class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB] transition-all" />
         </div>
 
@@ -564,7 +563,6 @@
                                         <div class="relative">
                                             <input type="text"
                                                    wire:model.live.debounce.250ms="sparepartSearch"
-                                                   placeholder="Ketik nama jasa, ganti part, SSD, install ulang..."
                                                    class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB]" />
                                             
                                             <!-- Dropdown Suggestions -->

@@ -114,7 +114,6 @@
                     <input type="text"
                            x-model="quickSearch"
                            @input="applyFilter()"
-                           placeholder="Cari transaksi hari ini..."
                            class="w-full pl-9 pr-3 py-1.5 text-xs font-semibold text-gray-800 bg-gray-50/60 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#5E17EB] transition-all">
                 </div>
                 <button type="button"
@@ -124,7 +123,14 @@
                     <span>Reset</span>
                 </button>
             </div>
-            <div class="flex items-center gap-3 text-xs text-gray-500 font-semibold">
+            <div class="flex items-center gap-3 text-xs text-gray-500 font-semibold flex-wrap">
+                <!-- Font Size Selector -->
+                <div class="inline-flex items-center p-0.5 bg-gray-100 rounded-xl border border-gray-200">
+                    <button type="button" @click="setTableSize('sm')" :class="tableSize === 'sm' ? 'bg-white text-[#5E17EB] shadow-xs font-black' : 'text-gray-500 font-semibold hover:text-gray-700'" class="px-2 py-0.5 text-[11px] rounded-lg transition-all cursor-pointer" title="Font Kecil (Compact)">S</button>
+                    <button type="button" @click="setTableSize('md')" :class="tableSize === 'md' ? 'bg-white text-[#5E17EB] shadow-xs font-black' : 'text-gray-500 font-semibold hover:text-gray-700'" class="px-2 py-0.5 text-[11px] rounded-lg transition-all cursor-pointer" title="Font Sedang (Default)">M</button>
+                    <button type="button" @click="setTableSize('lg')" :class="tableSize === 'lg' ? 'bg-white text-[#5E17EB] shadow-xs font-black' : 'text-gray-500 font-semibold hover:text-gray-700'" class="px-2 py-0.5 text-[11px] rounded-lg transition-all cursor-pointer" title="Font Besar">L</button>
+                </div>
+
                 <template x-if="selectedCount > 0">
                     <span class="px-2 py-0.5 rounded-md bg-purple-50 text-[#5E17EB] font-bold text-[11px] border border-purple-200"
                           x-text="selectedCount + ' dipilih'"></span>
@@ -137,7 +143,9 @@
             </div>
         </div>
 
-        <div x-ref="tableContainer" class="rounded-xl border border-gray-200 text-xs"></div>
+        <div :class="'tabulator-size-' + tableSize">
+            <div x-ref="tableContainer" class="rounded-xl border border-gray-200 text-xs"></div>
+        </div>
     </div>
 
     <!-- ============================================== -->
@@ -205,7 +213,7 @@
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                     Total Uang Fisik di Laci *
                                 </label>
-                                <x-input-rupiah wire:model="kasFisik" placeholder="Hitung dan masukkan uang fisik di laci..." />
+                                <x-input-rupiah wire:model="kasFisik" />
                                 @error('kasFisik') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
@@ -233,7 +241,6 @@
                                 </label>
                                 <textarea wire:model="catatanClosing"
                                           rows="2"
-                                          placeholder="Tulis alasan jika ada selisih uang atau catatan khusus..."
                                           class="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900"></textarea>
                                 @error('catatanClosing') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
@@ -270,6 +277,15 @@ window.tabulatorHarianTable = function(config) {
         quickSearch: '',
         rowCount: (config.tableData || []).length,
         selectedCount: 0,
+        tableSize: localStorage.getItem('tabulator_table_size') || 'md',
+
+        setTableSize(size) {
+            this.tableSize = size;
+            localStorage.setItem('tabulator_table_size', size);
+            if (this.table) {
+                this.table.redraw(true);
+            }
+        },
 
         formatRupiah(val) {
             return 'Rp ' + Number(val || 0).toLocaleString('id-ID');
@@ -303,22 +319,22 @@ window.tabulatorHarianTable = function(config) {
                 placeholder: "Belum ada transaksi pada tanggal ini.",
                 columns: [
                     { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 35, minWidth: 35, maxWidth: 35, resizable: false },
-                    { title: "Jam", field: "tanggal", width: 65, hozAlign: "center", sorter: "string", headerFilter: "input", headerFilterPlaceholder: "Jam", formatter: (cell) => `<span class="font-bold text-gray-700 font-mono text-[11px]">${cell.getValue()}</span>` },
-                    { title: "No Transaksi", field: "no_transaksi", width: 125, headerFilter: "input", headerFilterPlaceholder: "Cari no...", formatter: (cell) => `<span class="font-mono font-extrabold text-gray-900 text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
+                    { title: "Jam", field: "tanggal", width: 65, hozAlign: "center", sorter: "string", headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-bold text-gray-700 font-mono text-[11px]">${cell.getValue()}</span>` },
+                    { title: "No Transaksi", field: "no_transaksi", width: 125, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-extrabold text-gray-900 text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
                     { title: "Transaksi", field: "tipe_label", width: 95, hozAlign: "center", headerFilter: "list", headerFilterParams: { valuesLookup: "all", clearable: true, multiselect: true }, headerFilterFunc: multiSelectFilterFunc, formatter: (cell) => {
                         const val = cell.getValue();
                         const isPJ = val === 'Penjualan';
                         return `<span class="inline-flex px-2 py-0.5 rounded-md text-[10px] font-black ${isPJ ? 'bg-purple-50 text-[#5E17EB] border border-purple-200' : 'bg-blue-50 text-[#0052FF] border border-blue-200'}">${val}</span>`;
                     }},
-                    { title: "Pelanggan", field: "customer", widthGrow: 1, minWidth: 95, headerFilter: "input", headerFilterPlaceholder: "Cari...", formatter: (cell) => `<span class="font-bold text-gray-800 text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
-                    { title: "Detail Barang / Servis", field: "item_detail", widthGrow: 2, minWidth: 140, headerFilter: "input", headerFilterPlaceholder: "Cari barang...", formatter: (cell) => `<span class="text-gray-600 font-medium text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
-                    { title: "Modal (HPP)", field: "modal", hozAlign: "right", width: 100, headerFilter: "input", headerFilterPlaceholder: ">=...", formatter: (cell) => `<span class="font-mono font-semibold text-gray-500 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
-                    { title: "Harga Jual", field: "harga_jual", hozAlign: "right", width: 105, headerFilter: "input", headerFilterPlaceholder: ">=...", formatter: (cell) => `<span class="font-mono font-black text-gray-900 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
-                    { title: "Laba (Nett)", field: "margin", hozAlign: "right", width: 105, headerFilter: "input", headerFilterPlaceholder: ">=...", formatter: (cell) => {
+                    { title: "Pelanggan", field: "customer", widthGrow: 1, minWidth: 95, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-bold text-gray-800 text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
+                    { title: "Detail Barang / Servis", field: "item_detail", widthGrow: 2, minWidth: 140, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="text-gray-600 font-medium text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
+                    { title: "Modal (HPP)", field: "modal", hozAlign: "right", width: 100, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-semibold text-gray-500 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
+                    { title: "Harga Jual", field: "harga_jual", hozAlign: "right", width: 105, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-black text-gray-900 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
+                    { title: "Laba (Nett)", field: "margin", hozAlign: "right", width: 105, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => {
                         const val = cell.getValue();
                         return `<span class="font-mono font-black text-[11px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
                     }},
-                    { title: "Pajak", field: "pajak", hozAlign: "right", width: 80, headerFilter: "input", headerFilterPlaceholder: ">=...", formatter: (cell) => `<span class="font-mono text-gray-500 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
+                    { title: "Pajak", field: "pajak", hozAlign: "right", width: 80, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono text-gray-500 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
                     { title: "Status", field: "status", width: 75, hozAlign: "center", headerFilter: "list", headerFilterParams: { valuesLookup: "all", clearable: true, multiselect: true }, headerFilterFunc: multiSelectFilterFunc, formatter: (cell) => {
                         const isLunas = cell.getValue() === 'Lunas';
                         return `<span class="inline-flex px-2 py-0.5 rounded text-[10px] font-black ${isLunas ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">${cell.getValue()}</span>`;

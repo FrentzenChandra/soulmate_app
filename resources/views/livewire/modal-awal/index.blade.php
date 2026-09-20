@@ -94,7 +94,6 @@
             </span>
             <input type="text"
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari keterangan atau nama petugas..."
                    class="w-full pl-10 pr-4 py-2 text-xs font-semibold text-gray-800 bg-gray-50/60 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#0052FF] focus:border-transparent transition-all">
         </div>
 
@@ -240,7 +239,7 @@
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                     Nominal Modal Awal (Cash) *
                                 </label>
-                                <x-input-rupiah wire:model="nominal" placeholder="Contoh: 500.000" />
+                                <x-input-rupiah wire:model="nominal" />
                                 @error('nominal') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
@@ -251,7 +250,6 @@
                                 </label>
                                 <input type="text"
                                        wire:model="keterangan"
-                                       placeholder="Contoh: Uang pecahan kembalian shift 1..."
                                        class="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0052FF] bg-white text-gray-900">
                                 @error('keterangan') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>

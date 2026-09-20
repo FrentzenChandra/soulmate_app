@@ -283,8 +283,7 @@
                 </div>
                 <input type="text"
                        wire:model.live.debounce.300ms="search"
-                       placeholder="Cari no invoice, pelanggan, kasir, atau nama/barcode produk..."
-                       class="w-full pl-10 pr-4 py-2.5 text-xs font-bold rounded-2xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] placeholder-gray-400">
+                       class="w-full pl-10 pr-4 py-2.5 text-xs font-bold rounded-2xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]">
             </div>
 
             <!-- Filter Periode Preset -->

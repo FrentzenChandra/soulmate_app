@@ -8,7 +8,7 @@
 - **Dilarang keras memakai gradient berlebihan / multi-color mesh gradient (AI slop)** kecuali diperintahkan secara eksplisit oleh user.
 - Gunakan solid clean modern color palette: Brand Purple (`#5E17EB`), Tech Blue (`#0052FF`), Accent Pink (`#E6007A`), dan netral gray/slate dengan white cards, clean crisp borders, dan subtle shadows.
 - **Anti-Mojibake & Tipografi Bersih:** Dilarang menggunakan karakter UTF-8 rentan encoding rusak seperti raw bullet (`•`), em-dash (`—`), checkmark mentah (`✓`), atau emoji di kode Blade. Gunakan HTML entity (`&bull;`, `&middot;`), SVG icon, atau Tailwind CSS round dots (`<span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>`).
-- **Placeholder Jelas & Manusiawi:** Placeholder form input WAJIB deskriptif dalam bahasa Indonesia (contoh: `placeholder="Masukkan kata sandi saat ini..."`), BUKAN placeholder karakter dummy/bullet acak (`••••••••`).
+- **Dilarang Menggunakan Placeholder (Zero Placeholder Standard):** Seluruh inputan form, filter, textarea, modal, dan kolom pencarian di seluruh aplikasi **TIDAK BOLEH** menggunakan atribut `placeholder` (wajib dikosongkan/dihilangkan full). Gunakan label form yang tegas dan jelas di atas/samping input.
 - **Standar Loading & Skeleton Universal:**
   * **Upload Foto/Media:** Loading indicator WAJIB terpusat di tengah parent (`flex-col items-center justify-center`) dengan spinner dan progress bar animasi di bagian tengah container.
   * **Aksi Form (POST, PUT/PATCH, DELETE, EDIT):** Semua tombol aksi WAJIB dilengkapi `wire:loading` spinner, status disabled (`wire:loading.attr="disabled"`), dan teks proses deskriptif.

@@ -29,7 +29,6 @@
             </span>
             <input type="text"
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari serial number, nama barang, merk spek, distributor..."
                    class="w-full pl-10 pr-4 py-2 text-xs font-semibold text-gray-800 bg-gray-50/60 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#5E17EB] focus:border-transparent transition-all">
         </div>
     </div>
@@ -146,7 +145,6 @@
                                 </label>
                                 <input type="text"
                                        wire:model="sn"
-                                       placeholder="Contoh: SN-LX310-994821"
                                        class="w-full text-xs font-mono font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
                                 @error('sn') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
@@ -158,7 +156,6 @@
                                 </label>
                                 <input type="text"
                                        wire:model="nama"
-                                       placeholder="Contoh: Printer Dot Matrix LX-310"
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
                                 @error('nama') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
@@ -170,7 +167,6 @@
                                 </label>
                                 <input type="text"
                                        wire:model="merk_tipe_spek"
-                                       placeholder="Contoh: Epson LX-310 9-Pin 80 Kolom"
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
                                 @error('merk_tipe_spek') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
@@ -182,7 +178,6 @@
                                 </label>
                                 <input type="text"
                                        wire:model="distributor"
-                                       placeholder="Contoh: PT Epson Indonesia / Distributor Utama"
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
                                 @error('distributor') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>

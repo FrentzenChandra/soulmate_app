@@ -66,7 +66,6 @@
                         <div class="pt-4 border-t border-gray-200/80 max-w-sm">
                             <x-label for="code" value="Langkah 2: Masukkan 6-Digit Kode Verifikasi" />
                             <x-input id="code" type="text" name="code" class="block mt-1 w-full text-center text-lg tracking-widest font-mono font-bold" inputmode="numeric" autofocus autocomplete="one-time-code"
-                                placeholder="000000"
                                 wire:model="code"
                                 wire:keydown.enter="confirmTwoFactorAuthentication" />
                             <x-input-error for="code" class="mt-2" />

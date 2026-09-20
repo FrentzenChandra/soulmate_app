@@ -1025,7 +1025,6 @@
                                 </label>
                                 <input type="text"
                                        wire:model="newCustomerNama"
-                                       placeholder="Masukkan nama pelanggan..."
                                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] @error('newCustomerNama') border-rose-500 @enderror">
                                 @error('newCustomerNama') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
@@ -1036,7 +1035,6 @@
                                 </label>
                                 <input type="text"
                                        wire:model="newCustomerHp"
-                                       placeholder="Contoh: 081234567890"
                                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB]">
                             </div>
                         </div>

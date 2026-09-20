@@ -117,7 +117,6 @@
                 </div>
                 <input type="text"
                        wire:model.live.debounce.300ms="search"
-                       placeholder="Cari kode tiket, nama pelanggan, no hp, tipe unit, keluhan..."
                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-semibold text-gray-800 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all">
             </div>
 
@@ -404,7 +403,6 @@
                                         <div class="relative">
                                             <input type="text"
                                                    wire:model.live.debounce.250ms="customerSearch"
-                                                   placeholder="Ketik nama atau nomor HP pelanggan..."
                                                    class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                             @if(!empty($customerSuggestions) && !$selectedCustomerId)
                                                 <div class="absolute z-10 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
@@ -434,7 +432,6 @@
                                             <label class="block font-bold text-gray-700 mb-1">Nama Lengkap Pelanggan *</label>
                                             <input type="text"
                                                    wire:model="newCustomerNama"
-                                                   placeholder="Contoh: Budi Santoso"
                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                             @error('newCustomerNama') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
                                         </div>
@@ -442,7 +439,6 @@
                                             <label class="block font-bold text-gray-700 mb-1">No. WhatsApp / HP *</label>
                                             <input type="text"
                                                    wire:model="newCustomerNoHp"
-                                                   placeholder="Contoh: 08123456789"
                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                             @error('newCustomerNoHp') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
                                         </div>
@@ -481,7 +477,6 @@
                                     <label class="block font-bold text-gray-700 mb-1">Tipe / Merk Perangkat *</label>
                                     <input type="text"
                                            wire:model="tipeUnit"
-                                           placeholder="Contoh: Asus ROG Strix G15, Epson L3110, Lenovo IdeaPad..."
                                            class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     @error('tipeUnit') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
                                 </div>
@@ -500,7 +495,6 @@
                                     </div>
                                     <input type="text"
                                            wire:model="customKelengkapan"
-                                           placeholder="Kelengkapan lain (contoh: dongle, stylus, kabel usb)..."
                                            class="w-full px-3.5 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-xs font-semibold text-gray-800 focus:bg-white focus:ring-1 focus:ring-[#5E17EB]">
                                 </div>
                             </div>
@@ -514,7 +508,6 @@
                                         <label class="block font-bold text-gray-700 mb-1">Keluhan Kerusakan / Permasalahan *</label>
                                         <textarea wire:model="keluhan"
                                                   rows="3"
-                                                  placeholder="Jelaskan kendala, gejala kerusakan, atau permasalahan unit..."
                                                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"></textarea>
                                         @error('keluhan') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
                                     </div>
@@ -522,7 +515,6 @@
                                         <label class="block font-bold text-gray-700 mb-1">Catatan Servis (Opsional)</label>
                                         <textarea wire:model="catatan"
                                                   rows="3"
-                                                  placeholder="Catatan servis, instruksi khusus teknisi, password unit, dll..."
                                                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"></textarea>
                                         @error('catatan') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
                                     </div>
@@ -814,7 +806,6 @@
                                 </div>
                                 <input type="text"
                                        wire:model="editCustomKelengkapan"
-                                       placeholder="Kelengkapan tambahan..."
                                        class="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-xs">
                             </div>
 
@@ -873,7 +864,6 @@
                                 <label class="block font-bold text-gray-700 mb-1.5">Tulis Catatan / Temuan Teknisi:</label>
                                 <textarea wire:model="catatanTeknisiText"
                                           rows="5"
-                                          placeholder="Contoh: IC power panas, jalur 19V short ke ground, perlu ganti mosfet..."
                                           class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"></textarea>
                             </div>
                         </div>
@@ -967,7 +957,6 @@
                                 <label class="block font-bold text-gray-700 mb-1">Catatan Perkembangan / Log</label>
                                 <textarea wire:model="updateCatatan"
                                           rows="3"
-                                          placeholder="Catatan status pengerjaan..."
                                           class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"></textarea>
                             </div>
 
@@ -1035,7 +1024,6 @@
                                     <label class="block font-bold text-gray-700 mb-1">Cari Master Servis / Input Custom</label>
                                     <input type="text"
                                            wire:model.live.debounce.250ms="itemSearch"
-                                           placeholder="Ketik nama jasa atau part..."
                                            class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
 
                                     @if(!empty($masterServisSuggestions) && !$selectedMasterServisId)
@@ -1061,7 +1049,6 @@
                                     <label class="block font-bold text-gray-700 mb-1">Nama Item *</label>
                                     <input type="text"
                                            wire:model="selectedMasterServisNama"
-                                           placeholder="Nama item tindakan..."
                                            class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-800">
                                 </div>
 
@@ -1089,7 +1076,6 @@
                                     <input type="number"
                                            min="0"
                                            wire:model="itemGaransiHari"
-                                           placeholder="0 jika non-garansi"
                                            class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-mono font-bold text-gray-800 text-center">
                                 </div>
 
