@@ -18,84 +18,172 @@
                    wire:model.live="selectedDate"
                    class="py-2 px-3 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB]">
 
-            <!-- Button Tutup Kasir -->
+            <!-- Button Cek Kas Cepat / Audit Laci -->
             <button type="button"
-                    wire:click="openTutupKasModal"
+                    wire:click="openCekKasModal"
                     wire:loading.attr="disabled"
-                    class="px-4 py-2.5 rounded-xl bg-[#0052FF] hover:bg-blue-700 text-white font-extrabold text-xs shadow-md shadow-blue-900/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+                    class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-900/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span>Tutup Kasir</span>
+                <span>Cek Kas Cepat / Audit Laci</span>
             </button>
         </div>
     </div>
 
-    <!-- Banner Status Closing Kasir Hari Ini (Jika Sudah Tutup Kas) -->
-    @if($this->todayTutupKas)
-        <div class="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-                <div>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xs font-black text-emerald-900">Kasir Sudah Ditutup (Closing)</span>
-                        <span class="inline-flex px-2 py-0.5 rounded-md text-[10px] font-bold uppercase {{ $this->todayTutupKas->status_selisih === 'klop' ? 'bg-emerald-200 text-emerald-800' : ($this->todayTutupKas->status_selisih === 'minus' ? 'bg-rose-100 text-rose-800' : 'bg-blue-100 text-blue-800') }}">
-                            {{ strtoupper($this->todayTutupKas->status_selisih) }}
-                        </span>
-                    </div>
-                    <p class="text-[11px] text-emerald-700 mt-0.5">
-                        Ditutup oleh <span class="font-bold">{{ $this->todayTutupKas->user?->name }}</span> pada {{ $this->todayTutupKas->waktu_tutup ? $this->todayTutupKas->waktu_tutup->format('H:i') : '-' }} WIB &bull; Kas Fisik: <span class="font-mono font-bold">Rp {{ number_format($this->todayTutupKas->kas_fisik, 0, ',', '.') }}</span> (Selisih: Rp {{ number_format($this->todayTutupKas->selisih, 0, ',', '.') }})
-                    </p>
-                </div>
-            </div>
-            <a href="{{ route('tutup-kas') }}" class="px-3 py-1.5 rounded-xl bg-white border border-emerald-300 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors text-center shrink-0">
-                Lihat Riwayat Closing
-            </a>
-        </div>
-    @endif
-
     <!-- Summary Metrics Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
         <!-- Modal Awal -->
         <div class="bg-white p-3.5 rounded-2xl border border-gray-200/80 shadow-xs">
             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Modal Awal Laci</span>
             <span class="text-base font-black text-gray-800 mt-1 block font-mono">
                 Rp {{ number_format($modalAwalNominal, 0, ',', '.') }}
             </span>
+            <span class="text-[10px] text-gray-400 font-medium block mt-0.5">Saldo awal kas</span>
         </div>
 
         <!-- Penjualan Cash -->
-        <div class="bg-white p-3.5 rounded-2xl border border-gray-200/80 shadow-xs">
+        <div class="bg-white p-3.5 rounded-2xl border border-purple-100 shadow-xs">
             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Penjualan Cash</span>
             <span class="text-base font-black text-[#5E17EB] mt-1 block font-mono">
                 Rp {{ number_format($totalPenjualanCash, 0, ',', '.') }}
             </span>
+            <span class="text-[10px] font-bold {{ $totalPenjualanBon > 0 ? 'text-amber-600' : 'text-gray-400' }} block mt-0.5 font-mono">
+                Bon: Rp {{ number_format($totalPenjualanBon, 0, ',', '.') }}
+            </span>
         </div>
 
         <!-- Servis Cash -->
-        <div class="bg-white p-3.5 rounded-2xl border border-gray-200/80 shadow-xs">
+        <div class="bg-white p-3.5 rounded-2xl border border-blue-100 shadow-xs">
             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Servis Cash</span>
             <span class="text-base font-black text-[#0052FF] mt-1 block font-mono">
                 Rp {{ number_format($totalServisCash, 0, ',', '.') }}
             </span>
+            <span class="text-[10px] font-bold {{ $totalServisBelumLunas > 0 ? 'text-amber-600' : 'text-gray-400' }} block mt-0.5 font-mono">
+                Belum Lunas: Rp {{ number_format($totalServisBelumLunas, 0, ',', '.') }}
+            </span>
+        </div>
+
+        <!-- Total Bon / Belum Lunas -->
+        <div class="bg-white p-3.5 rounded-2xl border border-amber-200/80 shadow-xs bg-amber-50/20">
+            <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider block">Total Bon / Piutang</span>
+            <span class="text-base font-black text-amber-600 mt-1 block font-mono">
+                Rp {{ number_format($totalBelumLunasAll, 0, ',', '.') }}
+            </span>
+            <span class="text-[10px] text-amber-700/80 font-medium block mt-0.5">Belum dibayar hari ini</span>
         </div>
 
         <!-- Kas Keluar Cash -->
-        <div class="bg-white p-3.5 rounded-2xl border border-gray-200/80 shadow-xs">
+        <div class="bg-white p-3.5 rounded-2xl border border-rose-100 shadow-xs">
             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Kas Keluar Cash</span>
             <span class="text-base font-black text-rose-600 mt-1 block font-mono">
                 Rp {{ number_format($totalKasKeluarCash, 0, ',', '.') }}
             </span>
+            <span class="text-[10px] text-gray-400 font-medium block mt-0.5">Biaya operasional</span>
         </div>
 
-        <!-- Total Kas Sistem -->
-        <div class="bg-white p-3.5 rounded-2xl border border-emerald-300 shadow-xs bg-emerald-50/20">
-            <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Kas Laci (Sistem)</span>
+        <!-- Total Kas Sistem & Laba Bersih (2 Tipe) -->
+        <div class="bg-white p-3.5 rounded-2xl border border-emerald-300 shadow-xs bg-emerald-50/30">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Kas Laci (Sistem)</span>
+                <span class="text-[9px] font-extrabold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded">Fisik</span>
+            </div>
             <span class="text-base font-black text-emerald-600 mt-1 block font-mono">
                 Rp {{ number_format($kasSistem, 0, ',', '.') }}
             </span>
+            <div class="mt-1.5 pt-1.5 border-t border-emerald-200/60 text-[10px] space-y-1.5">
+                <div>
+                    <div class="flex justify-between font-bold text-emerald-800">
+                        <span>Laba Real (Lunas):</span>
+                        <span class="font-mono font-black text-emerald-700">Rp {{ number_format($labaBersihReal, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-[9px] text-gray-500 font-mono">
+                        <span>+ Margin: Rp {{ number_format($totalMarginLunas, 0, ',', '.') }}</span>
+                        <span>&minus; Biaya: Rp {{ number_format($totalKasKeluarAll, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+                <div class="pt-1 border-t border-emerald-100">
+                    <div class="flex justify-between font-bold text-purple-800">
+                        <span>Laba (+ Piutang Bon):</span>
+                        <span class="font-mono font-black text-[#5E17EB]">Rp {{ number_format($labaBersihPlusBon, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-[9px] text-gray-500 font-mono">
+                        <span class="text-amber-700 font-semibold">+ Margin Bon: Rp {{ number_format($totalMarginBon, 0, ',', '.') }}</span>
+                        <span>Tot Margin: Rp {{ number_format($totalMarginAll, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Histori Cek Kas / Audit Laci Hari Ini (Jika Ada) -->
+    @if(isset($cekKasLogs) && $cekKasLogs->count() > 0)
+        <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-black text-gray-900">Histori Cek Kas / Audit Laci Hari Ini</h3>
+                        <p class="text-[10px] text-gray-500 font-medium">Catatan snapshot kas fisik kasir tanpa mengunci transaksi</p>
+                    </div>
+                </div>
+                <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-100">
+                    {{ $cekKasLogs->count() }}x Audit
+                </span>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-gray-100">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-gray-50/80 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                        <tr>
+                            <th class="py-2 px-3">Jam</th>
+                            <th class="py-2 px-3">Petugas</th>
+                            <th class="py-2 px-3 text-right">Uang Sistem</th>
+                            <th class="py-2 px-3 text-right">Uang Fisik</th>
+                            <th class="py-2 px-3 text-center">Selisih</th>
+                            <th class="py-2 px-3">Catatan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 font-medium">
+                        @foreach($cekKasLogs as $log)
+                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                <td class="py-2 px-3 font-mono font-bold text-gray-700 whitespace-nowrap">
+                                    {{ $log->waktu_cek ? $log->waktu_cek->format('H:i') : '-' }}
+                                </td>
+                                <td class="py-2 px-3 text-gray-900 font-semibold whitespace-nowrap">
+                                    {{ $log->user?->name ?? 'Kasir' }}
+                                </td>
+                                <td class="py-2 px-3 text-right font-mono font-bold text-gray-700 whitespace-nowrap">
+                                    Rp {{ number_format($log->kas_sistem, 0, ',', '.') }}
+                                </td>
+                                <td class="py-2 px-3 text-right font-mono font-black text-gray-900 whitespace-nowrap">
+                                    Rp {{ number_format($log->kas_fisik, 0, ',', '.') }}
+                                </td>
+                                <td class="py-2 px-3 text-center whitespace-nowrap">
+                                    @if($log->selisih == 0)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            &bull; Pas (Rp 0)
+                                        </span>
+                                    @elseif($log->selisih < 0)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
+                                            &bull; Tekor (&minus;Rp {{ number_format(abs($log->selisih), 0, ',', '.') }})
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
+                                            &bull; Lebih (+Rp {{ number_format($log->selisih, 0, ',', '.') }})
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="py-2 px-3 text-gray-600 text-[11px] truncate max-w-xs">
+                                    {{ $log->catatan ?: '-' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
 
     <!-- Tabulator Table Container -->
     <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs"
@@ -125,14 +213,10 @@
             </div>
             <div class="flex items-center gap-3 text-xs text-gray-500 font-semibold flex-wrap">
                 <!-- Font Size Selector -->
-                <div class="inline-flex items-center p-0.5 bg-gray-100 rounded-xl border border-gray-200">
-                    <button type="button" @click="setTableSize('sm')" :class="tableSize === 'sm' ? 'bg-white text-[#5E17EB] shadow-xs font-black' : 'text-gray-500 font-semibold hover:text-gray-700'" class="px-2 py-0.5 text-[11px] rounded-lg transition-all cursor-pointer" title="Font Kecil (Compact)">S</button>
-                    <button type="button" @click="setTableSize('md')" :class="tableSize === 'md' ? 'bg-white text-[#5E17EB] shadow-xs font-black' : 'text-gray-500 font-semibold hover:text-gray-700'" class="px-2 py-0.5 text-[11px] rounded-lg transition-all cursor-pointer" title="Font Sedang (Default)">M</button>
-                    <button type="button" @click="setTableSize('lg')" :class="tableSize === 'lg' ? 'bg-white text-[#5E17EB] shadow-xs font-black' : 'text-gray-500 font-semibold hover:text-gray-700'" class="px-2 py-0.5 text-[11px] rounded-lg transition-all cursor-pointer" title="Font Besar">L</button>
-                </div>
+                <x-table-size-selector />
 
                 <template x-if="selectedCount > 0">
-                    <span class="px-2 py-0.5 rounded-md bg-purple-50 text-[#5E17EB] font-bold text-[11px] border border-purple-200"
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[11px] border border-emerald-200"
                           x-text="selectedCount + ' dipilih'"></span>
                 </template>
                 <span class="text-[11px] text-gray-400 font-medium hidden md:inline-flex items-center gap-1">
@@ -143,15 +227,15 @@
             </div>
         </div>
 
-        <div :class="'tabulator-size-' + tableSize">
+        <div :class="'tabulator-size-' + tableSize + ' table-size-' + tableSize">
             <div x-ref="tableContainer" class="rounded-xl border border-gray-200 text-xs"></div>
         </div>
     </div>
 
     <!-- ============================================== -->
-    <!-- MODAL TUTUP KASIR (CLOSING)                    -->
+    <!-- MODAL CEK KAS CEPAT / AUDIT LACI               -->
     <!-- ============================================== -->
-    @if($modalTutupKasOpen)
+    @if($modalCekKasOpen || $modalTutupKasOpen)
         <div class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true"
              x-data="{
                  kasSistem: {{ $kasSistem }},
@@ -161,28 +245,31 @@
                      return fisik - this.kasSistem;
                  }
              }">
-            <div class="fixed inset-0 bg-gray-950/70 backdrop-blur-xs transition-opacity" wire:click="closeTutupKasModal"></div>
+            <div class="fixed inset-0 bg-gray-950/70 backdrop-blur-xs transition-opacity" wire:click="closeCekKasModal"></div>
 
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
 
                     <!-- Header Modal -->
-                    <div class="bg-[#0E1726] px-6 py-4 text-white flex items-center justify-between">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                                <svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div class="bg-emerald-600 px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
-                            <h3 class="text-sm font-extrabold text-white">
-                                Tutup Kasir Harian (Closing)
-                            </h3>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">
+                                    Cek Kas Cepat / Audit Laci
+                                </h3>
+                                <p class="text-xs text-emerald-100 font-medium mt-0.5">Snapshot saldo kas fisik vs sistem tanpa mengunci transaksi</p>
+                            </div>
                         </div>
-                        <button type="button" wire:click="closeTutupKasModal" class="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                        <button type="button" wire:click="closeCekKasModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
 
                     <!-- Form Body -->
-                    <form wire:submit.prevent="prosesTutupKas">
+                    <form wire:submit.prevent="prosesCekKas">
                         <div class="p-6 space-y-4">
                             <!-- Ringkasan Kas Sistem -->
                             <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200/80 space-y-2 text-xs">
@@ -234,30 +321,30 @@
                                      x-text="selisih === 0 ? 'Sesuai Presisi' : (selisih < 0 ? 'Uang Kurang' : 'Uang Lebih')"></div>
                             </div>
 
-                            <!-- Catatan Closing -->
+                            <!-- Catatan Audit -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Catatan Closing (Opsional)
+                                    Catatan Audit (Opsional)
                                 </label>
-                                <textarea wire:model="catatanClosing"
+                                <textarea wire:model="catatanAudit"
                                           rows="2"
                                           class="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900"></textarea>
-                                @error('catatanClosing') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                @error('catatanAudit') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
                         <!-- Footer Modal -->
                         <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-2 rounded-b-3xl">
                             <button type="button"
-                                    wire:click="closeTutupKasModal"
+                                    wire:click="closeCekKasModal"
                                     class="px-4 py-2 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
                                 Batal
                             </button>
                             <button type="submit"
                                     wire:loading.attr="disabled"
-                                    class="px-5 py-2 rounded-xl bg-[#0052FF] hover:bg-blue-700 text-xs font-extrabold text-white shadow-md shadow-blue-900/20 transition-all cursor-pointer flex items-center space-x-1.5">
-                                <svg wire:loading wire:target="prosesTutupKas" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                                <span>Simpan Tutup Kas</span>
+                                    class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-extrabold text-white shadow-md shadow-emerald-900/20 transition-all cursor-pointer flex items-center space-x-1.5">
+                                <svg wire:loading wire:target="prosesCekKas" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                <span>Simpan Catatan Cek Kas</span>
                             </button>
                         </div>
                     </form>
@@ -277,11 +364,12 @@ window.tabulatorHarianTable = function(config) {
         quickSearch: '',
         rowCount: (config.tableData || []).length,
         selectedCount: 0,
-        tableSize: localStorage.getItem('tabulator_table_size') || 'md',
+        tableSize: localStorage.getItem('soulmate_table_size') || 'md',
 
         setTableSize(size) {
             this.tableSize = size;
-            localStorage.setItem('tabulator_table_size', size);
+            localStorage.setItem('soulmate_table_size', size);
+            window.dispatchEvent(new CustomEvent('table-size-changed', { detail: size }));
             if (this.table) {
                 this.table.redraw(true);
             }
@@ -292,6 +380,13 @@ window.tabulatorHarianTable = function(config) {
         },
 
         initTable() {
+            window.addEventListener('table-size-changed', (e) => {
+                this.tableSize = e.detail;
+                if (this.table) {
+                    this.table.redraw(true);
+                }
+            });
+
             if (!window.Tabulator) {
                 console.error('Tabulator not loaded');
                 return;
@@ -327,14 +422,35 @@ window.tabulatorHarianTable = function(config) {
                         return `<span class="inline-flex px-2 py-0.5 rounded-md text-[10px] font-black ${isPJ ? 'bg-purple-50 text-[#5E17EB] border border-purple-200' : 'bg-blue-50 text-[#0052FF] border border-blue-200'}">${val}</span>`;
                     }},
                     { title: "Pelanggan", field: "customer", widthGrow: 1, minWidth: 95, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-bold text-gray-800 text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
-                    { title: "Detail Barang / Servis", field: "item_detail", widthGrow: 2, minWidth: 140, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="text-gray-600 font-medium text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
+                    { title: "Detail Barang & Servis", field: "item_detail", widthGrow: 2, minWidth: 150, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => {
+                        const data = cell.getData();
+                        const items = data.items_list || (cell.getValue() ? [cell.getValue()] : []);
+                        if (!items || items.length === 0) return '<span class="text-gray-400 italic text-[11px]">-</span>';
+                        return `<div class="tabulator-cell-list py-1 flex flex-col gap-1 text-[11px] leading-tight">` +
+                            items.map(it => `<div class="flex items-start gap-1.5 text-gray-700"><span class="w-1.5 h-1.5 rounded-full bg-[#5E17EB] mt-1 shrink-0"></span><span class="font-medium">${it}</span></div>`).join('') +
+                        `</div>`;
+                    }},
                     { title: "Modal (HPP)", field: "modal", hozAlign: "right", width: 100, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-semibold text-gray-500 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
                     { title: "Harga Jual", field: "harga_jual", hozAlign: "right", width: 105, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-black text-gray-900 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
                     { title: "Laba (Nett)", field: "margin", hozAlign: "right", width: 105, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => {
                         const val = cell.getValue();
                         return `<span class="font-mono font-black text-[11px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
                     }},
-                    { title: "Pajak", field: "pajak", hozAlign: "right", width: 80, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono text-gray-500 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
+                    { title: "Pajak", field: "pajak", hozAlign: "right", width: 115, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => {
+                        const val = cell.getValue();
+                        const data = cell.getData();
+                        const tipe = data.pajak_tipe || (val > 0 ? 'PPN' : 'Non-PPN');
+                        if (val > 0) {
+                            return `<div class="flex flex-col items-end leading-tight">
+                                <span class="font-mono font-black text-gray-900 text-[11px]">${this.formatRupiah(val)}</span>
+                                <span class="text-[9px] font-extrabold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200/80 mt-0.5 whitespace-nowrap">${tipe}</span>
+                            </div>`;
+                        }
+                        return `<div class="flex flex-col items-end leading-tight">
+                            <span class="font-mono text-gray-400 text-[11px]">Rp 0</span>
+                            <span class="text-[9px] font-semibold text-gray-400 mt-0.5 whitespace-nowrap">${tipe}</span>
+                        </div>`;
+                    }},
                     { title: "Status", field: "status", width: 75, hozAlign: "center", headerFilter: "list", headerFilterParams: { valuesLookup: "all", clearable: true, multiselect: true }, headerFilterFunc: multiSelectFilterFunc, formatter: (cell) => {
                         const isLunas = cell.getValue() === 'Lunas';
                         return `<span class="inline-flex px-2 py-0.5 rounded text-[10px] font-black ${isLunas ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">${cell.getValue()}</span>`;

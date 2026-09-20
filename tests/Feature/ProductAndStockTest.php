@@ -496,6 +496,13 @@ class ProductAndStockTest extends TestCase
             'is_aktif' => false, // Non-aktif
         ]);
 
+        \App\Models\ModalAwal::create([
+            'cabang_id' => $this->cabangPkp->id,
+            'user_id' => $this->superadmin->id,
+            'tanggal' => now()->toDateString(),
+            'nominal' => 100000,
+        ]);
+
         // Login sebagai superadmin cabang PKP
         $this->actingAs($this->superadmin);
 

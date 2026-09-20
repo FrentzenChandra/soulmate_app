@@ -468,26 +468,30 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
 
 ---
 
-## 20. Modul Tutup Kasir & Riwayat Tutup Kas (`/tutup-kas`)
+## 20. Modul Cek Kas Cepat / Audit Laci (Snapshot Kasir Tanpa Kunci Transaksi)
 
-- **Aksi Closing Kasir Harian**:
-  - Tombol modal **"Tutup Kasir"** pada halaman Transaksi Harian di akhir jam operasional.
-  - Ringkasan perhitungan otomatis:
-    - Modal Awal (Cash)
-    - Total Penjualan Produk (Cash)
-    - Total Pembayaran Servis (Cash)
-    - Total Kas Keluar (Cash)
-    - **Total Kas Sistem (Seharusnya di Laci)**
-  - Input form:
-    - **Kas Fisik** (Uang tunai riil yang dihitung kasir)
-    - **Catatan Closing** (Keterangan opsional)
-  - Kalkulasi selisih realtime:
-    - `Minus (Merah)`: Tekor / uang kurang.
-    - `Pas / Klop (Hijau)`: Rp 0, cocok presisi.
-    - `Plus (Biru)`: Uang laci berlebih.
-- **Menu Riwayat Tutup Kas (`/tutup-kas`)**:
-  - Tabel riwayat closing kas harian per cabang: Tanggal, Waktu Tutup Kas, Petugas / Kasir, Modal Awal, Penjualan Cash, Servis Cash, Kas Keluar Cash, Kas Sistem, Kas Fisik, Selisih, Status, Catatan.
-  - Filter rentang tanggal dan pencarian riwayat closing.
+> **Catatan Keputusan Bisnis:** Fitur Tutup Kasir / Closing Kasir konvensional yang mengunci transaksi di akhir hari telah dinyatakan **tidak relevan lagi** oleh Owner dan digantikan sepenuhnya dengan fitur **Cek Kas Cepat / Audit Laci**.
+
+### Alur Kerja (Sangat Simpel & Ringkas)
+1. **Tombol "Cek Kas Cepat / Audit Laci"**:
+   - Kasir, Superadmin, atau Owner dapat mengklik tombol ini kapan saja (misal jam 11:00, 15:30, 19:00).
+   - Masukkan nominal fisik di laci: Rp 450.000 + catatan (opsional: *"kembalian lebih ke nota PJ-001"*).
+   - Sistem langsung kalkulasi snapshot: Fisik Rp 450.000 vs Sistem Rp 500.000 &rarr; 🔴 Minus Rp 50.000.
+   - Klik **"Simpan Catatan Cek Kas"**.
+2. **Tanpa Mengunci Transaksi**:
+   - Kasir tetap bisa transaksi normal (bukan closing/tutup buku).
+3. **Histori Cek Kas Hari Ini** (Langsung terlihat di bawah modal / halaman transaksi):
+
+| Jam | Petugas | Uang Sistem | Uang Fisik | Selisih | Catatan |
+|---|---|---|---|---|---|
+| 11:15 | Kasir Joko | Rp 300.000 | Rp 300.000 | 🟢 Pas (Rp 0) | Rutin pagi |
+| 15:30 | Kasir Joko | Rp 900.000 | Rp 850.000 | 🔴 Tekor (-Rp 50.000) | Salah kembali nota PJ-012 |
+| 19:00 | Supervisor | Rp 1.400.000 | Rp 1.400.000 | 🟢 Pas (Rp 0) | Audit sore |
+
+### Implementasi Teknis (Minimalis / Ponytail)
+- **1 Tabel Saja (`cek_kas_logs`)**:
+  - `id`, `cabang_id`, `user_id`, `waktu_cek`, `kas_sistem`, `kas_fisik`, `selisih`, `catatan`, `created_at`, `updated_at`.
+- **Tidak ada logic rumit**: Cukup catat snapshot saldo sistem & fisik pada detik tombol ditekan.
 
 ---
 

@@ -97,7 +97,7 @@
                    class="w-full pl-10 pr-4 py-2 text-xs font-semibold text-gray-800 bg-gray-50/60 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#0052FF] focus:border-transparent transition-all">
         </div>
 
-        <!-- Filter Tanggal -->
+        <!-- Filter Tanggal & Size -->
         <div class="flex items-center gap-2">
             <input type="date"
                    wire:model.live="startDate"
@@ -106,11 +106,15 @@
             <input type="date"
                    wire:model.live="endDate"
                    class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0052FF]">
+            <x-table-size-selector />
         </div>
     </div>
 
     <!-- Data Table -->
-    <div class="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
+    <div x-data="{ tableSize: localStorage.getItem('soulmate_table_size') || 'md' }"
+         x-on:table-size-changed.window="tableSize = $event.detail"
+         :class="'table-size-' + tableSize"
+         class="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse">
                 <thead>
@@ -203,19 +207,19 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
 
                     <!-- Header Modal -->
-                    <div class="bg-[#0E1726] px-6 py-4 text-white flex items-center justify-between border-b border-gray-800">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
-                            <div>
-                                <h3 class="text-sm font-extrabold text-white leading-tight">
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">
                                     {{ $isEditMode ? 'Koreksi Modal Awal' : 'Input Modal Awal Kasir' }}
                                 </h3>
-                                <p class="text-[11px] text-gray-400 font-medium">Saldo kas fisik laci awal hari</p>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Saldo kas fisik laci awal hari</p>
                             </div>
                         </div>
-                        <button type="button" wire:click="closeModal" class="text-gray-400 hover:text-white cursor-pointer p-1 rounded-lg hover:bg-white/10 transition-colors">
+                        <button type="button" wire:click="closeModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -228,9 +232,17 @@
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                     Tanggal *
                                 </label>
-                                <input type="date"
-                                       wire:model="tanggal"
-                                       class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0052FF] bg-white text-gray-900">
+                                @if($isSuperOrOwner)
+                                    <input type="date"
+                                           wire:model="tanggal"
+                                           class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
+                                @else
+                                    <input type="date"
+                                           wire:model="tanggal"
+                                           disabled
+                                           class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed">
+                                    <span class="text-[10px] text-gray-400 font-medium block mt-1">Admin mencatat modal awal untuk tanggal hari ini.</span>
+                                @endif
                                 @error('tanggal') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 

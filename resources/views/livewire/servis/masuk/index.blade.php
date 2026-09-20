@@ -130,8 +130,8 @@
                 </select>
             </div>
 
-            <!-- Filter Kategori Perangkat -->
-            <div class="{{ $isHQ ? 'md:col-span-3' : 'md:col-span-3' }}">
+            <!-- Filter Kategori Perangkat & Size -->
+            <div class="{{ $isHQ ? 'md:col-span-3' : 'md:col-span-3' }} flex items-center gap-2">
                 <select wire:model.live="kategoriFilter"
                         class="w-full py-2.5 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all cursor-pointer">
                     <option value="semua">Semua Kategori Perangkat</option>
@@ -140,6 +140,7 @@
                     <option value="komputer">Komputer</option>
                     <option value="lainnya">Lainnya</option>
                 </select>
+                <x-table-size-selector />
             </div>
 
             <!-- Filter Cabang (HQ Saja) -->
@@ -163,7 +164,10 @@
     <!-- ============================================== -->
     <!-- TABEL ANTREAN SERVIS MASUK (FIXED COLUMNS)     -->
     <!-- ============================================== -->
-    <div class="card-custom bg-white overflow-hidden border border-gray-200 shadow-sm rounded-2xl">
+    <div x-data="{ tableSize: localStorage.getItem('soulmate_table_size') || 'md' }"
+         x-on:table-size-changed.window="tableSize = $event.detail"
+         :class="'table-size-' + tableSize"
+         class="card-custom bg-white overflow-hidden border border-gray-200 shadow-sm rounded-2xl">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse table-fixed min-w-[960px]">
                 <colgroup>
@@ -356,18 +360,19 @@
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-gray-100">
 
-                    <div class="bg-[#0E1726] px-6 py-4 text-white flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center border border-purple-500/30">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    <!-- Header Modal -->
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                             </div>
-                            <div>
-                                <h3 class="text-base font-black text-white">Penerimaan Servis Baru</h3>
-                                <p class="text-xs text-purple-200">Input unit masuk, keluhan kerusakan, &amp; cetak tanda terima</p>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Penerimaan Servis Baru</h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Input unit masuk, keluhan kerusakan, dan cetak tanda terima</p>
                             </div>
                         </div>
-                        <button type="button" wire:click="closeCreateModal" class="text-gray-400 hover:text-white cursor-pointer">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <button type="button" wire:click="closeCreateModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
 
@@ -581,7 +586,7 @@
                            target="_blank"
                            class="flex-1 py-3 px-4 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-bold text-xs text-center shadow-md shadow-purple-600/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                            <span>Cetak Ulang Tanda Terima</span>
+                            <span>Cetak Tanda Terima</span>
                         </a>
                         <button type="button"
                                 wire:click="$set('modalSuccessOpen', false)"
@@ -606,27 +611,27 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-gray-100">
 
                     <!-- Header Modal Detail -->
-                    <div class="p-6 pb-4 border-b border-gray-100 flex items-start justify-between">
-                        <div class="flex items-start space-x-3.5">
-                            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-[#5E17EB] flex items-center justify-center shrink-0 border border-purple-100">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <div class="flex items-center space-x-2">
-                                    <h3 class="text-base font-black text-gray-900 font-mono">
+                                    <h3 class="text-base font-bold text-white font-mono tracking-tight leading-snug">
                                         {{ $selectedServis->no_servis_frontend }}
                                     </h3>
-                                    <span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-purple-100 text-[#5E17EB]">
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/20 text-white border border-white/30">
                                         {{ $selectedServis->kategori_perangkat_label }}
                                     </span>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-0.5">
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">
                                     Masuk: {{ $selectedServis->tanggal_masuk ? $selectedServis->tanggal_masuk->translatedFormat('d F Y - H:i') . ' WIB' : '-' }}
                                 </p>
                             </div>
                         </div>
 
-                        <button wire:click="closeDetailModal" class="p-2 text-gray-400 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                        <button wire:click="closeDetailModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -762,9 +767,18 @@
             <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-xl border border-gray-100 text-xs">
 
-                    <div class="bg-[#0E1726] px-6 py-4 text-white flex items-center justify-between">
-                        <h3 class="text-sm font-black text-white">Edit Data Unit Servis</h3>
-                        <button type="button" wire:click="closeEditModal" class="text-gray-400 hover:text-white cursor-pointer">
+                    <!-- Header Modal -->
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Edit Data Unit Servis</h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Perbarui rincian tipe unit, kelengkapan, atau keluhan</p>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="closeEditModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -851,9 +865,18 @@
             <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 text-xs">
 
-                    <div class="bg-[#0E1726] px-6 py-4 text-white flex items-center justify-between">
-                        <h3 class="text-sm font-black text-white">Catatan Teknisi</h3>
-                        <button type="button" wire:click="closeCatatanTeknisiModal" class="text-gray-400 hover:text-white cursor-pointer">
+                    <!-- Header Modal -->
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Catatan Teknisi</h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Rincian temuan atau log teknisi</p>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="closeCatatanTeknisiModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -926,9 +949,18 @@
             <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 text-xs">
 
-                    <div class="bg-[#0E1726] px-6 py-4 text-white flex items-center justify-between">
-                        <h3 class="text-sm font-black text-white">Update Status Pengerjaan</h3>
-                        <button type="button" wire:click="closeStatusModal" class="text-gray-400 hover:text-white cursor-pointer">
+                    <!-- Header Modal -->
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Update Status Pengerjaan</h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Perbarui status progres servis</p>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="closeStatusModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -991,20 +1023,20 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl border border-gray-100">
 
                     <!-- Header Modal -->
-                    <div class="bg-[#0E1726] px-6 py-4 text-white flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center border border-emerald-500/30">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                             </div>
-                            <div>
-                                <h3 class="text-base font-black text-white">Tindakan Jasa &amp; Komponen Servis</h3>
-                                <p class="text-xs text-emerald-200">
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Tindakan Jasa &amp; Komponen Servis</h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5 truncate">
                                     {{ $activeServis->no_servis_frontend }} &bull; {{ $activeServis->tipe_unit }} ({{ $activeServis->customer?->nama }})
                                 </p>
                             </div>
                         </div>
-                        <button type="button" wire:click="closeTindakanModal" class="text-gray-400 hover:text-white cursor-pointer">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <button type="button" wire:click="closeTindakanModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
 
@@ -1014,14 +1046,14 @@
                         <!-- Form Tambah Tindakan/Komponen dari Master Servis -->
                         <div class="p-4 bg-gray-50/90 rounded-2xl border border-gray-200 space-y-3">
                             <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">
-                                + Tambah Jasa Servis / Sparepart
+                                + Tambah Jasa Servis Dan Sparepart
                             </span>
 
                             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
 
                                 <!-- Autocomplete Master Servis -->
                                 <div class="sm:col-span-5 relative">
-                                    <label class="block font-bold text-gray-700 mb-1">Cari Master Servis / Input Custom</label>
+                                    <label class="block font-bold text-gray-700 mb-1">Cari Master Servis Atau Input Custom</label>
                                     <input type="text"
                                            wire:model.live.debounce.250ms="itemSearch"
                                            class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
@@ -1081,11 +1113,8 @@
 
                                 <!-- Harga Satuan -->
                                 <div class="sm:col-span-4">
-                                    <label class="block font-bold text-gray-700 mb-1">Harga Satuan (Rp) *</label>
-                                    <input type="number"
-                                           step="1000"
-                                           wire:model="selectedMasterServisHarga"
-                                           class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-mono font-bold text-gray-800">
+                                    <label class="block font-bold text-gray-700 mb-1">Harga Satuan *</label>
+                                    <x-input-rupiah wire:model="selectedMasterServisHarga" inputClass="!py-2 !text-xs !font-bold font-mono" />
                                 </div>
 
                                 <!-- Tombol Tambah -->
@@ -1111,32 +1140,32 @@
                                     <thead>
                                         <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-extrabold text-gray-500 uppercase">
                                             <th class="py-2 px-3">Item / Tindakan</th>
-                                            <th class="py-2 px-3 text-center">Jenis</th>
-                                            <th class="py-2 px-3 text-center">Garansi</th>
-                                            <th class="py-2 px-3 text-center">Qty</th>
-                                            <th class="py-2 px-3 text-right">Harga</th>
-                                            <th class="py-2 px-3 text-right">Subtotal</th>
-                                            <th class="py-2 px-3 text-center">Aksi</th>
+                                            <th class="py-2 px-3 text-center whitespace-nowrap">Jenis</th>
+                                            <th class="py-2 px-3 text-center whitespace-nowrap">Garansi</th>
+                                            <th class="py-2 px-3 text-center whitespace-nowrap">Qty</th>
+                                            <th class="py-2 px-3 text-right whitespace-nowrap">Harga</th>
+                                            <th class="py-2 px-3 text-right whitespace-nowrap">Subtotal</th>
+                                            <th class="py-2 px-3 text-center whitespace-nowrap">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
                                         @forelse($activeServis->details as $det)
                                             <tr wire:key="tindakan-det-{{ $det->id }}" class="hover:bg-gray-50/50">
                                                 <td class="py-2 px-3 font-bold text-gray-900">{{ $det->nama_item }}</td>
-                                                <td class="py-2 px-3 text-center">
+                                                <td class="py-2 px-3 text-center whitespace-nowrap">
                                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $det->jenis === 'jasa' ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700' }}">
                                                         {{ $det->jenis }}
                                                     </span>
                                                 </td>
-                                                <td class="py-2 px-3 text-center">
-                                                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold {{ $det->garansi_hari > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'text-gray-400' }}">
+                                                <td class="py-2 px-3 text-center whitespace-nowrap">
+                                                    <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold whitespace-nowrap {{ $det->garansi_hari > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'text-gray-400' }}">
                                                         {{ $det->garansi_label }}
                                                     </span>
                                                 </td>
-                                                <td class="py-2 px-3 text-center font-mono font-bold">{{ $det->qty }}</td>
-                                                <td class="py-2 px-3 text-right font-mono text-gray-600">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
-                                                <td class="py-2 px-3 text-right font-mono font-black text-gray-900">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
-                                                <td class="py-2 px-3 text-center">
+                                                <td class="py-2 px-3 text-center font-mono font-bold whitespace-nowrap">{{ $det->qty }}</td>
+                                                <td class="py-2 px-3 text-right font-mono text-gray-600 whitespace-nowrap">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
+                                                <td class="py-2 px-3 text-right font-mono font-black text-gray-900 whitespace-nowrap">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
+                                                <td class="py-2 px-3 text-center whitespace-nowrap">
                                                     <button type="button"
                                                             wire:click="hapusItemTindakan({{ $det->id }})"
                                                             class="p-1 rounded text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
@@ -1155,8 +1184,8 @@
                                     </tbody>
                                     <tfoot>
                                         <tr class="bg-gray-50/90 border-t border-gray-200">
-                                            <td colspan="5" class="py-3 px-3 font-black text-right uppercase tracking-wider text-gray-700">Total Biaya Servis:</td>
-                                            <td class="py-3 px-3 font-mono font-black text-base text-[#5E17EB] text-right">
+                                            <td colspan="5" class="py-3 px-3 font-black text-right uppercase tracking-wider text-gray-700 whitespace-nowrap">Total Biaya Servis:</td>
+                                            <td class="py-3 px-3 font-mono font-black text-base text-[#5E17EB] text-right whitespace-nowrap">
                                                 Rp {{ number_format($activeServis->details->sum('subtotal'), 0, ',', '.') }}
                                             </td>
                                             <td></td>
@@ -1178,10 +1207,10 @@
 
                         <button type="button"
                                 wire:click="selesaikanServis"
-                                wire:confirm="Selesaikan proses pengerjaan servis ini? Unit akan otomatis berpindah ke menu Servis Keluar dan nota invoice akan dibuka."
+                                wire:confirm="Selesaikan pengerjaan unit servis ini? Unit akan otomatis berpindah ke menu Servis Keluar untuk proses pengambilan dan pelunasan."
                                 class="inline-flex items-center justify-center space-x-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md shadow-emerald-600/25 transition-all cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                            <span>Selesai &amp; Cetak Faktur Servis</span>
+                            <span>Selesaikan Pengerjaan Unit</span>
                         </button>
                     </div>
 

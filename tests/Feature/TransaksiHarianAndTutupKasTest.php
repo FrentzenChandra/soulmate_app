@@ -3,12 +3,11 @@
 namespace Tests\Feature;
 
 use App\Livewire\Transaksi\Harian as TransaksiHarian;
-use App\Livewire\TutupKas\Index as TutupKasIndex;
+use App\Models\CekKasLog;
 use App\Models\ModalAwal;
 use App\Models\Penjualan;
 use App\Models\PenjualanDetail;
 use App\Models\Produk;
-use App\Models\TutupKas;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,13 +24,12 @@ class TransaksiHarianAndTutupKasTest extends TestCase
         $this->seed(DatabaseSeeder::class);
     }
 
-    public function test_guests_cannot_access_transaksi_harian_and_tutup_kas()
+    public function test_guests_cannot_access_transaksi_harian()
     {
         $this->get(route('transaksi.harian'))->assertRedirect(route('login'));
-        $this->get(route('tutup-kas'))->assertRedirect(route('login'));
     }
 
-    public function test_admin_can_view_transaksi_harian_and_perform_tutup_kas()
+    public function test_admin_can_view_transaksi_harian_and_perform_cek_kas()
     {
         $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
         $this->actingAs($admin);
@@ -77,30 +75,24 @@ class TransaksiHarianAndTutupKasTest extends TestCase
 
         // Kas sistem = Modal Awal (300.000) + Penjualan Cash (150.000) = 450.000
 
-        // 3. Proses Tutup Kas dengan kas fisik sesuai kasSistem (status: klop)
+        // 3. Proses Cek Kas Cepat dengan kas fisik sesuai kasSistem (status: klop)
         $component = Livewire::test(TransaksiHarian::class);
         $kasSistem = $component->viewData('kasSistem');
 
-        $component->call('openTutupKasModal')
+        $component->call('openCekKasModal')
             ->set('kasFisik', (string) $kasSistem)
-            ->set('catatanClosing', 'Kas laci pas sesuai sistem')
-            ->call('prosesTutupKas')
+            ->set('catatanAudit', 'Rutin audit pagi')
+            ->call('prosesCekKas')
             ->assertHasNoErrors()
             ->assertDispatched('swal:success');
 
-        $this->assertDatabaseHas('tutup_kas', [
+        $this->assertDatabaseHas('cek_kas_logs', [
             'cabang_id' => $admin->cabang_id,
-            'modal_awal' => 300000,
             'kas_sistem' => $kasSistem,
             'kas_fisik' => $kasSistem,
             'selisih' => 0,
             'status_selisih' => 'klop',
+            'catatan' => 'Rutin audit pagi',
         ]);
-
-        // 4. Test Halaman Riwayat Tutup Kas
-        $this->get(route('tutup-kas'))->assertStatus(200);
-
-        Livewire::test(TutupKasIndex::class)
-            ->assertSee('KLOP');
     }
 }

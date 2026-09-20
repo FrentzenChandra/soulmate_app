@@ -53,11 +53,16 @@
                 <option value="aktif">Aktif</option>
                 <option value="nonaktif">Nonaktif</option>
             </select>
+
+            <x-table-size-selector />
         </div>
     </div>
 
     <!-- Data Table Card -->
-    <div class="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
+    <div x-data="{ tableSize: localStorage.getItem('soulmate_table_size') || 'md' }"
+         x-on:table-size-changed.window="tableSize = $event.detail"
+         :class="'table-size-' + tableSize"
+         class="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
         <div class="overflow-x-auto" wire:loading.class="opacity-60">
             <table class="w-full text-left text-xs border-collapse">
                 <thead>
@@ -204,16 +209,19 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
 
                     <!-- Modal Header -->
-                    <div class="bg-[#0E1726] px-6 py-4 text-white flex items-center justify-between">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                                <svg class="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                             </div>
-                            <h3 class="text-sm font-extrabold text-white">
-                                {{ $isEditMode ? 'Edit Metode Pembayaran' : 'Tambah Metode Pembayaran' }}
-                            </h3>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">
+                                    {{ $isEditMode ? 'Edit Metode Pembayaran' : 'Tambah Metode Pembayaran' }}
+                                </h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Pengaturan jenis penerimaan pembayaran kasir</p>
+                            </div>
                         </div>
-                        <button type="button" wire:click="closeModal" class="text-gray-400 hover:text-white cursor-pointer">
+                        <button type="button" wire:click="closeModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>

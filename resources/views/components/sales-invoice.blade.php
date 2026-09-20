@@ -55,7 +55,7 @@
             </div>
             <div class="pt-1">
                 <span class="text-gray-600 block">Pembayaran :</span>
-                <span class="font-bold text-gray-900 uppercase block">{{ $metodeBayar }}</span>
+                <span class="font-bold {{ $penjualan->status === 'bon' ? 'text-amber-700' : 'text-gray-900' }} uppercase block">{{ $penjualan->status === 'bon' ? 'BON (BELUM LUNAS)' : $metodeBayar }}</span>
             </div>
         </div>
     </div>

@@ -44,6 +44,32 @@
 ## 8. Edukasi & Penjelasan Konsep IT
 - Saat menjelaskan istilah IT teknis (seperti Junction, Symlink, Volume Mount, Docker, Signed URL, dsb.), gunakan bahasa analogi sederhana ("gambarkan seperti menjelaskan ke pemula/bayi") yang mudah dicerna sebelum masuk ke teknis.
 
-## 9. Skills & Capabilities
+## 10. Modular Menu Daily Logging Standard
+- **Global Logging Middleware:** Terpasang global via `bootstrap/app.php` (`App\Http\Middleware\ApiMenuLogger`).
+- **File Format:** Terpisah per menu/modul per hari (`storage/logs/menu-{menu}-YYYY-MM-DD.log`).
+- **Pembersihan Log Otomatis:** Driver `daily` dengan retensi otomatis `LOG_MENU_DAYS` (default 5 hari) dan permission `0666` untuk mencegah disk membengkak.
+- **Log Format:** Single-line string tokenized `STATUS | METHOD /path | User: ID (Name) | IP: ... | DURATIONms | Payload: {...} | Error: ...`.
+- **Sensitivitas Keamanan:** Masking otomatis recursive untuk password, token, key, dan pin.
+
+## 11. Universal Table Font Size Standard
+- **Komponen Standar:** `<x-table-size-selector />` di toolbar filter semua tabel index.
+- **Ukuran:** 3 level font sizing solid: `S` (Compact, 11px), `M` (Default/Normal, 12px), `L` (Comfortable, 13px).
+- **Persistensi State:** Disimpan otomatis via `localStorage('soulmate_table_size')` dan disinkronkan ke seluruh tabel melalui Alpine event `table-size-changed`.
+
+## 12. Modal Awal Kasir & Notification Alert Rules
+- **Aturan Input Admin / Kasir:**
+  * Wajib input nominal > 0 (`min:1`).
+  * Tanggal terkunci otomatis untuk hari ini (`now()->toDateString()`). Admin dilarang keras backdate / future-date.
+  * Proteksi dobel input: Admin hanya boleh input 1x per hari.
+- **Hak Akses Khusus Superadmin & Owner:**
+  * Hanya Superadmin & Owner yang diizinkan melakukan koreksi / edit dan hapus data modal awal.
+  * Superadmin & Owner diizinkan melakukan backdate untuk input data susulan.
+- **Cek Kas Cepat / Audit Laci (Snapshot Kasir):**
+  * Menggantikan Tutup Kas konvensional. Kasir/Owner/Supervisor dapat melakukan audit kas fisik kapan saja tanpa mengunci transaksi harian.
+- **Notifikasi Lonceng (> 10:00 Alert):**
+  * Jika waktu lokal telah melewati jam 10:00 pagi (`now()->hour >= 10`) dan cabang belum mencatat modal awal kasir, navbar lonceng notifikasi otomatis memicu badge merah berkedip (`animate-pulse`) dan card peringatan prioritas tinggi dengan tombol aksi langsung `Input Modal Awal`.
+  * Pada konteks Owner HQ, sistem memantau seluruh cabang aktif yang belum mengisi modal awal.
+
+## 13. Skills & Capabilities
 - Dalam konteks workspace project: Aktifkan seluruh ekosistem skill (Caveman, Ponytail, Graphify, TDD, Surgical Patch, Subagents).
 - Pertahankan gaya komunikasi ringkas, padat, dan hemat token (Caveman mode).

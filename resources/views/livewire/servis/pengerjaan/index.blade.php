@@ -392,23 +392,23 @@
             <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[90vh]">
                 
                 <!-- Header Modal -->
-                <div class="p-5 bg-gray-50 border-b border-gray-100 flex items-center justify-between shrink-0">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-2xl bg-blue-100 text-[#0052FF] flex items-center justify-center font-black">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shrink-0 shadow-sm">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                            <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </div>
-                        <div>
-                            <div class="flex items-center space-x-2">
-                                <h3 class="text-base font-black text-gray-900">Workspace Servis Keluar</h3>
-                                <span class="font-mono font-black text-[#5E17EB] text-sm">{{ $activeServis->no_servis_frontend }}</span>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Workspace Servis Keluar</h3>
+                                <span class="font-mono font-bold text-white text-xs px-2 py-0.5 bg-white/20 rounded-lg border border-white/30">{{ $activeServis->no_servis_frontend }}</span>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">
-                                {{ $activeServis->tipe_unit }} &bull; Pelanggan: <strong>{{ $activeServis->customer?->nama }}</strong>
+                            <p class="text-xs text-purple-200 font-medium mt-0.5 truncate">
+                                {{ $activeServis->tipe_unit }} &bull; Pelanggan: <strong class="text-white">{{ $activeServis->customer?->nama }}</strong>
                             </p>
                         </div>
                     </div>
 
-                    <button type="button" wire:click="closePengerjaanModal" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-xl cursor-pointer">
+                    <button type="button" wire:click="closePengerjaanModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
@@ -661,18 +661,18 @@
             <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[90vh]">
                 
                 <!-- Header Modal -->
-                <div class="p-5 bg-emerald-50 border-b border-emerald-100 flex items-center justify-between shrink-0">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shrink-0 shadow-sm">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                            <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                         </div>
-                        <div>
-                            <h3 class="text-base font-black text-gray-900">Kasir Pelunasan Servis</h3>
-                            <p class="text-xs text-gray-500 font-medium font-mono">{{ $checkoutServis->no_servis_frontend }} &bull; {{ $checkoutServis->customer?->nama }}</p>
+                        <div class="min-w-0">
+                            <h3 class="text-base font-bold text-white tracking-tight leading-snug">Kasir Pelunasan Servis</h3>
+                            <p class="text-xs text-purple-200 font-medium font-mono mt-0.5">{{ $checkoutServis->no_servis_frontend }} &bull; {{ $checkoutServis->customer?->nama }}</p>
                         </div>
                     </div>
 
-                    <button type="button" wire:click="closeCheckoutModal" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-xl cursor-pointer">
+                    <button type="button" wire:click="closeCheckoutModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>

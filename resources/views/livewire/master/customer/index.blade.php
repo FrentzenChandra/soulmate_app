@@ -56,9 +56,8 @@
                    class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-all">
         </div>
 
-        <!-- Filter Cabang (Owner/HQ Only) -->
-        @if($isHQ)
-            <div class="flex items-center space-x-3 w-full md:w-auto">
+        <div class="flex items-center space-x-3 w-full md:w-auto">
+            @if($isHQ)
                 <div class="flex items-center space-x-2">
                     <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Cabang:</span>
                     <select wire:model.live="cabangFilter" 
@@ -69,12 +68,16 @@
                         @endforeach
                     </select>
                 </div>
-            </div>
-        @endif
+            @endif
+            <x-table-size-selector />
+        </div>
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white card-custom rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+    <div x-data="{ tableSize: localStorage.getItem('soulmate_table_size') || 'md' }"
+         x-on:table-size-changed.window="tableSize = $event.detail"
+         :class="'table-size-' + tableSize"
+         class="bg-white card-custom rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
                 <thead class="bg-gray-50/80 border-b border-gray-100 text-gray-400 uppercase font-extrabold text-[10px] tracking-wider">
@@ -196,17 +199,22 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
                     
                     <!-- Modal Header -->
-                    <div class="bg-[#0E1726] px-6 py-5 text-white flex items-center justify-between">
-                        <div>
-                            <h3 class="text-base font-extrabold text-white">
-                                {{ $isEditMode ? 'Ubah Data Pelanggan' : 'Daftar Pelanggan Baru' }}
-                            </h3>
-                            <p class="text-xs text-gray-400 mt-0.5">
-                                {{ $isEditMode ? 'Perbarui informasi kontak pelanggan.' : 'Masukkan nama dan nomor WhatsApp pelanggan.' }}
-                            </p>
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">
+                                    {{ $isEditMode ? 'Ubah Data Pelanggan' : 'Daftar Pelanggan Baru' }}
+                                </h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">
+                                    {{ $isEditMode ? 'Perbarui informasi kontak pelanggan' : 'Masukkan nama dan nomor WhatsApp pelanggan' }}
+                                </p>
+                            </div>
                         </div>
-                        <button type="button" wire:click="closeModal" class="text-gray-400 hover:text-white cursor-pointer">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <button type="button" wire:click="closeModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
 

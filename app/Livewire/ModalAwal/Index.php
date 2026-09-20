@@ -5,6 +5,7 @@ namespace App\Livewire\ModalAwal;
 use App\Livewire\Traits\WithSorting;
 use App\Models\Cabang;
 use App\Models\ModalAwal;
+use App\Models\TutupKas;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -87,7 +88,7 @@ class Index extends Component
 
         return ModalAwal::with('user')
             ->where('cabang_id', $cabang->id)
-            ->where('tanggal', now()->toDateString())
+            ->whereDate('tanggal', now()->toDateString())
             ->first();
     }
 
@@ -104,14 +105,17 @@ class Index extends Component
 
         // If user is regular Admin / Kasir, check if modal awal for today already exists
         if ($user && ! ($user->isOwner() || $user->isSuperadmin()) && $cabang) {
-            $alreadyExists = ModalAwal::where('cabang_id', $cabang->id)
-                ->where('tanggal', now()->toDateString())
-                ->exists();
+            $existingToday = ModalAwal::with('user')
+                ->where('cabang_id', $cabang->id)
+                ->whereDate('tanggal', now()->toDateString())
+                ->first();
 
-            if ($alreadyExists) {
+            if ($existingToday) {
+                $namaPetugas = $existingToday->user?->name ?? 'Kasir';
+                $nominalFmt = 'Rp ' . number_format($existingToday->nominal, 0, ',', '.');
                 $this->dispatch('swal:error', [
-                    'title' => 'Modal Awal Telah Diatur',
-                    'text' => 'Modal awal hari ini sudah dicatat. Hubungi Superadmin jika perlu melakukan koreksi data.',
+                    'title' => 'Modal Awal Sudah Ada',
+                    'text' => "Modal awal hari ini sudah dicatat oleh {$namaPetugas} ({$nominalFmt}). Hubungi Superadmin jika perlu melakukan koreksi.",
                 ]);
 
                 return;
@@ -165,18 +169,33 @@ class Index extends Component
             return;
         }
 
+        $isSuperOrOwner = $user && ($user->isOwner() || $user->isSuperadmin());
+
+        // Regular admin can only input for today
+        if (! $isSuperOrOwner) {
+            if ($this->tanggal && $this->tanggal !== now()->toDateString()) {
+                $this->addError('tanggal', 'Admin hanya diizinkan mencatat modal awal untuk tanggal hari ini.');
+
+                return;
+            }
+            $this->tanggal = now()->toDateString();
+        }
+
         if (is_string($this->nominal)) {
             $this->nominal = (float) preg_replace('/[^\d]/', '', $this->nominal);
         }
 
         $this->validate([
             'tanggal' => 'required|date',
-            'nominal' => 'required|numeric|min:0',
+            'nominal' => 'required|numeric|min:1',
             'keterangan' => 'nullable|string|max:255',
+        ], [
+            'nominal.min' => 'Nominal modal awal harus minimal Rp 1.',
+            'nominal.required' => 'Nominal modal awal wajib diisi.',
         ]);
 
         if ($this->isEditMode && $this->modalAwalId) {
-            if (! $user || ! ($user->isOwner() || $user->isSuperadmin())) {
+            if (! $isSuperOrOwner) {
                 $this->dispatch('swal:error', [
                     'title' => 'Akses Ditolak',
                     'text' => 'Hanya Superadmin dan Owner yang berwenang mengubah modal awal.',
@@ -196,11 +215,11 @@ class Index extends Component
         } else {
             // Check if already set for this date on this branch
             $existing = ModalAwal::where('cabang_id', $cabang->id)
-                ->where('tanggal', $this->tanggal)
+                ->whereDate('tanggal', $this->tanggal)
                 ->first();
 
             if ($existing) {
-                if (! $user || ! ($user->isOwner() || $user->isSuperadmin())) {
+                if (! $isSuperOrOwner) {
                     $this->dispatch('swal:error', [
                         'title' => 'Akses Ditolak',
                         'text' => 'Modal awal tanggal ini sudah ada. Hanya Superadmin yang dapat melakukan koreksi.',
@@ -227,6 +246,7 @@ class Index extends Component
             }
         }
 
+        $this->dispatch('refreshNotification');
         $this->closeModal();
     }
 
@@ -245,6 +265,7 @@ class Index extends Component
         $item = ModalAwal::findOrFail($id);
         $item->delete();
 
+        $this->dispatch('refreshNotification');
         $this->dispatch('swal:success', ['title' => 'Dihapus!', 'text' => 'Catatan modal awal berhasil dihapus.']);
     }
 

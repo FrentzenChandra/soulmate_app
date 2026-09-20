@@ -4,6 +4,7 @@ namespace App\Livewire\Components;
 
 use App\Models\Cabang;
 use App\Models\MasterServisStok;
+use App\Models\ModalAwal;
 use App\Models\Stok;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -14,9 +15,15 @@ class NotificationBell extends Component
 
     public int $criticalCount = 0;
 
+    public int $modalAwalAlertCount = 0;
+
     public int $totalAlerts = 0;
 
-    protected $listeners = ['stockUpdated' => '$refresh', 'refreshNotification' => '$refresh'];
+    protected $listeners = [
+        'stockUpdated' => '$refresh',
+        'refreshNotification' => '$refresh',
+        'modalAwalUpdated' => '$refresh',
+    ];
 
     public function render()
     {
@@ -24,15 +31,19 @@ class NotificationBell extends Component
         if (! $user) {
             $this->emptyCount = 0;
             $this->criticalCount = 0;
+            $this->modalAwalAlertCount = 0;
             $this->totalAlerts = 0;
 
             return view('livewire.components.notification-bell', [
                 'emptyCount' => 0,
                 'criticalCount' => 0,
+                'modalAwalAlertCount' => 0,
+                'missingModalCabangs' => collect(),
                 'totalAlerts' => 0,
                 'alertItems' => collect(),
                 'contextName' => '',
                 'isHQ' => false,
+                'isOwner' => false,
             ]);
         }
 
@@ -42,7 +53,13 @@ class NotificationBell extends Component
 
         $this->emptyCount = 0;
         $this->criticalCount = 0;
+        $this->modalAwalAlertCount = 0;
+        $missingModalCabangs = collect();
         $contextName = 'Kantor Pusat (HQ)';
+
+        $currentTime = now();
+        $isPast10Am = $currentTime->hour >= 10;
+        $todayDate = $currentTime->toDateString();
 
         if ($isHQ) {
             // Mode HQ: Memantau stok produk AKTIF & sparepart di semua cabang yang jumlahnya <= min_stok
@@ -68,6 +85,17 @@ class NotificationBell extends Component
 
             $this->emptyCount = $emptyProduk->count() + $emptySparepart->count();
             $this->criticalCount = $criticalProduk->count() + $criticalSparepart->count();
+
+            // Peringatan Modal Awal setelah jam 10:00 untuk semua cabang aktif
+            if ($isPast10Am) {
+                $aktifCabangs = Cabang::where('status', 'aktif')->get();
+                $existingModalCabangIds = ModalAwal::whereDate('tanggal', $todayDate)
+                    ->pluck('cabang_id')
+                    ->toArray();
+
+                $missingModalCabangs = $aktifCabangs->reject(fn ($c) => in_array($c->id, $existingModalCabangIds))->values();
+                $this->modalAwalAlertCount = $missingModalCabangs->count();
+            }
 
             $itemsProduk = $stoksProduk->map(function ($s) {
                 return (object) [
@@ -129,6 +157,20 @@ class NotificationBell extends Component
             $this->emptyCount = $emptyProduk->count() + $emptySparepart->count();
             $this->criticalCount = $criticalProduk->count() + $criticalSparepart->count();
 
+            // Peringatan Modal Awal setelah jam 10:00 untuk cabang ini
+            if ($isPast10Am) {
+                $hasModal = ModalAwal::where('cabang_id', $targetCabangId)
+                    ->whereDate('tanggal', $todayDate)
+                    ->exists();
+
+                if (! $hasModal) {
+                    $this->modalAwalAlertCount = 1;
+                    if ($cabang) {
+                        $missingModalCabangs = collect([$cabang]);
+                    }
+                }
+            }
+
             $itemsProduk = $stoksProduk->map(function ($s) use ($cabang) {
                 return (object) [
                     'type' => 'produk',
@@ -160,11 +202,13 @@ class NotificationBell extends Component
             $alertItems = $itemsProduk->concat($itemsSparepart)->sortBy('jumlah')->take(50);
         }
 
-        $this->totalAlerts = $this->emptyCount + $this->criticalCount;
+        $this->totalAlerts = $this->emptyCount + $this->criticalCount + $this->modalAwalAlertCount;
 
         return view('livewire.components.notification-bell', [
             'emptyCount' => $this->emptyCount,
             'criticalCount' => $this->criticalCount,
+            'modalAwalAlertCount' => $this->modalAwalAlertCount,
+            'missingModalCabangs' => $missingModalCabangs,
             'totalAlerts' => $this->totalAlerts,
             'alertItems' => $alertItems,
             'contextName' => $contextName,
@@ -173,3 +217,4 @@ class NotificationBell extends Component
         ]);
     }
 }
+

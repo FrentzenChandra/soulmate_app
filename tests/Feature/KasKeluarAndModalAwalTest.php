@@ -99,10 +99,17 @@ class KasKeluarAndModalAwalTest extends TestCase
         $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
 
-        // 1. Admin PKP can create today's modal awal
         $this->actingAs($admin);
         $this->get(route('modal-awal'))->assertStatus(200);
 
+        // 1. Validasi nominal minimal Rp 1 (tidak boleh 0 atau negatif)
+        Livewire::test(ModalAwalIndex::class)
+            ->call('openCreateModal')
+            ->set('nominal', '0')
+            ->call('save')
+            ->assertHasErrors(['nominal']);
+
+        // 2. Admin PKP input modal awal hari ini (nominal valid)
         Livewire::test(ModalAwalIndex::class)
             ->call('openCreateModal')
             ->set('nominal', '500.000')
@@ -118,7 +125,19 @@ class KasKeluarAndModalAwalTest extends TestCase
 
         $modalAwal = ModalAwal::where('cabang_id', $admin->cabang_id)->first();
 
-        // 2. Admin cannot edit or delete modal awal (forbidden for non-superadmin/owner)
+        // 3. Admin coba dobel input hari yang sama -> ditolak
+        Livewire::test(ModalAwalIndex::class)
+            ->call('openCreateModal')
+            ->assertDispatched('swal:error');
+
+        // 4. Admin coba input tanggal selain hari ini (backdate/future) -> ditolak
+        Livewire::test(ModalAwalIndex::class)
+            ->set('tanggal', now()->subDay()->toDateString())
+            ->set('nominal', '100.000')
+            ->call('save')
+            ->assertHasErrors(['tanggal']);
+
+        // 5. Admin cannot edit or delete modal awal (forbidden for non-superadmin/owner)
         Livewire::test(ModalAwalIndex::class)
             ->call('openEditModal', $modalAwal->id)
             ->assertDispatched('swal:error');
@@ -133,7 +152,7 @@ class KasKeluarAndModalAwalTest extends TestCase
             'nominal' => 500000,
         ]);
 
-        // 3. Superadmin CAN edit and delete modal awal
+        // 6. Superadmin CAN edit modal awal
         $this->actingAs($superadmin);
 
         Livewire::test(ModalAwalIndex::class)
@@ -147,9 +166,10 @@ class KasKeluarAndModalAwalTest extends TestCase
             'nominal' => 750000,
         ]);
 
+        // 7. Superadmin can delete modal awal
         Livewire::test(ModalAwalIndex::class)
             ->call('delete', $modalAwal->id)
-            ->assertHasNoErrors();
+            ->assertDispatched('swal:success');
 
         $this->assertDatabaseMissing('modal_awals', [
             'id' => $modalAwal->id,
@@ -232,4 +252,56 @@ class KasKeluarAndModalAwalTest extends TestCase
             'id' => $kategori->id,
         ]);
     }
+
+    public function test_notification_bell_alerts_when_modal_awal_is_missing_after_10am()
+    {
+        $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
+        $this->actingAs($admin);
+
+        // Hapus modal awal hari ini jika ada
+        ModalAwal::where('cabang_id', $admin->cabang_id)
+            ->where('tanggal', now()->toDateString())
+            ->delete();
+
+        // 1. Sebelum jam 10:00 -> tidak ada alert modal awal
+        $this->travelTo(now()->setTime(8, 30, 0));
+
+        Livewire::test(\App\Livewire\Components\NotificationBell::class)
+            ->assertSet('modalAwalAlertCount', 0)
+            ->assertDontSee('Peringatan Modal Awal');
+
+        // 2. Setelah jam 10:00 -> muncul alert modal awal
+        $this->travelTo(now()->setTime(10, 15, 0));
+
+        Livewire::test(\App\Livewire\Components\NotificationBell::class)
+            ->assertSet('modalAwalAlertCount', 1)
+            ->assertSee('Peringatan Modal Awal')
+            ->assertSee('Modal awal kasir hari ini belum dicatat');
+
+        // 3. Setelah modal awal diinput -> alert hilang
+        ModalAwal::create([
+            'cabang_id' => $admin->cabang_id,
+            'user_id' => $admin->id,
+            'tanggal' => now()->toDateString(),
+            'nominal' => 200000,
+        ]);
+
+        Livewire::test(\App\Livewire\Components\NotificationBell::class)
+            ->assertSet('modalAwalAlertCount', 0)
+            ->assertDontSee('Peringatan Modal Awal');
+
+        // 4. Test untuk Owner di HQ mode
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $this->actingAs($owner);
+        session(['active_branch_id' => 'hq']);
+
+        // Hapus modal awal semua cabang hari ini
+        ModalAwal::whereDate('tanggal', now()->toDateString())->delete();
+
+        $activeCabangCount = Cabang::where('status', 'aktif')->count();
+        Livewire::test(\App\Livewire\Components\NotificationBell::class)
+            ->assertSet('modalAwalAlertCount', $activeCabangCount)
+            ->assertSee('Peringatan Modal Awal');
+    }
 }
+

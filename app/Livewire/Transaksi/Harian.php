@@ -3,6 +3,7 @@
 namespace App\Livewire\Transaksi;
 
 use App\Models\Cabang;
+use App\Models\CekKasLog;
 use App\Models\KasKeluar;
 use App\Models\MetodePembayaran;
 use App\Models\ModalAwal;
@@ -16,7 +17,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('layouts.app')]
-#[Title('Transaksi Harian & Tutup Kas - Soulmate Komputer')]
+#[Title('Transaksi Harian & Cek Kas - Soulmate Komputer')]
 class Harian extends Component
 {
     public string $selectedDate = '';
@@ -25,12 +26,16 @@ class Harian extends Component
 
     public array $tableData = [];
 
-    // State Modal Tutup Kasir
-    public bool $modalTutupKasOpen = false;
+    // State Modal Cek Kas Cepat / Audit Laci
+    public bool $modalCekKasOpen = false;
+
+    public bool $modalTutupKasOpen = false; // alias
 
     public $kasFisik = 0;
 
-    public string $catatanClosing = '';
+    public string $catatanAudit = '';
+
+    public string $catatanClosing = ''; // alias
 
     public function mount(): void
     {
@@ -124,6 +129,10 @@ class Harian extends Component
 
                 $statusBayar = ($pj->status === 'bon' || $pj->status === 'belum_lunas') ? 'Bon' : 'Lunas';
 
+                $pajakNominal = (float) $pj->ppn_nominal;
+                $pajakPersen = (float) ($pj->ppn_persen ?? ($pj->ppn?->persentase ?? 0));
+                $pajakTipe = $pj->ppn ? ($pj->ppn->nama . ($pajakPersen > 0 ? " ({$pajakPersen}%)" : '')) : ($pajakPersen > 0 ? "PPN {$pajakPersen}%" : ($pajakNominal > 0 ? 'PPN' : 'Non-PPN'));
+
                 $rows[] = [
                     'id' => 'PJ-' . $pj->id,
                     'raw_id' => $pj->id,
@@ -134,11 +143,14 @@ class Harian extends Component
                     'no_transaksi' => $pj->no_transaksi_frontend,
                     'customer' => $pj->customer?->nama ?? 'Umum',
                     'item_detail' => implode(', ', $itemNames) ?: 'Produk Kasir',
+                    'items_list' => ! empty($itemNames) ? $itemNames : ['Produk Kasir'],
                     'modal' => $totalModal,
                     'harga_jual' => $hargaJual,
                     'margin' => $margin,
                     'status' => $statusBayar,
-                    'pajak' => (float) $pj->ppn_nominal,
+                    'pajak' => $pajakNominal,
+                    'pajak_tipe' => $pajakTipe,
+                    'pajak_persen' => $pajakPersen,
                     'metode_bayar' => $pj->metode_bayar ?: 'Cash',
                     'is_cash' => $isCash,
                     'petugas' => $pj->kasir?->name ?? 'Kasir',
@@ -146,23 +158,16 @@ class Harian extends Component
             }
         }
 
-        // 2. Servis Selesai / Diambil Hari Ini
+        // 2. Servis Masuk / Dibuat Hari Ini
         if ($this->tipeFilter === 'semua' || $this->tipeFilter === 'servis') {
             $servisQuery = ServisMasuk::with(['details.masterServis', 'details.produk', 'teknisi', 'kasir', 'customer'])
-                ->whereIn('status', ['sudah_diambil', 'sudah_dibayar', 'selesai'])
-                ->where(function ($q) use ($start, $end) {
-                    $q->whereBetween('tanggal_ambil', [$start, $end])
-                      ->orWhere(function ($sub) use ($start, $end) {
-                          $sub->whereNull('tanggal_ambil')
-                              ->whereBetween('tanggal_selesai', [$start, $end]);
-                      });
-                });
+                ->whereBetween('tanggal_masuk', [$start, $end]);
 
             if ($cabang) {
                 $servisQuery->where('cabang_id', $cabang->id);
             }
 
-            $servisList = $servisQuery->orderByDesc('tanggal_ambil')->get();
+            $servisList = $servisQuery->orderByDesc('tanggal_masuk')->get();
 
             foreach ($servisList as $sv) {
                 $itemNames = [];
@@ -179,14 +184,32 @@ class Harian extends Component
                     $totalModal += ($hargaModal * $d->qty);
                 }
 
-                $tgl = $sv->tanggal_ambil ?? $sv->tanggal_selesai ?? $sv->updated_at;
-                $hargaJual = (float) $sv->total_biaya;
+                $tgl = $sv->tanggal_masuk ?? $sv->created_at;
+                $hargaJual = (float) ($sv->total_biaya > 0 ? $sv->total_biaya : ($sv->estimasi_biaya ?: 0));
                 $margin = $hargaJual - $totalModal;
                 $isCash = in_array(strtolower(trim($sv->metode_pembayaran ?: '')), ['cash', 'tunai']);
 
-                $detailText = $sv->kategori_perangkat_label . ($sv->tipe_unit ? " ({$sv->tipe_unit})" : '');
+                $isLunas = in_array($sv->status, ['sudah_diambil', 'sudah_dibayar']) || ($sv->total_biaya > 0 && (float) $sv->bayar >= (float) $sv->total_biaya);
+                if ($sv->status === 'batal') {
+                    $statusBayar = 'Batal';
+                } elseif ($isLunas) {
+                    $statusBayar = 'Lunas';
+                } else {
+                    $statusBayar = 'Belum Lunas';
+                }
+
+                $servisUnitInfo = $sv->kategori_perangkat_label . ($sv->tipe_unit ? " ({$sv->tipe_unit})" : '');
+                $detailText = $servisUnitInfo;
                 if (! empty($itemNames)) {
                     $detailText .= ' - ' . implode(', ', $itemNames);
+                }
+
+                $servisItemList = [];
+                if (! empty($servisUnitInfo)) {
+                    $servisItemList[] = $servisUnitInfo;
+                }
+                foreach ($itemNames as $in) {
+                    $servisItemList[] = $in;
                 }
 
                 $rows[] = [
@@ -199,11 +222,14 @@ class Harian extends Component
                     'no_transaksi' => $sv->no_servis_frontend,
                     'customer' => $sv->customer?->nama ?? 'Umum',
                     'item_detail' => $detailText,
+                    'items_list' => ! empty($servisItemList) ? $servisItemList : [$detailText],
                     'modal' => $totalModal,
                     'harga_jual' => $hargaJual,
                     'margin' => $margin,
-                    'status' => 'Lunas',
+                    'status' => $statusBayar,
                     'pajak' => 0,
+                    'pajak_tipe' => 'Bebas Pajak',
+                    'pajak_persen' => 0,
                     'metode_bayar' => ucfirst($sv->metode_pembayaran ?: 'Cash'),
                     'is_cash' => $isCash,
                     'petugas' => $sv->teknisi?->name ?? ($sv->kasir?->name ?? 'Teknisi'),
@@ -216,21 +242,34 @@ class Harian extends Component
         return $rows;
     }
 
-    public function openTutupKasModal(): void
+    public function openCekKasModal(): void
     {
         $this->resetValidation();
         $this->kasFisik = 0;
+        $this->catatanAudit = '';
         $this->catatanClosing = '';
+        $this->modalCekKasOpen = true;
         $this->modalTutupKasOpen = true;
     }
 
-    public function closeTutupKasModal(): void
+    public function openTutupKasModal(): void
     {
+        $this->openCekKasModal();
+    }
+
+    public function closeCekKasModal(): void
+    {
+        $this->modalCekKasOpen = false;
         $this->modalTutupKasOpen = false;
         $this->resetValidation();
     }
 
-    public function prosesTutupKas(): void
+    public function closeTutupKasModal(): void
+    {
+        $this->closeCekKasModal();
+    }
+
+    public function prosesCekKas(): void
     {
         $cabang = $this->activeCabang;
         if (! $cabang) {
@@ -245,7 +284,7 @@ class Harian extends Component
 
         $this->validate([
             'kasFisik' => 'required|numeric|min:0',
-            'catatanClosing' => 'nullable|string|max:500',
+            'catatanAudit' => 'nullable|string|max:500',
         ]);
 
         $modalAwalNominal = (float) ($this->todayModalAwal?->nominal ?? 0);
@@ -254,22 +293,21 @@ class Harian extends Component
         $start = Carbon::parse($this->selectedDate)->startOfDay();
         $end = Carbon::parse($this->selectedDate)->endOfDay();
 
-        // Penjualan Cash
+        // Penjualan Cash Lunas
         $penjualanCash = (float) Penjualan::where('cabang_id', $cabang->id)
             ->where('is_real', true)
+            ->where('status', '!=', 'bon')
+            ->where('status', '!=', 'batal')
             ->whereBetween('tanggal', [$start, $end])
             ->whereIn('metode_bayar', ['cash', 'Cash', 'Tunai', 'tunai'])
             ->sum('total');
 
-        // Servis Cash
+        // Servis Cash Lunas Hari Ini
         $servisCash = (float) ServisMasuk::where('cabang_id', $cabang->id)
-            ->whereIn('status', ['sudah_diambil', 'sudah_dibayar', 'selesai'])
-            ->where(function ($q) use ($start, $end) {
-                $q->whereBetween('tanggal_ambil', [$start, $end])
-                  ->orWhere(function ($sub) use ($start, $end) {
-                      $sub->whereNull('tanggal_ambil')
-                          ->whereBetween('tanggal_selesai', [$start, $end]);
-                  });
+            ->whereBetween('tanggal_masuk', [$start, $end])
+            ->where(function ($q) {
+                $q->whereIn('status', ['sudah_diambil', 'sudah_dibayar'])
+                  ->orWhereRaw('total_biaya > 0 AND bayar >= total_biaya');
             })
             ->whereIn('metode_pembayaran', ['cash', 'Cash', 'Tunai', 'tunai'])
             ->sum('total_biaya');
@@ -295,27 +333,30 @@ class Harian extends Component
             $statusSelisih = 'plus';
         }
 
-        TutupKas::create([
+        $note = trim($this->catatanAudit) ?: (trim($this->catatanClosing) ?: null);
+
+        CekKasLog::create([
             'cabang_id' => $cabang->id,
             'user_id' => Auth::id(),
             'tanggal' => $this->selectedDate,
-            'waktu_tutup' => now(),
-            'modal_awal' => $modalAwalNominal,
-            'total_penjualan_cash' => $penjualanCash,
-            'total_servis_cash' => $servisCash,
-            'total_kas_keluar_cash' => $kasKeluarCash,
+            'waktu_cek' => now(),
             'kas_sistem' => $kasSistem,
             'kas_fisik' => $kasFisik,
             'selisih' => $selisih,
             'status_selisih' => $statusSelisih,
-            'catatan' => trim($this->catatanClosing) ?: null,
+            'catatan' => $note,
         ]);
 
-        $this->closeTutupKasModal();
+        $this->closeCekKasModal();
         $this->dispatch('swal:success', [
-            'title' => 'Tutup Kas Berhasil!',
-            'text' => 'Rekonsiliasi closing kasir hari ini telah berhasil disimpan.',
+            'title' => 'Cek Kas Berhasil!',
+            'text' => 'Snapshot audit kasir hari ini telah berhasil dicatat tanpa mengunci transaksi.',
         ]);
+    }
+
+    public function prosesTutupKas(): void
+    {
+        $this->prosesCekKas();
     }
 
     public function render()
@@ -344,37 +385,94 @@ class Harian extends Component
 
         $totalPenjualanCash = 0;
         $totalServisCash = 0;
+        $totalPenjualanLunasAll = 0;
+        $totalServisLunasAll = 0;
+        $totalPenjualanBon = 0;
+        $totalServisBelumLunas = 0;
+        $totalMarginLunas = 0;
+        $totalMarginBon = 0;
         $totalOmzetAll = 0;
         $totalModalAll = 0;
         $totalMarginAll = 0;
 
         foreach ($allRows as $r) {
-            $totalOmzetAll += $r['harga_jual'];
-            $totalModalAll += $r['modal'];
-            $totalMarginAll += $r['margin'];
+            if ($r['status'] !== 'Batal') {
+                $totalOmzetAll += $r['harga_jual'];
+                $totalModalAll += $r['modal'];
+                $totalMarginAll += $r['margin'];
 
-            if ($r['is_cash']) {
-                if ($r['tipe'] === 'penjualan') {
-                    $totalPenjualanCash += $r['harga_jual'];
+                if ($r['status'] === 'Lunas') {
+                    $totalMarginLunas += $r['margin'];
                 } else {
-                    $totalServisCash += $r['harga_jual'];
+                    $totalMarginBon += $r['margin'];
+                }
+            }
+
+            if ($r['tipe'] === 'penjualan') {
+                if ($r['status'] === 'Lunas') {
+                    $totalPenjualanLunasAll += $r['harga_jual'];
+                    if ($r['is_cash']) {
+                        $totalPenjualanCash += $r['harga_jual'];
+                    }
+                } elseif ($r['status'] === 'Bon' || $r['status'] === 'Belum Lunas') {
+                    $totalPenjualanBon += $r['harga_jual'];
+                }
+            } else {
+                if ($r['status'] === 'Lunas') {
+                    $totalServisLunasAll += $r['harga_jual'];
+                    if ($r['is_cash']) {
+                        $totalServisCash += $r['harga_jual'];
+                    }
+                } elseif ($r['status'] === 'Belum Lunas' || $r['status'] === 'Bon') {
+                    $totalServisBelumLunas += $r['harga_jual'];
                 }
             }
         }
 
+        $totalBelumLunasAll = $totalPenjualanBon + $totalServisBelumLunas;
+        $totalPemasukanLunasAll = $totalPenjualanLunasAll + $totalServisLunasAll;
+        $totalKasKeluarAll = (float) $allKasKeluar->sum('nominal');
+
+        // 2 Tipe Laba Bersih (Nett Profit): Margin (Harga Jual - Modal) - Kas Keluar
+        $labaBersihReal = $totalMarginLunas - $totalKasKeluarAll;
+        $labaBersihPlusBon = $totalMarginAll - $totalKasKeluarAll;
+
+        // Arus Kas Masuk Bersih
+        $saldoBersihReal = $totalPemasukanLunasAll - $totalKasKeluarAll;
+        $saldoBersihPlusBon = $totalOmzetAll - $totalKasKeluarAll;
+
         $modalAwalNominal = (float) ($this->todayModalAwal?->nominal ?? 0);
         $kasSistem = $modalAwalNominal + $totalPenjualanCash + $totalServisCash - $totalKasKeluarCash;
+
+        $cekKasLogs = CekKasLog::with('user')
+            ->where('cabang_id', $cabang?->id)
+            ->whereDate('tanggal', $this->selectedDate)
+            ->orderByDesc('waktu_cek')
+            ->get();
 
         return view('livewire.transaksi.harian', [
             'tableData' => $allRows,
             'modalAwalNominal' => $modalAwalNominal,
             'totalPenjualanCash' => $totalPenjualanCash,
             'totalServisCash' => $totalServisCash,
+            'totalPenjualanLunasAll' => $totalPenjualanLunasAll,
+            'totalServisLunasAll' => $totalServisLunasAll,
+            'totalPenjualanBon' => $totalPenjualanBon,
+            'totalServisBelumLunas' => $totalServisBelumLunas,
+            'totalBelumLunasAll' => $totalBelumLunasAll,
             'totalKasKeluarCash' => $totalKasKeluarCash,
+            'totalKasKeluarAll' => $totalKasKeluarAll,
+            'saldoBersihReal' => $saldoBersihReal,
+            'saldoBersihPlusBon' => $saldoBersihPlusBon,
+            'labaBersihReal' => $labaBersihReal,
+            'labaBersihPlusBon' => $labaBersihPlusBon,
             'kasSistem' => $kasSistem,
             'totalOmzetAll' => $totalOmzetAll,
             'totalModalAll' => $totalModalAll,
             'totalMarginAll' => $totalMarginAll,
+            'totalMarginLunas' => $totalMarginLunas,
+            'totalMarginBon' => $totalMarginBon,
+            'cekKasLogs' => $cekKasLogs,
         ]);
     }
 }

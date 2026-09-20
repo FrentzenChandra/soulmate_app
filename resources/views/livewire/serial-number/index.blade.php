@@ -29,48 +29,52 @@
             </span>
             <input type="text"
                    wire:model.live.debounce.300ms="search"
-                   class="w-full pl-10 pr-4 py-2 text-xs font-semibold text-gray-800 bg-gray-50/60 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#5E17EB] focus:border-transparent transition-all">
+                   class="w-full pl-10 pr-4 py-2.5 text-sm font-semibold text-gray-800 bg-gray-50/60 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#5E17EB] focus:border-transparent transition-all">
         </div>
+        <x-table-size-selector />
     </div>
 
     <!-- Data Table -->
-    <div class="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
+    <div x-data="{ tableSize: localStorage.getItem('soulmate_table_size') || 'md' }"
+         x-on:table-size-changed.window="tableSize = $event.detail"
+         :class="'table-size-' + tableSize"
+         class="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
         <div class="overflow-x-auto" wire:loading.class="opacity-60">
-            <table class="w-full text-left text-xs border-collapse">
+            <table class="w-full text-left text-sm border-collapse">
                 <thead>
-                    <tr class="bg-gray-50/80 border-b border-gray-200 text-[11px] font-black uppercase text-gray-500 tracking-wider">
+                    <tr class="bg-gray-50/80 border-b border-gray-200 text-xs font-black uppercase text-gray-500 tracking-wider">
                         <x-th-sort field="sn" :sortField="$sortField" :sortDirection="$sortDirection">Serial Number</x-th-sort>
                         <x-th-sort field="nama" :sortField="$sortField" :sortDirection="$sortDirection">Nama Barang</x-th-sort>
                         <x-th-sort field="merk_tipe_spek" :sortField="$sortField" :sortDirection="$sortDirection">Spesifikasi</x-th-sort>
                         <x-th-sort field="distributor" :sortField="$sortField" :sortDirection="$sortDirection">Distributor</x-th-sort>
                         <x-th-sort field="created_at" :sortField="$sortField" :sortDirection="$sortDirection">Waktu Input</x-th-sort>
-                        <th class="py-3 px-4 text-center w-24">Aksi</th>
+                        <th class="py-3.5 px-4 text-center w-24">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 font-semibold text-gray-800">
                     <x-table-skeleton :columns="6" :rows="5" target="search, sortField, sortDirection" />
                     @forelse($items as $item)
                         <tr class="hover:bg-purple-50/20 transition-colors" wire:loading.remove wire:target="search, sortField, sortDirection">
-                            <td class="py-3 px-4">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-mono font-black bg-blue-50 text-[#0052FF] border border-blue-200 tracking-wide">
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-sm sm:text-base font-mono font-black bg-blue-50 text-[#0052FF] border border-blue-200 tracking-wider">
                                     {{ $item->sn }}
                                 </span>
                             </td>
-                            <td class="py-3 px-4 font-bold text-gray-900">
+                            <td class="py-3.5 px-4 font-bold text-gray-900 text-sm">
                                 {{ $item->nama }}
                             </td>
-                            <td class="py-3 px-4 text-gray-600">
+                            <td class="py-3.5 px-4 text-gray-600 text-sm">
                                 {{ $item->merk_tipe_spek }}
                             </td>
-                            <td class="py-3 px-4">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-gray-100 text-gray-700 border border-gray-200">
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
                                     {{ $item->distributor ?: 'Lokal' }}
                                 </span>
                             </td>
-                            <td class="py-3 px-4 text-gray-500 font-mono text-[11px]">
+                            <td class="py-3.5 px-4 text-gray-500 font-mono text-xs">
                                 {{ $item->created_at ? $item->created_at->format('d/m/Y H:i') : '-' }}
                             </td>
-                            <td class="py-3 px-4 text-center">
+                            <td class="py-3.5 px-4 text-center">
                                 <div class="flex items-center justify-center space-x-1.5">
                                     <button type="button"
                                             wire:click="openEditModal({{ $item->id }})"
@@ -94,8 +98,8 @@
                         <tr wire:loading.remove wire:target="search, sortField, sortDirection">
                             <td colspan="6" class="py-12 text-center text-gray-400">
                                 <svg class="w-10 h-10 text-gray-200 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
-                                <p class="text-xs font-bold text-gray-600">Tidak Ada Data Serial Number</p>
-                                <p class="text-[11px] text-gray-400 mt-0.5">Belum ada data nomor seri yang tersimpan.</p>
+                                <p class="text-sm font-bold text-gray-600">Tidak Ada Data Serial Number</p>
+                                <p class="text-xs text-gray-400 mt-0.5">Belum ada data nomor seri yang tersimpan.</p>
                             </td>
                         </tr>
                     @endforelse
@@ -121,16 +125,19 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
 
                     <!-- Header Modal -->
-                    <div class="bg-[#0E1726] px-6 py-4 text-white flex items-center justify-between">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                                <svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
                             </div>
-                            <h3 class="text-sm font-extrabold text-white">
-                                {{ $isEditMode ? 'Edit Serial Number' : 'Tambah Serial Number' }}
-                            </h3>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">
+                                    {{ $isEditMode ? 'Edit Serial Number' : 'Tambah Serial Number' }}
+                                </h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Nomor seri unit produk</p>
+                            </div>
                         </div>
-                        <button type="button" wire:click="closeModal" class="text-gray-400 hover:text-white cursor-pointer">
+                        <button type="button" wire:click="closeModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -140,12 +147,12 @@
                         <div class="p-6 space-y-4">
                             <!-- Serial Number (SN) -->
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
                                     Serial Number *
                                 </label>
                                 <input type="text"
                                        wire:model="sn"
-                                       class="w-full text-xs font-mono font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
+                                       class="w-full text-base sm:text-lg font-mono font-bold px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900 tracking-wider">
                                 @error('sn') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
@@ -156,7 +163,7 @@
                                 </label>
                                 <input type="text"
                                        wire:model="nama"
-                                       class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
+                                       class="w-full text-sm font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
                                 @error('nama') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
@@ -167,7 +174,7 @@
                                 </label>
                                 <input type="text"
                                        wire:model="merk_tipe_spek"
-                                       class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
+                                       class="w-full text-sm font-semibold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
                                 @error('merk_tipe_spek') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
@@ -178,7 +185,7 @@
                                 </label>
                                 <input type="text"
                                        wire:model="distributor"
-                                       class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
+                                       class="w-full text-sm font-semibold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
                                 @error('distributor') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
                         </div>

@@ -87,15 +87,16 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
   - Pencatatan kas modal awal kasir untuk memastikan kesesuaian fisik uang cash:
     $$\text{Total Cash Sistem} = \text{Modal Awal (Cash)} + \text{Penjualan Cash} + \text{Servis Cash} - \text{Kas Keluar Cash}$$
   - Deteksi status cash harian (klop, minus, atau surplus).
-- **4. Tutup Kasir & Riwayat Tutup Kas** (`/tutup-kas`):
-  - Fitur closing kasir di akhir hari/shift pada halaman Transaksi Harian untuk mencocokkan fisik uang tunai laci dengan hitungan sistem.
-  - Kasir menginput **Kas Fisik** (hasil hitung uang riil di laci).
-  - Sistem menghitung selisih:
-    $$\text{Selisih} = \text{Kas Fisik} - \text{Kas Sistem}$$
-    - `Rp 0` (Klop / Cocok)
-    - Negatif (Minus / Tekor)
-    - Positif (Surplus / Lebih)
-  - Riwayat tersimpan pada tabel `tutup_kas` dan ditampilkan di menu **Tutup Kas** lengkap dengan rincian modal awal, omzet cash, kas keluar, kas fisik, selisih, dan catatan kasir.
+- **4. Cek Kas Cepat / Audit Laci (Snapshot Kasir Tanpa Kunci Transaksi)**:
+  - *Menggantikan fitur Tutup Kasir / Closing Kasir konvensional yang sudah tidak relevan*.
+  - Kasir, Superadmin, atau Owner dapat melakukan pengecekan/audit kas fisik di laci kapan saja (pagi, siang, sore, malam) tanpa mengunci transaksi.
+  - Alur cepat:
+    1. Klik tombol **Cek Kas Cepat / Audit Laci**.
+    2. Input nominal fisik di laci + catatan (opsional).
+    3. Sistem otomatis menghitung snapshot selisih: $\text{Selisih} = \text{Kas Fisik} - \text{Kas Sistem}$.
+    4. Simpan log snapshot ke tabel `cek_kas_logs` (`id`, `cabang_id`, `user_id`, `waktu_cek`, `kas_sistem`, `kas_fisik`, `selisih`, `catatan`).
+    5. Riwayat audit hari ini langsung tampil di bawah modal/halaman transaksi.
+  - Kasir tetap dapat melanjutkan transaksi kasir seperti biasa.
 
 ### F. Metrik Pendapatan Topbar Superadmin
 - Header navbar khusus Superadmin menampilkan ringkasan performa finansial cabang secara real-time:

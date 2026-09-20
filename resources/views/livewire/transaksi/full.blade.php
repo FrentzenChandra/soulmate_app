@@ -12,72 +12,208 @@
             <p class="text-xs text-gray-500 font-medium mt-1">Rekapitulasi lengkap transaksi penjualan retail, penerimaan servis, modal HPP, dan kas tunai bersih.</p>
         </div>
 
-        <!-- Quick Date Range -->
-        <div class="flex items-center gap-2">
-            <input type="date"
-                   wire:model.live="startDate"
-                   class="py-2 px-3 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB]">
-            <span class="text-xs font-bold text-gray-400">s.d</span>
-            <input type="date"
-                   wire:model.live="endDate"
-                   class="py-2 px-3 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB]">
+        <!-- Filter Periode (s.d, Bulanan, Tahunan) -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+            <!-- Mode Switcher -->
+            <div class="inline-flex p-1 bg-gray-100 rounded-xl">
+                <button type="button"
+                        wire:click="setPeriodeMode('range')"
+                        class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'range' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
+                    Rentang (s.d)
+                </button>
+                <button type="button"
+                        wire:click="setPeriodeMode('bulanan')"
+                        class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'bulanan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
+                    Bulanan
+                </button>
+                <button type="button"
+                        wire:click="setPeriodeMode('tahunan')"
+                        class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'tahunan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
+                    Tahunan
+                </button>
+            </div>
+
+            <!-- Inputs based on mode -->
+            @if($periodeMode === 'range')
+                <div class="flex items-center gap-2">
+                    <input type="date"
+                           wire:model.live="startDate"
+                           class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB]">
+                    <span class="text-xs font-bold text-gray-400">s.d</span>
+                    <input type="date"
+                           wire:model.live="endDate"
+                           class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB]">
+                </div>
+            @elseif($periodeMode === 'bulanan')
+                <div class="flex items-center gap-2">
+                    <select wire:model.live="filterBulan"
+                            class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] cursor-pointer">
+                        <option value="01">Januari</option>
+                        <option value="02">Februari</option>
+                        <option value="03">Maret</option>
+                        <option value="04">April</option>
+                        <option value="05">Mei</option>
+                        <option value="06">Juni</option>
+                        <option value="07">Juli</option>
+                        <option value="08">Agustus</option>
+                        <option value="09">September</option>
+                        <option value="10">Oktober</option>
+                        <option value="11">November</option>
+                        <option value="12">Desember</option>
+                    </select>
+                    <select wire:model.live="filterTahun"
+                            class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] cursor-pointer">
+                        @for($y = (int) now()->year + 1; $y >= 2023; $y--)
+                            <option value="{{ $y }}">{{ $y }}</option>
+                        @endfor
+                    </select>
+                </div>
+            @elseif($periodeMode === 'tahunan')
+                <div class="flex items-center gap-2">
+                    <select wire:model.live="filterTahun"
+                            class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] cursor-pointer">
+                        @for($y = (int) now()->year + 1; $y >= 2023; $y--)
+                            <option value="{{ $y }}">{{ $y }}</option>
+                        @endfor
+                    </select>
+                </div>
+            @endif
         </div>
     </div>
 
     <!-- Summary Metrics Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Saldo Kas Tunai Bersih -->
-        <div class="bg-white p-4 rounded-2xl border border-emerald-200/80 shadow-xs relative overflow-hidden">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <!-- OMZET - KAS KELUAR -->
+        <div class="bg-white p-3.5 rounded-2xl border border-emerald-200/80 shadow-xs relative overflow-hidden bg-emerald-50/20">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Saldo Kas Tunai Bersih</span>
-                <span class="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 font-bold text-xs">Cash</span>
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">OMZET - KAS KELUAR</span>
+                <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-extrabold text-[9px] uppercase">Arus Kas</span>
             </div>
-            <span class="text-xl font-black text-emerald-600 mt-2 block font-mono">
-                Rp {{ number_format($saldoKasTunaiBersih, 0, ',', '.') }}
-            </span>
-            <span class="text-[10px] text-gray-400 font-medium block mt-1">
-                (Penjualan Cash + Servis Cash) &minus; Kas Keluar Cash
-            </span>
+
+            <div class="mt-2 space-y-2">
+                <!-- Kas Real Lunas -->
+                <div class="p-2 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                    <div class="flex items-center justify-between text-xs font-bold text-emerald-900">
+                        <span>Kas Real (Lunas):</span>
+                        <span class="text-emerald-600 font-black font-mono">Rp {{ number_format($saldoBersihReal, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="mt-1 flex items-center justify-between text-[10px] text-gray-500 font-mono">
+                        <span>+ Masuk Lunas: Rp {{ number_format($totalPemasukanLunasAll, 0, ',', '.') }}</span>
+                        <span>&minus; Kas Keluar: Rp {{ number_format($totalKasKeluarAll, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+
+                <!-- Saldo + Piutang / Bon -->
+                <div class="p-2 rounded-xl bg-purple-50/60 border border-purple-100">
+                    <div class="flex items-center justify-between text-xs font-bold text-purple-900">
+                        <span>Saldo (+ Piutang Bon):</span>
+                        <span class="text-[#5E17EB] font-black font-mono">Rp {{ number_format($saldoBersihPlusBon, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-[10px] text-gray-500 font-mono">
+                        <span>+ Masuk Lunas: Rp {{ number_format($totalPemasukanLunasAll, 0, ',', '.') }}</span>
+                        <span class="text-amber-700 font-semibold">+ Bon: Rp {{ number_format($totalBelumLunasAll, 0, ',', '.') }}</span>
+                        <span>&minus; Kas Keluar: Rp {{ number_format($totalKasKeluarAll, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Rincian Kas Tunai Masuk -->
-        <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Penjualan & Servis Tunai</span>
-            <div class="mt-2 space-y-1">
+        <!-- Penjualan Produk -->
+        <div class="bg-white p-3.5 rounded-2xl border border-gray-200/80 shadow-xs">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Penjualan Produk</span>
+            <div class="mt-1.5 space-y-0.5">
                 <div class="flex justify-between text-xs font-bold">
-                    <span class="text-gray-500">Produk (Cash):</span>
-                    <span class="text-gray-900 font-mono">Rp {{ number_format($totalPenjualanCash, 0, ',', '.') }}</span>
+                    <span class="text-gray-500">Lunas:</span>
+                    <span class="text-gray-900 font-mono">Rp {{ number_format($totalPenjualanLunasAll, 0, ',', '.') }}</span>
                 </div>
                 <div class="flex justify-between text-xs font-bold">
-                    <span class="text-gray-500">Servis (Cash):</span>
-                    <span class="text-[#0052FF] font-mono">Rp {{ number_format($totalServisCash, 0, ',', '.') }}</span>
+                    <span class="text-amber-600">Bon:</span>
+                    <span class="text-amber-600 font-mono">Rp {{ number_format($totalPenjualanBon, 0, ',', '.') }}</span>
+                </div>
+            </div>
+            <div class="mt-1.5 pt-1.5 border-t border-gray-100 space-y-0.5 text-[10px]">
+                <div class="flex justify-between font-semibold text-emerald-800">
+                    <span>Nett Lunas:</span>
+                    <span class="font-mono font-bold text-emerald-600">Rp {{ number_format($marginPenjualanLunas, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between font-semibold text-purple-800">
+                    <span>Nett (+ Bon):</span>
+                    <span class="font-mono font-bold text-[#5E17EB]">Rp {{ number_format($marginPenjualanTotal, 0, ',', '.') }}</span>
                 </div>
             </div>
         </div>
 
-        <!-- Total Kas Keluar Tunai -->
-        <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-            <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Kas Keluar Tunai</span>
-                <span class="text-[10px] font-bold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded">Pengeluaran</span>
+        <!-- Layanan Servis -->
+        <div class="bg-white p-3.5 rounded-2xl border border-gray-200/80 shadow-xs">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Layanan Servis</span>
+            <div class="mt-1.5 space-y-0.5">
+                <div class="flex justify-between text-xs font-bold">
+                    <span class="text-gray-500">Lunas:</span>
+                    <span class="text-[#0052FF] font-mono">Rp {{ number_format($totalServisLunasAll, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between text-xs font-bold">
+                    <span class="text-amber-600">Belum Lunas:</span>
+                    <span class="text-amber-600 font-mono">Rp {{ number_format($totalServisBelumLunas, 0, ',', '.') }}</span>
+                </div>
             </div>
-            <span class="text-xl font-black text-rose-600 mt-2 block font-mono">
-                Rp {{ number_format($totalKasKeluarCash, 0, ',', '.') }}
+            <div class="mt-1.5 pt-1.5 border-t border-gray-100 space-y-0.5 text-[10px]">
+                <div class="flex justify-between font-semibold text-blue-800">
+                    <span>Nett Lunas:</span>
+                    <span class="font-mono font-bold text-[#0052FF]">Rp {{ number_format($marginServisLunas, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between font-semibold text-purple-800">
+                    <span>Nett (+ Bon):</span>
+                    <span class="font-mono font-bold text-[#5E17EB]">Rp {{ number_format($marginServisTotal, 0, ',', '.') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Bon / Piutang Belum Lunas -->
+        <div class="bg-white p-3.5 rounded-2xl border border-amber-200/80 shadow-xs bg-amber-50/20">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Total Piutang & Bon</span>
+                <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-extrabold text-[9px] uppercase">Belum Lunas</span>
+            </div>
+            <span class="text-lg font-black text-amber-600 mt-1.5 block font-mono">
+                Rp {{ number_format($totalBelumLunasAll, 0, ',', '.') }}
             </span>
-            <span class="text-[10px] text-gray-400 font-medium block mt-1">
-                Total semua biaya: Rp {{ number_format($totalKasKeluarAll, 0, ',', '.') }}
+            <span class="text-[10px] text-amber-700/80 font-medium block mt-0.5">
+                Produk & Servis belum dibayar
             </span>
         </div>
 
-        <!-- Total Laba Bersih (Nett) -->
-        <div class="bg-white p-4 rounded-2xl border border-purple-200/80 shadow-xs">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Total Laba (Nett)</span>
-            <span class="text-xl font-black text-[#5E17EB] mt-2 block font-mono">
-                Rp {{ number_format($totalMarginAll, 0, ',', '.') }}
-            </span>
-            <span class="text-[10px] text-gray-400 font-medium block mt-1">
-                Omzet: Rp {{ number_format($totalOmzetAll, 0, ',', '.') }} &bull; HPP: Rp {{ number_format($totalModalAll, 0, ',', '.') }}
-            </span>
+        <!-- Total Laba Bersih (Nett Profit) -->
+        <div class="bg-white p-3.5 rounded-2xl border border-purple-200/80 shadow-xs">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Laba Bersih (Nett)</span>
+                <span class="px-1.5 py-0.5 rounded bg-purple-100 text-[#5E17EB] font-extrabold text-[9px] uppercase">Margin &minus; Kas Keluar</span>
+            </div>
+            <div class="mt-2 space-y-2">
+                <!-- Laba Real Lunas -->
+                <div class="p-2 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                    <div class="flex items-center justify-between text-xs font-bold text-emerald-900">
+                        <span>Laba Real (Lunas):</span>
+                        <span class="text-emerald-600 font-black font-mono">Rp {{ number_format($labaBersihReal, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="mt-1 flex items-center justify-between text-[10px] text-gray-500 font-mono">
+                        <span>+ Margin Lunas: Rp {{ number_format($totalMarginLunas, 0, ',', '.') }}</span>
+                        <span>&minus; Kas Keluar: Rp {{ number_format($totalKasKeluarAll, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+
+                <!-- Laba + Piutang / Bon -->
+                <div class="p-2 rounded-xl bg-purple-50/60 border border-purple-100">
+                    <div class="flex items-center justify-between text-xs font-bold text-purple-900">
+                        <span>Laba (+ Piutang Bon):</span>
+                        <span class="text-[#5E17EB] font-black font-mono">Rp {{ number_format($labaBersihPlusBon, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-[10px] text-gray-500 font-mono">
+                        <span>+ Margin Lunas: Rp {{ number_format($totalMarginLunas, 0, ',', '.') }}</span>
+                        <span class="text-amber-700 font-semibold">+ Margin Bon: Rp {{ number_format($totalMarginBon, 0, ',', '.') }}</span>
+                        <span>&minus; Kas Keluar: Rp {{ number_format($totalKasKeluarAll, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -152,14 +288,10 @@
             </div>
             <div class="flex items-center gap-3 text-xs text-gray-500 font-semibold flex-wrap">
                 <!-- Font Size Selector -->
-                <div class="inline-flex items-center p-0.5 bg-gray-100 rounded-xl border border-gray-200">
-                    <button type="button" @click="setTableSize('sm')" :class="tableSize === 'sm' ? 'bg-white text-[#5E17EB] shadow-xs font-black' : 'text-gray-500 font-semibold hover:text-gray-700'" class="px-2 py-0.5 text-[11px] rounded-lg transition-all cursor-pointer" title="Font Kecil (Compact)">S</button>
-                    <button type="button" @click="setTableSize('md')" :class="tableSize === 'md' ? 'bg-white text-[#5E17EB] shadow-xs font-black' : 'text-gray-500 font-semibold hover:text-gray-700'" class="px-2 py-0.5 text-[11px] rounded-lg transition-all cursor-pointer" title="Font Sedang (Default)">M</button>
-                    <button type="button" @click="setTableSize('lg')" :class="tableSize === 'lg' ? 'bg-white text-[#5E17EB] shadow-xs font-black' : 'text-gray-500 font-semibold hover:text-gray-700'" class="px-2 py-0.5 text-[11px] rounded-lg transition-all cursor-pointer" title="Font Besar">L</button>
-                </div>
+                <x-table-size-selector />
 
                 <template x-if="selectedCount > 0">
-                    <span class="px-2 py-0.5 rounded-md bg-purple-50 text-[#5E17EB] font-bold text-[11px] border border-purple-200"
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[11px] border border-emerald-200"
                           x-text="selectedCount + ' dipilih'"></span>
                 </template>
                 <span class="text-[11px] text-gray-400 font-medium hidden md:inline-flex items-center gap-1">
@@ -170,7 +302,7 @@
             </div>
         </div>
 
-        <div :class="'tabulator-size-' + tableSize">
+        <div :class="'tabulator-size-' + tableSize + ' table-size-' + tableSize">
             <div x-ref="tableContainer" class="rounded-xl border border-gray-200 text-xs"></div>
         </div>
     </div>
@@ -185,11 +317,12 @@ window.tabulatorFullTable = function(config) {
         quickSearch: '',
         rowCount: (config.tableData || []).length,
         selectedCount: 0,
-        tableSize: localStorage.getItem('tabulator_table_size') || 'md',
+        tableSize: localStorage.getItem('soulmate_table_size') || 'md',
 
         setTableSize(size) {
             this.tableSize = size;
-            localStorage.setItem('tabulator_table_size', size);
+            localStorage.setItem('soulmate_table_size', size);
+            window.dispatchEvent(new CustomEvent('table-size-changed', { detail: size }));
             if (this.table) {
                 this.table.redraw(true);
             }
@@ -200,6 +333,13 @@ window.tabulatorFullTable = function(config) {
         },
 
         initTable() {
+            window.addEventListener('table-size-changed', (e) => {
+                this.tableSize = e.detail;
+                if (this.table) {
+                    this.table.redraw(true);
+                }
+            });
+
             if (!window.Tabulator) {
                 console.error('Tabulator not loaded');
                 return;
@@ -233,14 +373,35 @@ window.tabulatorFullTable = function(config) {
                         return `<span class="inline-flex px-2 py-0.5 rounded-md text-[10px] font-black ${isPJ ? 'bg-purple-50 text-[#5E17EB] border border-purple-200' : 'bg-blue-50 text-[#0052FF] border border-blue-200'}">${val}</span>`;
                     }},
                     { title: "Pelanggan", field: "customer", widthGrow: 1, minWidth: 95, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-bold text-gray-800 text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
-                    { title: "Detail Barang / Jasa", field: "item_detail", widthGrow: 2, minWidth: 140, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="text-gray-600 font-medium text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
+                    { title: "Detail Barang & Jasa", field: "item_detail", widthGrow: 2, minWidth: 150, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => {
+                        const data = cell.getData();
+                        const items = data.items_list || (cell.getValue() ? [cell.getValue()] : []);
+                        if (!items || items.length === 0) return '<span class="text-gray-400 italic text-[11px]">-</span>';
+                        return `<div class="tabulator-cell-list py-1 flex flex-col gap-1 text-[11px] leading-tight">` +
+                            items.map(it => `<div class="flex items-start gap-1.5 text-gray-700"><span class="w-1.5 h-1.5 rounded-full bg-[#5E17EB] mt-1 shrink-0"></span><span class="font-medium">${it}</span></div>`).join('') +
+                        `</div>`;
+                    }},
                     { title: "Modal (HPP)", field: "modal", hozAlign: "right", width: 100, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-semibold text-gray-500 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
                     { title: "Harga Jual", field: "harga_jual", hozAlign: "right", width: 105, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-black text-gray-900 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
                     { title: "Laba (Nett)", field: "margin", hozAlign: "right", width: 105, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => {
                         const val = cell.getValue();
                         return `<span class="font-mono font-black text-[11px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
                     }},
-                    { title: "Pajak", field: "pajak", hozAlign: "right", width: 80, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono text-gray-500 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
+                    { title: "Pajak", field: "pajak", hozAlign: "right", width: 115, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => {
+                        const val = cell.getValue();
+                        const data = cell.getData();
+                        const tipe = data.pajak_tipe || (val > 0 ? 'PPN' : 'Non-PPN');
+                        if (val > 0) {
+                            return `<div class="flex flex-col items-end leading-tight">
+                                <span class="font-mono font-black text-gray-900 text-[11px]">${this.formatRupiah(val)}</span>
+                                <span class="text-[9px] font-extrabold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200/80 mt-0.5 whitespace-nowrap">${tipe}</span>
+                            </div>`;
+                        }
+                        return `<div class="flex flex-col items-end leading-tight">
+                            <span class="font-mono text-gray-400 text-[11px]">Rp 0</span>
+                            <span class="text-[9px] font-semibold text-gray-400 mt-0.5 whitespace-nowrap">${tipe}</span>
+                        </div>`;
+                    }},
                     { title: "Status", field: "status", width: 75, hozAlign: "center", headerFilter: "list", headerFilterParams: { valuesLookup: "all", clearable: true, multiselect: true }, headerFilterFunc: multiSelectFilterFunc, formatter: (cell) => {
                         const isLunas = cell.getValue() === 'Lunas';
                         return `<span class="inline-flex px-2 py-0.5 rounded text-[10px] font-black ${isLunas ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">${cell.getValue()}</span>`;

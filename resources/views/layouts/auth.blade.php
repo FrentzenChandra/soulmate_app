@@ -37,6 +37,29 @@
         {{ $slot }}
     </main>
 
+    @if (session()->has('success') || session()->has('error') || session()->has('warning') || session()->has('info') || session()->has('status'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                @if (session()->has('success'))
+                    if (window.swalToast) window.swalToast('success', 'Berhasil', {!! json_encode(session('success')) !!});
+                @endif
+                @if (session()->has('error'))
+                    if (window.swalToast) window.swalToast('error', 'Pemberitahuan', {!! json_encode(session('error')) !!});
+                @endif
+                @if (session()->has('warning'))
+                    if (window.swalToast) window.swalToast('warning', 'Peringatan', {!! json_encode(session('warning')) !!});
+                @endif
+                @if (session()->has('info'))
+                    if (window.swalToast) window.swalToast('info', 'Info', {!! json_encode(session('info')) !!});
+                @endif
+                @if (session()->has('status'))
+                    if (window.swalToast) window.swalToast('info', 'Status', {!! json_encode(session('status')) !!});
+                @endif
+            });
+        </script>
+    @endif
+
     @livewireScripts
+    @stack('scripts')
 </body>
 </html>

@@ -79,7 +79,7 @@ class Index extends Component
             'ok' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'selesai')->count(),
         ];
 
-        // Penjualan & Omzet (Hanya Transaksi Riil/Nyata)
+        // Penjualan & Omzet (Hanya Transaksi Real/Nyata)
         $penjualanQuery = Penjualan::query()
             ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
             ->where('is_real', true)

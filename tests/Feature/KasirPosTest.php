@@ -456,4 +456,52 @@ class KasirPosTest extends TestCase
                 return ! $produks->contains('id', $inactiveProduct->id);
             });
     }
+
+    public function test_cannot_save_bon_without_customer(): void
+    {
+        $this->actingAs($this->kasir);
+
+        Livewire::test(Index::class)
+            ->call('addToCart', $this->produk1->id)
+            ->set('customerType', 'umum')
+            ->call('simpanSebagaiBon')
+            ->assertDispatched('swal:warning')
+            ->assertSet('modalSuccessOpen', false);
+    }
+
+    public function test_can_save_bon_with_customer_and_decrements_stock(): void
+    {
+        $this->actingAs($this->kasir);
+
+        $customer = \App\Models\Customer::create([
+            'nama' => 'Budi Santoso Bon',
+            'no_hp' => '081234567890',
+            'cabang_id' => $this->cabangPkp->id,
+        ]);
+
+        Livewire::test(Index::class)
+            ->call('addToCart', $this->produk1->id)
+            ->call('selectCustomer', $customer->id)
+            ->call('simpanSebagaiBon')
+            ->assertSet('modalSuccessOpen', true)
+            ->assertSet('cart', []);
+
+        $this->assertDatabaseHas('penjualans', [
+            'cabang_id' => $this->cabangPkp->id,
+            'customer_id' => $customer->id,
+            'status' => 'bon',
+            'metode_bayar' => 'bon',
+            'jumlah_bayar' => 0,
+            'kembalian' => 0,
+            'total' => 175000,
+            'is_real' => true,
+        ]);
+
+        // Stok berkurang dari 10 menjadi 9
+        $this->assertDatabaseHas('stoks', [
+            'produk_id' => $this->produk1->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 9,
+        ]);
+    }
 }

@@ -34,7 +34,7 @@ return new class extends Migration
 
             $table->string('metode_bayar', 30)->nullable()->comment('cash, transfer, qris, debit, dll (opsional/disembunyikan)');
             $table->string('status', 20)->default('lunas')->comment('lunas, batal');
-            $table->boolean('is_real')->default(true)->comment('true = penjualan riil potong stok & masuk omset; false = nota simulasi/non-real');
+            $table->boolean('is_real')->default(true)->comment('true = penjualan Real potong stok & masuk omset; false = nota simulasi/non-real');
             $table->text('catatan')->nullable();
             $table->timestamps();
 

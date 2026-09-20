@@ -110,15 +110,55 @@ class Index extends Component
         $this->perPage += 15;
     }
 
+    public function generateNextKodeItem(string $jenis): string
+    {
+        $prefix = ($jenis === 'sparepart') ? 'SP-' : 'JS-';
+        $existing = MasterServis::where('kode_item', 'LIKE', $prefix . '%')->pluck('kode_item')->toArray();
+
+        $max = 0;
+        foreach ($existing as $code) {
+            if (preg_match('/^' . preg_quote($prefix, '/') . '(\d+)$/', $code, $matches)) {
+                $num = (int) $matches[1];
+                if ($num > $max) {
+                    $max = $num;
+                }
+            }
+        }
+
+        $nextNum = $max + 1;
+        return $prefix . str_pad((string) $nextNum, 3, '0', STR_PAD_LEFT);
+    }
+
+    public function setJenis(string $jenis): void
+    {
+        $this->jenis = $jenis;
+        if (! $this->isEditMode) {
+            $otherPrefix = $jenis === 'sparepart' ? 'JS-' : 'SP-';
+            if (empty($this->kode_item) || str_starts_with($this->kode_item, $otherPrefix) || str_starts_with($this->kode_item, 'SRV-')) {
+                $this->kode_item = $this->generateNextKodeItem($jenis);
+            }
+        }
+    }
+
+    public function updatedJenis($value): void
+    {
+        if (! $this->isEditMode) {
+            $otherPrefix = $value === 'sparepart' ? 'JS-' : 'SP-';
+            if (empty($this->kode_item) || str_starts_with($this->kode_item, $otherPrefix) || str_starts_with($this->kode_item, 'SRV-')) {
+                $this->kode_item = $this->generateNextKodeItem((string) $value);
+            }
+        }
+    }
+
     public function openCreateModal(): void
     {
         $this->resetForm();
         $this->isEditMode = false;
         $this->selectedItemId = null;
+        $this->jenis = 'jasa';
 
-        // Auto generate kode item saran
-        $count = MasterServis::count() + 1;
-        $this->kode_item = 'SRV-' . str_pad((string) $count, 3, '0', STR_PAD_LEFT);
+        // Auto generate kode item saran sesuai jenis (JS-001 / SP-001)
+        $this->kode_item = $this->generateNextKodeItem('jasa');
 
         $cabangs = Cabang::where('status', 'aktif')->get();
         foreach ($cabangs as $c) {
@@ -389,7 +429,9 @@ class Index extends Component
             $query->orderBy($sortColumn, $sortDir);
         }
 
-        $items = $query->paginate($this->perPage);
+        $totalItems = (clone $query)->count();
+        $items = $query->take($this->perPage)->get();
+        $hasMore = $totalItems > $this->perPage;
 
         // Stats Ringkas
         $totalJasa = MasterServis::where('jenis', 'jasa')->where('is_aktif', true)->count();
@@ -397,6 +439,8 @@ class Index extends Component
 
         return view('livewire.master.servis.index', [
             'items' => $items,
+            'totalItems' => $totalItems,
+            'hasMore' => $hasMore,
             'totalJasa' => $totalJasa,
             'totalSparepart' => $totalSparepart,
             'activeCabang' => $activeCabang,

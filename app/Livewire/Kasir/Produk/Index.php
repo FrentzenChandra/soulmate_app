@@ -579,7 +579,7 @@ class Index extends Component
                 'catatan' => $this->catatan ?: null,
             ]);
 
-            // 3. Simpan Detail Item & Kurangi Stok (Hanya Jika Transaksi Riil)
+            // 3. Simpan Detail Item & Kurangi Stok (Hanya Jika Transaksi Real)
             foreach ($this->cart as $item) {
                 PenjualanDetail::create([
                     'penjualan_id' => $penjualan->id,
@@ -617,6 +617,121 @@ class Index extends Component
             DB::rollBack();
             $this->dispatch('swal:error', [
                 'title' => 'Gagal Memproses Transaksi',
+                'text' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function simpanSebagaiBon(): void
+    {
+        if (empty($this->cart)) {
+            $this->dispatch('swal:warning', [
+                'title' => 'Keranjang Kosong',
+                'text' => 'Tambahkan produk ke keranjang terlebih dahulu.',
+            ]);
+
+            return;
+        }
+
+        $cabang = $this->activeCabang;
+        if (! $cabang) {
+            $this->dispatch('swal:error', ['title' => 'Error', 'text' => 'Cabang aktif tidak valid.']);
+
+            return;
+        }
+
+        if ($this->customerType !== 'langganan' || ! $this->selectedCustomerId) {
+            $this->dispatch('swal:warning', [
+                'title' => 'Pelanggan Wajib Dipilih',
+                'text' => 'Transaksi Bon (Belum Lunas) wajib memilih data Pelanggan (Nama & No. WhatsApp). Silakan pilih atau tambah pelanggan terlebih dahulu.',
+            ]);
+
+            return;
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $now = now();
+            $dateCode = $now->format('ymd');
+            $kodeCabangClean = str_replace('-', '', $cabang->kode_cabang);
+            $prefix = "INV-PJ-{$kodeCabangClean}-{$dateCode}-";
+
+            // 1. Lock & Generate Nomor Transaksi Harian Per Cabang
+            $lastTx = Penjualan::where('cabang_id', $cabang->id)
+                ->where('no_transaksi', 'LIKE', $prefix . '%')
+                ->lockForUpdate()
+                ->orderByDesc('id')
+                ->first();
+
+            $nextSeq = 1;
+            if ($lastTx && preg_match('/-(\d+)$/', $lastTx->no_transaksi, $m)) {
+                $nextSeq = (int) $m[1] + 1;
+            }
+
+            $noUrut = str_pad((string) $nextSeq, 5, '0', STR_PAD_LEFT);
+            $noTransaksi = "{$prefix}{$noUrut}";
+
+            // 2. Simpan Data Penjualan Bon
+            $penjualan = Penjualan::create([
+                'no_transaksi' => $noTransaksi,
+                'cabang_id' => $cabang->id,
+                'kasir_id' => Auth::id(),
+                'customer_id' => $this->selectedCustomerId,
+                'servis_id' => null,
+                'tipe_transaksi' => 'penjualan_barang',
+                'tanggal' => $now,
+                'subtotal' => round((float) $this->subtotal, 2),
+                'diskon' => round((float) $this->diskon, 2),
+                'ppn_id' => $this->selectedPpnId,
+                'ppn_persen' => round((float) $this->ppnPersen, 2),
+                'ppn_nominal' => round((float) $this->ppnNominal, 2),
+                'total' => round((float) $this->grandTotal, 2),
+                'jumlah_bayar' => 0,
+                'kembalian' => 0,
+                'metode_bayar' => 'bon',
+                'status' => 'bon',
+                'is_real' => $this->isReal,
+                'catatan' => $this->catatan ? trim($this->catatan) : 'Penjualan Bon (Belum Lunas)',
+            ]);
+
+            // 3. Simpan Detail Item & Kurangi Stok (Hanya Jika Transaksi Real)
+            foreach ($this->cart as $item) {
+                PenjualanDetail::create([
+                    'penjualan_id' => $penjualan->id,
+                    'tipe_item' => 'barang',
+                    'produk_id' => $item['id'],
+                    'nama_item' => $item['nama'],
+                    'qty' => $item['qty'],
+                    'harga' => $item['harga'],
+                    'subtotal' => $item['subtotal'],
+                ]);
+
+                if ($this->isReal) {
+                    $stok = Stok::where('produk_id', $item['id'])
+                        ->where('cabang_id', $cabang->id)
+                        ->first();
+
+                    if ($stok) {
+                        $stok->decrement('jumlah', $item['qty']);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            if ($this->isReal) {
+                $this->dispatch('stockUpdated');
+            }
+
+            $this->lastPenjualanId = $penjualan->id;
+            $this->modalSuccessOpen = true;
+            $this->clearCart();
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->dispatch('swal:error', [
+                'title' => 'Gagal Menyimpan Bon',
                 'text' => $e->getMessage(),
             ]);
         }

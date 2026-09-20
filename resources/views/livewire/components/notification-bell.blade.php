@@ -8,8 +8,8 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
         </svg>
 
-        <!-- Red Badge if Empty Stock Exists -->
-        @if($emptyCount > 0)
+        <!-- Red Badge if Empty Stock or Missing Modal Awal Exists -->
+        @if($modalAwalAlertCount > 0 || $emptyCount > 0)
             <span class="absolute top-1 right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-rose-600 text-[10px] font-black text-white ring-2 ring-white animate-pulse">
                 {{ $totalAlerts }}
             </span>
@@ -36,15 +36,21 @@
         <div class="px-4 pb-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-2">
-                    <span class="w-2 h-2 rounded-full {{ $emptyCount > 0 ? 'bg-rose-500 animate-pulse' : ($criticalCount > 0 ? 'bg-amber-500' : 'bg-emerald-500') }}"></span>
-                    <h4 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider">Peringatan Stok</h4>
+                    <span class="w-2 h-2 rounded-full {{ ($modalAwalAlertCount > 0 || $emptyCount > 0) ? 'bg-rose-500 animate-pulse' : ($criticalCount > 0 ? 'bg-amber-500' : 'bg-emerald-500') }}"></span>
+                    <h4 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider">Notifikasi</h4>
                 </div>
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
                     {{ $contextName }}
                 </span>
             </div>
 
-            <div class="flex items-center space-x-2 mt-2">
+            <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                @if($modalAwalAlertCount > 0)
+                    <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 text-[10px] font-extrabold border border-rose-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                        <span>Modal Awal Belum Input</span>
+                    </span>
+                @endif
                 @if($emptyCount > 0)
                     <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 text-[10px] font-extrabold border border-rose-200">
                         <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
@@ -59,11 +65,42 @@
                 @endif
                 @if($totalAlerts === 0)
                     <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-200">
-                        <span>Semua Stok Aman</span>
+                        <span>Semua Kondisi Aman</span>
                     </span>
                 @endif
             </div>
         </div>
+
+        <!-- Modal Awal Alert Warning Box -->
+        @if($modalAwalAlertCount > 0)
+            <div class="p-3.5 bg-rose-50/90 border-y border-rose-100 flex items-start space-x-3">
+                <div class="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-black uppercase tracking-wider text-rose-900">Peringatan Modal Awal</span>
+                        <span class="text-[10px] font-extrabold text-rose-700 font-mono bg-rose-100 px-1.5 py-0.2 rounded">&gt; 10:00</span>
+                    </div>
+                    <p class="text-xs font-bold text-rose-800 mt-0.5 leading-snug">
+                        @if($isHQ && $missingModalCabangs->count() > 1)
+                            {{ $missingModalCabangs->count() }} cabang belum mencatat modal awal kasir hari ini.
+                        @elseif($isHQ && $missingModalCabangs->isNotEmpty())
+                            Cabang {{ $missingModalCabangs->first()->nama_cabang }} belum mencatat modal awal kasir hari ini.
+                        @else
+                            Modal awal kasir hari ini belum dicatat!
+                        @endif
+                    </p>
+                    <div class="mt-2">
+                        <a href="{{ route('modal-awal') }}"
+                           class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-black shadow-xs transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            <span>Input Modal Awal</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <!-- Alert Items List with Scrollbar -->
         <div class="py-1 max-h-80 overflow-y-auto divide-y divide-gray-50 custom-scrollbar overscroll-contain">
@@ -142,16 +179,18 @@
         </div>
 
         <!-- Dropdown Footer -->
-        <div class="px-4 pt-2.5 flex items-center justify-between">
+        <div class="px-4 pt-2.5 flex items-center justify-between text-xs font-bold">
+            <a href="{{ route('modal-awal') }}"
+               class="text-gray-600 hover:text-[#5E17EB] flex items-center space-x-1 transition-colors">
+                <span>Modal Awal</span>
+            </a>
             <a href="{{ route('cabang.stok') }}"
-               class="text-xs font-bold text-[#5E17EB] hover:text-purple-700 flex items-center space-x-1 transition-colors">
+               class="text-[#5E17EB] hover:text-purple-700 flex items-center space-x-1 transition-colors">
                 <span>Stok Produk</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </a>
             <a href="{{ route('master.servis') }}"
-               class="text-xs font-bold text-gray-500 hover:text-[#5E17EB] flex items-center space-x-1 transition-colors">
+               class="text-gray-500 hover:text-[#5E17EB] flex items-center space-x-1 transition-colors">
                 <span>Master Servis</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </a>
         </div>
     </div>

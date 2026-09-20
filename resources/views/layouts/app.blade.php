@@ -229,12 +229,6 @@
                         Transaksi FULL
                     </a>
 
-                    <a href="{{ route('tutup-kas') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('tutup-kas*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('tutup-kas*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                        Riwayat Tutup Kas
-                    </a>
-
                     <a href="{{ route('kas-keluar') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('kas-keluar*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('kas-keluar*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -353,12 +347,6 @@
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('transaksi.full*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('transaksi.full*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <span>Transaksi FULL</span>
-                    </a>
-
-                    <a href="{{ route('tutup-kas') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('tutup-kas*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('tutup-kas*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                        <span>Riwayat Tutup Kas</span>
                     </a>
                     @endhasanyrole
 
@@ -617,33 +605,6 @@
 
             <!-- Main Page Slot -->
             <main class="flex-1 overflow-y-auto p-6 md:p-8">
-                <!-- Flash Notification Banner -->
-                @if (session()->has('success'))
-                    <div class="mb-6 px-4 py-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between shadow-sm"
-                         x-data="{ show: true }" x-show="show" x-transition>
-                        <div class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span class="text-sm font-bold">{{ session('success') }}</span>
-                        </div>
-                        <button @click="show = false" class="text-emerald-500 hover:text-emerald-700">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-                @endif
-
-                @if (session()->has('error'))
-                    <div class="mb-6 px-4 py-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between shadow-sm"
-                         x-data="{ show: true }" x-show="show" x-transition>
-                        <div class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                            <span class="text-sm font-bold">{{ session('error') }}</span>
-                        </div>
-                        <button @click="show = false" class="text-rose-500 hover:text-rose-700">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-                @endif
-
                 {{ $slot }}
             </main>
 
@@ -651,57 +612,38 @@
 
     </div>
 
-    <!-- Global Toast Notifications -->
-    <div x-data="{
-            toasts: [],
-            addToast(type, title, text) {
-                const id = Date.now() + Math.random();
-                this.toasts.push({ id, type, title, text });
-                setTimeout(() => {
-                    this.removeToast(id);
-                }, 4000);
-            },
-            removeToast(id) {
-                this.toasts = this.toasts.filter(t => t.id !== id);
-            }
-         }"
-         @swal:success.window="addToast('success', $event.detail.title ?? ($event.detail[0]?.title ?? 'Berhasil'), $event.detail.text ?? ($event.detail[0]?.text ?? ''))"
-         @swal:warning.window="addToast('warning', $event.detail.title ?? ($event.detail[0]?.title ?? 'Peringatan'), $event.detail.text ?? ($event.detail[0]?.text ?? ''))"
-         @swal:error.window="addToast('error', $event.detail.title ?? ($event.detail[0]?.title ?? 'Error'), $event.detail.text ?? ($event.detail[0]?.text ?? ''))"
-         @swal:info.window="addToast('info', $event.detail.title ?? ($event.detail[0]?.title ?? 'Info'), $event.detail.text ?? ($event.detail[0]?.text ?? ''))"
-         class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none max-w-sm w-full px-4 sm:px-0">
-        <template x-for="t in toasts" :key="t.id">
-            <div class="pointer-events-auto p-4 rounded-2xl shadow-xl border flex items-start space-x-3 transition-all transform duration-300"
-                 :class="{
-                     'bg-emerald-900/95 border-emerald-700 text-white': t.type === 'success',
-                     'bg-amber-900/95 border-amber-700 text-white': t.type === 'warning',
-                     'bg-rose-900/95 border-rose-700 text-white': t.type === 'error',
-                     'bg-slate-900/95 border-slate-700 text-white': t.type === 'info'
-                 }">
-                <div class="shrink-0 mt-0.5">
-                    <template x-if="t.type === 'success'">
-                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                    </template>
-                    <template x-if="t.type === 'warning'">
-                        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    </template>
-                    <template x-if="t.type === 'error'">
-                        <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </template>
-                    <template x-if="t.type === 'info'">
-                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </template>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <h5 class="text-xs font-bold leading-tight" x-text="t.title"></h5>
-                    <p class="text-[11px] opacity-90 mt-0.5 leading-snug" x-text="t.text" x-show="t.text"></p>
-                </div>
-                <button @click="removeToast(t.id)" class="text-white/60 hover:text-white shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-        </template>
-    </div>
+    <!-- Unified SweetAlert2 Session Handler -->
+    @if (session()->has('success') || session()->has('error') || session()->has('warning') || session()->has('info') || session()->has('status'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                @if (session()->has('success'))
+                    if (window.swalToast) {
+                        window.swalToast('success', 'Berhasil', {!! json_encode(session('success')) !!});
+                    }
+                @endif
+                @if (session()->has('error'))
+                    if (window.swalToast) {
+                        window.swalToast('error', 'Pemberitahuan', {!! json_encode(session('error')) !!});
+                    }
+                @endif
+                @if (session()->has('warning'))
+                    if (window.swalToast) {
+                        window.swalToast('warning', 'Peringatan', {!! json_encode(session('warning')) !!});
+                    }
+                @endif
+                @if (session()->has('info'))
+                    if (window.swalToast) {
+                        window.swalToast('info', 'Info', {!! json_encode(session('info')) !!});
+                    }
+                @endif
+                @if (session()->has('status'))
+                    if (window.swalToast) {
+                        window.swalToast('info', 'Status', {!! json_encode(session('status')) !!});
+                    }
+                @endif
+            });
+        </script>
+    @endif
 
     @stack('modals')
     @livewireScripts

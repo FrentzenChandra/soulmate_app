@@ -48,7 +48,7 @@ class Index extends Component
     public ?int $selectedMasterServisId = null;
     public string $selectedMasterServisNama = '';
     public string $selectedMasterServisJenis = 'jasa';
-    public float $selectedMasterServisHarga = 0;
+    public $selectedMasterServisHarga = 0;
     public int $itemQty = 1;
     public int $itemGaransiHari = 0;
 
@@ -56,7 +56,7 @@ class Index extends Component
     public bool $modalAmbilOpen = false;
     public ?ServisMasuk $servisToAmbil = null;
     public string $metodePembayaran = 'cash'; // 'cash' | 'transfer' | 'qris'
-    public float $nominalBayar = 0;
+    public $nominalBayar = 0;
     public string $catatanAmbil = '';
 
     public function mount(): void
@@ -168,6 +168,10 @@ class Index extends Component
             return;
         }
 
+        if (is_string($this->selectedMasterServisHarga)) {
+            $this->selectedMasterServisHarga = (float) preg_replace('/[^\d]/', '', $this->selectedMasterServisHarga);
+        }
+
         $this->validate([
             'selectedMasterServisNama' => 'required|string|max:150',
             'selectedMasterServisHarga' => 'required|numeric|min:0',
@@ -175,7 +179,7 @@ class Index extends Component
             'itemGaransiHari' => 'required|integer|min:0|max:3650',
         ]);
 
-        $subtotal = $this->selectedMasterServisHarga * $this->itemQty;
+        $subtotal = (float) $this->selectedMasterServisHarga * (int) $this->itemQty;
 
         ServisDetail::create([
             'servis_id' => $this->editNotaServisId,
@@ -183,7 +187,7 @@ class Index extends Component
             'nama_item' => $this->selectedMasterServisNama,
             'jenis' => $this->selectedMasterServisJenis,
             'qty' => $this->itemQty,
-            'harga' => $this->selectedMasterServisHarga,
+            'harga' => (float) $this->selectedMasterServisHarga,
             'subtotal' => $subtotal,
             'garansi_hari' => $this->itemGaransiHari,
         ]);
@@ -253,6 +257,10 @@ class Index extends Component
     {
         if (! $this->servisToAmbil) return;
 
+        if (is_string($this->nominalBayar)) {
+            $this->nominalBayar = (float) preg_replace('/[^\d]/', '', $this->nominalBayar);
+        }
+
         $totalBiaya = (float) $this->servisToAmbil->total_biaya;
 
         if ($totalBiaya > 0) {
@@ -268,14 +276,14 @@ class Index extends Component
             DB::beginTransaction();
 
             $now = Carbon::now();
-            $kembalian = max(0, $this->nominalBayar - $totalBiaya);
+            $kembalian = max(0, (float) $this->nominalBayar - $totalBiaya);
 
             $this->servisToAmbil->update([
                 'status' => 'sudah_diambil',
                 'tanggal_ambil' => $now,
                 'kasir_id' => Auth::id(),
                 'metode_pembayaran' => $this->metodePembayaran,
-                'bayar' => $this->nominalBayar,
+                'bayar' => (float) $this->nominalBayar,
                 'kembalian' => $kembalian,
             ]);
 

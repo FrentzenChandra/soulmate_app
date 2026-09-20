@@ -286,8 +286,8 @@
                        class="w-full pl-10 pr-4 py-2.5 text-xs font-bold rounded-2xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]">
             </div>
 
-            <!-- Filter Periode Preset -->
-            <div class="md:col-span-4">
+            <!-- Filter Periode Preset & Size -->
+            <div class="md:col-span-4 flex items-center gap-2">
                 <select wire:model.live="periodeFilter"
                         class="w-full text-xs font-bold px-3.5 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] bg-white">
                     <option value="hari_ini">Hari Ini</option>
@@ -297,6 +297,7 @@
                     <option value="bulan_lalu">Bulan Lalu</option>
                     <option value="custom">Rentang Tanggal Khusus</option>
                 </select>
+                <x-table-size-selector />
             </div>
         </div>
 
@@ -361,7 +362,10 @@
     <!-- ============================================== -->
     <!-- TABEL RIWAYAT TRANSAKSI PENJUALAN              -->
     <!-- ============================================== -->
-    <div class="card-custom bg-white overflow-hidden border border-gray-100/90 shadow-sm">
+    <div x-data="{ tableSize: localStorage.getItem('soulmate_table_size') || 'md' }"
+         x-on:table-size-changed.window="tableSize = $event.detail"
+         :class="'table-size-' + tableSize"
+         class="card-custom bg-white overflow-hidden border border-gray-100/90 shadow-sm">
 
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -535,33 +539,33 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-gray-100">
 
                     <!-- Header Modal -->
-                    <div class="p-6 pb-4 border-b border-gray-100 flex items-start justify-between">
-                        <div class="flex items-start space-x-3.5">
-                            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-[#5E17EB] flex items-center justify-center shrink-0 border border-purple-100">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             </div>
-                            <div>
-                                <div class="flex items-center space-x-2">
-                                    <h3 class="text-base font-black text-gray-900 font-mono">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-base font-bold text-white font-mono tracking-tight leading-snug">
                                         {{ $selectedPenjualan->no_transaksi_frontend }}
                                     </h3>
                                     @if(!$selectedPenjualan->is_real)
-                                        <span class="text-[10px] font-black px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
+                                        <span class="text-[10px] font-black px-2 py-0.5 rounded-lg bg-amber-400 text-amber-950">
                                             Transaksi Non-Real
                                         </span>
                                     @else
-                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-white/20 text-white border border-white/30">
                                             Transaksi Real
                                         </span>
                                     @endif
                                 </div>
-                                <p class="text-xs text-gray-500 mt-0.5">
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">
                                     {{ $selectedPenjualan->tanggal ? $selectedPenjualan->tanggal->translatedFormat('d F Y - H:i') . ' WIB' : '-' }}
                                 </p>
                             </div>
                         </div>
 
-                        <button wire:click="closeDetailModal" class="p-2 text-gray-400 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                        <button wire:click="closeDetailModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>

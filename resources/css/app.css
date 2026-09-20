@@ -1,4 +1,5 @@
 @import 'tabulator-tables/dist/css/tabulator_simple.min.css';
+@import 'sweetalert2/dist/sweetalert2.min.css';
 
 @tailwind base;
 @tailwind components;
@@ -74,21 +75,52 @@
     padding: 6px !important;
     max-height: 250px !important;
     z-index: 99999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
 }
 
 .tabulator-edit-list .tabulator-edit-list-item {
     padding: 6px 10px !important;
+    margin-bottom: 2px !important;
     font-size: 11.5px !important;
     font-weight: 600 !important;
     color: #374151 !important;
     border-radius: 0.5rem !important;
     transition: all 0.15s ease !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
 }
 
 .tabulator-edit-list .tabulator-edit-list-item:hover,
 .tabulator-edit-list .tabulator-edit-list-item.tabulator-edit-list-item-hover {
-    background: #f3f4f6 !important;
-    color: #5E17EB !important;
+    background: #ecfdf5 !important;
+    color: #059669 !important;
+}
+
+.tabulator-edit-list .tabulator-edit-list-item.active,
+.tabulator-edit-list .tabulator-edit-list-item:focus {
+    background: #d1fae5 !important;
+    color: #047857 !important;
+}
+
+.tabulator-edit-list input[type="checkbox"],
+.tabulator input[type="checkbox"] {
+    accent-color: #10b981 !important;
+    cursor: pointer !important;
+    width: 14px !important;
+    height: 14px !important;
+    border-radius: 4px !important;
+}
+
+.tabulator .tabulator-row.tabulator-selected {
+    background-color: #ecfdf5 !important;
+}
+
+.tabulator .tabulator-row.tabulator-selected:hover {
+    background-color: #d1fae5 !important;
 }
 
 .tabulator .tabulator-header .tabulator-col .tabulator-col-resize-handle {
@@ -124,6 +156,12 @@
     white-space: nowrap !important;
     text-overflow: ellipsis !important;
     overflow: hidden !important;
+}
+
+.tabulator .tabulator-row .tabulator-cell:has(.tabulator-cell-list) {
+    white-space: normal !important;
+    overflow: visible !important;
+    height: auto !important;
 }
 
 .tabulator .tabulator-footer {
@@ -176,5 +214,443 @@
 .tabulator-size-lg .tabulator .tabulator-row { min-height: 48px !important; }
 .tabulator-size-lg .tabulator .tabulator-cell { font-size: 13.5px !important; padding: 8px 10px !important; }
 .tabulator-size-lg .tabulator .tabulator-cell span { font-size: 13px !important; }
+
+/* ========================================================= */
+/* Universal Blade Table Font Size Modifiers (S, M, L)       */
+/* ========================================================= */
+.table-size-sm table {
+    font-size: 0.75rem !important;
+}
+.table-size-sm table th {
+    padding: 0.375rem 0.625rem !important;
+    font-size: 0.6875rem !important;
+}
+.table-size-sm table td {
+    padding: 0.375rem 0.625rem !important;
+    font-size: 0.75rem !important;
+}
+.table-size-sm table td span, .table-size-sm table td button, .table-size-sm table td a {
+    font-size: 0.75rem !important;
+}
+.table-size-sm table td .badge-tag {
+    font-size: 0.6875rem !important;
+}
+
+.table-size-md table {
+    font-size: 0.8125rem !important;
+}
+.table-size-md table th {
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.75rem !important;
+}
+.table-size-md table td {
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.8125rem !important;
+}
+.table-size-md table td span, .table-size-md table td button, .table-size-md table td a {
+    font-size: 0.8125rem !important;
+}
+
+.table-size-lg table {
+    font-size: 0.9375rem !important;
+}
+.table-size-lg table th {
+    padding: 0.875rem 1rem !important;
+    font-size: 0.875rem !important;
+}
+.table-size-lg table td {
+    padding: 0.875rem 1rem !important;
+    font-size: 0.9375rem !important;
+}
+.table-size-lg table td span, .table-size-lg table td button, .table-size-lg table td a {
+    font-size: 0.9375rem !important;
+}
+
+/* ========================================================= */
+/* SweetAlert2 Modern Pastel Theme (Anti-AI Slop, Clean Pro) */
+/* ========================================================= */
+.swal2-container {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    z-index: 999999 !important;
+}
+
+/* Modal Popup */
+.swal2-popup.swal-custom-modal {
+    border-radius: 1.25rem !important;
+    padding: 1.5rem 1.75rem !important;
+    border: 1px solid #E5E7EB !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+    background: #FFFFFF !important;
+    max-width: 24rem !important;
+    width: 90% !important;
+}
+
+.swal2-popup.swal-custom-modal .swal2-icon {
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+    margin: 0.5rem auto 1rem auto !important;
+    border-width: 3px !important;
+}
+
+.swal2-popup.swal-custom-modal .swal2-icon .swal2-icon-content {
+    font-size: 1.75rem !important;
+}
+
+.swal2-popup.swal-custom-modal .swal2-title {
+    font-size: 1.125rem !important;
+    font-weight: 800 !important;
+    color: #111827 !important;
+    padding: 0 !important;
+    margin: 0 0 0.5rem 0 !important;
+    letter-spacing: -0.02em !important;
+    line-height: 1.3 !important;
+}
+
+.swal2-popup.swal-custom-modal .swal2-html-container {
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+    color: #4B5563 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.5 !important;
+}
+
+.swal2-popup.swal-custom-modal .swal2-actions,
+.swal-confirm-actions {
+    margin-top: 1.25rem !important;
+    gap: 0.625rem !important;
+    width: 100% !important;
+    justify-content: center !important;
+}
+
+.swal-confirm-btn,
+.swal2-popup.swal-custom-modal .swal2-confirm {
+    background-color: #5E17EB !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 0.8125rem !important;
+    padding: 0.625rem 1.5rem !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 4px 12px rgba(94, 23, 235, 0.25) !important;
+    border: none !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer !important;
+    outline: none !important;
+}
+
+.swal-confirm-btn:hover,
+.swal2-popup.swal-custom-modal .swal2-confirm:hover {
+    background-color: #4A10C2 !important;
+}
+
+.swal-confirm-btn-danger {
+    background-color: #EF4444 !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 0.8125rem !important;
+    padding: 0.625rem 1.5rem !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+    border: none !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer !important;
+    outline: none !important;
+}
+
+.swal-confirm-btn-danger:hover {
+    background-color: #DC2626 !important;
+}
+
+.swal-cancel-btn,
+.swal2-popup.swal-custom-modal .swal2-cancel {
+    background-color: #F3F4F6 !important;
+    color: #374151 !important;
+    font-weight: 700 !important;
+    font-size: 0.8125rem !important;
+    padding: 0.625rem 1.25rem !important;
+    border-radius: 0.875rem !important;
+    border: 1px solid #E5E7EB !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer !important;
+    outline: none !important;
+}
+
+.swal-cancel-btn:hover,
+.swal2-popup.swal-custom-modal .swal2-cancel:hover {
+    background-color: #E5E7EB !important;
+}
+
+/* Toast Popup (Pastel Clean Aesthetic - Preserving Grid System) */
+.swal2-popup.swal2-toast.swal-custom-toast {
+    border-radius: 0.875rem !important;
+    padding: 0.75rem 1rem !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+    min-width: 18rem !important;
+    max-width: 24rem !important;
+    border: 1px solid #E5E7EB !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast .swal2-icon {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    min-width: 1.75rem !important;
+    margin: 0 0.75rem 0 0 !important;
+    border-width: 2px !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast .swal2-title {
+    font-size: 0.8125rem !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast .swal2-html-container {
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    line-height: 1.35 !important;
+    margin: 0.2rem 0 0 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast .swal2-html-container:empty {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast .swal2-timer-progress-bar {
+    height: 3px !important;
+}
+
+/* Success: Bright Pastel Mint / Emerald */
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-success {
+    background: #F0FDF4 !important;
+    border: 1px solid #BBF7D0 !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-success .swal2-title {
+    color: #14532D !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-success .swal2-html-container {
+    color: #15803D !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-success .swal2-timer-progress-bar {
+    background: #22C55E !important;
+}
+
+/* Error: Soft Pastel Rose */
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-error {
+    background: #FEF2F2 !important;
+    border: 1px solid #FECDD3 !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-error .swal2-title {
+    color: #7F1D1D !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-error .swal2-html-container {
+    color: #B91C1C !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-error .swal2-timer-progress-bar {
+    background: #EF4444 !important;
+}
+
+/* Warning: Soft Pastel Amber */
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-warning {
+    background: #FFFBEB !important;
+    border: 1px solid #FDE68A !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-warning .swal2-title {
+    color: #78350F !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-warning .swal2-html-container {
+    color: #B45309 !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-warning .swal2-timer-progress-bar {
+    background: #F59E0B !important;
+}
+
+/* Info: Soft Pastel Tech Blue */
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-info {
+    background: #EFF6FF !important;
+    border: 1px solid #BFDBFE !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-info .swal2-title {
+    color: #1E3A8A !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-info .swal2-html-container {
+    color: #2563EB !important;
+}
+
+.swal2-popup.swal2-toast.swal-custom-toast.swal-toast-info .swal2-timer-progress-bar {
+    background: #3B82F6 !important;
+}
+
+/* Unified Controllable Modern SVG Icons */
+.swal2-icon.swal-custom-icon {
+    border: none !important;
+    background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: none !important;
+}
+
+.swal2-icon.swal-custom-icon .swal2-icon-content {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Hide native SweetAlert2 pseudo/internal mask elements */
+.swal2-icon.swal-custom-icon [class^='swal2-success-circular-line'],
+.swal2-icon.swal-custom-icon .swal2-success-fix,
+.swal2-icon.swal-custom-icon .swal2-success-ring,
+.swal2-icon.swal-custom-icon [class^='swal2-success-line'],
+.swal2-icon.swal-custom-icon [class^='swal2-x-mark-line'] {
+    display: none !important;
+}
+
+/* Toast Icon Size */
+.swal2-popup.swal2-toast .swal2-icon.swal-custom-icon {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    min-width: 1.5rem !important;
+    margin: 0 0.625rem 0 0 !important;
+}
+
+.swal2-popup.swal2-toast .swal-svg-icon {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+}
+
+/* Modal Icon Size */
+.swal2-popup.swal-custom-modal .swal2-icon.swal-custom-icon {
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+    margin: 0.25rem auto 0.875rem auto !important;
+}
+
+.swal2-popup.swal-custom-modal .swal-svg-icon {
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+}
+
+/* Icon Colors */
+.swal-icon-success, .swal-svg-success { color: #10B981 !important; }
+.swal-icon-error, .swal-svg-error { color: #EF4444 !important; }
+.swal-icon-warning, .swal-svg-warning { color: #F59E0B !important; }
+.swal-icon-info, .swal-svg-info { color: #3B82F6 !important; }
+
+/* Smooth SVG Draw Animations */
+.swal-svg-circle {
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+    animation: swalCircleDraw 0.4s ease-out forwards;
+}
+
+.swal-svg-check {
+    stroke-dasharray: 20;
+    stroke-dashoffset: 20;
+    animation: swalCheckDraw 0.3s ease-out 0.2s forwards;
+}
+
+.swal-svg-line {
+    stroke-dasharray: 20;
+    stroke-dashoffset: 20;
+    animation: swalCheckDraw 0.3s ease-out 0.2s forwards;
+}
+
+@keyframes swalCircleDraw {
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes swalCheckDraw {
+    to { stroke-dashoffset: 0; }
+}
+
+/* Universal Table Font & Spacing Sizer (S / M / L) */
+.table-size-sm table th,
+.table-size-sm table td {
+    font-size: 0.75rem !important;
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important;
+    padding-left: 0.625rem !important;
+    padding-right: 0.625rem !important;
+}
+.table-size-sm table th {
+    font-size: 0.6875rem !important;
+}
+.table-size-sm .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+    padding: 4px 6px !important;
+    font-size: 10.5px !important;
+}
+.table-size-sm .tabulator .tabulator-row {
+    min-height: 32px !important;
+}
+.table-size-sm .tabulator .tabulator-row .tabulator-cell {
+    padding: 3px 6px !important;
+    font-size: 10.5px !important;
+}
+
+.table-size-md table th,
+.table-size-md table td {
+    font-size: 0.8125rem !important;
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+    padding-left: 0.875rem !important;
+    padding-right: 0.875rem !important;
+}
+.table-size-md table th {
+    font-size: 0.75rem !important;
+}
+.table-size-md .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+}
+.table-size-md .tabulator .tabulator-row {
+    min-height: 40px !important;
+}
+.table-size-md .tabulator .tabulator-row .tabulator-cell {
+    padding: 6px 8px !important;
+    font-size: 11.5px !important;
+}
+
+.table-size-lg table th,
+.table-size-lg table td {
+    font-size: 0.9375rem !important;
+    padding-top: 0.875rem !important;
+    padding-bottom: 0.875rem !important;
+    padding-left: 1.125rem !important;
+    padding-right: 1.125rem !important;
+}
+.table-size-lg table th {
+    font-size: 0.8125rem !important;
+}
+.table-size-lg .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+    padding: 10px 14px !important;
+    font-size: 12.5px !important;
+}
+.table-size-lg .tabulator .tabulator-row {
+    min-height: 48px !important;
+}
+.table-size-lg .tabulator .tabulator-row .tabulator-cell {
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+}
+
 
 

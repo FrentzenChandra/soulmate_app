@@ -97,7 +97,7 @@ class Index extends Component
     public ?int $selectedMasterServisId = null;
     public string $selectedMasterServisNama = '';
     public string $selectedMasterServisJenis = 'jasa';
-    public float $selectedMasterServisHarga = 0;
+    public $selectedMasterServisHarga = 0;
     public int $itemQty = 1;
     public int $itemGaransiHari = 0;
 
@@ -582,6 +582,10 @@ class Index extends Component
     {
         if (! $this->activeServisId) return;
 
+        if (is_string($this->selectedMasterServisHarga)) {
+            $this->selectedMasterServisHarga = (float) preg_replace('/[^\d]/', '', $this->selectedMasterServisHarga);
+        }
+
         $this->validate([
             'selectedMasterServisNama' => 'required|string|max:150',
             'selectedMasterServisHarga' => 'required|numeric|min:0',
@@ -589,7 +593,7 @@ class Index extends Component
             'itemGaransiHari' => 'required|integer|min:0|max:3650',
         ]);
 
-        $subtotal = $this->selectedMasterServisHarga * $this->itemQty;
+        $subtotal = (float) $this->selectedMasterServisHarga * (int) $this->itemQty;
 
         ServisDetail::create([
             'servis_id' => $this->activeServisId,
@@ -597,7 +601,7 @@ class Index extends Component
             'nama_item' => $this->selectedMasterServisNama,
             'jenis' => $this->selectedMasterServisJenis,
             'qty' => $this->itemQty,
-            'harga' => $this->selectedMasterServisHarga,
+            'harga' => (float) $this->selectedMasterServisHarga,
             'subtotal' => $subtotal,
             'garansi_hari' => $this->itemGaransiHari,
         ]);
@@ -662,11 +666,7 @@ class Index extends Component
             // Silently continue
         }
 
-        $servisId = $servis->id;
         $this->closeTindakanModal();
-
-        // Dispatch open print invoice in new tab
-        $this->dispatch('open-print-invoice', url: route('servis.invoice', $servisId));
 
         session()->flash('success', "Servis {$servis->no_servis_frontend} telah SELESAI dan berpindah ke menu Servis Keluar!");
     }

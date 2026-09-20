@@ -362,7 +362,7 @@
                     @endif
                 </div>
 
-                <!-- Toggle Mode Penjualan: Riil vs Non-Real -->
+                <!-- Toggle Mode Penjualan: Real vs Non-Real -->
                 <div class="px-3 py-2 bg-gray-50 border-b border-gray-100 flex items-center justify-between gap-2 shrink-0">
                     <div class="flex items-center space-x-1.5">
                         <span class="w-2 h-2 rounded-full {{ $isReal ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
@@ -412,26 +412,26 @@
                             <!-- Item Qty Stepper & Subtotal Underneath -->
                             <div class="flex items-center justify-between pt-1.5 border-t border-gray-100">
                                 <!-- Stepper Qty -->
-                                <div class="flex items-center space-x-1 bg-gray-100/90 p-1 rounded-xl border border-gray-200/80">
+                                <div class="flex items-center space-x-1 bg-gray-100/90 p-1 rounded-xl border border-gray-200/80 shrink-0">
                                     <button type="button"
                                             wire:click="adjustQty({{ $item['id'] }}, -1)"
                                             wire:loading.attr="disabled"
-                                            class="w-6 h-6 rounded-lg bg-white hover:bg-gray-200 text-gray-800 font-black text-xs flex items-center justify-center transition-colors cursor-pointer shadow-2xs disabled:opacity-50">
+                                            class="w-6 h-6 rounded-lg bg-white hover:bg-gray-200 text-gray-800 font-black text-xs flex items-center justify-center transition-colors cursor-pointer shadow-2xs disabled:opacity-50 shrink-0">
                                         &minus;
                                     </button>
-                                    <div class="px-1.5 flex items-center space-x-1">
-                                        <span class="text-[10px] font-extrabold text-gray-500 uppercase">Qty:</span>
+                                    <div class="px-1 flex items-center space-x-1">
+                                        <span class="text-[10px] font-extrabold text-gray-500 uppercase whitespace-nowrap">Qty:</span>
                                         <input type="number"
                                                value="{{ $item['qty'] }}"
                                                wire:change="updateQty({{ $item['id'] }}, $event.target.value)"
                                                min="1"
                                                max="{{ $item['stok_max'] }}"
-                                               class="w-11 text-center text-xs font-black py-0.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900 shadow-2xs">
+                                               class="w-14 text-center text-xs font-black py-0.5 px-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900 shadow-2xs">
                                     </div>
                                     <button type="button"
                                             wire:click="adjustQty({{ $item['id'] }}, 1)"
                                             wire:loading.attr="disabled"
-                                            class="w-6 h-6 rounded-lg bg-[#5E17EB] hover:bg-purple-700 text-white font-black text-xs flex items-center justify-center transition-colors cursor-pointer shadow-2xs disabled:opacity-50">
+                                            class="w-6 h-6 rounded-lg bg-[#5E17EB] hover:bg-purple-700 text-white font-black text-xs flex items-center justify-center transition-colors cursor-pointer shadow-2xs disabled:opacity-50 shrink-0">
                                         +
                                     </button>
                                 </div>
@@ -518,6 +518,19 @@
                             <span wire:loading wire:target="openPaymentModal">Mempersiapkan Kasir...</span>
                         </div>
                         <span class="px-2 py-0.5 rounded-md bg-white/20 text-white font-mono text-xs font-black border border-white/25">F4</span>
+                    </button>
+
+                    <!-- Tombol Simpan ke Bon (Belum Lunas) -->
+                    <button type="button"
+                            wire:click="simpanSebagaiBon"
+                            wire:loading.attr="disabled"
+                            wire:target="simpanSebagaiBon"
+                            @if(count($cart) === 0) disabled @endif
+                            class="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-extrabold text-xs shadow-md shadow-amber-900/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+                        <svg wire:loading.remove wire:target="simpanSebagaiBon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <svg wire:loading wire:target="simpanSebagaiBon" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                        <span wire:loading.remove wire:target="simpanSebagaiBon">Simpan ke Bon (Belum Lunas)</span>
+                        <span wire:loading wire:target="simpanSebagaiBon">Menyimpan Bon...</span>
                     </button>
                 </div>
             </div>
@@ -634,20 +647,20 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
 
                     <!-- Header Modal -->
-                    <div class="bg-[#0E1726] px-6 py-4 text-white flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                                <svg class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
                             </div>
-                            <div>
-                                <h3 class="text-base font-extrabold text-white">Pemindai Barcode POS</h3>
-                                <p class="text-xs text-purple-200">Pindai produk otomatis masuk keranjang</p>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Pemindai Barcode POS</h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Pindai produk otomatis masuk keranjang</p>
                             </div>
                         </div>
                         <button type="button"
                                 @click="stopCameraScanner(); $wire.closeScanModal();"
-                                class="text-gray-300 hover:text-white cursor-pointer">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
 
@@ -659,84 +672,51 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
                             <span>Scanner USB / Laser</span>
                         </button>
-
                         <button type="button"
                                 wire:click="switchScanTab('camera')"
                                 class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer {{ $scanTab === 'camera' ? 'bg-white text-[#5E17EB] shadow-xs border border-purple-200' : 'text-gray-500 hover:text-gray-800' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span>Scanner Kamera</span>
+                            <span>Kamera HP / Webcam</span>
                         </button>
                     </div>
 
-                    <!-- Scanner Body -->
-                    <div class="p-6 space-y-4">
-
+                    <!-- Body Scanner Container -->
+                    <div class="p-6">
                         @if($scanTab === 'scanner')
-                            <!-- TAB 1: MODE SCANNER USB / LASER -->
-                            <div class="text-center space-y-3">
-                                <div class="w-14 h-14 rounded-2xl bg-purple-50 text-[#5E17EB] flex items-center justify-center mx-auto border border-purple-100">
-                                    <svg class="w-7 h-7 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                            <div class="space-y-4 text-center">
+                                <div class="w-16 h-16 rounded-2xl bg-purple-50 text-[#5E17EB] flex items-center justify-center mx-auto border border-purple-100">
+                                    <svg class="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
                                 </div>
-                                <p class="text-xs text-gray-500 font-medium">Tembakkan barcode dengan scanner fisik atau ketik nomor barcode.</p>
-
-                                <form wire:submit.prevent="processScanBarcode" class="space-y-3">
-                                    <div class="relative">
-                                        <input type="text"
-                                               id="dedicatedUsbScanInput"
-                                               wire:model="scanBarcode"
-                                               autofocus
-                                               autocomplete="off"
-                                               class="w-full text-center text-base font-mono font-black px-4 py-3.5 rounded-2xl border-2 border-[#5E17EB] bg-purple-50/40 text-gray-900 focus:ring-4 focus:ring-purple-200 focus:outline-hidden transition-all shadow-inner">
-                                    </div>
-
-                                    <button type="submit"
-                                            class="w-full py-3 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white text-xs font-bold shadow-md transition-all cursor-pointer">
-                                        Masukkan ke Keranjang (Enter)
-                                    </button>
-                                </form>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-900">Siap Menerima Scan</h4>
+                                    <p class="text-xs text-gray-500 mt-0.5">Arahkan barcode scanner fisik ke barcode produk.</p>
+                                </div>
+                                <div class="relative">
+                                    <input type="text"
+                                           id="dedicatedUsbScanInput"
+                                           wire:model="scanBarcodeQuery"
+                                           wire:keydown.enter.prevent="submitScanBarcode"
+                                           class="w-full text-center font-mono font-bold text-sm px-4 py-3 rounded-xl border border-purple-300 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] bg-purple-50/30"
+                                           autofocus>
+                                </div>
+                                <p class="text-[11px] text-gray-400">Tekan Enter atau tembakkan scanner barcode untuk menambahkan.</p>
                             </div>
                         @else
-                            <!-- TAB 2: MODE KAMERA (HP / WEBCAM) -->
-                            <div class="space-y-3">
-                                <div class="relative rounded-2xl overflow-hidden bg-black aspect-4/3 flex items-center justify-center border border-gray-200 shadow-inner">
-                                    <div id="cameraBarcodeTarget" class="w-full h-full"></div>
-
-                                    <!-- Fallback message if error -->
-                                    <template x-if="cameraError">
-                                        <div class="absolute inset-0 bg-gray-900/90 p-4 flex flex-col items-center justify-center text-center text-white">
-                                            <svg class="w-10 h-10 text-rose-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                            <p class="text-xs font-bold" x-text="cameraError"></p>
-                                            <button type="button" @click="initCameraScanner()" class="mt-3 px-3 py-1.5 rounded-lg bg-purple-600 text-white text-xs font-bold hover:bg-purple-700 cursor-pointer">
-                                                Coba Lagi
-                                            </button>
-                                        </div>
-                                    </template>
-                                </div>
-                                <p class="text-[11px] text-center text-gray-500 font-medium">Arahkan barcode produk ke dalam kotak bidik kamera.</p>
+                            <div class="space-y-4">
+                                <div id="reader" class="rounded-2xl overflow-hidden border border-gray-200 bg-gray-900 min-h-[220px]"></div>
+                                <template x-if="cameraError">
+                                    <div class="p-3 bg-rose-50 rounded-xl border border-rose-200 text-rose-700 text-xs font-bold" x-text="cameraError"></div>
+                                </template>
+                                <p class="text-xs text-gray-500 text-center">Arahkan kamera tepat ke barcode produk hingga terdengar bunyi beep.</p>
                             </div>
                         @endif
-
-                        @if($lastScannedName)
-                            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center text-xs font-bold text-emerald-800 flex items-center justify-center space-x-2">
-                                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                <span class="truncate">Item Masuk: <strong>{{ $lastScannedName }}</strong></span>
-                            </div>
-                        @endif
-
-                        <!-- Ringkasan Keranjang Singkat -->
-                        <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                            <span>Total di Keranjang: <strong class="text-[#5E17EB] font-black">{{ count($cart) }} Item</strong></span>
-                            <span>Grand Total: <strong class="text-gray-900 font-black">Rp {{ number_format($this->grandTotal, 0, ',', '.') }}</strong></span>
-                        </div>
                     </div>
 
-                    <!-- Footer Modal -->
-                    <div class="bg-gray-50 px-6 py-4 flex items-center justify-between rounded-b-3xl">
-                        <span class="text-[11px] text-gray-400">Tekan <strong>Esc</strong> untuk menutup</span>
+                    <div class="bg-gray-50 px-6 py-4 flex items-center justify-end rounded-b-3xl border-t border-gray-100">
                         <button type="button"
                                 @click="stopCameraScanner(); $wire.closeScanModal();"
-                                class="px-4 py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-xs font-bold text-white transition-colors cursor-pointer">
-                            Selesai Scan
+                                class="px-5 py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 text-gray-700 text-xs font-bold transition-all cursor-pointer">
+                            Tutup Pemindai
                         </button>
                     </div>
 
@@ -756,18 +736,18 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
 
                     <!-- Header Modal -->
-                    <div class="bg-[#0E1726] px-6 py-5 text-white flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                                <svg class="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                             </div>
-                            <div>
-                                <h3 class="text-base font-extrabold text-white">Selesaikan Pembayaran</h3>
-                                <p class="text-xs text-blue-200">{{ auth()->user()->isOwner() ? ('Outlet: ' . $cabang?->nama_cabang) : 'Soulmate Komputer' }}</p>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Selesaikan Pembayaran</h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">{{ auth()->user()->isOwner() ? ('Outlet: ' . $cabang?->nama_cabang) : 'Soulmate Komputer' }}</p>
                             </div>
                         </div>
-                        <button type="button" wire:click="$set('modalBayarOpen', false)" class="text-gray-300 hover:text-white cursor-pointer">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <button type="button" wire:click="$set('modalBayarOpen', false)" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
 
@@ -902,6 +882,46 @@
                                 </div>
                             </div>
 
+                            <!-- Perhitungan Kembalian Kasir (Live Calculation Card) -->
+                            <div class="p-4 rounded-2xl border transition-all"
+                                 :class="kembalian > 0 ? 'bg-emerald-50/90 border-emerald-200 shadow-2xs' : (raw < grandTotal && raw > 0 ? 'bg-rose-50 border-rose-200' : 'bg-gray-50 border-gray-200')">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <template x-if="kembalian > 0">
+                                            <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                            </div>
+                                        </template>
+                                        <template x-if="raw < grandTotal && raw > 0">
+                                            <div class="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                            </div>
+                                        </template>
+                                        <template x-if="kembalian === 0 && (raw >= grandTotal || raw === 0)">
+                                            <div class="w-8 h-8 rounded-xl bg-gray-200 text-gray-600 flex items-center justify-center shrink-0">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                            </div>
+                                        </template>
+                                        <div>
+                                            <span class="text-[10px] font-black uppercase tracking-wider block"
+                                                  :class="kembalian > 0 ? 'text-emerald-800' : (raw < grandTotal && raw > 0 ? 'text-rose-800' : 'text-gray-500')">
+                                                Uang Kembalian
+                                            </span>
+                                            <span class="text-[11px] font-bold"
+                                                  :class="kembalian > 0 ? 'text-emerald-700' : (raw < grandTotal && raw > 0 ? 'text-rose-600' : 'text-gray-400')"
+                                                  x-text="kembalian > 0 ? 'Wajib diberikan ke pelanggan' : (raw < grandTotal && raw > 0 ? 'Uang diterima masih kurang' : 'Uang pas / belum diisi')">
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-2xl font-black font-mono block"
+                                              :class="kembalian > 0 ? 'text-emerald-600' : (raw < grandTotal && raw > 0 ? 'text-rose-600' : 'text-gray-400')"
+                                              x-text="'Rp ' + formatRupiah(kembalian)">
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Catatan Transaksi -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
@@ -946,27 +966,27 @@
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all my-6 w-full sm:max-w-3xl border border-gray-100 flex flex-col max-h-[92vh]">
 
                     <!-- Header Modal Sukses -->
-                    <div class="p-4 sm:p-5 bg-gradient-to-r from-emerald-50 via-white to-purple-50 border-b border-gray-100 flex items-center justify-between no-print shrink-0">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 shadow-xs">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 no-print shrink-0 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                             </div>
-                            <div>
-                                <h3 class="text-sm sm:text-base font-extrabold text-gray-900">Transaksi Berhasil Disimpan</h3>
-                                <p class="text-xs font-mono font-bold text-[#5E17EB]">{{ $lastPenjualan->no_transaksi }}</p>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Transaksi Berhasil Disimpan</h3>
+                                <p class="text-xs text-purple-200 font-mono font-medium mt-0.5">{{ $lastPenjualan->no_transaksi }}</p>
                             </div>
                         </div>
 
                         <div class="flex items-center space-x-2">
                             <a href="{{ route('kasir.produk.invoice', $lastPenjualan->id) }}"
                                target="_blank"
-                               class="hidden sm:inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors">
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                               class="hidden sm:inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-bold transition-all">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                 <span>Tab Baru</span>
                             </a>
                             <button type="button"
                                     wire:click="newTransaction"
-                                    class="text-gray-400 hover:text-gray-600 cursor-pointer p-1">
+                                    class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                         </div>
@@ -1010,10 +1030,19 @@
             <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
 
-                    <div class="bg-[#0E1726] px-6 py-5 text-white flex items-center justify-between">
-                        <h3 class="text-base font-extrabold text-white">Tambah Pelanggan Baru</h3>
-                        <button type="button" wire:click="$set('modalNewCustomerOpen', false)" class="text-gray-300 hover:text-white cursor-pointer">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <!-- Header Modal -->
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Tambah Pelanggan Baru</h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Registrasi pelanggan cepat saat transaksi kasir</p>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="$set('modalNewCustomerOpen', false)" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
 

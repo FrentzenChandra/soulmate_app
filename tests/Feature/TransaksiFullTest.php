@@ -94,4 +94,27 @@ class TransaksiFullTest extends TestCase
         $expectedSaldo = ($penjualanCash + $servisCash) - $kasKeluarCash;
         $this->assertEquals($expectedSaldo, $saldoKasTunaiBersih);
     }
+
+    public function test_period_filter_modes_switches_dates_correctly()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        Livewire::test(TransaksiFull::class)
+            ->assertSet('periodeMode', 'range')
+            ->assertSet('startDate', now()->toDateString())
+            ->assertSet('endDate', now()->toDateString())
+            ->call('setPeriodeMode', 'bulanan')
+            ->assertSet('periodeMode', 'bulanan')
+            ->assertSet('startDate', now()->startOfMonth()->toDateString())
+            ->assertSet('endDate', now()->endOfMonth()->toDateString())
+            ->call('setPeriodeMode', 'tahunan')
+            ->assertSet('periodeMode', 'tahunan')
+            ->assertSet('startDate', now()->startOfYear()->toDateString())
+            ->assertSet('endDate', now()->endOfYear()->toDateString())
+            ->call('setPeriodeMode', 'range')
+            ->assertSet('periodeMode', 'range')
+            ->assertSet('startDate', now()->toDateString())
+            ->assertSet('endDate', now()->toDateString());
+    }
 }
