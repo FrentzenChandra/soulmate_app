@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,5 +25,9 @@ class AppServiceProvider extends ServiceProvider
         if (app()->environment('production') || request()->header('x-forwarded-proto') === 'https' || str_starts_with(config('app.url'), 'https://')) {
             URL::forceScheme('https');
         }
+
+        Gate::define('viewPulse', function (User $user) {
+            return $user->isOwner() || $user->hasRole('Owner') || $user->hasRole('Superadmin');
+        });
     }
 }
