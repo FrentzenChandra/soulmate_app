@@ -9,20 +9,80 @@
                 </div>
                 <span>Transaksi Harian</span>
             </h1>
-            <p class="text-xs text-gray-500 font-medium mt-1">Daftar transaksi real hari ini, rekonsiliasi kas laci kasir, dan penutupan buku harian (Closing).</p>
+            <p class="text-xs text-gray-500 font-medium mt-1">Daftar transaksi real hari ini, omset operasional, rekonsiliasi kas laci kasir, dan audit saldo fisik.</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
-            <!-- Date Picker -->
-            <input type="date"
-                   wire:model.live="selectedDate"
-                   class="py-2 px-3 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB]">
+            <!-- Mode Switcher -->
+            <div class="inline-flex p-1 bg-gray-100 rounded-xl">
+                <button type="button"
+                        wire:click="setPeriodeMode('range')"
+                        class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'range' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
+                    Rentang (s.d)
+                </button>
+                <button type="button"
+                        wire:click="setPeriodeMode('bulanan')"
+                        class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'bulanan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
+                    Bulanan
+                </button>
+                <button type="button"
+                        wire:click="setPeriodeMode('tahunan')"
+                        class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'tahunan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
+                    Tahunan
+                </button>
+            </div>
+
+            <!-- Inputs based on mode -->
+            @if($periodeMode === 'range')
+                <div class="flex items-center gap-2">
+                    <input type="date"
+                           wire:model.live="startDate"
+                           class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB]">
+                    <span class="text-xs font-bold text-gray-400">s.d</span>
+                    <input type="date"
+                           wire:model.live="endDate"
+                           class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB]">
+                </div>
+            @elseif($periodeMode === 'bulanan')
+                <div class="flex items-center gap-2">
+                    <select wire:model.live="filterBulan"
+                            class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] cursor-pointer">
+                        <option value="01">Januari</option>
+                        <option value="02">Februari</option>
+                        <option value="03">Maret</option>
+                        <option value="04">April</option>
+                        <option value="05">Mei</option>
+                        <option value="06">Juni</option>
+                        <option value="07">Juli</option>
+                        <option value="08">Agustus</option>
+                        <option value="09">September</option>
+                        <option value="10">Oktober</option>
+                        <option value="11">November</option>
+                        <option value="12">Desember</option>
+                    </select>
+                    <select wire:model.live="filterTahun"
+                            class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] cursor-pointer">
+                        @for($y = (int) now()->year + 1; $y >= 2023; $y--)
+                            <option value="{{ $y }}">{{ $y }}</option>
+                        @endfor
+                    </select>
+                </div>
+            @elseif($periodeMode === 'tahunan')
+                <div class="flex items-center gap-2">
+                    <select wire:model.live="filterTahun"
+                            class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] cursor-pointer">
+                        @for($y = (int) now()->year + 1; $y >= 2023; $y--)
+                            <option value="{{ $y }}">{{ $y }}</option>
+                        @endfor
+                    </select>
+                </div>
+            @endif
 
             <!-- Button Cek Kas Cepat / Audit Laci -->
             <button type="button"
                     wire:click="openCekKasModal"
                     wire:loading.attr="disabled"
-                    class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-900/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-900/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span>Cek Kas Cepat / Audit Laci</span>
             </button>
@@ -40,26 +100,28 @@
             <span class="text-[10px] text-gray-400 font-medium block mt-0.5">Saldo awal kas</span>
         </div>
 
-        <!-- Penjualan Cash -->
+        <!-- Penjualan Bruto & Cash -->
         <div class="bg-white p-3.5 rounded-2xl border border-purple-100 shadow-xs">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Penjualan Cash</span>
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Penjualan (Omset)</span>
             <span class="text-base font-black text-[#5E17EB] mt-1 block font-mono">
-                Rp {{ number_format($totalPenjualanCash, 0, ',', '.') }}
+                Rp {{ number_format($totalPenjualanBruto, 0, ',', '.') }}
             </span>
-            <span class="text-[10px] font-bold {{ $totalPenjualanBon > 0 ? 'text-amber-600' : 'text-gray-400' }} block mt-0.5 font-mono">
-                Bon: Rp {{ number_format($totalPenjualanBon, 0, ',', '.') }}
-            </span>
+            <div class="flex items-center justify-between text-[10px] font-mono mt-0.5">
+                <span class="text-emerald-600 font-bold">Cash: Rp {{ number_format($totalPenjualanCash, 0, ',', '.') }}</span>
+                <span class="text-amber-600 font-bold">Bon: Rp {{ number_format($totalPenjualanBon, 0, ',', '.') }}</span>
+            </div>
         </div>
 
-        <!-- Servis Cash -->
+        <!-- Servis Bruto & Cash -->
         <div class="bg-white p-3.5 rounded-2xl border border-blue-100 shadow-xs">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Servis Cash</span>
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Servis (Omset)</span>
             <span class="text-base font-black text-[#0052FF] mt-1 block font-mono">
-                Rp {{ number_format($totalServisCash, 0, ',', '.') }}
+                Rp {{ number_format($totalServisBruto, 0, ',', '.') }}
             </span>
-            <span class="text-[10px] font-bold {{ $totalServisBelumLunas > 0 ? 'text-amber-600' : 'text-gray-400' }} block mt-0.5 font-mono">
-                Belum Lunas: Rp {{ number_format($totalServisBelumLunas, 0, ',', '.') }}
-            </span>
+            <div class="flex items-center justify-between text-[10px] font-mono mt-0.5">
+                <span class="text-emerald-600 font-bold">Cash: Rp {{ number_format($totalServisCash, 0, ',', '.') }}</span>
+                <span class="text-amber-600 font-bold">Bon: Rp {{ number_format($totalServisBelumLunas, 0, ',', '.') }}</span>
+            </div>
         </div>
 
         <!-- Total Bon / Belum Lunas -->
@@ -77,10 +139,10 @@
             <span class="text-base font-black text-rose-600 mt-1 block font-mono">
                 Rp {{ number_format($totalKasKeluarCash, 0, ',', '.') }}
             </span>
-            <span class="text-[10px] text-gray-400 font-medium block mt-0.5">Biaya operasional</span>
+            <span class="text-[10px] text-gray-400 font-medium block mt-0.5">Biaya operasional laci</span>
         </div>
 
-        <!-- Total Kas Sistem & Laba Bersih (2 Tipe) -->
+        <!-- Total Kas Laci Sistem -->
         <div class="bg-white p-3.5 rounded-2xl border border-emerald-300 shadow-xs bg-emerald-50/30">
             <div class="flex items-center justify-between">
                 <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Kas Laci (Sistem)</span>
@@ -89,27 +151,9 @@
             <span class="text-base font-black text-emerald-600 mt-1 block font-mono">
                 Rp {{ number_format($kasSistem, 0, ',', '.') }}
             </span>
-            <div class="mt-1.5 pt-1.5 border-t border-emerald-200/60 text-[10px] space-y-1.5">
-                <div>
-                    <div class="flex justify-between font-bold text-emerald-800">
-                        <span>Laba Real (Lunas):</span>
-                        <span class="font-mono font-black text-emerald-700">Rp {{ number_format($labaBersihReal, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex justify-between text-[9px] text-gray-500 font-mono">
-                        <span>+ Margin: Rp {{ number_format($totalMarginLunas, 0, ',', '.') }}</span>
-                        <span>&minus; Biaya: Rp {{ number_format($totalKasKeluarAll, 0, ',', '.') }}</span>
-                    </div>
-                </div>
-                <div class="pt-1 border-t border-emerald-100">
-                    <div class="flex justify-between font-bold text-purple-800">
-                        <span>Laba (+ Piutang Bon):</span>
-                        <span class="font-mono font-black text-[#5E17EB]">Rp {{ number_format($labaBersihPlusBon, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex justify-between text-[9px] text-gray-500 font-mono">
-                        <span class="text-amber-700 font-semibold">+ Margin Bon: Rp {{ number_format($totalMarginBon, 0, ',', '.') }}</span>
-                        <span>Tot Margin: Rp {{ number_format($totalMarginAll, 0, ',', '.') }}</span>
-                    </div>
-                </div>
+            <div class="mt-1 pt-1 border-t border-emerald-200/60 text-[10px] text-gray-500 font-mono flex justify-between">
+                <span>Saldo Kas Masuk:</span>
+                <span class="font-bold text-gray-800">Rp {{ number_format($saldoKasBersih, 0, ',', '.') }}</span>
             </div>
         </div>
     </div>
@@ -212,6 +256,15 @@
                 </button>
             </div>
             <div class="flex items-center gap-3 text-xs text-gray-500 font-semibold flex-wrap">
+                <!-- Toggle Group Tanggal -->
+                <button type="button"
+                        @click="toggleGrouping()"
+                        class="px-2.5 py-1 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                        :class="groupByDate ? 'bg-purple-50 text-[#5E17EB] border-purple-200 shadow-2xs' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span x-text="groupByDate ? 'Group Tanggal (ON)' : 'Group Tanggal'"></span>
+                </button>
+
                 <!-- Font Size Selector -->
                 <x-table-size-selector />
 
@@ -223,7 +276,7 @@
                     <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
                     Tarik garis kolom untuk melebarkan
                 </span>
-                <span x-text="'Total ' + rowCount + ' Transaksi Hari Ini'"></span>
+                <span x-text="'Total ' + rowCount + ' Baris'"></span>
             </div>
         </div>
 
@@ -364,6 +417,7 @@ window.tabulatorHarianTable = function(config) {
         quickSearch: '',
         rowCount: (config.tableData || []).length,
         selectedCount: 0,
+        groupByDate: true,
         tableSize: localStorage.getItem('soulmate_table_size') || 'md',
 
         setTableSize(size) {
@@ -372,6 +426,17 @@ window.tabulatorHarianTable = function(config) {
             window.dispatchEvent(new CustomEvent('table-size-changed', { detail: size }));
             if (this.table) {
                 this.table.redraw(true);
+            }
+        },
+
+        toggleGrouping() {
+            this.groupByDate = !this.groupByDate;
+            if (this.table) {
+                if (this.groupByDate) {
+                    this.table.setGroupBy("tanggal_group");
+                } else {
+                    this.table.setGroupBy(false);
+                }
             }
         },
 
@@ -408,13 +473,29 @@ window.tabulatorHarianTable = function(config) {
                 responsiveLayout: false,
                 resizableColumnFit: true,
                 pagination: "local",
-                paginationSize: 15,
+                paginationSize: 25,
                 paginationSizeSelector: [15, 25, 50, 100],
                 movableColumns: true,
-                placeholder: "Belum ada transaksi pada tanggal ini.",
+                groupBy: this.groupByDate ? "tanggal_group" : false,
+                groupHeader: function(value, count, data, group) {
+                    let totalJual = data.reduce((sum, row) => sum + (Number(row.harga_jual) || 0), 0);
+                    let formattedJual = 'Rp ' + Number(totalJual || 0).toLocaleString('id-ID');
+                    return `
+                        <div class="flex flex-wrap items-center justify-between w-full pr-3 py-0.5 text-xs font-bold text-gray-800">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-md bg-[#5E17EB]/10 text-[#5E17EB] font-black">${value}</span>
+                                <span class="text-gray-500 font-medium text-[11px] font-mono">(${count} Transaksi)</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-[11px] font-mono">
+                                <span class="text-purple-800 bg-purple-100/70 px-2 py-0.5 rounded-md border border-purple-200">TOTAL OMSET: <strong class="text-purple-700">${formattedJual}</strong></span>
+                            </div>
+                        </div>
+                    `;
+                },
+                placeholder: "Tidak ada transaksi pada periode ini.",
                 columns: [
                     { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 35, minWidth: 35, maxWidth: 35, resizable: false },
-                    { title: "Jam", field: "tanggal", width: 65, hozAlign: "center", sorter: "string", headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-bold text-gray-700 font-mono text-[11px]">${cell.getValue()}</span>` },
+                    { title: "Waktu", field: "tanggal", width: 110, hozAlign: "center", sorter: "string", headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-bold text-gray-700 font-mono text-[11px]">${cell.getValue()}</span>` },
                     { title: "No Transaksi", field: "no_transaksi", width: 125, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-extrabold text-gray-900 text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
                     { title: "Transaksi", field: "tipe_label", width: 95, hozAlign: "center", headerFilter: "list", headerFilterParams: { valuesLookup: "all", clearable: true, multiselect: true }, headerFilterFunc: multiSelectFilterFunc, formatter: (cell) => {
                         const val = cell.getValue();
@@ -430,12 +511,7 @@ window.tabulatorHarianTable = function(config) {
                             items.map(it => `<div class="flex items-start gap-1.5 text-gray-700"><span class="w-1.5 h-1.5 rounded-full bg-[#5E17EB] mt-1 shrink-0"></span><span class="font-medium">${it}</span></div>`).join('') +
                         `</div>`;
                     }},
-                    { title: "Modal (HPP)", field: "modal", hozAlign: "right", width: 100, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-semibold text-gray-500 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
-                    { title: "Harga Jual", field: "harga_jual", hozAlign: "right", width: 105, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-black text-gray-900 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
-                    { title: "Laba (Nett)", field: "margin", hozAlign: "right", width: 105, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => {
-                        const val = cell.getValue();
-                        return `<span class="font-mono font-black text-[11px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
-                    }},
+                    { title: "Nilai (Omset)", field: "harga_jual", hozAlign: "right", width: 115, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-black text-gray-900 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
                     { title: "Pajak", field: "pajak", hozAlign: "right", width: 115, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => {
                         const val = cell.getValue();
                         const data = cell.getData();
@@ -473,10 +549,10 @@ window.tabulatorHarianTable = function(config) {
                 this.selectedCount = rows.length;
             });
 
-            this.$watch('$wire.tableData', (newData) => {
-                if (this.table && Array.isArray(newData)) {
-                    this.table.setData(newData);
-                    this.rowCount = newData.length;
+            Livewire.on('harian-table-updated', ({ data }) => {
+                if (this.table && Array.isArray(data)) {
+                    this.table.setData(data);
+                    this.rowCount = data.length;
                     this.selectedCount = 0;
                 }
             });

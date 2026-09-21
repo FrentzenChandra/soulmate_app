@@ -254,8 +254,8 @@ class Index extends Component
             'totalKasKeluar' => $totalKasKeluar,
             'totalCash' => $totalCash,
             'totalNonCash' => $totalNonCash,
-            'sumberDanas' => SumberDana::where('is_aktif', true)->orderBy('nama')->get(),
-            'kategoriKasKeluars' => KategoriKasKeluar::where('is_aktif', true)->orderBy('nama')->get(),
+            'sumberDanas' => SumberDana::getAktifCached(),
+            'kategoriKasKeluars' => KategoriKasKeluar::getAktifCached(),
         ]);
     }
 }

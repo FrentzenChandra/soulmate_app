@@ -23,6 +23,7 @@ use App\Livewire\Master\KategoriKas\Index as MasterKategoriKasIndex;
 use App\Livewire\SerialNumber\Index as SerialNumberIndex;
 use App\Livewire\Transaksi\Full as TransaksiFull;
 use App\Livewire\Transaksi\Harian as TransaksiHarian;
+use App\Livewire\AuditLaci\Index as AuditLaciIndex;
 use App\Livewire\TutupKas\Index as TutupKasIndex;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -50,15 +51,19 @@ Route::middleware('auth')->group(function () {
 
     // Master Routes
     Route::prefix('master')->name('master.')->group(function () {
-        // Owner Only Routes
+        // Owner Only Routes (Konteks Kantor Pusat HQ)
         Route::middleware('role:Owner')->group(function () {
             Route::get('/cabang', MasterCabangIndex::class)->name('cabang');
             Route::get('/ppn', MasterPpnIndex::class)->name('ppn');
         });
 
-        // Owner & Superadmin
+        // Owner & Superadmin Only (Kecuali Pengguna)
         Route::middleware('role:Owner|Superadmin')->group(function () {
             Route::get('/users', MasterUserIndex::class)->name('users');
+        });
+
+        // Owner, Superadmin, & Admin (Full CRUD Master)
+        Route::middleware('role:Owner|Superadmin|Admin')->group(function () {
             Route::get('/produk', MasterProdukIndex::class)->name('produk');
             Route::get('/kategori', MasterKategoriIndex::class)->name('kategori');
             Route::get('/metode-pembayaran', MasterPembayaranIndex::class)->name('metode-pembayaran');
@@ -151,12 +156,19 @@ Route::middleware('auth')->group(function () {
     // Keuangan & Kas (Kas Keluar & Modal Awal & Tutup Kas)
     Route::middleware('role:Owner|Superadmin|Admin')->group(function () {
         Route::get('/kas-keluar', KasKeluarIndex::class)->name('kas-keluar');
+    });
+
+    Route::middleware('role:Owner|Superadmin')->group(function () {
         Route::get('/transaksi/full', TransaksiFull::class)->name('transaksi.full');
     });
 
     Route::middleware('role:Owner|Superadmin|Admin|Kasir')->group(function () {
         Route::get('/modal-awal', ModalAwalIndex::class)->name('modal-awal');
         Route::get('/tutup-kas', TutupKasIndex::class)->name('tutup-kas');
+        Route::get('/audit-laci', AuditLaciIndex::class)->name('audit-laci');
+    });
+
+    Route::middleware('role:Owner|Admin|Kasir')->group(function () {
         Route::get('/transaksi/harian', TransaksiHarian::class)->name('transaksi.harian');
     });
 

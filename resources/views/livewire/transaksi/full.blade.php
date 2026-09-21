@@ -12,8 +12,92 @@
             <p class="text-xs text-gray-500 font-medium mt-1">Rekapitulasi lengkap transaksi penjualan retail, penerimaan servis, modal HPP, dan kas tunai bersih.</p>
         </div>
 
-        <!-- Filter Periode (s.d, Bulanan, Tahunan) -->
-        <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- Dropdown Rekap Ringkasan Transaksi (Spreadsheet Match) -->
+            <div class="relative" x-data="{ openSummary: false }">
+                <button type="button"
+                        @click="openSummary = !openSummary"
+                        @click.away="openSummary = false"
+                        class="px-3 py-1.5 rounded-xl bg-purple-50 text-[#5E17EB] border border-purple-200 text-xs font-black hover:bg-purple-100 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <span>Ringkasan Transaksi</span>
+                    <svg class="w-3.5 h-3.5 transition-transform" :class="openSummary ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+
+                <!-- Dropdown Card Content -->
+                <div x-show="openSummary"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-100"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95"
+                     class="absolute right-0 mt-2 w-[340px] sm:w-[480px] bg-white rounded-2xl shadow-xl border border-gray-200 p-4 z-50 text-xs"
+                     style="display: none;">
+                    
+                    <div class="flex items-center justify-between pb-2.5 border-b border-gray-100 mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#5E17EB]"></span>
+                            <span class="font-black text-gray-900 text-sm">Rekapitulasi Ringkasan</span>
+                        </div>
+                        <span class="text-[10px] font-mono text-gray-500 font-semibold uppercase bg-gray-100 px-2 py-0.5 rounded-md">Periode Terpilih</span>
+                    </div>
+
+                    <!-- 2-Column Summary Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Kolom Kiri: Arus Pokok -->
+                        <div class="space-y-1.5 p-3 rounded-xl bg-gray-50 border border-gray-100 text-[11px]">
+                            <div class="flex justify-between items-center py-1 border-b border-gray-200/60 font-bold">
+                                <span class="text-gray-600">Pendapatan (Bruto)</span>
+                                <span class="font-mono font-black text-gray-900">Rp {{ number_format($totalOmzetAll, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1 border-b border-gray-200/60 font-bold">
+                                <span class="text-gray-600">HPP (Modal)</span>
+                                <span class="font-mono font-black text-gray-700">Rp {{ number_format($totalModalAll, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1 border-b border-gray-200/60 font-black bg-emerald-50 text-emerald-900 -mx-1 px-1 rounded">
+                                <span>Nett (Margin)</span>
+                                <span class="font-mono font-black text-emerald-600">Rp {{ number_format($totalMarginAll, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1 border-b border-gray-200/60 font-semibold text-gray-700">
+                                <span>Jumlah Lunas</span>
+                                <span class="font-mono font-bold text-gray-900">Rp {{ number_format($totalPemasukanLunasAll, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1 font-semibold text-amber-700">
+                                <span>Jumlah Bon</span>
+                                <span class="font-mono font-black">Rp {{ number_format($totalBelumLunasAll, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Kolom Kanan: Rincian Kategori -->
+                        <div class="space-y-1.5 p-3 rounded-xl bg-gray-50 border border-gray-100 text-[11px]">
+                            <div class="flex justify-between items-center py-1 border-b border-gray-200/60 font-bold text-purple-900">
+                                <span>Penjualan (Nett)</span>
+                                <span class="font-mono font-black text-[#5E17EB]">Rp {{ number_format($marginPenjualanTotal, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1 border-b border-gray-200/60 font-bold text-blue-900">
+                                <span>Servis (Nett)</span>
+                                <span class="font-mono font-black text-[#0052FF]">Rp {{ number_format($marginServisTotal, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1 border-b border-gray-200/60 font-semibold text-gray-700">
+                                <span>Penjualan Bruto</span>
+                                <span class="font-mono font-bold text-gray-900">Rp {{ number_format($totalPenjualanBruto, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1 font-semibold text-gray-700">
+                                <span>Servis Bruto</span>
+                                <span class="font-mono font-bold text-gray-900">Rp {{ number_format($totalServisBruto, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Kas Keluar & Laba Bersih Real -->
+                    <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-[11px] font-mono">
+                        <span class="text-gray-500">Kas Keluar: Rp {{ number_format($totalKasKeluarAll, 0, ',', '.') }}</span>
+                        <span class="font-extrabold text-[#5E17EB]">Laba Bersih Real: Rp {{ number_format($labaBersihReal, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Mode Switcher -->
             <div class="inline-flex p-1 bg-gray-100 rounded-xl">
                 <button type="button"
@@ -286,7 +370,16 @@
                        @input="applyFilter()"
                        class="w-full pl-9 pr-3 py-1.5 text-xs font-semibold text-gray-800 bg-gray-50/60 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#5E17EB] transition-all">
             </div>
-            <div class="flex items-center gap-3 text-xs text-gray-500 font-semibold flex-wrap">
+            <div class="flex items-center gap-2 text-xs text-gray-500 font-semibold flex-wrap">
+                <!-- Toggle Group Tanggal -->
+                <button type="button"
+                        @click="toggleGrouping()"
+                        class="px-2.5 py-1 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                        :class="groupByDate ? 'bg-purple-50 text-[#5E17EB] border-purple-200 shadow-2xs' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span x-text="groupByDate ? 'Group Tanggal (ON)' : 'Group Tanggal'"></span>
+                </button>
+
                 <!-- Font Size Selector -->
                 <x-table-size-selector />
 
@@ -317,6 +410,7 @@ window.tabulatorFullTable = function(config) {
         quickSearch: '',
         rowCount: (config.tableData || []).length,
         selectedCount: 0,
+        groupByDate: true,
         tableSize: localStorage.getItem('soulmate_table_size') || 'md',
 
         setTableSize(size) {
@@ -325,6 +419,17 @@ window.tabulatorFullTable = function(config) {
             window.dispatchEvent(new CustomEvent('table-size-changed', { detail: size }));
             if (this.table) {
                 this.table.redraw(true);
+            }
+        },
+
+        toggleGrouping() {
+            this.groupByDate = !this.groupByDate;
+            if (this.table) {
+                if (this.groupByDate) {
+                    this.table.setGroupBy("tanggal_group");
+                } else {
+                    this.table.setGroupBy(false);
+                }
             }
         },
 
@@ -359,9 +464,28 @@ window.tabulatorFullTable = function(config) {
                 responsiveLayout: false,
                 resizableColumnFit: true,
                 pagination: "local",
-                paginationSize: 15,
+                paginationSize: 25,
                 paginationSizeSelector: [15, 25, 50, 100],
                 movableColumns: true,
+                groupBy: this.groupByDate ? "tanggal_group" : false,
+                groupHeader: function(value, count, data, group) {
+                    let totalNett = data.reduce((sum, row) => sum + (Number(row.margin) || 0), 0);
+                    let totalJual = data.reduce((sum, row) => sum + (Number(row.harga_jual) || 0), 0);
+                    let formattedNett = 'Rp ' + Number(totalNett || 0).toLocaleString('id-ID');
+                    let formattedJual = 'Rp ' + Number(totalJual || 0).toLocaleString('id-ID');
+                    return `
+                        <div class="flex flex-wrap items-center justify-between w-full pr-3 py-0.5 text-xs font-bold text-gray-800">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-md bg-[#5E17EB]/10 text-[#5E17EB] font-black">${value}</span>
+                                <span class="text-gray-500 font-medium text-[11px] font-mono">(${count} Transaksi)</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-[11px] font-mono">
+                                <span class="text-gray-600 hidden sm:inline">Omzet: <strong class="text-gray-900">${formattedJual}</strong></span>
+                                <span class="text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-md border border-emerald-200">TOTAL NETT TGL: <strong class="text-emerald-700">${formattedNett}</strong></span>
+                            </div>
+                        </div>
+                    `;
+                },
                 placeholder: "Tidak ada transaksi pada periode ini.",
                 columns: [
                     { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 35, minWidth: 35, maxWidth: 35, resizable: false },
@@ -424,10 +548,10 @@ window.tabulatorFullTable = function(config) {
                 this.selectedCount = rows.length;
             });
 
-            this.$watch('$wire.tableData', (newData) => {
-                if (this.table && Array.isArray(newData)) {
-                    this.table.setData(newData);
-                    this.rowCount = newData.length;
+            Livewire.on('full-table-updated', ({ data }) => {
+                if (this.table && Array.isArray(data)) {
+                    this.table.setData(data);
+                    this.rowCount = data.length;
                     this.selectedCount = 0;
                 }
             });

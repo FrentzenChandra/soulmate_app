@@ -748,8 +748,8 @@ class Index extends Component
     public function render()
     {
         $cabang = $this->activeCabang;
-        $kategoris = KategoriProduk::orderBy('nama_kategori')->get();
-        $masterPpns = MasterPpn::where('is_aktif', true)->orderBy('persen')->get();
+        $kategoris = KategoriProduk::getAllCached();
+        $masterPpns = MasterPpn::getAllAktifCached();
 
         $customers = collect();
         if ($this->customerType === 'langganan' && ! empty($this->customerSearch) && $cabang) {
@@ -772,7 +772,7 @@ class Index extends Component
         $selectedCustomer = $this->selectedCustomerId ? Customer::find($this->selectedCustomerId) : null;
         $lastPenjualan = $this->lastPenjualanId ? Penjualan::with(['details.produk', 'cabang', 'kasir', 'customer', 'ppn'])->find($this->lastPenjualanId) : null;
 
-        $masterMetodePembayarans = MetodePembayaran::aktif()->get();
+        $masterMetodePembayarans = MetodePembayaran::getAktifCached();
 
         if (! $cabang) {
             return view('livewire.kasir.produk.index', [

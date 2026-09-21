@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             MasterServisSeeder::class,
             ServisMasukSeeder::class,
             PenjualanSeeder::class,
+            CekKasLogSeeder::class,
         ]);
     }
 }

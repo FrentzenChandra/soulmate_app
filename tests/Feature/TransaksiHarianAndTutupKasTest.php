@@ -29,6 +29,14 @@ class TransaksiHarianAndTutupKasTest extends TestCase
         $this->get(route('transaksi.harian'))->assertRedirect(route('login'));
     }
 
+    public function test_superadmin_cannot_access_transaksi_harian()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        $this->get(route('transaksi.harian'))->assertStatus(403);
+    }
+
     public function test_admin_can_view_transaksi_harian_and_perform_cek_kas()
     {
         $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
@@ -94,5 +102,30 @@ class TransaksiHarianAndTutupKasTest extends TestCase
             'status_selisih' => 'klop',
             'catatan' => 'Rutin audit pagi',
         ]);
+    }
+
+    public function test_admin_can_filter_transaksi_harian_by_multi_periode()
+    {
+        $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
+        $this->actingAs($admin);
+
+        $component = Livewire::test(TransaksiHarian::class);
+
+        // Default range
+        $component->assertSet('periodeMode', 'range')
+            ->call('setPeriodeMode', 'bulanan')
+            ->assertSet('periodeMode', 'bulanan')
+            ->set('filterBulan', '09')
+            ->set('filterTahun', '2026')
+            ->call('applyBulanan')
+            ->assertSet('startDate', '2026-09-01')
+            ->assertSet('endDate', '2026-09-30');
+
+        $component->call('setPeriodeMode', 'tahunan')
+            ->assertSet('periodeMode', 'tahunan')
+            ->set('filterTahun', '2026')
+            ->call('applyTahunan')
+            ->assertSet('startDate', '2026-01-01')
+            ->assertSet('endDate', '2026-12-31');
     }
 }

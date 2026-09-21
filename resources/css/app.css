@@ -143,6 +143,33 @@
     transition: background-color 0.15s ease !important;
 }
 
+.tabulator .tabulator-row.tabulator-group {
+    background-color: #f8fafc !important;
+    border-top: 1px solid #e2e8f0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding: 6px 12px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    cursor: pointer !important;
+}
+
+.tabulator .tabulator-row.tabulator-group:hover {
+    background-color: #f1f5f9 !important;
+}
+
+.tabulator .tabulator-row.tabulator-group .tabulator-arrow {
+    margin-right: 8px !important;
+    border-top: 5px solid transparent !important;
+    border-bottom: 5px solid transparent !important;
+    border-left: 6px solid #64748b !important;
+}
+
+.tabulator .tabulator-row.tabulator-group.tabulator-group-visible .tabulator-arrow {
+    border-left: 5px solid transparent !important;
+    border-right: 5px solid transparent !important;
+    border-top: 6px solid #64748b !important;
+}
+
 .tabulator .tabulator-row:hover {
     background-color: #f8faff !important;
 }

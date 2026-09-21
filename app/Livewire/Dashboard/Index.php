@@ -49,75 +49,166 @@ class Index extends Component
 
         $activeCabang = $cabangId ? Cabang::find($cabangId) : null;
 
-        // --- GLOBAL / HQ METRICS ---
-        $totalCabangAktif = Cabang::where('status', 'aktif')->count();
-        $totalUserAktif = User::where('status', 'aktif')->count();
+        $dashboardKey = 'dashboard_stats_' . ($cabangId ?? 'hq') . '_' . ($isHQ ? 'hq' : 'branch');
 
-        // Servis Query
-        $servisQuery = ServisMasuk::query()
-            ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId));
+        $metrics = \Illuminate\Support\Facades\Cache::remember($dashboardKey, 60, function () use ($cabangId, $isHQ, $activeCabang) {
+            $totalCabangAktif = Cabang::where('status', 'aktif')->count();
+            $totalUserAktif = User::where('status', 'aktif')->count();
 
-        $countPengecekan = (clone $servisQuery)->where('status', 'pengecekan')->count();
-        $countPengerjaan = (clone $servisQuery)->where('status', 'pengerjaan')->count();
-        $countSelesai = (clone $servisQuery)->where('status', 'selesai')->count();
-        $countTotalAktif = $countPengecekan + $countPengerjaan + $countSelesai;
+            // Servis Query
+            $servisQuery = ServisMasuk::query()
+                ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId));
 
-        // Breakdown Perangkat untuk TV Display Monitor Antrian
-        $antrianLaptop = [
-            'cek' => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'pengecekan')->count(),
-            'prg' => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'pengerjaan')->count(),
-            'ok' => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'selesai')->count(),
-        ];
-        $antrianPrinter = [
-            'cek' => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'pengecekan')->count(),
-            'prg' => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'pengerjaan')->count(),
-            'ok' => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'selesai')->count(),
-        ];
-        $antrianKomputer = [
-            'cek' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'pengecekan')->count(),
-            'prg' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'pengerjaan')->count(),
-            'ok' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'selesai')->count(),
-        ];
+            $countPengecekan = (clone $servisQuery)->where('status', 'pengecekan')->count();
+            $countPengerjaan = (clone $servisQuery)->where('status', 'pengerjaan')->count();
+            $countSelesai = (clone $servisQuery)->where('status', 'selesai')->count();
+            $countTotalAktif = $countPengecekan + $countPengerjaan + $countSelesai;
 
-        // Penjualan & Omzet (Hanya Transaksi Real/Nyata)
-        $penjualanQuery = Penjualan::query()
-            ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
-            ->where('is_real', true)
-            ->where('status', 'lunas');
+            // Breakdown Perangkat untuk TV Display Monitor Antrian
+            $antrianLaptop = [
+                'cek' => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'pengecekan')->count(),
+                'prg' => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'pengerjaan')->count(),
+                'ok' => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'selesai')->count(),
+            ];
+            $antrianPrinter = [
+                'cek' => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'pengecekan')->count(),
+                'prg' => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'pengerjaan')->count(),
+                'ok' => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'selesai')->count(),
+            ];
+            $antrianKomputer = [
+                'cek' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'pengecekan')->count(),
+                'prg' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'pengerjaan')->count(),
+                'ok' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'selesai')->count(),
+            ];
 
-        $omzetHariIni = (clone $penjualanQuery)
-            ->whereDate('tanggal', Carbon::today())
-            ->sum('total');
+            // Penjualan & Omzet (Hanya Transaksi Real/Nyata)
+            $penjualanQuery = Penjualan::query()
+                ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
+                ->where('is_real', true)
+                ->where('status', 'lunas');
 
-        $omzetBulanIni = (clone $penjualanQuery)
-            ->whereMonth('tanggal', Carbon::now()->month)
-            ->whereYear('tanggal', Carbon::now()->year)
-            ->sum('total');
+            $omzetHariIni = (clone $penjualanQuery)
+                ->whereDate('tanggal', Carbon::today())
+                ->sum('total');
 
-        $totalTransaksiHariIni = (clone $penjualanQuery)
-            ->whereDate('tanggal', Carbon::today())
-            ->count();
+            $omzetBulanIni = (clone $penjualanQuery)
+                ->whereMonth('tanggal', Carbon::now()->month)
+                ->whereYear('tanggal', Carbon::now()->year)
+                ->sum('total');
 
-        $totalTransaksiBulanIni = (clone $penjualanQuery)
-            ->whereMonth('tanggal', Carbon::now()->month)
-            ->whereYear('tanggal', Carbon::now()->year)
-            ->count();
+            $totalTransaksiHariIni = (clone $penjualanQuery)
+                ->whereDate('tanggal', Carbon::today())
+                ->count();
 
-        // Servis Masuk Terbaru
+            $totalTransaksiBulanIni = (clone $penjualanQuery)
+                ->whereMonth('tanggal', Carbon::now()->month)
+                ->whereYear('tanggal', Carbon::now()->year)
+                ->count();
+
+            // Data Snapshot Cabang Khusus HQ
+            $branchSnapshots = [];
+            $allCabangs = Cabang::where('status', 'aktif')->with(['users' => function ($q) {
+                $q->role('Superadmin');
+            }])->get();
+
+            if ($isHQ) {
+                foreach ($allCabangs as $c) {
+                    $cOmzet = Penjualan::where('cabang_id', $c->id)->where('is_real', true)->where('status', 'lunas')->whereDate('tanggal', Carbon::today())->sum('total');
+                    $cServisAktif = ServisMasuk::where('cabang_id', $c->id)->whereIn('status', ['pengecekan', 'pengerjaan'])->count();
+                    $cSuperadmin = $c->users->first()?->name ?? 'Belum ada Admin';
+                    $cTotalStaff = User::where('cabang_id', $c->id)->where('status', 'aktif')->count();
+
+                    $branchSnapshots[] = [
+                        'id' => $c->id,
+                        'kode' => $c->kode_cabang,
+                        'nama' => $c->nama_cabang,
+                        'alamat' => $c->alamat,
+                        'no_wa' => $c->no_wa,
+                        'superadmin' => $cSuperadmin,
+                        'omzet_hari_ini' => $cOmzet,
+                        'servis_aktif' => $cServisAktif,
+                        'total_staff' => $cTotalStaff,
+                    ];
+                }
+            }
+
+            // Data Chart 7 Hari Terakhir
+            $chartCategories = [];
+            $chartSeries = [];
+            for ($i = 6; $i >= 0; $i--) {
+                $date = Carbon::today()->subDays($i);
+                $chartCategories[] = $date->translatedFormat('d M');
+            }
+
+            if ($isHQ) {
+                foreach ($allCabangs as $c) {
+                    $seriesData = [];
+                    for ($i = 6; $i >= 0; $i--) {
+                        $date = Carbon::today()->subDays($i);
+                        $dailySum = Penjualan::where('cabang_id', $c->id)
+                            ->where('is_real', true)
+                            ->where('status', 'lunas')
+                            ->whereDate('tanggal', $date)
+                            ->sum('total');
+                        $seriesData[] = (int) $dailySum;
+                    }
+                    $chartSeries[] = [
+                        'name' => $c->nama_cabang,
+                        'data' => $seriesData,
+                    ];
+                }
+            } else {
+                $seriesData = [];
+                for ($i = 6; $i >= 0; $i--) {
+                    $date = Carbon::today()->subDays($i);
+                    $dailySum = Penjualan::where('cabang_id', $cabangId)
+                        ->where('is_real', true)
+                        ->where('status', 'lunas')
+                        ->whereDate('tanggal', $date)
+                        ->sum('total');
+                    $seriesData[] = (int) $dailySum;
+                }
+                $chartSeries[] = [
+                    'name' => $activeCabang?->nama_cabang ?? 'Penjualan',
+                    'data' => $seriesData,
+                ];
+            }
+
+            return [
+                'totalCabangAktif' => $totalCabangAktif,
+                'totalUserAktif' => $totalUserAktif,
+                'countTotalAktif' => $countTotalAktif,
+                'countPengecekan' => $countPengecekan,
+                'countPengerjaan' => $countPengerjaan,
+                'countSelesai' => $countSelesai,
+                'antrianLaptop' => $antrianLaptop,
+                'antrianPrinter' => $antrianPrinter,
+                'antrianKomputer' => $antrianKomputer,
+                'omzetHariIni' => $omzetHariIni,
+                'omzetBulanIni' => $omzetBulanIni,
+                'totalTransaksiHariIni' => $totalTransaksiHariIni,
+                'totalTransaksiBulanIni' => $totalTransaksiBulanIni,
+                'branchSnapshots' => $branchSnapshots,
+                'chartCategories' => $chartCategories,
+                'chartSeries' => $chartSeries,
+            ];
+        });
+
+        // Servis Masuk Terbaru (Realtime)
         $recentServis = ServisMasuk::with(['customer', 'teknisi', 'cabang'])
             ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
             ->latest('tanggal_masuk')
             ->take(5)
             ->get();
 
-        // Penjualan Terbaru
+        // Penjualan Terbaru (Realtime)
         $recentPenjualan = Penjualan::with(['customer', 'kasir', 'cabang'])
             ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
             ->latest('tanggal')
             ->take(5)
             ->get();
 
-        // Stok Menipis (< 5) Produk Aktif
+        // Stok Menipis (< 5) Produk Aktif (Realtime)
         $lowStocks = Stok::with(['produk', 'cabang'])
             ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
             ->where('is_aktif', true)
@@ -128,98 +219,13 @@ class Index extends Component
             ->take(5)
             ->get();
 
-        // Data Snapshot Cabang Khusus HQ
-        $branchSnapshots = [];
-        $allCabangs = Cabang::where('status', 'aktif')->with(['users' => function ($q) {
-            $q->role('Superadmin');
-        }])->get();
-
-        if ($isHQ) {
-            foreach ($allCabangs as $c) {
-                $cOmzet = Penjualan::where('cabang_id', $c->id)->where('is_real', true)->where('status', 'lunas')->whereDate('tanggal', Carbon::today())->sum('total');
-                $cServisAktif = ServisMasuk::where('cabang_id', $c->id)->whereIn('status', ['pengecekan', 'pengerjaan'])->count();
-                $cSuperadmin = $c->users->first()?->name ?? 'Belum ada Admin';
-                $cTotalStaff = User::where('cabang_id', $c->id)->where('status', 'aktif')->count();
-
-                $branchSnapshots[] = [
-                    'id' => $c->id,
-                    'kode' => $c->kode_cabang,
-                    'nama' => $c->nama_cabang,
-                    'alamat' => $c->alamat,
-                    'no_wa' => $c->no_wa,
-                    'superadmin' => $cSuperadmin,
-                    'omzet_hari_ini' => $cOmzet,
-                    'servis_aktif' => $cServisAktif,
-                    'total_staff' => $cTotalStaff,
-                ];
-            }
-        }
-
-        // Data Chart 7 Hari Terakhir
-        $chartCategories = [];
-        $chartSeries = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = Carbon::today()->subDays($i);
-            $chartCategories[] = $date->translatedFormat('d M');
-        }
-
-        if ($isHQ) {
-            foreach ($allCabangs as $c) {
-                $seriesData = [];
-                for ($i = 6; $i >= 0; $i--) {
-                    $date = Carbon::today()->subDays($i);
-                    $dailySum = Penjualan::where('cabang_id', $c->id)
-                        ->where('is_real', true)
-                        ->where('status', 'lunas')
-                        ->whereDate('tanggal', $date)
-                        ->sum('total');
-                    $seriesData[] = (int) $dailySum;
-                }
-                $chartSeries[] = [
-                    'name' => $c->nama_cabang,
-                    'data' => $seriesData,
-                ];
-            }
-        } else {
-            $seriesData = [];
-            for ($i = 6; $i >= 0; $i--) {
-                $date = Carbon::today()->subDays($i);
-                $dailySum = Penjualan::where('cabang_id', $cabangId)
-                    ->where('is_real', true)
-                    ->where('status', 'lunas')
-                    ->whereDate('tanggal', $date)
-                    ->sum('total');
-                $seriesData[] = (int) $dailySum;
-            }
-            $chartSeries[] = [
-                'name' => $activeCabang?->nama_cabang ?? 'Penjualan',
-                'data' => $seriesData,
-            ];
-        }
-
-        return view('livewire.dashboard.index', [
+        return view('livewire.dashboard.index', array_merge($metrics, [
             'isHQ' => $isHQ,
             'isOwner' => $isOwner,
             'activeCabang' => $activeCabang,
-            'totalCabangAktif' => $totalCabangAktif,
-            'totalUserAktif' => $totalUserAktif,
-            'countTotalAktif' => $countTotalAktif,
-            'countPengecekan' => $countPengecekan,
-            'countPengerjaan' => $countPengerjaan,
-            'countSelesai' => $countSelesai,
-            'antrianLaptop' => $antrianLaptop,
-            'antrianPrinter' => $antrianPrinter,
-            'antrianKomputer' => $antrianKomputer,
-            'omzetHariIni' => $omzetHariIni,
-            'omzetBulanIni' => $omzetBulanIni,
-            'totalTransaksiHariIni' => $totalTransaksiHariIni,
-            'totalTransaksiBulanIni' => $totalTransaksiBulanIni,
             'recentServis' => $recentServis,
             'recentPenjualan' => $recentPenjualan,
             'lowStocks' => $lowStocks,
-            'branchSnapshots' => $branchSnapshots,
-            'chartCategories' => $chartCategories,
-            'chartSeries' => $chartSeries,
-        ]);
+        ]));
     }
 }

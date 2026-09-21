@@ -4,10 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Cabang extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => Cache::forget('master_cabangs_active'));
+        static::deleted(fn () => Cache::forget('master_cabangs_active'));
+    }
+
+    public static function getAllCached()
+    {
+        return Cache::remember('master_cabangs_active', 86400, fn () => static::where('status', 'aktif')->orderBy('nama_cabang')->get());
+    }
 
     protected $table = 'cabangs';
 

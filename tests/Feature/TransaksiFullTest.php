@@ -30,6 +30,14 @@ class TransaksiFullTest extends TestCase
         $this->get(route('transaksi.full'))->assertRedirect(route('login'));
     }
 
+    public function test_admin_cannot_access_transaksi_full()
+    {
+        $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
+        $this->actingAs($admin);
+
+        $this->get(route('transaksi.full'))->assertStatus(403);
+    }
+
     public function test_superadmin_can_view_transaksi_full_and_net_cash_calculation()
     {
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();

@@ -35,12 +35,10 @@ class Full extends Component
 
     public string $search = '';
 
-    public array $tableData = [];
-
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || ! ($user->isOwner() || $user->isSuperadmin() || $user->isAdmin())) {
+        if (! $user || ! ($user->isOwner() || $user->isSuperadmin())) {
             abort(403, 'Akses Transaksi FULL dibatasi.');
         }
 
@@ -48,7 +46,6 @@ class Full extends Component
         $this->filterTahun = now()->format('Y');
         $this->startDate = now()->toDateString();
         $this->endDate = now()->toDateString();
-        $this->tableData = $this->getTransactionsData();
     }
 
     public function setPeriodeMode(string $mode): void
@@ -162,6 +159,7 @@ class Full extends Component
                     'tipe' => 'penjualan',
                     'tipe_label' => 'Penjualan',
                     'tanggal' => $pj->tanggal ? $pj->tanggal->format('Y-m-d H:i') : '-',
+                    'tanggal_group' => $this->formatIndonesianDate($pj->tanggal),
                     'tanggal_timestamp' => $pj->tanggal ? $pj->tanggal->timestamp : 0,
                     'no_transaksi' => $pj->no_transaksi_frontend,
                     'customer' => $pj->customer?->nama ?? 'Umum',
@@ -208,6 +206,7 @@ class Full extends Component
                 }
 
                 $tgl = $sv->tanggal_masuk ?? $sv->created_at;
+                $tglCarbon = $tgl ? Carbon::parse($tgl) : null;
                 $hargaJual = (float) ($sv->total_biaya > 0 ? $sv->total_biaya : ($sv->estimasi_biaya ?: 0));
                 $margin = $hargaJual - $totalModal;
                 $isCash = in_array(strtolower(trim($sv->metode_pembayaran ?: '')), ['cash', 'tunai']);
@@ -240,8 +239,9 @@ class Full extends Component
                     'raw_id' => $sv->id,
                     'tipe' => 'servis',
                     'tipe_label' => 'Servis',
-                    'tanggal' => $tgl ? Carbon::parse($tgl)->format('Y-m-d H:i') : '-',
-                    'tanggal_timestamp' => $tgl ? Carbon::parse($tgl)->timestamp : 0,
+                    'tanggal' => $tglCarbon ? $tglCarbon->format('Y-m-d H:i') : '-',
+                    'tanggal_group' => $this->formatIndonesianDate($tglCarbon),
+                    'tanggal_timestamp' => $tglCarbon ? $tglCarbon->timestamp : 0,
                     'no_transaksi' => $sv->no_servis_frontend,
                     'customer' => $sv->customer?->nama ?? 'Umum',
                     'item_detail' => $detailText,
@@ -372,6 +372,11 @@ class Full extends Component
         $saldoBersihSemuaMetode = $saldoBersihReal;
         $saldoKasTunaiBersih = ($totalPenjualanCash + $totalServisCash) - $totalKasKeluarCash;
 
+        $totalPenjualanBruto = $totalPenjualanLunasAll + $totalPenjualanBon;
+        $totalServisBruto = $totalServisLunasAll + $totalServisBelumLunas;
+
+        $this->dispatch('full-table-updated', data: $allRows);
+
         return view('livewire.transaksi.full', [
             'tableData' => $allRows,
             'totalPenjualanCash' => $totalPenjualanCash,
@@ -380,6 +385,8 @@ class Full extends Component
             'totalServisLunasAll' => $totalServisLunasAll,
             'totalPenjualanBon' => $totalPenjualanBon,
             'totalServisBelumLunas' => $totalServisBelumLunas,
+            'totalPenjualanBruto' => $totalPenjualanBruto,
+            'totalServisBruto' => $totalServisBruto,
             'totalBelumLunasAll' => $totalBelumLunasAll,
             'totalPemasukanLunasAll' => $totalPemasukanLunasAll,
             'totalKasKeluarCash' => $totalKasKeluarCash,
@@ -401,5 +408,44 @@ class Full extends Component
             'marginServisTotal' => $marginServisTotal,
             'metodeList' => $metodeList,
         ]);
+    }
+
+    private function formatIndonesianDate(?Carbon $date): string
+    {
+        if (! $date) {
+            return 'Tanpa Tanggal';
+        }
+
+        $days = [
+            'Sun' => 'Minggu',
+            'Mon' => 'Senin',
+            'Tue' => 'Selasa',
+            'Wed' => 'Rabu',
+            'Thu' => 'Kamis',
+            'Fri' => 'Jumat',
+            'Sat' => 'Sabtu',
+        ];
+
+        $months = [
+            1 => 'Jan',
+            2 => 'Feb',
+            3 => 'Mar',
+            4 => 'Apr',
+            5 => 'Mei',
+            6 => 'Jun',
+            7 => 'Jul',
+            8 => 'Agu',
+            9 => 'Sep',
+            10 => 'Okt',
+            11 => 'Nov',
+            12 => 'Des',
+        ];
+
+        $dayName = $days[$date->format('D')] ?? $date->format('l');
+        $dayNum = $date->format('d');
+        $monthName = $months[(int) $date->format('n')] ?? $date->format('M');
+        $year = $date->format('Y');
+
+        return "{$dayName}, {$dayNum} {$monthName} {$year}";
     }
 }
