@@ -86,16 +86,16 @@ class NotificationBell extends Component
             $this->emptyCount = $emptyProduk->count() + $emptySparepart->count();
             $this->criticalCount = $criticalProduk->count() + $criticalSparepart->count();
 
-            // Peringatan Modal Awal setelah jam 10:00 untuk semua cabang aktif
-            if ($isPast10Am) {
-                $aktifCabangs = Cabang::where('status', 'aktif')->get();
-                $existingModalCabangIds = ModalAwal::whereDate('tanggal', $todayDate)
-                    ->pluck('cabang_id')
-                    ->toArray();
-
-                $missingModalCabangs = $aktifCabangs->reject(fn ($c) => in_array($c->id, $existingModalCabangIds))->values();
-                $this->modalAwalAlertCount = $missingModalCabangs->count();
-            }
+            // [TEMP HIDE] Peringatan Modal Awal setelah jam 10:00 untuk semua cabang aktif
+            // if ($isPast10Am) {
+            //     $aktifCabangs = Cabang::where('status', 'aktif')->get();
+            //     $existingModalCabangIds = ModalAwal::whereDate('tanggal', $todayDate)
+            //         ->pluck('cabang_id')
+            //         ->toArray();
+            //
+            //     $missingModalCabangs = $aktifCabangs->reject(fn ($c) => in_array($c->id, $existingModalCabangIds))->values();
+            //     $this->modalAwalAlertCount = $missingModalCabangs->count();
+            // }
 
             $itemsProduk = $stoksProduk->map(function ($s) {
                 return (object) [
@@ -157,19 +157,19 @@ class NotificationBell extends Component
             $this->emptyCount = $emptyProduk->count() + $emptySparepart->count();
             $this->criticalCount = $criticalProduk->count() + $criticalSparepart->count();
 
-            // Peringatan Modal Awal setelah jam 10:00 untuk cabang ini
-            if ($isPast10Am) {
-                $hasModal = ModalAwal::where('cabang_id', $targetCabangId)
-                    ->whereDate('tanggal', $todayDate)
-                    ->exists();
-
-                if (! $hasModal) {
-                    $this->modalAwalAlertCount = 1;
-                    if ($cabang) {
-                        $missingModalCabangs = collect([$cabang]);
-                    }
-                }
-            }
+            // [TEMP HIDE] Peringatan Modal Awal setelah jam 10:00 untuk cabang ini
+            // if ($isPast10Am) {
+            //     $hasModal = ModalAwal::where('cabang_id', $targetCabangId)
+            //         ->whereDate('tanggal', $todayDate)
+            //         ->exists();
+            //
+            //     if (! $hasModal) {
+            //         $this->modalAwalAlertCount = 1;
+            //         if ($cabang) {
+            //             $missingModalCabangs = collect([$cabang]);
+            //         }
+            //     }
+            // }
 
             $itemsProduk = $stoksProduk->map(function ($s) use ($cabang) {
                 return (object) [

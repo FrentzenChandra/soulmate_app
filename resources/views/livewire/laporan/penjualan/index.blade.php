@@ -28,6 +28,26 @@
     </div>
 
     <!-- ============================================== -->
+    <!-- FLASH NOTIFICATION ALERTS                      -->
+    <!-- ============================================== -->
+    @if (session()->has('success'))
+        <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-900 text-xs font-black flex items-center justify-between shadow-xs">
+            <div class="flex items-center space-x-2">
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span>{{ session('success') }}</span>
+            </div>
+        </div>
+    @endif
+    @if (session()->has('error'))
+        <div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-900 text-xs font-black flex items-center justify-between shadow-xs">
+            <div class="flex items-center space-x-2">
+                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        </div>
+    @endif
+
+    <!-- ============================================== -->
     <!-- METRIC CARDS (RINGKASAN FINANSIAL DINAMIS)     -->
     <!-- ============================================== -->
     @if($tipeTransaksiFilter === 'real')
@@ -301,26 +321,38 @@
             </div>
         </div>
 
-        <!-- Baris 2: Sub-Filter (Tipe Transaksi, Kasir, Cabang HQ, Custom Date Range) -->
+        <!-- Baris 2: Sub-Filter (Tipe Transaksi, Status, Kasir, Cabang HQ, Custom Date Range) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 pt-2 border-t border-gray-100">
 
             <!-- Filter Tipe Transaksi -->
-            <div class="{{ $isHQ ? 'lg:col-span-3' : 'lg:col-span-4' }}">
-                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Tipe Transaksi</label>
+            <div class="{{ $isHQ ? 'lg:col-span-3' : 'lg:col-span-3' }}">
+                <label class="block text-[10px] font-bold text-gray-900 uppercase tracking-wider mb-1">Tipe Transaksi</label>
                 <select wire:model.live="tipeTransaksiFilter"
-                        class="w-full text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] bg-white">
+                        class="w-full text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
                     <option value="semua">Semua Tipe Transaksi</option>
                     <option value="real">Penjualan Real (Stok Berkurang)</option>
                     <option value="non_real">Transaksi Non-Real</option>
                 </select>
             </div>
 
+            <!-- Filter Status Pembayaran -->
+            <div class="{{ $isHQ ? 'lg:col-span-3' : 'lg:col-span-3' }}">
+                <label class="block text-[10px] font-bold text-gray-900 uppercase tracking-wider mb-1">Status Pembayaran</label>
+                <select wire:model.live="statusFilter"
+                        class="w-full text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
+                    <option value="semua">Semua Status</option>
+                    <option value="lunas">Lunas</option>
+                    <option value="bon">BON (Belum Lunas)</option>
+                    <option value="batal">Batal</option>
+                </select>
+            </div>
+
             <!-- Filter Kasir -->
-            <div class="{{ $isHQ ? 'lg:col-span-3' : 'lg:col-span-4' }}">
-                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Staf / Kasir</label>
+            <div class="{{ $isHQ ? 'lg:col-span-3' : 'lg:col-span-3' }}">
+                <label class="block text-[10px] font-bold text-gray-900 uppercase tracking-wider mb-1">Staf Kasir</label>
                 <select wire:model.live="kasirFilter"
-                        class="w-full text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] bg-white">
-                    <option value="semua">Semua Staf / Kasir</option>
+                        class="w-full text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
+                    <option value="semua">Semua Staf Kasir</option>
                     @foreach($kasirs as $k)
                         <option value="{{ $k->id }}">{{ $k->name }} ({{ $k->role_name }})</option>
                     @endforeach
@@ -330,7 +362,7 @@
             <!-- Filter Cabang (Owner HQ Saja) -->
             @if($isHQ)
                 <div class="lg:col-span-3">
-                    <label class="block text-[10px] font-bold text-purple-600 uppercase tracking-wider mb-1">Cabang Toko</label>
+                    <label class="block text-[10px] font-bold text-purple-900 uppercase tracking-wider mb-1">Cabang Toko</label>
                     <select wire:model.live="cabangFilter"
                             class="w-full text-xs font-bold px-3 py-2 rounded-xl border border-purple-200 focus:ring-2 focus:ring-[#5E17EB] bg-purple-50/50 text-purple-900">
                         <option value="semua">Semua Cabang (Global)</option>
@@ -343,14 +375,14 @@
 
             <!-- Custom Date Range Inputs (Jika opsi custom dipilih) -->
             @if($periodeFilter === 'custom')
-                <div class="{{ $isHQ ? 'lg:col-span-3' : 'lg:col-span-4' }} flex items-center space-x-2">
+                <div class="{{ $isHQ ? 'lg:col-span-12' : 'lg:col-span-3' }} flex items-center space-x-2">
                     <div class="flex-1">
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Dari</label>
-                        <input type="date" wire:model.live="startDate" class="w-full text-xs font-bold px-2.5 py-1.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB]">
+                        <label class="block text-[10px] font-bold text-gray-900 uppercase tracking-wider mb-1">Dari</label>
+                        <input type="date" wire:model.live="startDate" class="w-full text-xs font-bold px-2.5 py-1.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] text-gray-900">
                     </div>
                     <div class="flex-1">
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Sampai</label>
-                        <input type="date" wire:model.live="endDate" class="w-full text-xs font-bold px-2.5 py-1.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB]">
+                        <label class="block text-[10px] font-bold text-gray-900 uppercase tracking-wider mb-1">Sampai</label>
+                        <input type="date" wire:model.live="endDate" class="w-full text-xs font-bold px-2.5 py-1.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] text-gray-900">
                     </div>
                 </div>
             @endif
@@ -370,29 +402,30 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="border-b border-gray-100 bg-gray-50/70 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">
+                    <tr class="border-b border-gray-100 bg-gray-50/70 text-[11px] font-extrabold text-gray-900 uppercase tracking-wider">
                         <x-th-sort field="no_transaksi" :sortField="$sortField" :sortDirection="$sortDirection" class="px-5">No. Invoice</x-th-sort>
                         <x-th-sort field="tanggal" :sortField="$sortField" :sortDirection="$sortDirection" class="px-4">Waktu Transaksi</x-th-sort>
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Pelanggan</th>
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Kasir / Staf</th>
+                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Pelanggan</th>
+                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Kasir</th>
                         @if($isHQ)
-                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Cabang</th>
+                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Cabang</th>
                         @endif
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-400 text-center">Tipe Transaksi</th>
+                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900 text-center">Tipe Transaksi</th>
+                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900 text-center">Status</th>
                         <x-th-sort field="total" :sortField="$sortField" :sortDirection="$sortDirection" align="right" class="px-4">Total Belanja</x-th-sort>
-                        <th class="py-3.5 px-5 font-extrabold text-[10px] tracking-wider uppercase text-gray-400 text-right">Aksi</th>
+                        <th class="py-3.5 px-5 font-extrabold text-[10px] tracking-wider uppercase text-gray-900 text-right">Aksi</th>
                     </tr>
                 </thead>
 
                 <!-- Skeleton Loader saat Query/Filter/Search/Sort/Pagination -->
                 <x-table-skeleton
-                    :columns="$isHQ ? 8 : 7"
+                    :columns="$isHQ ? 9 : 8"
                     :rows="8"
-                    target="search, periodeFilter, startDate, endDate, tipeTransaksiFilter, kasirFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore" />
+                    target="search, periodeFilter, startDate, endDate, tipeTransaksiFilter, statusFilter, kasirFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore" />
 
                 <!-- Data Transaksi Penjualan -->
                 <tbody wire:loading.remove
-                       wire:target="search, periodeFilter, startDate, endDate, tipeTransaksiFilter, kasirFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
+                       wire:target="search, periodeFilter, startDate, endDate, tipeTransaksiFilter, statusFilter, kasirFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
                        class="divide-y divide-gray-100 text-xs">
                     @forelse($penjualans as $pj)
                         <tr class="hover:bg-gray-50/80 transition-colors {{ !$pj->is_real ? 'bg-amber-50/20' : '' }}">
@@ -404,17 +437,17 @@
                                         {{ $pj->no_transaksi_frontend }}
                                     </span>
                                     @if($isHQ)
-                                        <span class="text-[10px] text-gray-400 mt-0.5">{{ $pj->no_transaksi }}</span>
+                                        <span class="text-[10px] text-gray-500 font-bold mt-0.5">{{ $pj->no_transaksi }}</span>
                                     @endif
                                 </div>
                             </td>
 
                             <!-- Tanggal & Waktu -->
                             <td class="py-4 px-4">
-                                <span class="font-bold text-gray-800 block">
+                                <span class="font-bold text-gray-900 block">
                                     {{ $pj->tanggal ? $pj->tanggal->format('d M Y') : '-' }}
                                 </span>
-                                <span class="text-[11px] text-gray-400 block mt-0.5 font-mono">
+                                <span class="text-[11px] text-gray-600 font-semibold block mt-0.5 font-mono">
                                     {{ $pj->tanggal ? $pj->tanggal->format('H:i') . ' WIB' : '' }}
                                 </span>
                             </td>
@@ -428,7 +461,7 @@
                                     @if($pj->customer?->no_hp)
                                         <a href="https://wa.me/{{ preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $pj->customer->no_hp)) }}"
                                            target="_blank"
-                                           class="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 inline-flex items-center space-x-1 mt-0.5">
+                                           class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 inline-flex items-center space-x-1 mt-0.5">
                                             <span>{{ $pj->customer->no_hp }}</span>
                                         </a>
                                     @endif
@@ -437,10 +470,10 @@
 
                             <!-- Kasir -->
                             <td class="py-4 px-4">
-                                <span class="font-bold text-gray-800 block">
+                                <span class="font-bold text-gray-900 block">
                                     {{ $pj->kasir?->name ?? 'Staf Kasir' }}
                                 </span>
-                                <span class="text-[10px] text-gray-400 block">
+                                <span class="text-[10px] text-gray-600 font-bold block">
                                     {{ $pj->kasir?->role_name ?? 'Admin' }}
                                 </span>
                             </td>
@@ -467,13 +500,33 @@
                                 @endif
                             </td>
 
+                            <!-- Status Pembayaran (Inline Status Dropdown) -->
+                            <td class="py-4 px-4 text-center">
+                                @php
+                                    $statusVal = strtolower($pj->status ?? 'lunas');
+                                    $statusBg = match($statusVal) {
+                                        'lunas', 'selesai' => 'bg-emerald-50 text-emerald-900 border-emerald-400 font-black',
+                                        'bon', 'belum_lunas' => 'bg-amber-50 text-amber-900 border-amber-400 font-black',
+                                        'batal' => 'bg-rose-50 text-rose-900 border-rose-400 font-black',
+                                        default => 'bg-gray-50 text-gray-900 border-gray-300 font-bold',
+                                    };
+                                @endphp
+                                <select wire:change="updateStatusDirect({{ $pj->id }}, $event.target.value)"
+                                        wire:loading.attr="disabled"
+                                        class="text-xs rounded-xl px-2.5 py-1 font-black border transition-all cursor-pointer shadow-xs focus:ring-2 focus:ring-[#5E17EB] {{ $statusBg }}">
+                                    <option value="lunas" {{ in_array($statusVal, ['lunas', 'selesai']) ? 'selected' : '' }}>Lunas</option>
+                                    <option value="bon" {{ in_array($statusVal, ['bon', 'belum_lunas']) ? 'selected' : '' }}>BON</option>
+                                    <option value="batal" {{ $statusVal === 'batal' ? 'selected' : '' }}>Batal</option>
+                                </select>
+                            </td>
+
                             <!-- Total Belanja -->
                             <td class="py-4 px-4 text-right">
                                 <span class="text-sm font-black text-gray-900 block font-mono">
                                     Rp {{ number_format($pj->total, 0, ',', '.') }}
                                 </span>
                                 @if($pj->diskon > 0)
-                                    <span class="text-[10px] font-bold text-rose-500 block">
+                                    <span class="text-[10px] font-bold text-rose-600 block">
                                         Diskon -Rp {{ number_format($pj->diskon, 0, ',', '.') }}
                                     </span>
                                 @endif
@@ -484,7 +537,7 @@
                                 <div class="flex items-center justify-end space-x-1.5">
                                     <!-- Tombol Detail Modal -->
                                     <button wire:click="openDetailModal({{ $pj->id }})"
-                                            class="p-2 rounded-xl text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
+                                            class="p-2 rounded-xl text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
                                             title="Lihat Rincian Item">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </button>
@@ -492,7 +545,7 @@
                                     <!-- Tombol Cetak Struk -->
                                     <a href="{{ route('kasir.produk.invoice', $pj->id) }}"
                                        target="_blank"
-                                       class="p-2 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                                       class="p-2 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
                                        title="Cetak Struk Thermal">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                     </a>
@@ -502,7 +555,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $isHQ ? 8 : 7 }}" class="py-12 text-center">
+                            <td colspan="{{ $isHQ ? 9 : 8 }}" class="py-12 text-center">
                                 <div class="flex flex-col items-center justify-center text-gray-400">
                                     <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                     <p class="font-bold text-gray-600">Tidak ada riwayat transaksi ditemukan</p>
@@ -541,7 +594,7 @@
                     <!-- Header Modal -->
                     <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
                         <div class="flex items-center gap-3.5 min-w-0">
-                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
                                 <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             </div>
                             <div class="min-w-0">
@@ -588,32 +641,47 @@
                     <!-- Snapshot Informasi Pelanggan & Kasir -->
                     <div class="p-6 pb-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase block">Pelanggan</span>
+                            <span class="text-[10px] font-bold text-gray-900 uppercase block">Pelanggan</span>
                             <span class="text-xs font-black text-gray-900 block mt-1 truncate">
                                 {{ $selectedPenjualan->customer?->nama ?? 'Pelanggan Umum' }}
                             </span>
-                            <span class="text-[10px] text-gray-500 block">
+                            <span class="text-[10px] text-gray-700 font-bold block">
                                 {{ $selectedPenjualan->customer?->no_hp ?? '-' }}
                             </span>
                         </div>
 
                         <div class="p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase block">Kasir / Staf</span>
+                            <span class="text-[10px] font-bold text-gray-900 uppercase block">Kasir</span>
                             <span class="text-xs font-black text-gray-900 block mt-1 truncate">
                                 {{ $selectedPenjualan->kasir?->name ?? 'Staf' }}
                             </span>
-                            <span class="text-[10px] text-gray-500 block">
+                            <span class="text-[10px] text-gray-700 font-bold block">
                                 {{ $selectedPenjualan->kasir?->role_name ?? 'Admin' }}
                             </span>
                         </div>
 
                         <div class="p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase block">Tipe Transaksi</span>
+                            <span class="text-[10px] font-bold text-gray-900 uppercase block">Tipe Transaksi</span>
                             <span class="text-xs font-black text-gray-900 block mt-1">
                                 {{ $selectedPenjualan->is_real ? 'Transaksi Real' : 'Transaksi Non-Real' }}
                             </span>
-                            <span class="text-[10px] text-emerald-600 font-bold block">
-                                Status: Lunas
+                            @php
+                                $dStatus = strtolower($selectedPenjualan->status ?? 'lunas');
+                                $dStatusLabel = match($dStatus) {
+                                    'lunas', 'selesai' => 'Lunas',
+                                    'bon', 'belum_lunas' => 'BON (Belum Lunas)',
+                                    'batal' => 'Batal',
+                                    default => ucfirst($dStatus),
+                                };
+                                $dStatusColor = match($dStatus) {
+                                    'lunas', 'selesai' => 'text-emerald-700',
+                                    'bon', 'belum_lunas' => 'text-amber-800',
+                                    'batal' => 'text-rose-700',
+                                    default => 'text-gray-900',
+                                };
+                            @endphp
+                            <span class="text-[10px] {{ $dStatusColor }} font-black block">
+                                Status: {{ $dStatusLabel }}
                             </span>
                         </div>
                     </div>

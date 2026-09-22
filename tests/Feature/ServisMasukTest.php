@@ -280,6 +280,52 @@ class ServisMasukTest extends TestCase
         $this->assertStringContainsString('Power Supply diganti baru', $lastLog->catatan);
     }
 
+    public function test_selesai_unit_stays_in_servis_masuk_until_cetak_nota(): void
+    {
+        $this->actingAs($this->admin);
+
+        $cust = Customer::create(['cabang_id' => $this->cabang1->id, 'nama' => 'Rahmat', 'no_hp' => '0812334455']);
+        $servis = ServisMasuk::create([
+            'no_servis' => 'INV-SV-CBPKP-260915-00050',
+            'cabang_id' => $this->cabang1->id,
+            'customer_id' => $cust->id,
+            'created_by' => $this->admin->id,
+            'kategori_perangkat' => 'laptop',
+            'tipe_unit' => 'Lenovo ThinkPad X280',
+            'keluhan' => 'Keyboard error',
+            'status' => 'pengecekan',
+            'is_cetak_nota' => false,
+            'tanggal_masuk' => now(),
+        ]);
+
+        // 1. Selesaikan servis
+        Livewire::test(ServisMasukIndex::class)
+            ->call('openStatusModal', $servis->id)
+            ->set('updateStatus', 'selesai')
+            ->call('simpanUpdateStatus')
+            ->assertHasNoErrors();
+
+        $servis->refresh();
+        $this->assertEquals('selesai', $servis->status);
+        $this->assertFalse($servis->is_cetak_nota);
+
+        // 2. Unit tetap tampil di Servis Masuk karena belum dicetak nota
+        Livewire::test(ServisMasukIndex::class)
+            ->assertSee('Lenovo ThinkPad X280');
+
+        // 3. Cetak Nota faktur servis
+        Livewire::test(ServisMasukIndex::class)
+            ->call('cetakNota', $servis->id)
+            ->assertDispatched('open-print-invoice');
+
+        $servis->refresh();
+        $this->assertTrue($servis->is_cetak_nota);
+
+        // 4. Setelah dicetak nota, unit tidak lagi muncul di Servis Masuk
+        Livewire::test(ServisMasukIndex::class)
+            ->assertDontSee('Lenovo ThinkPad X280');
+    }
+
     public function test_can_render_tanda_terima_print_page(): void
     {
         $this->actingAs($this->admin);

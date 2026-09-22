@@ -3,11 +3,11 @@
 namespace Tests\Feature;
 
 use App\Livewire\Transaksi\Harian as TransaksiHarian;
-use App\Models\CekKasLog;
-use App\Models\ModalAwal;
-use App\Models\Penjualan;
-use App\Models\PenjualanDetail;
+use App\Models\MasterPpn;
+use App\Models\MetodePembayaran;
 use App\Models\Produk;
+use App\Models\Stok;
+use App\Models\TransaksiFull as TransaksiFullModel;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -37,95 +37,81 @@ class TransaksiHarianAndTutupKasTest extends TestCase
         $this->get(route('transaksi.harian'))->assertStatus(403);
     }
 
-    public function test_admin_can_view_transaksi_harian_and_perform_cek_kas()
+    public function test_admin_can_view_transaksi_harian_and_create_transaction()
     {
         $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
         $this->actingAs($admin);
 
         $this->get(route('transaksi.harian'))->assertStatus(200);
 
-        // 1. Set modal awal hari ini
-        ModalAwal::create([
-            'cabang_id' => $admin->cabang_id,
-            'user_id' => $admin->id,
-            'tanggal' => now()->toDateString(),
-            'nominal' => 300000,
-            'keterangan' => 'Uang modal pagi',
-        ]);
-
-        // 2. Buat penjualan cash hari ini
         $produk = Produk::first();
-        $pj = Penjualan::create([
-            'no_transaksi' => 'INV-PJ-PKP-2609-00002',
-            'cabang_id' => $admin->cabang_id,
-            'kasir_id' => $admin->id,
-            'tipe_transaksi' => 'penjualan_barang',
-            'tanggal' => now(),
-            'subtotal' => 150000,
-            'diskon' => 0,
-            'total' => 150000,
-            'jumlah_bayar' => 150000,
-            'kembalian' => 0,
-            'metode_bayar' => 'Cash',
-            'status' => 'lunas',
-            'is_real' => true,
+        $stokAwal = Stok::where('produk_id', $produk->id)->where('cabang_id', $admin->cabang_id)->value('jumlah') ?? 50;
+
+        $metode = MetodePembayaran::first();
+        $ppn = MasterPpn::first();
+
+        $test = Livewire::test(TransaksiHarian::class)
+            ->call('openCreateModal')
+            ->set('formNamaPelanggan', 'Joko Susilo')
+            ->set('formNoHp', '0855555555')
+            ->set('formTipeTransaksi', 'servis')
+            ->set('formStatus', 'Lunas')
+            ->set('formMetodePembayaranId', $metode->id)
+            ->set('formMetodePembayaran', $metode->nama_metode)
+            ->set('formPpnId', $ppn->id)
+            ->set('formPpnPersen', $ppn->persentase)
+            ->set('items.0.nama_item', 'Ganti LCD Laptop')
+            ->set('items.0.qty', 1)
+            ->set('items.0.harga_modal', 300000)
+            ->set('items.0.harga_jual', 450000)
+            ->call('recalculateRow', 0)
+            ->call('simpanTransaksi')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('transaksi_fulls', [
+            'nama_pelanggan' => 'Joko Susilo',
+            'tipe_transaksi' => 'servis',
+            'status' => 'Lunas',
         ]);
 
-        PenjualanDetail::create([
-            'penjualan_id' => $pj->id,
-            'tipe_item' => 'barang',
-            'produk_id' => $produk->id,
-            'nama_item' => $produk->nama_produk,
-            'qty' => 1,
-            'harga' => 150000,
-            'subtotal' => 150000,
-        ]);
-
-        // Kas sistem = Modal Awal (300.000) + Penjualan Cash (150.000) = 450.000
-
-        // 3. Proses Cek Kas Cepat dengan kas fisik sesuai kasSistem (status: klop)
-        $component = Livewire::test(TransaksiHarian::class);
-        $kasSistem = $component->viewData('kasSistem');
-
-        $component->call('openCekKasModal')
-            ->set('kasFisik', (string) $kasSistem)
-            ->set('catatanAudit', 'Rutin audit pagi')
-            ->call('prosesCekKas')
-            ->assertHasNoErrors()
-            ->assertDispatched('swal:success');
-
-        $this->assertDatabaseHas('cek_kas_logs', [
-            'cabang_id' => $admin->cabang_id,
-            'kas_sistem' => $kasSistem,
-            'kas_fisik' => $kasSistem,
-            'selisih' => 0,
-            'status_selisih' => 'klop',
-            'catatan' => 'Rutin audit pagi',
-        ]);
+        // Zero Stock Mutation assertion
+        $stokAkhir = Stok::where('produk_id', $produk->id)->where('cabang_id', $admin->cabang_id)->value('jumlah') ?? 50;
+        $this->assertEquals($stokAwal, $stokAkhir);
     }
 
-    public function test_admin_can_filter_transaksi_harian_by_multi_periode()
+    public function test_admin_can_inline_update_status_transaksi_harian()
+    {
+        $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
+        $this->actingAs($admin);
+
+        $transaksi = TransaksiFullModel::create([
+            'cabang_id' => $admin->cabang_id,
+            'user_id' => $admin->id,
+            'nama_pelanggan' => 'Client Harian',
+            'no_transaksi' => 'INV-PJ-CBPKP-260922-00005',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => now()->toDateString(),
+            'total_modal' => 10000,
+            'total_jual' => 20000,
+            'total_laba' => 10000,
+            'grand_total' => 20000,
+            'status' => 'Belum Lunas',
+        ]);
+
+        Livewire::test(TransaksiHarian::class)
+            ->call('updateStatusDirect', $transaksi->id, 'Lunas');
+
+        $this->assertEquals('Lunas', $transaksi->fresh()->status);
+    }
+
+    public function test_admin_can_filter_transaksi_harian_by_date()
     {
         $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
         $this->actingAs($admin);
 
         $component = Livewire::test(TransaksiHarian::class);
-
-        // Default range
-        $component->assertSet('periodeMode', 'range')
-            ->call('setPeriodeMode', 'bulanan')
-            ->assertSet('periodeMode', 'bulanan')
-            ->set('filterBulan', '09')
-            ->set('filterTahun', '2026')
-            ->call('applyBulanan')
-            ->assertSet('startDate', '2026-09-01')
-            ->assertSet('endDate', '2026-09-30');
-
-        $component->call('setPeriodeMode', 'tahunan')
-            ->assertSet('periodeMode', 'tahunan')
-            ->set('filterTahun', '2026')
-            ->call('applyTahunan')
-            ->assertSet('startDate', '2026-01-01')
-            ->assertSet('endDate', '2026-12-31');
+        $component->assertSet('filterDate', now()->toDateString())
+            ->set('filterDate', '2026-09-01')
+            ->assertSet('filterDate', '2026-09-01');
     }
 }

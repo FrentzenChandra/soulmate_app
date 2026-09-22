@@ -1,27 +1,30 @@
 <div class="relative bg-white rounded-3xl shadow-2xl shadow-purple-950/40 border border-gray-100/10 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
 
-    <!-- Full-screen Loading Modal Overlay on Submit -->
+    <!-- Clean Modern Loading Modal Overlay on Submit -->
     <div wire:loading.flex
          wire:target="authenticate"
-         class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/75 backdrop-blur-sm transition-opacity"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/60 backdrop-blur-xs transition-opacity"
          style="display: none;">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-11/12 shadow-2xl border border-gray-100 flex flex-col items-center text-center">
-            <div class="relative mb-5">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#5E17EB] to-[#E6007A] flex items-center justify-center text-white shadow-xl shadow-purple-500/30 overflow-hidden">
-                    <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-full h-full object-cover">
+        <div class="bg-white rounded-3xl p-7 max-w-xs w-11/12 shadow-2xl border border-gray-100 flex flex-col items-center text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <!-- Sleek Dual-Ring Brand Loader -->
+            <div class="relative w-14 h-14 flex items-center justify-center">
+                <div class="w-14 h-14 rounded-full border-3 border-purple-100 border-t-[#5E17EB] animate-spin"></div>
+                <div class="absolute w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-[#5E17EB] shadow-2xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 </div>
-                <div class="absolute -inset-1.5 rounded-2xl border-2 border-[#5E17EB] animate-ping opacity-40"></div>
             </div>
 
-            <h3 class="text-lg font-extrabold text-gray-900">Memproses Masuk...</h3>
-            <p class="text-xs text-gray-500 mt-1 leading-relaxed">
-                Sedang memverifikasi kredensial & otorisasi sistem Soulmate Komputer.
-            </p>
-
-            <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mt-6">
-                <div class="bg-gradient-to-r from-[#5E17EB] via-[#0052FF] to-[#E6007A] h-full rounded-full w-full animate-pulse"></div>
+            <div class="space-y-1">
+                <h3 class="text-sm font-black text-gray-900 tracking-tight">Memverifikasi Kredensial</h3>
+                <p class="text-xs text-gray-500 font-medium">
+                    Sinkronisasi sesi akun staf &amp; dashboard
+                </p>
             </div>
-            <span class="text-[10px] text-purple-600 font-bold uppercase tracking-wider mt-3">Mohon tunggu sebentar...</span>
+
+            <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-purple-50 text-[#5E17EB] border border-purple-100 text-[10px] font-bold">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#5E17EB] animate-ping"></span>
+                <span>Menghubungkan ke server...</span>
+            </div>
         </div>
     </div>
 
@@ -153,12 +156,10 @@
             <!-- Submit Button -->
             <button type="submit"
                     wire:loading.attr="disabled"
-                    class="btn-brand w-full py-3 px-4 rounded-xl text-white font-bold text-sm shadow-md shadow-purple-500/20 flex items-center justify-center space-x-2 cursor-pointer mt-2 disabled:opacity-50">
+                    class="w-full py-3 px-4 rounded-xl bg-[#5E17EB] hover:bg-[#4E10C7] active:bg-[#3D09A3] text-white font-extrabold text-sm shadow-md shadow-purple-900/20 transition-all flex items-center justify-center space-x-2 cursor-pointer mt-2 disabled:opacity-50">
+                <svg wire:loading wire:target="authenticate" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 <span wire:loading.remove wire:target="authenticate">Masuk ke Dashboard</span>
-                <span wire:loading wire:target="authenticate" class="flex items-center space-x-2">
-                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    <span>Memproses...</span>
-                </span>
+                <span wire:loading wire:target="authenticate">Memverifikasi Akun...</span>
             </button>
         </form>
 

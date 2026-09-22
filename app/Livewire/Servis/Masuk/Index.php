@@ -668,7 +668,39 @@ class Index extends Component
 
         $this->closeTindakanModal();
 
-        session()->flash('success', "Servis {$servis->no_servis_frontend} telah SELESAI dan berpindah ke menu Servis Keluar!");
+        session()->flash('success', "Pengerjaan unit {$servis->no_servis_frontend} telah SELESAI (Siap Diambil)! Silakan cetak nota saat pelanggan mengambil unit untuk memindahkannya ke Servis Keluar.");
+    }
+
+    // =========================================================================
+    // CETAK NOTA FAKTUR SERVIS (MEMINDAHKAN RECORD KE SERVIS KELUAR)
+    // =========================================================================
+
+    public function cetakNota(int $id): void
+    {
+        $servis = ServisMasuk::findOrFail($id);
+        $servis->is_cetak_nota = true;
+        if (! $servis->tanggal_selesai) {
+            $servis->tanggal_selesai = Carbon::now();
+        }
+        $servis->save();
+
+        ServisStatusLog::create([
+            'servis_id' => $servis->id,
+            'user_id' => Auth::id(),
+            'status' => $servis->status,
+            'tanggal' => Carbon::now(),
+            'catatan' => 'Nota faktur servis telah dicetak. Data unit berpindah ke Servis Keluar.',
+        ]);
+
+        try {
+            broadcast(new ServisStatusUpdated($servis->id, $servis->status, $servis->no_servis_frontend, $servis->cabang_id));
+        } catch (\Throwable $th) {
+            // Silently continue
+        }
+
+        $this->dispatch('open-print-invoice', url: route('servis.invoice', $servis->id) . '?autoprint=1');
+
+        session()->flash('success', "Nota servis {$servis->no_servis_frontend} berhasil dicetak! Data unit kini berpindah ke Servis Keluar.");
     }
 
     public function render()
@@ -706,7 +738,7 @@ class Index extends Component
             })->take(6)->get();
         }
 
-        // Query Utama Servis Masuk (HANYA status pengecekan & perbaikan)
+        // Query Utama Servis Masuk (pengecekan, perbaikan, ATAU selesai yang belum dicetak notanya)
         $query = ServisMasuk::with(['customer', 'cabang', 'pembuat', 'details']);
 
         // Scoping Cabang
@@ -719,13 +751,20 @@ class Index extends Component
             $query->where('cabang_id', (int) $this->cabangFilter);
         }
 
-        // Filter Status di Servis Masuk (Default: pengecekan + perbaikan/pengerjaan)
+        // Filter Status di Servis Masuk
         if ($this->statusFilter === 'pengecekan') {
             $query->where('status', 'pengecekan');
         } elseif ($this->statusFilter === 'perbaikan') {
             $query->whereIn('status', ['perbaikan', 'pengerjaan']);
+        } elseif ($this->statusFilter === 'selesai') {
+            $query->where('status', 'selesai')->where('is_cetak_nota', false);
         } else {
-            $query->whereIn('status', ['pengecekan', 'perbaikan', 'pengerjaan']);
+            $query->where(function ($q) {
+                $q->whereIn('status', ['pengecekan', 'perbaikan', 'pengerjaan'])
+                  ->orWhere(function ($sq) {
+                      $sq->where('status', 'selesai')->where('is_cetak_nota', false);
+                  });
+            });
         }
 
         // Filter Kategori Perangkat
@@ -761,8 +800,9 @@ class Index extends Component
         $totalUnitMasuk = $allCurrent->count();
         $totalPengecekan = $allCurrent->where('status', 'pengecekan')->count();
         $totalPengerjaan = $allCurrent->whereIn('status', ['perbaikan', 'pengerjaan'])->count();
+        $totalSiapDiambil = $allCurrent->where('status', 'selesai')->where('is_cetak_nota', false)->count();
 
-        // Sorting
+        // Sorting: Prioritaskan yang sedang diproses / selesai
         $sortDir = strtolower($this->sortDirection) === 'asc' ? 'asc' : 'desc';
         $allowedSorts = ['tanggal_masuk', 'no_servis', 'tipe_unit', 'status', 'id'];
         $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'tanggal_masuk';
@@ -779,6 +819,7 @@ class Index extends Component
             'totalUnitMasuk' => $totalUnitMasuk,
             'totalPengecekan' => $totalPengecekan,
             'totalPengerjaan' => $totalPengerjaan,
+            'totalSiapDiambil' => $totalSiapDiambil,
             'cabangs' => $cabangs,
             'customerSuggestions' => $customerSuggestions,
             'masterServisSuggestions' => $masterServisSuggestions,

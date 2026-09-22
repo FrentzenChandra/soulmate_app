@@ -1,0 +1,332 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Cabang;
+use App\Models\Customer;
+use App\Models\KasKeluar;
+use App\Models\KategoriKasKeluar;
+use App\Models\MasterPpn;
+use App\Models\MetodePembayaran;
+use App\Models\Produk;
+use App\Models\SumberDana;
+use App\Models\TransaksiFull;
+use App\Models\TransaksiFullDetail;
+use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
+
+class TransaksiFullSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        $pkp = Cabang::where('kode_cabang', 'CB-PKP')->first() ?? Cabang::first();
+        $sgl = Cabang::where('kode_cabang', 'CB-SGL')->first();
+        $kba = Cabang::where('kode_cabang', 'CB-KBA')->first();
+
+        $userPkp = User::where('cabang_id', $pkp?->id)->first() ?? User::first();
+        $userSgl = $sgl ? User::where('cabang_id', $sgl->id)->first() : $userPkp;
+        $userKba = $kba ? User::where('cabang_id', $kba->id)->first() : $userPkp;
+
+        $customers = Customer::all();
+        $custHendra = $customers->where('nama', 'Hendra Setiawan')->first();
+        $custMega = $customers->where('nama', 'Mega Lestari')->first();
+        $custFajar = $customers->where('nama', 'PT Bangka Media Utama (Bpk. Fajar)')->first();
+        $custRizky = $customers->where('nama', 'Rizky Pratama')->first();
+
+        $ppnAktif = MasterPpn::getAktifCached();
+        $ppnPersen = $ppnAktif ? (float) $ppnAktif->persen : 0;
+        $ppnId = $ppnAktif?->id;
+
+        $metodeCash = MetodePembayaran::where('nama', 'Cash')->first() ?? MetodePembayaran::first();
+        $metodeTransfer = MetodePembayaran::where('nama', 'Transfer BCA')->first() ?? $metodeCash;
+        $metodeQris = MetodePembayaran::where('nama', 'QRIS')->first() ?? $metodeCash;
+
+        $allProduk = Produk::all();
+        $ssd = $allProduk->where('barcode', '8991234560011')->first() ?? $allProduk->first();
+        $ram = $allProduk->where('barcode', '8991234560028')->first() ?? $allProduk->skip(1)->first();
+        $mouse = $allProduk->where('barcode', '8991234560080')->first() ?? $allProduk->skip(2)->first();
+        $pasta = $allProduk->where('barcode', '8991234560059')->first() ?? $allProduk->skip(3)->first();
+
+        $now = Carbon::now();
+        $today = $now->format('ymd');
+
+        // Pastikan Kategori Kas Keluar dan Sumber Dana ada untuk seeder Kas Keluar
+        $kategoriKas = KategoriKasKeluar::firstOrCreate(
+            ['nama' => 'Operasional & ATK'],
+            ['is_aktif' => true]
+        );
+        $kategoriKonsumsi = KategoriKasKeluar::firstOrCreate(
+            ['nama' => 'Konsumsi Staf'],
+            ['is_aktif' => true]
+        );
+
+        $sumberKas = SumberDana::firstOrCreate(
+            ['nama' => 'Kas Laci Kasir'],
+            ['is_aktif' => true]
+        );
+
+        // =========================================================================
+        // SEED KAS KELUAR CONTOH
+        // =========================================================================
+        if ($pkp && $userPkp) {
+            KasKeluar::create([
+                'cabang_id' => $pkp->id,
+                'user_id' => $userPkp->id,
+                'sumber_dana_id' => $sumberKas->id,
+                'kategori_kas_keluar_id' => $kategoriKas->id,
+                'tanggal' => $now->copy()->setTime(10, 30),
+                'keterangan' => 'Beli Kertas Nota Kasir 5 Roll & Lakban Bening',
+                'nominal' => 75000,
+            ]);
+
+            KasKeluar::create([
+                'cabang_id' => $pkp->id,
+                'user_id' => $userPkp->id,
+                'sumber_dana_id' => $sumberKas->id,
+                'kategori_kas_keluar_id' => $kategoriKonsumsi->id,
+                'tanggal' => $now->copy()->setTime(12, 15),
+                'keterangan' => 'Makan Siang & Kopi Teknisi Servis',
+                'nominal' => 45000,
+            ]);
+        }
+
+        // =========================================================================
+        // DAFTAR TRANSAKSI CONTOH CABANG PKP (HARI INI)
+        // =========================================================================
+        $sampleTrx = [
+            // 1. Penjualan Lunas - Upgrade SSD & RAM (Pelanggan Langganan Hendra)
+            [
+                'cabang_id' => $pkp->id,
+                'user_id' => $userPkp->id,
+                'customer_id' => $custHendra?->id,
+                'nama_pelanggan' => $custHendra?->nama ?? 'Hendra Setiawan',
+                'no_hp' => $custHendra?->no_hp ?? '081234567890',
+                'no_transaksi' => 'INV-PJ-CBPKP-' . $today . '-00001',
+                'tipe_transaksi' => 'penjualan',
+                'tanggal' => $now->copy()->setTime(9, 15),
+                'metode_pembayaran_id' => $metodeCash?->id,
+                'metode_pembayaran' => $metodeCash?->nama ?? 'Cash',
+                'status' => 'Lunas',
+                'catatan' => 'Upgrade laptop Lenovo Thinkpad X280 milik pribadi',
+                'items' => [
+                    [
+                        'produk_id' => $ssd?->id,
+                        'nama_item' => $ssd?->nama_produk ?? 'SSD Kingston NV2 500GB PCIe 4.0 NVMe M.2',
+                        'qty' => 1,
+                        'harga_modal' => 380000,
+                        'harga_jual' => 475000,
+                    ],
+                    [
+                        'produk_id' => $ram?->id,
+                        'nama_item' => $ram?->nama_produk ?? 'RAM SODIMM Corsair DDR4 8GB 3200MHz',
+                        'qty' => 1,
+                        'harga_modal' => 240000,
+                        'harga_jual' => 320000,
+                    ],
+                ],
+            ],
+
+            // 2. Servis Lunas - Servis Laptop Overheat & Ganti Pasta (Pelanggan Mega Lestari)
+            [
+                'cabang_id' => $pkp->id,
+                'user_id' => $userPkp->id,
+                'customer_id' => $custMega?->id,
+                'nama_pelanggan' => $custMega?->nama ?? 'Mega Lestari',
+                'no_hp' => $custMega?->no_hp ?? '082198765432',
+                'no_transaksi' => 'INV-SV-CBPKP-' . $today . '-00002',
+                'tipe_transaksi' => 'servis',
+                'tanggal' => $now->copy()->setTime(10, 45),
+                'metode_pembayaran_id' => $metodeQris?->id,
+                'metode_pembayaran' => $metodeQris?->nama ?? 'QRIS',
+                'status' => 'Lunas',
+                'catatan' => 'Laptop Asus Vivobook sering mati mendadak saat render video. Fan dibersihkan & repaste.',
+                'items' => [
+                    [
+                        'produk_id' => null,
+                        'nama_item' => 'Deep Cleaning Fan, Heatsink & Maintenance Jalur Udara',
+                        'qty' => 1,
+                        'harga_modal' => 20000,
+                        'harga_jual' => 100000,
+                    ],
+                    [
+                        'produk_id' => $pasta?->id,
+                        'nama_item' => 'Thermal Paste Arctic MX-4 High Performance (Repasting CPU & GPU)',
+                        'qty' => 1,
+                        'harga_modal' => 35000,
+                        'harga_jual' => 85000,
+                    ],
+                ],
+            ],
+
+            // 3. Penjualan BON / Belum Lunas - Pengadaan Kantor PT Bangka Media Utama
+            [
+                'cabang_id' => $pkp->id,
+                'user_id' => $userPkp->id,
+                'customer_id' => $custFajar?->id,
+                'nama_pelanggan' => $custFajar?->nama ?? 'PT Bangka Media Utama (Bpk. Fajar)',
+                'no_hp' => $custFajar?->no_hp ?? '081377889900',
+                'no_transaksi' => 'INV-PJ-CBPKP-' . $today . '-00003',
+                'tipe_transaksi' => 'penjualan',
+                'tanggal' => $now->copy()->setTime(11, 30),
+                'metode_pembayaran_id' => $metodeTransfer?->id,
+                'metode_pembayaran' => $metodeTransfer?->nama ?? 'Transfer BCA',
+                'status' => 'BON',
+                'catatan' => 'Pengadaan 3 unit mouse wireless Logitech & 2 unit flashdisk untuk tim liputan. PO No: BMU-09/26.',
+                'items' => [
+                    [
+                        'produk_id' => $mouse?->id,
+                        'nama_item' => 'Mouse Wireless Logitech M185 Silent Grey',
+                        'qty' => 3,
+                        'harga_modal' => 110000,
+                        'harga_jual' => 155000,
+                    ],
+                    [
+                        'produk_id' => null,
+                        'nama_item' => 'Flashdisk SanDisk Ultra Dual Drive Type-C 64GB',
+                        'qty' => 2,
+                        'harga_modal' => 95000,
+                        'harga_jual' => 145000,
+                    ],
+                ],
+            ],
+
+            // 4. Servis Belum Lunas - Servis Motherboard PC Kantor (Pelanggan Rizky)
+            [
+                'cabang_id' => $pkp->id,
+                'user_id' => $userPkp->id,
+                'customer_id' => $custRizky?->id,
+                'nama_pelanggan' => $custRizky?->nama ?? 'Rizky Pratama',
+                'no_hp' => $custRizky?->no_hp ?? '085266778899',
+                'no_transaksi' => 'INV-SV-CBPKP-' . $today . '-00004',
+                'tipe_transaksi' => 'servis',
+                'tanggal' => $now->copy()->setTime(13, 00),
+                'metode_pembayaran_id' => $metodeCash?->id,
+                'metode_pembayaran' => $metodeCash?->nama ?? 'Cash',
+                'status' => 'Belum Lunas',
+                'catatan' => 'Servis motherboard PC short jalur 12V Vcore CPU + reballing chipset.',
+                'items' => [
+                    [
+                        'produk_id' => null,
+                        'nama_item' => 'Jasa Perbaikan Motherboard Short Jalur 12V VCore & Ganti Mosfet',
+                        'qty' => 1,
+                        'harga_modal' => 75000,
+                        'harga_jual' => 350000,
+                    ],
+                ],
+            ],
+
+            // 5. Penjualan Lunas - Pelanggan Umum Walk-In
+            [
+                'cabang_id' => $pkp->id,
+                'user_id' => $userPkp->id,
+                'customer_id' => null,
+                'nama_pelanggan' => 'Pelanggan Umum (Bpk. Andre)',
+                'no_hp' => '087811223344',
+                'no_transaksi' => 'INV-PJ-CBPKP-' . $today . '-00005',
+                'tipe_transaksi' => 'penjualan',
+                'tanggal' => $now->copy()->setTime(14, 20),
+                'metode_pembayaran_id' => $metodeCash?->id,
+                'metode_pembayaran' => $metodeCash?->nama ?? 'Cash',
+                'status' => 'Lunas',
+                'catatan' => 'Beli mousepad gaming & kabel HDMI gold plated',
+                'items' => [
+                    [
+                        'produk_id' => null,
+                        'nama_item' => 'Mousepad Gaming Speed Edition 80x30cm',
+                        'qty' => 1,
+                        'harga_modal' => 35000,
+                        'harga_jual' => 65000,
+                    ],
+                    [
+                        'produk_id' => null,
+                        'nama_item' => 'Kabel HDMI 2.0 Ultra HD 4K 1.5 Meter',
+                        'qty' => 1,
+                        'harga_modal' => 25000,
+                        'harga_jual' => 45000,
+                    ],
+                ],
+            ],
+
+            // 6. Servis Lunas - Install Ulang Windows 11 & Office (Pelanggan Umum)
+            [
+                'cabang_id' => $pkp->id,
+                'user_id' => $userPkp->id,
+                'customer_id' => null,
+                'nama_pelanggan' => 'Ibu Siti Khadijah',
+                'no_hp' => '081955667788',
+                'no_transaksi' => 'INV-SV-CBPKP-' . $today . '-00006',
+                'tipe_transaksi' => 'servis',
+                'tanggal' => $now->copy()->setTime(15, 10),
+                'metode_pembayaran_id' => $metodeCash?->id,
+                'metode_pembayaran' => $metodeCash?->nama ?? 'Cash',
+                'status' => 'Lunas',
+                'catatan' => 'Install Ulang Windows 11 Pro 64-bit + Backup data dokumen 20GB',
+                'items' => [
+                    [
+                        'produk_id' => null,
+                        'nama_item' => 'Jasa Install Ulang OS Windows 11 Pro + Aplikasi Standar + Backup Data',
+                        'qty' => 1,
+                        'harga_modal' => 0,
+                        'harga_jual' => 85000,
+                    ],
+                ],
+            ],
+        ];
+
+        // =========================================================================
+        // EKSEKUSI PEMBUATAN TRANSAKSI
+        // =========================================================================
+        foreach ($sampleTrx as $trxData) {
+            $items = $trxData['items'];
+            unset($trxData['items']);
+
+            $totalModal = 0;
+            $totalJual = 0;
+
+            foreach ($items as $it) {
+                $q = (int) $it['qty'];
+                $hm = (float) $it['harga_modal'];
+                $hj = (float) $it['harga_jual'];
+
+                $totalModal += ($hm * $q);
+                $totalJual += ($hj * $q);
+            }
+
+            $totalLaba = $totalJual - $totalModal;
+            $ppnNominal = ($totalJual * $ppnPersen) / 100;
+            $grandTotal = $totalJual + $ppnNominal;
+
+            $trxData['ppn_id'] = $ppnId;
+            $trxData['ppn_persen'] = $ppnPersen;
+            $trxData['ppn_nominal'] = $ppnNominal;
+            $trxData['total_modal'] = $totalModal;
+            $trxData['total_jual'] = $totalJual;
+            $trxData['total_laba'] = $totalLaba;
+            $trxData['grand_total'] = $grandTotal;
+
+            $created = TransaksiFull::create($trxData);
+
+            foreach ($items as $it) {
+                $q = (int) $it['qty'];
+                $hm = (float) $it['harga_modal'];
+                $hj = (float) $it['harga_jual'];
+
+                TransaksiFullDetail::create([
+                    'transaksi_full_id' => $created->id,
+                    'produk_id' => $it['produk_id'],
+                    'nama_item' => $it['nama_item'],
+                    'qty' => $q,
+                    'harga_modal' => $hm,
+                    'harga_jual' => $hj,
+                    'subtotal_modal' => $hm * $q,
+                    'subtotal_jual' => $hj * $q,
+                    'laba' => ($hj - $hm) * $q,
+                ]);
+            }
+        }
+    }
+}

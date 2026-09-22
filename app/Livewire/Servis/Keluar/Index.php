@@ -66,8 +66,8 @@ class Index extends Component
             abort(403, 'Akses modul Servis Keluar dibatasi.');
         }
 
-        $this->sortField = 'default_ambil';
-        $this->sortDirection = 'asc';
+        $this->sortField = 'tanggal_ambil';
+        $this->sortDirection = 'desc';
     }
 
     #[On('echo:servis-updates,.ServisStatusUpdated')]
@@ -332,7 +332,7 @@ class Index extends Component
             })->take(6)->get();
         }
 
-        // Query Utama Servis Keluar (status: 'selesai' dan 'sudah_diambil' / 'sudah_dibayar')
+        // Query Utama Servis Keluar (status: 'selesai' yang sudah dicetak notanya ATAU 'sudah_diambil' / 'sudah_dibayar')
         $query = ServisMasuk::with(['customer', 'cabang', 'pembuat', 'teknisi', 'kasir', 'details.masterServis']);
 
         // Scoping Cabang
@@ -347,11 +347,15 @@ class Index extends Component
 
         // Filter Status di Servis Keluar
         if ($this->statusFilter === 'selesai') {
-            $query->where('status', 'selesai');
+            $query->where('status', 'selesai')->where('is_cetak_nota', true);
         } elseif ($this->statusFilter === 'sudah_diambil') {
             $query->whereIn('status', ['sudah_diambil', 'sudah_dibayar']);
         } else {
-            $query->whereIn('status', ['selesai', 'sudah_diambil', 'sudah_dibayar']);
+            $query->where(function ($q) {
+                $q->where(function ($sq) {
+                    $sq->where('status', 'selesai')->where('is_cetak_nota', true);
+                })->orWhereIn('status', ['sudah_diambil', 'sudah_dibayar']);
+            });
         }
 
         // Pencarian Multi-Kata Longgar
@@ -379,22 +383,15 @@ class Index extends Component
         $metricsBase = clone $query;
         $allCurrent = $metricsBase->get();
 
-        $totalSiapDiambil = $allCurrent->where('status', 'selesai')->count();
+        $totalSiapDiambil = $allCurrent->where('status', 'selesai')->where('is_cetak_nota', true)->count();
         $totalSudahDiambil = $allCurrent->whereIn('status', ['sudah_diambil', 'sudah_dibayar'])->count();
         $totalPendapatanServis = $allCurrent->whereIn('status', ['sudah_diambil', 'sudah_dibayar'])->sum('total_biaya');
 
-        // Sorting Logika: BELUM DIAMBIL (status == 'selesai') DI ATAS!
-        if ($this->sortField === 'default_ambil' || empty($this->sortField)) {
-            $query->orderByRaw("CASE WHEN status = 'selesai' THEN 0 ELSE 1 END")
-                  ->orderByDesc('tanggal_selesai')
-                  ->orderByDesc('tanggal_ambil')
-                  ->orderByDesc('id');
-        } else {
-            $sortDir = strtolower($this->sortDirection) === 'asc' ? 'asc' : 'desc';
-            $allowedSorts = ['tanggal_masuk', 'tanggal_selesai', 'tanggal_ambil', 'no_servis', 'tipe_unit', 'total_biaya', 'status', 'id'];
-            $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'tanggal_selesai';
-            $query->orderBy($sortColumn, $sortDir);
-        }
+        // Sorting
+        $sortDir = strtolower($this->sortDirection) === 'asc' ? 'asc' : 'desc';
+        $allowedSorts = ['tanggal_masuk', 'tanggal_selesai', 'tanggal_ambil', 'no_servis', 'tipe_unit', 'total_biaya', 'status', 'id'];
+        $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'tanggal_ambil';
+        $query->orderBy($sortColumn, $sortDir)->orderByDesc('id');
 
         $totalItems = (clone $query)->count();
         $servisList = $query->take($this->perPage)->get();

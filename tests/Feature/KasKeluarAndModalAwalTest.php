@@ -255,6 +255,8 @@ class KasKeluarAndModalAwalTest extends TestCase
 
     public function test_notification_bell_alerts_when_modal_awal_is_missing_after_10am()
     {
+        $this->markTestSkipped('Notifikasi Modal Awal disembunyikan sementara per permintaan user.');
+
         $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
         $this->actingAs($admin);
 

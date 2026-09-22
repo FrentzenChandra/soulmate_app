@@ -216,7 +216,7 @@
                     <!-- Header Modal -->
                     <div class="bg-emerald-600 px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
                         <div class="flex items-center gap-3.5 min-w-0">
-                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
                                 <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
                             <div class="min-w-0">
@@ -352,6 +352,7 @@ window.tabulatorAuditTable = function(config) {
                 } else {
                     this.table.setGroupBy(false);
                 }
+                this.table.redraw(true);
             }
         },
 
@@ -392,10 +393,12 @@ window.tabulatorAuditTable = function(config) {
                 paginationSizeSelector: [15, 25, 50, 100],
                 movableColumns: true,
                 groupBy: this.groupByDate ? "tanggal_group" : false,
+                groupStartOpen: true,
+                groupToggleElement: "header",
                 groupHeader: function(value, count, data, group) {
                     let totalMinus = data.filter(r => r.status_selisih === 'Minus').length;
                     return `
-                        <div class="flex flex-wrap items-center justify-between w-full pr-3 py-0.5 text-xs font-bold text-gray-800">
+                        <div class="flex flex-wrap items-center justify-between w-full pr-3 py-0.5 text-xs font-bold text-gray-800 cursor-pointer select-none">
                             <div class="flex items-center gap-2">
                                 <span class="px-2 py-0.5 rounded-md bg-[#5E17EB]/10 text-[#5E17EB] font-black">${value}</span>
                                 <span class="text-gray-500 font-medium text-[11px] font-mono">(${count}x Audit)</span>

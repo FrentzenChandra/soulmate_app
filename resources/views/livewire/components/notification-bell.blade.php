@@ -71,7 +71,8 @@
             </div>
         </div>
 
-        <!-- Modal Awal Alert Warning Box -->
+        <!-- Modal Awal Alert Warning Box (TEMP HIDE) -->
+        {{--
         @if($modalAwalAlertCount > 0)
             <div class="p-3.5 bg-rose-50/90 border-y border-rose-100 flex items-start space-x-3">
                 <div class="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
@@ -101,6 +102,7 @@
                 </div>
             </div>
         @endif
+        --}}
 
         <!-- Alert Items List with Scrollbar -->
         <div class="py-1 max-h-80 overflow-y-auto divide-y divide-gray-50 custom-scrollbar overscroll-contain">
@@ -180,10 +182,12 @@
 
         <!-- Dropdown Footer -->
         <div class="px-4 pt-2.5 flex items-center justify-between text-xs font-bold">
+            {{--
             <a href="{{ route('modal-awal') }}"
                class="text-gray-600 hover:text-[#5E17EB] flex items-center space-x-1 transition-colors">
                 <span>Modal Awal</span>
             </a>
+            --}}
             <a href="{{ route('cabang.stok') }}"
                class="text-[#5E17EB] hover:text-purple-700 flex items-center space-x-1 transition-colors">
                 <span>Stok Produk</span>

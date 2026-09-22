@@ -221,12 +221,24 @@
                         Servis Batal
                     </a>
 
-                    <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Keuangan & Transaksi</p>
+                    <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Kas & Transaksi</p>
+
+                    <a href="{{ route('transaksi.harian') }}"
+                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('transaksi.harian*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('transaksi.harian*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        Transaksi Harian
+                    </a>
 
                     <a href="{{ route('transaksi.full') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('transaksi.full*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('transaksi.full*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         Transaksi FULL
+                    </a>
+
+                    <a href="{{ route('audit-laci') }}"
+                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('audit-laci*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('audit-laci*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        Audit Laci
                     </a>
 
                     <a href="{{ route('kas-keluar') }}"
@@ -235,11 +247,13 @@
                         Kas Keluar
                     </a>
 
+                    {{-- [TEMP HIDE] Modal Awal
                     <a href="{{ route('modal-awal') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('modal-awal*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('modal-awal*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Modal Awal
                     </a>
+                    --}}
 
                     <a href="{{ route('serial-number') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('serial-number*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
@@ -326,7 +340,7 @@
                     </a>
                     @endhasanyrole
 
-                    <!-- Modul Kasir POS & Keuangan -->
+                    <!-- Modul Kasir POS -->
                     @hasanyrole('Owner|Superadmin|Admin|Kasir')
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Kasir & Penjualan</p>
 
@@ -335,6 +349,11 @@
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('kasir.produk*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                         <span>Kasir POS (Produk)</span>
                     </a>
+                    @endhasanyrole
+
+                    <!-- Modul Kas & Transaksi -->
+                    @hasanyrole('Owner|Superadmin|Admin|Kasir')
+                    <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Kas & Transaksi</p>
 
                     @hasanyrole('Owner|Admin|Kasir')
                     <a href="{{ route('transaksi.harian') }}"
@@ -352,18 +371,19 @@
                     </a>
                     @endhasanyrole
 
+                    {{-- [TEMP HIDE] Modal Awal
                     <a href="{{ route('modal-awal') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('modal-awal*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('modal-awal*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span>Modal Awal</span>
                     </a>
+                    --}}
 
                     <a href="{{ route('audit-laci') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('audit-laci*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('audit-laci*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                         <span>Audit Laci</span>
                     </a>
-                    @endhasanyrole
 
                     @hasanyrole('Owner|Superadmin|Admin')
                     <a href="{{ route('kas-keluar') }}"
@@ -371,6 +391,7 @@
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('kas-keluar*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span>Kas Keluar</span>
                     </a>
+                    @endhasanyrole
                     @endhasanyrole
 
                     @hasanyrole('Owner|Superadmin|Admin|Kasir')

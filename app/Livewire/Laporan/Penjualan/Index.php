@@ -41,6 +41,9 @@ class Index extends Component
     #[Url(except: 'semua')]
     public string $cabangFilter = 'semua';
 
+    #[Url(except: 'semua')]
+    public string $statusFilter = 'semua';
+
     public int $perPage = 15;
 
     // Modal Detail Transaksi
@@ -105,6 +108,59 @@ class Index extends Component
     {
         $this->perPage = 15;
         $this->resetPage();
+    }
+
+    public function updatingStatusFilter(): void
+    {
+        $this->perPage = 15;
+        $this->resetPage();
+    }
+
+    public function updateStatusDirect(int $id, string $newStatus): void
+    {
+        $user = Auth::user();
+        $allowed = ['lunas', 'bon', 'batal'];
+        if (! in_array($newStatus, $allowed)) {
+            return;
+        }
+
+        $penjualan = Penjualan::find($id);
+        if (! $penjualan) {
+            return;
+        }
+
+        $isOwner = $user->isOwner();
+        $activeBranchSession = session('active_branch_id', 'hq');
+        $isHQ = $isOwner && ($activeBranchSession === 'hq' || ! $activeBranchSession);
+
+        if (! $isHQ) {
+            $targetCabangId = $isOwner ? (int) $activeBranchSession : (int) $user->cabang_id;
+            if ($targetCabangId && (int) $penjualan->cabang_id !== (int) $targetCabangId) {
+                session()->flash('error', 'Akses transaksi cabang lain dibatasi.');
+
+                return;
+            }
+        }
+
+        $penjualan->status = $newStatus;
+        if ($newStatus === 'lunas') {
+            $penjualan->jumlah_bayar = $penjualan->total;
+            $penjualan->kembalian = 0;
+            if ($penjualan->metode_bayar === 'bon' || empty($penjualan->metode_bayar)) {
+                $penjualan->metode_bayar = 'tunai';
+            }
+        }
+
+        $penjualan->save();
+
+        $labelStatus = match ($newStatus) {
+            'lunas' => 'LUNAS',
+            'bon' => 'BON',
+            'batal' => 'BATAL',
+            default => strtoupper($newStatus),
+        };
+
+        session()->flash('success', "Status transaksi {$penjualan->no_transaksi_frontend} berhasil diubah ke {$labelStatus}.");
     }
 
     public function openDetailModal(int $id): void
@@ -207,6 +263,15 @@ class Index extends Component
             $query->where('kasir_id', $this->kasirFilter);
         }
 
+        // 5. Filter Status Pembayaran
+        if ($this->statusFilter === 'lunas') {
+            $query->whereIn('status', ['lunas', 'selesai']);
+        } elseif ($this->statusFilter === 'bon') {
+            $query->whereIn('status', ['bon', 'belum_lunas']);
+        } elseif ($this->statusFilter === 'batal') {
+            $query->where('status', 'batal');
+        }
+
         // 6. Pencarian Multi-Kata Longgar (Universal Non-Strict Search)
         if (! empty($this->search)) {
             $cleanSearch = trim($this->search);
@@ -237,7 +302,7 @@ class Index extends Component
         $metricsQuery = clone $query;
         $allFiltered = $metricsQuery->get();
 
-        $realTransactions = $allFiltered->where('is_real', true)->where('status', 'lunas');
+        $realTransactions = $allFiltered->where('is_real', true)->filter(fn ($pj) => in_array(strtolower($pj->status ?? ''), ['lunas', 'selesai']));
         $nonRealTransactions = $allFiltered->where('is_real', false);
 
         // Metrik Transaksi Real

@@ -2,63 +2,116 @@
 
 namespace App\Livewire\Transaksi;
 
+use App\Livewire\Traits\WithSorting;
 use App\Models\Cabang;
+use App\Models\Customer;
 use App\Models\KasKeluar;
+use App\Models\MasterPpn;
+use App\Models\MasterServis;
 use App\Models\MetodePembayaran;
-use App\Models\Penjualan;
-use App\Models\ServisMasuk;
+use App\Models\Produk;
+use App\Models\TransaksiFull;
+use App\Models\TransaksiFullDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.app')]
-#[Title('Transaksi FULL - Soulmate Komputer')]
+#[Title('Transaksi FULL - Manajemen Kas & Keuangan - Soulmate Komputer')]
 class Full extends Component
 {
-    public string $startDate = '';
+    use WithPagination, WithSorting;
 
-    public string $endDate = '';
+    #[Url(except: '')]
+    public string $search = '';
 
-    public string $periodeMode = 'range'; // 'range' | 'bulanan' | 'tahunan'
-
-    public string $filterBulan = '';
-
-    public string $filterTahun = '';
-
+    #[Url(except: 'semua')]
     public string $tipeFilter = 'semua'; // 'semua' | 'penjualan' | 'servis'
 
+    #[Url(except: 'semua')]
+    public string $statusFilter = 'semua'; // 'semua' | 'Lunas' | 'BON' | 'Belum Lunas' | 'Batal'
+
+    #[Url(except: 'semua')]
     public string $metodeFilter = 'semua';
 
-    public string $statusFilter = 'semua'; // 'semua' | 'lunas' | 'bon'
+    #[Url(except: 'semua')]
+    public string $cabangFilter = 'semua';
 
-    public string $search = '';
+    public string $periodeMode = 'range'; // 'hari_ini' | 'range' | 'bulanan' | 'tahunan'
+    public string $startDate = '';
+    public string $endDate = '';
+    public string $filterBulan = '';
+    public string $filterTahun = '';
+
+    public int $perPage = 15;
+
+    // State Modal Form (Create / Edit)
+    public bool $modalFormOpen = false;
+    public ?int $transaksiId = null;
+    public string $formNoTransaksi = '';
+    public string $formTipeTransaksi = 'penjualan'; // 'penjualan' | 'servis'
+    public string $formTanggal = '';
+    public string $formCustomerType = 'umum'; // 'umum' | 'langganan'
+    public ?int $formCustomerId = null;
+    public string $formCustomerSearch = '';
+    public string $formNamaPelanggan = 'Pelanggan Umum';
+    public string $formNoHp = '';
+    public ?int $formMetodePembayaranId = null;
+    public string $formMetodePembayaran = 'Cash';
+    public ?int $formPpnId = null;
+    public float $formPpnPersen = 0;
+    public string $formStatus = 'Lunas'; // 'Lunas' | 'BON' | 'Belum Lunas' | 'Batal'
+    public string $formCatatan = '';
+    public array $items = [];
+
+    // State Search Autocomplete Produk di Item Rows
+    public array $productSearchQueries = [];
+
+    // State Modal Detail
+    public bool $modalDetailOpen = false;
+    public ?TransaksiFull $selectedTransaksi = null;
+
+    // State Modal Delete
+    public bool $modalDeleteOpen = false;
+    public ?int $deleteId = null;
+    public ?string $deleteCode = '';
 
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || ! ($user->isOwner() || $user->isSuperadmin())) {
-            abort(403, 'Akses Transaksi FULL dibatasi.');
+        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin'))) {
+            abort(403, 'Akses modul Transaksi FULL dibatasi.');
         }
 
-        $this->filterBulan = now()->format('m');
-        $this->filterTahun = now()->format('Y');
         $this->startDate = now()->toDateString();
         $this->endDate = now()->toDateString();
+        $this->filterBulan = now()->format('m');
+        $this->filterTahun = now()->format('Y');
+
+        $this->sortField = 'tanggal';
+        $this->sortDirection = 'desc';
     }
 
     public function setPeriodeMode(string $mode): void
     {
         $this->periodeMode = $mode;
-        if ($mode === 'range') {
+        if ($mode === 'hari_ini') {
             $this->startDate = now()->toDateString();
+            $this->endDate = now()->toDateString();
+        } elseif ($mode === 'range') {
+            $this->startDate = now()->startOfMonth()->toDateString();
             $this->endDate = now()->toDateString();
         } elseif ($mode === 'bulanan') {
             $this->applyBulanan();
         } elseif ($mode === 'tahunan') {
             $this->applyTahunan();
         }
+        $this->resetPage();
     }
 
     public function updatedFilterBulan(): void
@@ -66,6 +119,7 @@ class Full extends Component
         if ($this->periodeMode === 'bulanan') {
             $this->applyBulanan();
         }
+        $this->resetPage();
     }
 
     public function updatedFilterTahun(): void
@@ -75,9 +129,10 @@ class Full extends Component
         } elseif ($this->periodeMode === 'tahunan') {
             $this->applyTahunan();
         }
+        $this->resetPage();
     }
 
-    public function applyBulanan(): void
+    private function applyBulanan(): void
     {
         $year = (int) ($this->filterTahun ?: now()->year);
         $month = (int) ($this->filterBulan ?: now()->month);
@@ -86,7 +141,7 @@ class Full extends Component
         $this->endDate = $date->copy()->endOfMonth()->toDateString();
     }
 
-    public function applyTahunan(): void
+    private function applyTahunan(): void
     {
         $year = (int) ($this->filterTahun ?: now()->year);
         $date = Carbon::createFromDate($year, 1, 1);
@@ -94,358 +149,722 @@ class Full extends Component
         $this->endDate = $date->copy()->endOfYear()->toDateString();
     }
 
-    public function getActiveCabangProperty(): ?Cabang
+    public function updatingSearch(): void
     {
-        $user = Auth::user();
-        if (! $user) {
-            return null;
-        }
-
-        if ($user->isOwner()) {
-            $sess = session('active_branch_id', 'hq');
-            if ($sess !== 'hq') {
-                return Cabang::find((int) $sess);
-            }
-
-            return Cabang::where('status', 'aktif')->first();
-        }
-
-        return $user->cabang;
+        $this->resetPage();
     }
 
-    public function getTransactionsData(): array
+    public function updatingTipeFilter(): void
     {
-        $cabang = $this->activeCabang;
-        $start = Carbon::parse($this->startDate)->startOfDay();
-        $end = Carbon::parse($this->endDate)->endOfDay();
+        $this->resetPage();
+    }
 
-        $rows = [];
+    public function updatingStatusFilter(): void
+    {
+        $this->resetPage();
+    }
 
-        // 1. Ambil Penjualan Produk (Real)
-        if ($this->tipeFilter === 'semua' || $this->tipeFilter === 'penjualan') {
-            $penjualanQuery = Penjualan::with(['details.produk', 'kasir', 'ppn', 'customer'])
-                ->where('is_real', true)
-                ->whereBetween('tanggal', [$start, $end]);
+    public function updatingMetodeFilter(): void
+    {
+        $this->resetPage();
+    }
 
-            if ($cabang) {
-                $penjualanQuery->where('cabang_id', $cabang->id);
-            }
+    public function updatingCabangFilter(): void
+    {
+        $this->resetPage();
+    }
 
-            $penjualans = $penjualanQuery->orderByDesc('tanggal')->get();
+    // =========================================================================
+    // MODAL FORM (CREATE / EDIT)
+    // =========================================================================
 
-            foreach ($penjualans as $pj) {
-                $itemNames = [];
-                $totalModal = 0;
+    public function openCreateModal(): void
+    {
+        $this->resetForm();
+        $this->transaksiId = null;
+        $this->formTanggal = now()->format('Y-m-d\TH:i');
+        $this->formTipeTransaksi = 'penjualan';
+        $this->generateDefaultNoTransaksi();
 
-                foreach ($pj->details as $d) {
-                    $itemNames[] = "{$d->qty}x {$d->nama_item}";
-                    $hargaBeli = $d->produk ? (float) $d->produk->harga_beli : 0;
-                    $totalModal += ($hargaBeli * $d->qty);
-                }
-
-                $hargaJual = (float) $pj->total;
-                $margin = $hargaJual - $totalModal;
-                $isCash = in_array(strtolower(trim($pj->metode_bayar ?: '')), ['cash', 'tunai']);
-
-                $statusBayar = ($pj->status === 'bon' || $pj->status === 'belum_lunas') ? 'Bon' : 'Lunas';
-
-                $pajakNominal = (float) $pj->ppn_nominal;
-                $pajakPersen = (float) ($pj->ppn_persen ?? ($pj->ppn?->persentase ?? 0));
-                $pajakTipe = $pj->ppn ? ($pj->ppn->nama . ($pajakPersen > 0 ? " ({$pajakPersen}%)" : '')) : ($pajakPersen > 0 ? "PPN {$pajakPersen}%" : ($pajakNominal > 0 ? 'PPN' : 'Non-PPN'));
-
-                $rows[] = [
-                    'id' => 'PJ-' . $pj->id,
-                    'raw_id' => $pj->id,
-                    'tipe' => 'penjualan',
-                    'tipe_label' => 'Penjualan',
-                    'tanggal' => $pj->tanggal ? $pj->tanggal->format('Y-m-d H:i') : '-',
-                    'tanggal_group' => $this->formatIndonesianDate($pj->tanggal),
-                    'tanggal_timestamp' => $pj->tanggal ? $pj->tanggal->timestamp : 0,
-                    'no_transaksi' => $pj->no_transaksi_frontend,
-                    'customer' => $pj->customer?->nama ?? 'Umum',
-                    'item_detail' => implode(', ', $itemNames) ?: 'Produk Kasir',
-                    'items_list' => ! empty($itemNames) ? $itemNames : ['Produk Kasir'],
-                    'modal' => $totalModal,
-                    'harga_jual' => $hargaJual,
-                    'margin' => $margin,
-                    'status' => $statusBayar,
-                    'pajak' => $pajakNominal,
-                    'pajak_tipe' => $pajakTipe,
-                    'pajak_persen' => $pajakPersen,
-                    'metode_bayar' => $pj->metode_bayar ?: 'Cash',
-                    'is_cash' => $isCash,
-                    'petugas' => $pj->kasir?->name ?? 'Kasir',
-                ];
-            }
+        // PPN Default jika ada yang aktif
+        $activePpn = MasterPpn::getAktifCached();
+        if ($activePpn) {
+            $this->formPpnId = $activePpn->id;
+            $this->formPpnPersen = (float) $activePpn->persen;
         }
 
-        // 2. Servis Masuk / Dibuat pada Periode Ini
-        if ($this->tipeFilter === 'semua' || $this->tipeFilter === 'servis') {
-            $servisQuery = ServisMasuk::with(['details.masterServis', 'details.produk', 'teknisi', 'kasir', 'customer'])
-                ->whereBetween('tanggal_masuk', [$start, $end]);
-
-            if ($cabang) {
-                $servisQuery->where('cabang_id', $cabang->id);
-            }
-
-            $servisList = $servisQuery->orderByDesc('tanggal_masuk')->get();
-
-            foreach ($servisList as $sv) {
-                $itemNames = [];
-                $totalModal = 0;
-
-                foreach ($sv->details as $d) {
-                    $itemNames[] = "{$d->qty}x {$d->nama_item}";
-                    $hargaModal = 0;
-                    if ($d->masterServis) {
-                        $hargaModal = (float) $d->masterServis->harga_modal;
-                    } elseif ($d->produk) {
-                        $hargaModal = (float) $d->produk->harga_beli;
-                    }
-                    $totalModal += ($hargaModal * $d->qty);
-                }
-
-                $tgl = $sv->tanggal_masuk ?? $sv->created_at;
-                $tglCarbon = $tgl ? Carbon::parse($tgl) : null;
-                $hargaJual = (float) ($sv->total_biaya > 0 ? $sv->total_biaya : ($sv->estimasi_biaya ?: 0));
-                $margin = $hargaJual - $totalModal;
-                $isCash = in_array(strtolower(trim($sv->metode_pembayaran ?: '')), ['cash', 'tunai']);
-
-                $isLunas = in_array($sv->status, ['sudah_diambil', 'sudah_dibayar']) || ($sv->total_biaya > 0 && (float) $sv->bayar >= (float) $sv->total_biaya);
-                if ($sv->status === 'batal') {
-                    $statusBayar = 'Batal';
-                } elseif ($isLunas) {
-                    $statusBayar = 'Lunas';
-                } else {
-                    $statusBayar = 'Belum Lunas';
-                }
-
-                $servisUnitInfo = $sv->kategori_perangkat_label . ($sv->tipe_unit ? " ({$sv->tipe_unit})" : '');
-                $detailText = $servisUnitInfo;
-                if (! empty($itemNames)) {
-                    $detailText .= ' - ' . implode(', ', $itemNames);
-                }
-
-                $servisItemList = [];
-                if (! empty($servisUnitInfo)) {
-                    $servisItemList[] = $servisUnitInfo;
-                }
-                foreach ($itemNames as $in) {
-                    $servisItemList[] = $in;
-                }
-
-                $rows[] = [
-                    'id' => 'SV-' . $sv->id,
-                    'raw_id' => $sv->id,
-                    'tipe' => 'servis',
-                    'tipe_label' => 'Servis',
-                    'tanggal' => $tglCarbon ? $tglCarbon->format('Y-m-d H:i') : '-',
-                    'tanggal_group' => $this->formatIndonesianDate($tglCarbon),
-                    'tanggal_timestamp' => $tglCarbon ? $tglCarbon->timestamp : 0,
-                    'no_transaksi' => $sv->no_servis_frontend,
-                    'customer' => $sv->customer?->nama ?? 'Umum',
-                    'item_detail' => $detailText,
-                    'items_list' => ! empty($servisItemList) ? $servisItemList : [$detailText],
-                    'modal' => $totalModal,
-                    'harga_jual' => $hargaJual,
-                    'margin' => $margin,
-                    'status' => $statusBayar,
-                    'pajak' => 0,
-                    'pajak_tipe' => 'Bebas Pajak',
-                    'pajak_persen' => 0,
-                    'metode_bayar' => ucfirst($sv->metode_pembayaran ?: 'Cash'),
-                    'is_cash' => $isCash,
-                    'petugas' => $sv->teknisi?->name ?? ($sv->kasir?->name ?? 'Teknisi'),
-                ];
-            }
+        // Metode Pembayaran Default
+        $defaultMetode = MetodePembayaran::where('is_aktif', true)->first();
+        if ($defaultMetode) {
+            $this->formMetodePembayaranId = $defaultMetode->id;
+            $this->formMetodePembayaran = $defaultMetode->nama;
         }
 
-        // Sorting default desc by timestamp
-        usort($rows, fn ($a, $b) => $b['tanggal_timestamp'] <=> $a['tanggal_timestamp']);
+        // Row item default 1 baris kosong
+        $this->addItemRow();
 
-        return $rows;
+        $this->modalFormOpen = true;
+    }
+
+    public function openEditModal(int $id): void
+    {
+        $transaksi = TransaksiFull::with(['details', 'customer'])->findOrFail($id);
+        $this->resetForm();
+
+        $this->transaksiId = $transaksi->id;
+        $this->formNoTransaksi = $transaksi->no_transaksi_frontend;
+        $this->formTipeTransaksi = $transaksi->tipe_transaksi;
+        $this->formTanggal = $transaksi->tanggal ? $transaksi->tanggal->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i');
+        $this->formCustomerType = $transaksi->customer_id ? 'langganan' : 'umum';
+        $this->formCustomerId = $transaksi->customer_id;
+        $this->formNamaPelanggan = $transaksi->nama_pelanggan;
+        $this->formNoHp = $transaksi->no_hp ?? '';
+        $this->formMetodePembayaranId = $transaksi->metode_pembayaran_id;
+        $this->formMetodePembayaran = $transaksi->metode_pembayaran;
+        $this->formPpnId = $transaksi->ppn_id;
+        $this->formPpnPersen = (float) $transaksi->ppn_persen;
+        $this->formStatus = $transaksi->status;
+        $this->formCatatan = $transaksi->catatan ?? '';
+
+        $this->items = [];
+        foreach ($transaksi->details as $idx => $d) {
+            $this->items[] = [
+                'produk_id' => $d->produk_id,
+                'nama_item' => $d->nama_item,
+                'qty' => $d->qty,
+                'harga_modal' => (float) $d->harga_modal,
+                'harga_jual' => (float) $d->harga_jual,
+                'subtotal_modal' => (float) $d->subtotal_modal,
+                'subtotal_jual' => (float) $d->subtotal_jual,
+                'laba' => (float) $d->laba,
+            ];
+            $this->productSearchQueries[$idx] = $d->nama_item;
+        }
+
+        if (empty($this->items)) {
+            $this->addItemRow();
+        }
+
+        $this->modalFormOpen = true;
+    }
+
+    public function closeFormModal(): void
+    {
+        $this->modalFormOpen = false;
+        $this->resetForm();
+    }
+
+    private function resetForm(): void
+    {
+        $this->transaksiId = null;
+        $this->formNoTransaksi = '';
+        $this->formTipeTransaksi = 'penjualan';
+        $this->formTanggal = '';
+        $this->formCustomerType = 'umum';
+        $this->formCustomerId = null;
+        $this->formCustomerSearch = '';
+        $this->formNamaPelanggan = 'Pelanggan Umum';
+        $this->formNoHp = '';
+        $this->formMetodePembayaranId = null;
+        $this->formMetodePembayaran = 'Cash';
+        $this->formPpnId = null;
+        $this->formPpnPersen = 0;
+        $this->formStatus = 'Lunas';
+        $this->formCatatan = '';
+        $this->items = [];
+        $this->productSearchQueries = [];
+        $this->resetValidation();
+    }
+
+    public function updatedFormTipeTransaksi(): void
+    {
+        if (! $this->transaksiId) {
+            $this->generateDefaultNoTransaksi();
+        }
+    }
+
+    public function updatedFormTanggal(): void
+    {
+        if (! $this->transaksiId) {
+            $this->generateDefaultNoTransaksi();
+        }
+    }
+
+    public function generateDefaultNoTransaksi(): void
+    {
+        $user = Auth::user();
+        $isOwner = $user->isOwner();
+        $activeBranchSession = session('active_branch_id', 'hq');
+
+        $cabangId = $isOwner && $activeBranchSession !== 'hq' ? (int) $activeBranchSession : ($user->cabang_id ?: 1);
+
+        $prefix = $this->formTipeTransaksi === 'servis' ? 'SV' : 'PJ';
+        $date = ! empty($this->formTanggal) ? Carbon::parse($this->formTanggal) : now();
+        $yymmdd = $date->format('ymd');
+
+        // Hitung transaksi hari ini untuk nomor urut
+        $countToday = TransaksiFull::where('cabang_id', $cabangId)
+            ->whereDate('tanggal', $date->toDateString())
+            ->where('tipe_transaksi', $this->formTipeTransaksi)
+            ->count() + 1;
+
+        $sequence = str_pad($countToday, 5, '0', STR_PAD_LEFT);
+        $this->formNoTransaksi = "{$prefix}-{$yymmdd}-{$sequence}";
+    }
+
+    public function selectCustomer(int $id, string $nama, ?string $noHp): void
+    {
+        $this->formCustomerId = $id;
+        $this->formNamaPelanggan = $nama;
+        $this->formNoHp = $noHp ?? '';
+        $this->formCustomerSearch = $nama;
+    }
+
+    public function updatedFormPpnId($value): void
+    {
+        if ($value) {
+            $ppn = MasterPpn::find($value);
+            $this->formPpnPersen = $ppn ? (float) $ppn->persen : 0;
+        } else {
+            $this->formPpnPersen = 0;
+        }
+    }
+
+    public function updatedFormMetodePembayaranId($value): void
+    {
+        if ($value) {
+            $metode = MetodePembayaran::find($value);
+            $this->formMetodePembayaran = $metode ? $metode->nama : 'Cash';
+        }
+    }
+
+    public function updated($propertyName): void
+    {
+        if (str_starts_with($propertyName, 'items.')) {
+            $parts = explode('.', $propertyName);
+            if (count($parts) >= 3 && $parts[2] === 'nama_item') {
+                $idx = (int) $parts[1];
+                $this->items[$idx]['produk_id'] = null;
+                $this->productSearchQueries[$idx] = $this->items[$idx]['nama_item'] ?? '';
+            }
+            if (count($parts) >= 2 && is_numeric($parts[1])) {
+                $idx = (int) $parts[1];
+                $this->recalculateRow($idx);
+            }
+        }
+    }
+
+    // =========================================================================
+    // MULTI-ITEM ROW MANAGEMENT (ZERO STOCK MUTATION & MASTER SERVIS CONNECTED)
+    // =========================================================================
+
+    public function addItemRow(): void
+    {
+        $idx = count($this->items);
+        $this->items[] = [
+            'produk_id' => null,
+            'nama_item' => '',
+            'qty' => 1,
+            'harga_modal' => 0,
+            'harga_jual' => 0,
+            'subtotal_modal' => 0,
+            'subtotal_jual' => 0,
+            'laba' => 0,
+        ];
+        $this->productSearchQueries[$idx] = '';
+    }
+
+    public function removeItemRow(int $index): void
+    {
+        unset($this->items[$index]);
+        unset($this->productSearchQueries[$index]);
+        $this->items = array_values($this->items);
+        $this->productSearchQueries = array_values($this->productSearchQueries);
+
+        if (empty($this->items)) {
+            $this->addItemRow();
+        }
+    }
+
+    public function selectItemSuggestion(int $index, string $nama, float $hargaModal, float $hargaJual, ?int $produkId = null): void
+    {
+        if (! isset($this->items[$index])) return;
+
+        $qty = (int) ($this->items[$index]['qty'] ?? 1);
+        if ($qty < 1) $qty = 1;
+
+        $this->items[$index]['produk_id'] = $produkId;
+        $this->items[$index]['nama_item'] = $nama;
+        $this->items[$index]['harga_modal'] = $hargaModal;
+        $this->items[$index]['harga_jual'] = $hargaJual;
+        $this->items[$index]['qty'] = $qty;
+        $this->items[$index]['subtotal_modal'] = $hargaModal * $qty;
+        $this->items[$index]['subtotal_jual'] = $hargaJual * $qty;
+        $this->items[$index]['laba'] = ($hargaJual * $qty) - ($hargaModal * $qty);
+
+        $this->productSearchQueries[$index] = $nama;
+    }
+
+    public function selectProductForItem(int $index, int $produkId, string $nama, float $hargaBeli, float $hargaJual): void
+    {
+        $this->selectItemSuggestion($index, $nama, $hargaBeli, $hargaJual, $produkId);
+    }
+
+    public function recalculateRow(int $index): void
+    {
+        if (! isset($this->items[$index])) return;
+
+        $qty = (int) ($this->items[$index]['qty'] ?? 1);
+        if ($qty < 1) $qty = 1;
+        $this->items[$index]['qty'] = $qty;
+
+        $rawModal = $this->items[$index]['harga_modal'] ?? 0;
+        $rawJual = $this->items[$index]['harga_jual'] ?? 0;
+
+        $hargaModal = is_numeric($rawModal) ? (float) $rawModal : (float) preg_replace('/[^0-9]/', '', (string) $rawModal);
+        $hargaJual = is_numeric($rawJual) ? (float) $rawJual : (float) preg_replace('/[^0-9]/', '', (string) $rawJual);
+
+        $this->items[$index]['harga_modal'] = $hargaModal;
+        $this->items[$index]['harga_jual'] = $hargaJual;
+        $this->items[$index]['subtotal_modal'] = $hargaModal * $qty;
+        $this->items[$index]['subtotal_jual'] = $hargaJual * $qty;
+        $this->items[$index]['laba'] = ($hargaJual * $qty) - ($hargaModal * $qty);
+    }
+
+    public function simpanTransaksi(): void
+    {
+        $this->validate([
+            'formNoTransaksi' => 'required|string|max:100',
+            'formTipeTransaksi' => 'required|in:penjualan,servis',
+            'formTanggal' => 'required|date',
+            'formNamaPelanggan' => 'required|string|max:150',
+            'formMetodePembayaran' => 'required|string|max:50',
+            'formStatus' => 'required|in:Lunas,BON,Belum Lunas,Batal',
+            'items' => 'required|array|min:1',
+            'items.*.nama_item' => 'required|string|max:200',
+            'items.*.qty' => 'required|integer|min:1',
+            'items.*.harga_modal' => 'required|numeric|min:0',
+            'items.*.harga_jual' => 'required|numeric|min:0',
+        ], [
+            'formNoTransaksi.required' => 'Nomor transaksi wajib diisi.',
+            'formNamaPelanggan.required' => 'Nama pelanggan wajib diisi.',
+            'items.required' => 'Minimal 1 item transaksi wajib diinput.',
+            'items.min' => 'Minimal 1 item transaksi wajib diinput.',
+            'items.*.nama_item.required' => 'Nama barang/layanan wajib diisi.',
+            'items.*.qty.min' => 'Kuantiti minimal 1 unit.',
+            'items.*.harga_modal.required' => 'Biaya modal wajib diisi (minimal 0).',
+            'items.*.harga_jual.required' => 'Harga jual wajib diisi (minimal 0).',
+        ]);
+
+        $user = Auth::user();
+        $isOwner = $user->isOwner();
+        $activeBranchSession = session('active_branch_id', 'hq');
+        $cabangId = $isOwner && $activeBranchSession !== 'hq' ? (int) $activeBranchSession : ($user->cabang_id ?: 1);
+
+        try {
+            DB::beginTransaction();
+
+            $totalModal = 0;
+            $totalJual = 0;
+
+            foreach ($this->items as $row) {
+                $qty = (int) $row['qty'];
+                $hModal = (float) $row['harga_modal'];
+                $hJual = (float) $row['harga_jual'];
+
+                $totalModal += ($hModal * $qty);
+                $totalJual += ($hJual * $qty);
+            }
+
+            $totalLaba = $totalJual - $totalModal;
+            $ppnNominal = ($totalJual * (float) $this->formPpnPersen) / 100;
+            $grandTotal = $totalJual + $ppnNominal;
+
+            $data = [
+                'cabang_id' => $cabangId,
+                'user_id' => Auth::id(),
+                'customer_id' => $this->formCustomerType === 'langganan' ? $this->formCustomerId : null,
+                'nama_pelanggan' => trim($this->formNamaPelanggan) ?: 'Pelanggan Umum',
+                'no_hp' => trim($this->formNoHp) ?: null,
+                'no_transaksi' => trim($this->formNoTransaksi),
+                'tipe_transaksi' => $this->formTipeTransaksi,
+                'tanggal' => Carbon::parse($this->formTanggal),
+                'metode_pembayaran_id' => $this->formMetodePembayaranId,
+                'metode_pembayaran' => $this->formMetodePembayaran,
+                'ppn_id' => $this->formPpnId,
+                'ppn_persen' => $this->formPpnPersen,
+                'ppn_nominal' => $ppnNominal,
+                'total_modal' => $totalModal,
+                'total_jual' => $totalJual,
+                'total_laba' => $totalLaba,
+                'grand_total' => $grandTotal,
+                'status' => $this->formStatus,
+                'catatan' => trim($this->formCatatan) ?: null,
+            ];
+
+            if ($this->transaksiId) {
+                $transaksi = TransaksiFull::findOrFail($this->transaksiId);
+                $transaksi->update($data);
+                $transaksi->details()->delete();
+            } else {
+                $transaksi = TransaksiFull::create($data);
+            }
+
+            foreach ($this->items as $row) {
+                $qty = (int) $row['qty'];
+                $hModal = (float) $row['harga_modal'];
+                $hJual = (float) $row['harga_jual'];
+
+                TransaksiFullDetail::create([
+                    'transaksi_full_id' => $transaksi->id,
+                    'produk_id' => $row['produk_id'] ?? null,
+                    'nama_item' => trim($row['nama_item']),
+                    'qty' => $qty,
+                    'harga_modal' => $hModal,
+                    'harga_jual' => $hJual,
+                    'subtotal_modal' => $hModal * $qty,
+                    'subtotal_jual' => $hJual * $qty,
+                    'laba' => ($hJual * $qty) - ($hModal * $qty),
+                ]);
+            }
+
+            DB::commit();
+
+            $this->closeFormModal();
+            session()->flash('success', "Transaksi {$transaksi->no_transaksi_frontend} berhasil disimpan!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->addError('formError', 'Gagal menyimpan transaksi: ' . $e->getMessage());
+        }
+    }
+
+    // =========================================================================
+    // INLINE STATUS UPDATE (DROPDOWN LANGSUNG PER BARIS TABEL)
+    // =========================================================================
+
+    public function updateStatusDirect(int $id, string $newStatus): void
+    {
+        $allowed = ['Lunas', 'BON', 'Belum Lunas', 'Batal'];
+        if (! in_array($newStatus, $allowed)) return;
+
+        $transaksi = TransaksiFull::find($id);
+        if ($transaksi) {
+            $transaksi->status = $newStatus;
+            $transaksi->save();
+            session()->flash('success', "Status transaksi {$transaksi->no_transaksi_frontend} diubah ke {$newStatus}.");
+        }
+    }
+
+    // =========================================================================
+    // MODAL DETAIL & DELETE
+    // =========================================================================
+
+    public function openDetailModal(int $id): void
+    {
+        $this->selectedTransaksi = TransaksiFull::with(['details.produk', 'customer', 'cabang', 'user', 'ppn'])->findOrFail($id);
+        $this->modalDetailOpen = true;
+    }
+
+    public function closeDetailModal(): void
+    {
+        $this->modalDetailOpen = false;
+        $this->selectedTransaksi = null;
+    }
+
+    public function confirmDelete(int $id, string $code): void
+    {
+        $this->deleteId = $id;
+        $this->deleteCode = $code;
+        $this->modalDeleteOpen = true;
+    }
+
+    public function deleteTransaksi(): void
+    {
+        if (! $this->deleteId) return;
+
+        $transaksi = TransaksiFull::find($this->deleteId);
+        if ($transaksi) {
+            $code = $transaksi->no_transaksi_frontend;
+            $transaksi->delete();
+            session()->flash('success', "Transaksi {$code} berhasil dihapus.");
+        }
+
+        $this->modalDeleteOpen = false;
+        $this->deleteId = null;
+        $this->deleteCode = '';
     }
 
     public function render()
     {
-        $cabang = $this->activeCabang;
-        $start = Carbon::parse($this->startDate)->startOfDay();
-        $end = Carbon::parse($this->endDate)->endOfDay();
+        $user = Auth::user();
+        $isOwner = $user->isOwner();
+        $activeBranchSession = session('active_branch_id', 'hq');
+        $isHQ = $isOwner && ($activeBranchSession === 'hq' || ! $activeBranchSession);
 
-        // Kas Keluar Cash
-        $kasKeluarQuery = KasKeluar::with('sumberDana')
-            ->whereBetween('tanggal', [$start, $end]);
+        $cabangs = $isHQ ? Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get() : collect();
+        $ppnList = MasterPpn::where('is_aktif', true)->orderBy('persen')->get();
+        $metodeList = MetodePembayaran::where('is_aktif', true)->orderBy('urutan')->get();
 
-        if ($cabang) {
-            $kasKeluarQuery->where('cabang_id', $cabang->id);
+        // Autocomplete Customer di Form Modal
+        $customerSuggestions = [];
+        if ($this->modalFormOpen && ! empty($this->formCustomerSearch) && $this->formCustomerType === 'langganan' && ! $this->formCustomerId) {
+            $custQ = Customer::query();
+            if (! $isHQ) {
+                $targetCabang = $isOwner ? (int) $activeBranchSession : (int) $user->cabang_id;
+                if ($targetCabang) $custQ->where('cabang_id', $targetCabang);
+            }
+            $pattern = '%' . strtolower($this->formCustomerSearch) . '%';
+            $customerSuggestions = $custQ->where(function ($q) use ($pattern) {
+                $q->whereRaw('LOWER(nama) LIKE ?', [$pattern])
+                  ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$pattern]);
+            })->take(5)->get();
         }
 
-        $allKasKeluar = $kasKeluarQuery->get();
-        $totalKasKeluarCash = (float) $allKasKeluar->filter(function ($k) {
-            $sdNama = strtolower($k->sumberDana?->nama ?? '');
+        // Suggestions Master Produk & Master Servis untuk Item Baris Form
+        $productSuggestionsMap = [];
+        if ($this->modalFormOpen) {
+            foreach ($this->items as $idx => $itemRow) {
+                $queryStr = trim($itemRow['nama_item'] ?? '');
+                if (mb_strlen($queryStr) >= 1 && empty($itemRow['produk_id'])) {
+                    $keywords = array_values(array_filter(explode(' ', strtolower($queryStr))));
 
-            return str_contains($sdNama, 'cash') || str_contains($sdNama, 'tunai') || str_contains($sdNama, 'kasir');
-        })->sum('nominal');
-
-        $totalKasKeluarAll = (float) $allKasKeluar->sum('nominal');
-
-        // Master Metode Pembayaran for filters
-        $metodeList = MetodePembayaran::aktif()->orderBy('urutan')->get();
-
-        $this->tableData = $this->getTransactionsData();
-        $allRows = $this->tableData;
-
-        $totalPenjualanCash = 0;
-        $totalServisCash = 0;
-        $totalPenjualanLunasAll = 0;
-        $totalServisLunasAll = 0;
-        $totalPenjualanBon = 0;
-        $totalServisBelumLunas = 0;
-        $totalMarginLunas = 0;
-        $totalMarginBon = 0;
-        $totalOmzetAll = 0;
-        $totalModalAll = 0;
-        $totalMarginAll = 0;
-
-        $marginPenjualanLunas = 0;
-        $marginPenjualanTotal = 0;
-        $marginServisLunas = 0;
-        $marginServisTotal = 0;
-
-        foreach ($allRows as $r) {
-            if ($r['status'] !== 'Batal') {
-                $totalOmzetAll += $r['harga_jual'];
-                $totalModalAll += $r['modal'];
-                $totalMarginAll += $r['margin'];
-
-                if ($r['status'] === 'Lunas') {
-                    $totalMarginLunas += $r['margin'];
-                } else {
-                    $totalMarginBon += $r['margin'];
-                }
-
-                if ($r['tipe'] === 'penjualan') {
-                    $marginPenjualanTotal += $r['margin'];
-                    if ($r['status'] === 'Lunas') {
-                        $marginPenjualanLunas += $r['margin'];
+                    $prodQ = Produk::query();
+                    foreach ($keywords as $kw) {
+                        $prodQ->where(function ($q) use ($kw) {
+                            $q->whereRaw('LOWER(nama_produk) LIKE ?', ["%{$kw}%"])
+                              ->orWhereRaw('LOWER(COALESCE(barcode, \'\')) LIKE ?', ["%{$kw}%"]);
+                        });
                     }
-                } else {
-                    $marginServisTotal += $r['margin'];
-                    if ($r['status'] === 'Lunas') {
-                        $marginServisLunas += $r['margin'];
-                    }
-                }
-            }
+                    $prodMatches = $prodQ->take(5)->get()->map(fn($p) => [
+                        'type' => 'produk',
+                        'id' => $p->id,
+                        'nama' => $p->nama_produk,
+                        'kode' => $p->barcode ?: 'PRODUK',
+                        'harga_modal' => (float) $p->harga_beli,
+                        'harga_jual' => (float) $p->harga_jual,
+                        'badge' => 'Master Produk',
+                    ]);
 
-            if ($r['tipe'] === 'penjualan') {
-                if ($r['status'] === 'Lunas') {
-                    $totalPenjualanLunasAll += $r['harga_jual'];
-                    if ($r['is_cash']) {
-                        $totalPenjualanCash += $r['harga_jual'];
+                    $servisQ = MasterServis::aktif();
+                    foreach ($keywords as $kw) {
+                        $servisQ->where(function ($q) use ($kw) {
+                            $q->whereRaw('LOWER(nama_item) LIKE ?', ["%{$kw}%"])
+                              ->orWhereRaw('LOWER(COALESCE(kode_item, \'\')) LIKE ?', ["%{$kw}%"]);
+                        });
                     }
-                } elseif ($r['status'] === 'Bon' || $r['status'] === 'Belum Lunas') {
-                    $totalPenjualanBon += $r['harga_jual'];
-                }
-            } else {
-                if ($r['status'] === 'Lunas') {
-                    $totalServisLunasAll += $r['harga_jual'];
-                    if ($r['is_cash']) {
-                        $totalServisCash += $r['harga_jual'];
-                    }
-                } elseif ($r['status'] === 'Belum Lunas' || $r['status'] === 'Bon') {
-                    $totalServisBelumLunas += $r['harga_jual'];
+                    $servisMatches = $servisQ->take(5)->get()->map(fn($s) => [
+                        'type' => 'servis',
+                        'id' => null,
+                        'nama' => $s->nama_item,
+                        'kode' => $s->kode_item ?: ($s->jenis === 'sparepart' ? 'SPAREPART' : 'JASA'),
+                        'harga_modal' => (float) ($s->harga_modal ?? 0),
+                        'harga_jual' => (float) ($s->harga_jual ?? 0),
+                        'badge' => $s->jenis === 'sparepart' ? 'Sparepart' : 'Jasa Servis',
+                    ]);
+
+                    $productSuggestionsMap[$idx] = $prodMatches->concat($servisMatches)->take(8)->values()->all();
                 }
             }
         }
 
-        $totalBelumLunasAll = $totalPenjualanBon + $totalServisBelumLunas;
-        $totalPemasukanLunasAll = $totalPenjualanLunasAll + $totalServisLunasAll;
+        // Query Utama Transaksi FULL
+        $query = TransaksiFull::with(['customer', 'cabang', 'user', 'details']);
 
-        // 2 Tipe Laba Bersih (Nett Profit): Margin (Harga Jual - Modal) - Kas Keluar
-        $labaBersihReal = $totalMarginLunas - $totalKasKeluarAll;
-        $labaBersihPlusBon = $totalMarginAll - $totalKasKeluarAll;
+        // Scoping Cabang
+        if (! $isHQ) {
+            $targetCabangId = $isOwner ? (int) $activeBranchSession : (int) $user->cabang_id;
+            if ($targetCabangId) {
+                $query->where('cabang_id', $targetCabangId);
+            }
+        } elseif ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
+            $query->where('cabang_id', (int) $this->cabangFilter);
+        }
 
-        // Arus Kas Masuk Bersih
-        $saldoBersihReal = $totalPemasukanLunasAll - $totalKasKeluarAll;
-        $saldoBersihPlusBon = $totalOmzetAll - $totalKasKeluarAll;
+        // Filter Rentang Tanggal
+        if (! empty($this->startDate)) {
+            $start = Carbon::parse($this->startDate)->startOfDay();
+            $end = Carbon::parse($this->endDate ?: $this->startDate)->endOfDay();
+            $query->whereBetween('tanggal', [$start, $end]);
+        }
 
-        $saldoBersihSemuaMetode = $saldoBersihReal;
-        $saldoKasTunaiBersih = ($totalPenjualanCash + $totalServisCash) - $totalKasKeluarCash;
+        // Filter Tipe Transaksi
+        if ($this->tipeFilter !== 'semua') {
+            $query->where('tipe_transaksi', $this->tipeFilter);
+        }
 
-        $totalPenjualanBruto = $totalPenjualanLunasAll + $totalPenjualanBon;
-        $totalServisBruto = $totalServisLunasAll + $totalServisBelumLunas;
+        // Filter Status
+        if ($this->statusFilter !== 'semua') {
+            $query->where('status', $this->statusFilter);
+        }
 
-        $this->dispatch('full-table-updated', data: $allRows);
+        // Filter Metode Pembayaran
+        if ($this->metodeFilter !== 'semua') {
+            $query->where('metode_pembayaran', $this->metodeFilter);
+        }
+
+        // Multi-Word Loose Search
+        if (! empty($this->search)) {
+            $cleanSearch = trim($this->search);
+            $words = array_filter(explode(' ', $cleanSearch));
+            $query->where(function ($q) use ($words) {
+                foreach ($words as $word) {
+                    $pattern = '%' . strtolower($word) . '%';
+                    $q->where(function ($sq) use ($pattern) {
+                        $sq->whereRaw('LOWER(no_transaksi) LIKE ?', [$pattern])
+                           ->orWhereRaw('LOWER(nama_pelanggan) LIKE ?', [$pattern])
+                           ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$pattern])
+                           ->orWhereHas('user', fn ($uq) => $uq->whereRaw('LOWER(name) LIKE ?', [$pattern]))
+                           ->orWhereHas('details', fn ($dq) => $dq->whereRaw('LOWER(nama_item) LIKE ?', [$pattern]));
+                    });
+                }
+            });
+        }
+
+        // Hitung Ringkasan Finansial (Excluding Batal)
+        $summaryBase = clone $query;
+        $allCurrent = $summaryBase->get();
+        $nonBatal = $allCurrent->where('status', '!==', 'Batal');
+
+        $totalOmset = $nonBatal->sum('grand_total');
+        $totalModal = $nonBatal->sum('total_modal');
+        $totalLaba = $nonBatal->sum('total_laba');
+        $totalTransaksiCount = $allCurrent->count();
+
+        // Hitung Kas Keluar pada periode & cabang yang sama
+        $kasKeluarQ = KasKeluar::query();
+        if (! $isHQ) {
+            $targetCabangId = $isOwner ? (int) $activeBranchSession : (int) $user->cabang_id;
+            if ($targetCabangId) $kasKeluarQ->where('cabang_id', $targetCabangId);
+        } elseif ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
+            $kasKeluarQ->where('cabang_id', (int) $this->cabangFilter);
+        }
+        if (! empty($this->startDate)) {
+            $start = Carbon::parse($this->startDate)->startOfDay();
+            $end = Carbon::parse($this->endDate ?: $this->startDate)->endOfDay();
+            $kasKeluarQ->whereBetween('tanggal', [$start, $end]);
+        }
+        $totalKasKeluar = (float) $kasKeluarQ->sum('nominal');
+        $kasBersihNett = $totalLaba - $totalKasKeluar;
+
+        // Granular Metrics untuk 5 Ringkasan Card
+        $trxLunas = $allCurrent->where('status', 'Lunas');
+        $trxBon = $allCurrent->whereIn('status', ['BON', 'Belum Lunas']);
+
+        // Card 1: OMZET - KAS KELUAR
+        $omsetLunas = (float) $trxLunas->sum('grand_total');
+        $omsetBon = (float) $trxBon->sum('grand_total');
+        $kasRealLunas = $omsetLunas - $totalKasKeluar;
+        $saldoPlusBon = ($omsetLunas + $omsetBon) - $totalKasKeluar;
+
+        // Card 2: PENJUALAN PRODUK
+        $penjualanLunas = (float) $trxLunas->where('tipe_transaksi', 'penjualan')->sum('grand_total');
+        $penjualanBon = (float) $trxBon->where('tipe_transaksi', 'penjualan')->sum('grand_total');
+        $penjualanTotal = $penjualanLunas + $penjualanBon;
+        $penjualanNettLunas = (float) $trxLunas->where('tipe_transaksi', 'penjualan')->sum('total_laba');
+        $penjualanNettBon = (float) $trxBon->where('tipe_transaksi', 'penjualan')->sum('total_laba');
+        $penjualanNettTotal = $penjualanNettLunas + $penjualanNettBon;
+
+        // Card 3: LAYANAN SERVIS
+        $servisLunas = (float) $trxLunas->where('tipe_transaksi', 'servis')->sum('grand_total');
+        $servisBon = (float) $trxBon->where('tipe_transaksi', 'servis')->sum('grand_total');
+        $servisTotal = $servisLunas + $servisBon;
+        $servisNettLunas = (float) $trxLunas->where('tipe_transaksi', 'servis')->sum('total_laba');
+        $servisNettBon = (float) $trxBon->where('tipe_transaksi', 'servis')->sum('total_laba');
+        $servisNettTotal = $servisNettLunas + $servisNettBon;
+
+        // Card 4: TOTAL PIUTANG & BON
+        $totalPiutangBon = $omsetBon;
+        $totalNettPiutang = $penjualanNettBon + $servisNettBon;
+
+        // Card 5: LABA BERSIH (NETT)
+        $marginLunas = (float) $trxLunas->sum('total_laba');
+        $marginBon = (float) $trxBon->sum('total_laba');
+        $labaTransaksiLunas = $marginLunas - $totalKasKeluar;
+        $labaPlusBon = ($marginLunas + $marginBon) - $totalKasKeluar;
+
+        // Sorting
+        $sortDir = strtolower($this->sortDirection) === 'asc' ? 'asc' : 'desc';
+        $allowedSorts = ['tanggal', 'no_transaksi', 'grand_total', 'total_laba', 'status', 'id'];
+        $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'tanggal';
+        $query->orderBy($sortColumn, $sortDir)->orderByDesc('id');
+
+        $totalItems = (clone $query)->count();
+        $transaksiList = $query->take($this->perPage)->get();
+        $hasMore = $totalItems > $this->perPage;
+
+        $tableData = $allCurrent->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'no_transaksi' => $item->no_transaksi_frontend,
+                'tipe_transaksi' => $item->tipe_transaksi,
+                'waktu' => $item->tanggal ? $item->tanggal->format('d/m/Y H:i') : '-',
+                'tanggal_group' => $item->tanggal ? $item->tanggal->translatedFormat('l, d F Y') : '-',
+                'petugas' => $item->user?->name ?? 'Kasir',
+                'pelanggan' => $item->nama_pelanggan,
+                'no_hp' => $item->no_hp ?: '-',
+                'rincian_item' => $item->details->map(fn($d) => $d->qty . 'x ' . $d->nama_item)->implode(', ') ?: 'Tanpa item',
+                'metode_pembayaran' => $item->metode_pembayaran,
+                'total_modal' => (float) $item->total_modal,
+                'grand_total' => (float) $item->grand_total,
+                'total_laba' => (float) $item->total_laba,
+                'status' => $item->status,
+                'keterangan' => $item->catatan ?: '-',
+            ];
+        })->values()->all();
+
+        $this->dispatch('transaksi-full-table-updated', data: $tableData);
 
         return view('livewire.transaksi.full', [
-            'tableData' => $allRows,
-            'totalPenjualanCash' => $totalPenjualanCash,
-            'totalServisCash' => $totalServisCash,
-            'totalPenjualanLunasAll' => $totalPenjualanLunasAll,
-            'totalServisLunasAll' => $totalServisLunasAll,
-            'totalPenjualanBon' => $totalPenjualanBon,
-            'totalServisBelumLunas' => $totalServisBelumLunas,
-            'totalPenjualanBruto' => $totalPenjualanBruto,
-            'totalServisBruto' => $totalServisBruto,
-            'totalBelumLunasAll' => $totalBelumLunasAll,
-            'totalPemasukanLunasAll' => $totalPemasukanLunasAll,
-            'totalKasKeluarCash' => $totalKasKeluarCash,
-            'totalKasKeluarAll' => $totalKasKeluarAll,
-            'labaBersihReal' => $labaBersihReal,
-            'labaBersihPlusBon' => $labaBersihPlusBon,
-            'saldoBersihReal' => $saldoBersihReal,
-            'saldoBersihPlusBon' => $saldoBersihPlusBon,
-            'saldoBersihSemuaMetode' => $saldoBersihSemuaMetode,
-            'saldoKasTunaiBersih' => $saldoKasTunaiBersih,
-            'totalOmzetAll' => $totalOmzetAll,
-            'totalModalAll' => $totalModalAll,
-            'totalMarginAll' => $totalMarginAll,
-            'totalMarginLunas' => $totalMarginLunas,
-            'totalMarginBon' => $totalMarginBon,
-            'marginPenjualanLunas' => $marginPenjualanLunas,
-            'marginPenjualanTotal' => $marginPenjualanTotal,
-            'marginServisLunas' => $marginServisLunas,
-            'marginServisTotal' => $marginServisTotal,
+            'transaksiList' => $transaksiList,
+            'tableData' => $tableData,
+            'totalItems' => $totalItems,
+            'hasMore' => $hasMore,
+            'totalOmset' => $totalOmset,
+            'totalModal' => $totalModal,
+            'totalLaba' => $totalLaba,
+            'totalKasKeluar' => $totalKasKeluar,
+            'kasBersihNett' => $kasBersihNett,
+            'totalTransaksiCount' => $totalTransaksiCount,
+
+            // Card 1
+            'omsetLunas' => $omsetLunas,
+            'omsetBon' => $omsetBon,
+            'kasRealLunas' => $kasRealLunas,
+            'saldoPlusBon' => $saldoPlusBon,
+
+            // Card 2
+            'penjualanLunas' => $penjualanLunas,
+            'penjualanBon' => $penjualanBon,
+            'penjualanTotal' => $penjualanTotal,
+            'penjualanNettLunas' => $penjualanNettLunas,
+            'penjualanNettBon' => $penjualanNettBon,
+            'penjualanNettTotal' => $penjualanNettTotal,
+
+            // Card 3
+            'servisLunas' => $servisLunas,
+            'servisBon' => $servisBon,
+            'servisTotal' => $servisTotal,
+            'servisNettLunas' => $servisNettLunas,
+            'servisNettBon' => $servisNettBon,
+            'servisNettTotal' => $servisNettTotal,
+
+            // Card 4
+            'totalPiutangBon' => $totalPiutangBon,
+            'totalNettPiutang' => $totalNettPiutang,
+
+            // Card 5
+            'marginLunas' => $marginLunas,
+            'marginBon' => $marginBon,
+            'labaTransaksiLunas' => $labaTransaksiLunas,
+            'labaPlusBon' => $labaPlusBon,
+
+            'cabangs' => $cabangs,
+            'ppnList' => $ppnList,
             'metodeList' => $metodeList,
+            'customerSuggestions' => $customerSuggestions,
+            'productSuggestionsMap' => $productSuggestionsMap,
+            'isHQ' => $isHQ,
+            'isOwner' => $isOwner,
         ]);
-    }
-
-    private function formatIndonesianDate(?Carbon $date): string
-    {
-        if (! $date) {
-            return 'Tanpa Tanggal';
-        }
-
-        $days = [
-            'Sun' => 'Minggu',
-            'Mon' => 'Senin',
-            'Tue' => 'Selasa',
-            'Wed' => 'Rabu',
-            'Thu' => 'Kamis',
-            'Fri' => 'Jumat',
-            'Sat' => 'Sabtu',
-        ];
-
-        $months = [
-            1 => 'Jan',
-            2 => 'Feb',
-            3 => 'Mar',
-            4 => 'Apr',
-            5 => 'Mei',
-            6 => 'Jun',
-            7 => 'Jul',
-            8 => 'Agu',
-            9 => 'Sep',
-            10 => 'Okt',
-            11 => 'Nov',
-            12 => 'Des',
-        ];
-
-        $dayName = $days[$date->format('D')] ?? $date->format('l');
-        $dayNum = $date->format('d');
-        $monthName = $months[(int) $date->format('n')] ?? $date->format('M');
-        $year = $date->format('Y');
-
-        return "{$dayName}, {$dayNum} {$monthName} {$year}";
     }
 }

@@ -1,237 +1,111 @@
 <div class="space-y-6">
 
-    <!-- Page Header & Title -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-gray-200/80 shadow-xs">
+    <!-- ============================================== -->
+    <!-- HEADER HALAMAN & TOMBOL TAMBAH TRANSAKSI       -->
+    <!-- ============================================== -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-xl bg-blue-50 text-[#0052FF] flex items-center justify-center border border-blue-100 shadow-2xs">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                </div>
-                <span>Transaksi Harian</span>
-            </h1>
-            <p class="text-xs text-gray-500 font-medium mt-1">Daftar transaksi real hari ini, omset operasional, rekonsiliasi kas laci kasir, dan audit saldo fisik.</p>
+            <div class="flex items-center space-x-3">
+                <h1 class="text-2xl font-black tracking-tight text-gray-900">
+                    Transaksi Harian
+                </h1>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black {{ $isHQ ? 'bg-purple-100 text-[#5E17EB] border border-purple-200' : 'bg-blue-100 text-[#0052FF] border border-blue-200' }}">
+                    {{ $isHQ ? 'Konteks HQ (Semua Cabang)' : 'Soulmate Komputer' }}
+                </span>
+            </div>
+            <p class="text-sm font-medium text-gray-500 mt-1">
+                Daftar catatan transaksi operasional harian kasir dan layanan servis.
+            </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
-            <!-- Mode Switcher -->
-            <div class="inline-flex p-1 bg-gray-100 rounded-xl">
-                <button type="button"
-                        wire:click="setPeriodeMode('range')"
-                        class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'range' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
-                    Rentang (s.d)
-                </button>
-                <button type="button"
-                        wire:click="setPeriodeMode('bulanan')"
-                        class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'bulanan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
-                    Bulanan
-                </button>
-                <button type="button"
-                        wire:click="setPeriodeMode('tahunan')"
-                        class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'tahunan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
-                    Tahunan
-                </button>
-            </div>
-
-            <!-- Inputs based on mode -->
-            @if($periodeMode === 'range')
-                <div class="flex items-center gap-2">
-                    <input type="date"
-                           wire:model.live="startDate"
-                           class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB]">
-                    <span class="text-xs font-bold text-gray-400">s.d</span>
-                    <input type="date"
-                           wire:model.live="endDate"
-                           class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB]">
-                </div>
-            @elseif($periodeMode === 'bulanan')
-                <div class="flex items-center gap-2">
-                    <select wire:model.live="filterBulan"
-                            class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] cursor-pointer">
-                        <option value="01">Januari</option>
-                        <option value="02">Februari</option>
-                        <option value="03">Maret</option>
-                        <option value="04">April</option>
-                        <option value="05">Mei</option>
-                        <option value="06">Juni</option>
-                        <option value="07">Juli</option>
-                        <option value="08">Agustus</option>
-                        <option value="09">September</option>
-                        <option value="10">Oktober</option>
-                        <option value="11">November</option>
-                        <option value="12">Desember</option>
-                    </select>
-                    <select wire:model.live="filterTahun"
-                            class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] cursor-pointer">
-                        @for($y = (int) now()->year + 1; $y >= 2023; $y--)
-                            <option value="{{ $y }}">{{ $y }}</option>
-                        @endfor
-                    </select>
-                </div>
-            @elseif($periodeMode === 'tahunan')
-                <div class="flex items-center gap-2">
-                    <select wire:model.live="filterTahun"
-                            class="py-1.5 px-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] cursor-pointer">
-                        @for($y = (int) now()->year + 1; $y >= 2023; $y--)
-                            <option value="{{ $y }}">{{ $y }}</option>
-                        @endfor
-                    </select>
-                </div>
-            @endif
-
-            <!-- Button Cek Kas Cepat / Audit Laci -->
+        <div class="flex items-center space-x-2">
             <button type="button"
-                    wire:click="openCekKasModal"
-                    wire:loading.attr="disabled"
-                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-900/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span>Cek Kas Cepat / Audit Laci</span>
+                    wire:click="openCreateModal"
+                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#0052FF] hover:bg-blue-700 text-white font-black text-xs shadow-md shadow-blue-600/25 transition-all cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                <span>Input Transaksi Baru</span>
             </button>
         </div>
     </div>
 
-    <!-- Summary Metrics Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-        <!-- Modal Awal -->
-        <div class="bg-white p-3.5 rounded-2xl border border-gray-200/80 shadow-xs">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Modal Awal Laci</span>
-            <span class="text-base font-black text-gray-800 mt-1 block font-mono">
-                Rp {{ number_format($modalAwalNominal, 0, ',', '.') }}
-            </span>
-            <span class="text-[10px] text-gray-400 font-medium block mt-0.5">Saldo awal kas</span>
-        </div>
-
-        <!-- Penjualan Bruto & Cash -->
-        <div class="bg-white p-3.5 rounded-2xl border border-purple-100 shadow-xs">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Penjualan (Omset)</span>
-            <span class="text-base font-black text-[#5E17EB] mt-1 block font-mono">
-                Rp {{ number_format($totalPenjualanBruto, 0, ',', '.') }}
-            </span>
-            <div class="flex items-center justify-between text-[10px] font-mono mt-0.5">
-                <span class="text-emerald-600 font-bold">Cash: Rp {{ number_format($totalPenjualanCash, 0, ',', '.') }}</span>
-                <span class="text-amber-600 font-bold">Bon: Rp {{ number_format($totalPenjualanBon, 0, ',', '.') }}</span>
+    <!-- Alert Flash Message -->
+    @if (session()->has('success'))
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between shadow-xs">
+            <div class="flex items-center space-x-3">
+                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-xs font-bold">{{ session('success') }}</span>
             </div>
-        </div>
-
-        <!-- Servis Bruto & Cash -->
-        <div class="bg-white p-3.5 rounded-2xl border border-blue-100 shadow-xs">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Servis (Omset)</span>
-            <span class="text-base font-black text-[#0052FF] mt-1 block font-mono">
-                Rp {{ number_format($totalServisBruto, 0, ',', '.') }}
-            </span>
-            <div class="flex items-center justify-between text-[10px] font-mono mt-0.5">
-                <span class="text-emerald-600 font-bold">Cash: Rp {{ number_format($totalServisCash, 0, ',', '.') }}</span>
-                <span class="text-amber-600 font-bold">Bon: Rp {{ number_format($totalServisBelumLunas, 0, ',', '.') }}</span>
-            </div>
-        </div>
-
-        <!-- Total Bon / Belum Lunas -->
-        <div class="bg-white p-3.5 rounded-2xl border border-amber-200/80 shadow-xs bg-amber-50/20">
-            <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider block">Total Bon / Piutang</span>
-            <span class="text-base font-black text-amber-600 mt-1 block font-mono">
-                Rp {{ number_format($totalBelumLunasAll, 0, ',', '.') }}
-            </span>
-            <span class="text-[10px] text-amber-700/80 font-medium block mt-0.5">Belum dibayar hari ini</span>
-        </div>
-
-        <!-- Kas Keluar Cash -->
-        <div class="bg-white p-3.5 rounded-2xl border border-rose-100 shadow-xs">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Kas Keluar Cash</span>
-            <span class="text-base font-black text-rose-600 mt-1 block font-mono">
-                Rp {{ number_format($totalKasKeluarCash, 0, ',', '.') }}
-            </span>
-            <span class="text-[10px] text-gray-400 font-medium block mt-0.5">Biaya operasional laci</span>
-        </div>
-
-        <!-- Total Kas Laci Sistem -->
-        <div class="bg-white p-3.5 rounded-2xl border border-emerald-300 shadow-xs bg-emerald-50/30">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Kas Laci (Sistem)</span>
-                <span class="text-[9px] font-extrabold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded">Fisik</span>
-            </div>
-            <span class="text-base font-black text-emerald-600 mt-1 block font-mono">
-                Rp {{ number_format($kasSistem, 0, ',', '.') }}
-            </span>
-            <div class="mt-1 pt-1 border-t border-emerald-200/60 text-[10px] text-gray-500 font-mono flex justify-between">
-                <span>Saldo Kas Masuk:</span>
-                <span class="font-bold text-gray-800">Rp {{ number_format($saldoKasBersih, 0, ',', '.') }}</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Histori Cek Kas / Audit Laci Hari Ini (Jika Ada) -->
-    @if(isset($cekKasLogs) && $cekKasLogs->count() > 0)
-        <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                    </div>
-                    <div>
-                        <h3 class="text-xs font-black text-gray-900">Histori Cek Kas / Audit Laci Hari Ini</h3>
-                        <p class="text-[10px] text-gray-500 font-medium">Catatan snapshot kas fisik kasir tanpa mengunci transaksi</p>
-                    </div>
-                </div>
-                <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-100">
-                    {{ $cekKasLogs->count() }}x Audit
-                </span>
-            </div>
-
-            <div class="overflow-x-auto rounded-xl border border-gray-100">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-gray-50/80 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
-                        <tr>
-                            <th class="py-2 px-3">Jam</th>
-                            <th class="py-2 px-3">Petugas</th>
-                            <th class="py-2 px-3 text-right">Uang Sistem</th>
-                            <th class="py-2 px-3 text-right">Uang Fisik</th>
-                            <th class="py-2 px-3 text-center">Selisih</th>
-                            <th class="py-2 px-3">Catatan</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 font-medium">
-                        @foreach($cekKasLogs as $log)
-                            <tr class="hover:bg-gray-50/50 transition-colors">
-                                <td class="py-2 px-3 font-mono font-bold text-gray-700 whitespace-nowrap">
-                                    {{ $log->waktu_cek ? $log->waktu_cek->format('H:i') : '-' }}
-                                </td>
-                                <td class="py-2 px-3 text-gray-900 font-semibold whitespace-nowrap">
-                                    {{ $log->user?->name ?? 'Kasir' }}
-                                </td>
-                                <td class="py-2 px-3 text-right font-mono font-bold text-gray-700 whitespace-nowrap">
-                                    Rp {{ number_format($log->kas_sistem, 0, ',', '.') }}
-                                </td>
-                                <td class="py-2 px-3 text-right font-mono font-black text-gray-900 whitespace-nowrap">
-                                    Rp {{ number_format($log->kas_fisik, 0, ',', '.') }}
-                                </td>
-                                <td class="py-2 px-3 text-center whitespace-nowrap">
-                                    @if($log->selisih == 0)
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            &bull; Pas (Rp 0)
-                                        </span>
-                                    @elseif($log->selisih < 0)
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
-                                            &bull; Tekor (&minus;Rp {{ number_format(abs($log->selisih), 0, ',', '.') }})
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
-                                            &bull; Lebih (+Rp {{ number_format($log->selisih, 0, ',', '.') }})
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="py-2 px-3 text-gray-600 text-[11px] truncate max-w-xs">
-                                    {{ $log->catatan ?: '-' }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-800 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         </div>
     @endif
 
-    <!-- Tabulator Table Container -->
+    <!-- ============================================== -->
+    <!-- FILTER BAR, TANGGAL & PENCARIAN                -->
+    <!-- ============================================== -->
+    <div class="card-custom bg-white p-5 space-y-4 border border-gray-100/90 shadow-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3">
+            
+            <!-- Pencarian Multi-Kata Longgar -->
+            <div class="md:col-span-4 relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text"
+                       wire:model.live.debounce.300ms="search"
+                       class="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-semibold text-gray-800 focus:bg-white focus:border-[#0052FF] focus:ring-2 focus:ring-blue-100 transition-all">
+            </div>
+
+            <!-- Filter Tanggal Harian -->
+            <div class="md:col-span-2">
+                <input type="date"
+                       wire:model.live="filterDate"
+                       class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#0052FF]">
+            </div>
+
+            <!-- Filter Tipe Transaksi -->
+            <div class="md:col-span-2">
+                <select wire:model.live="tipeFilter"
+                        class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#0052FF] cursor-pointer">
+                    <option value="semua">Semua Tipe</option>
+                    <option value="penjualan">Penjualan</option>
+                    <option value="servis">Servis</option>
+                </select>
+            </div>
+
+            <!-- Filter Status -->
+            <div class="md:col-span-2">
+                <select wire:model.live="statusFilter"
+                        class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#0052FF] cursor-pointer">
+                    <option value="semua">Semua Status</option>
+                    <option value="Lunas">Lunas</option>
+                    <option value="BON">BON</option>
+                    <option value="Belum Lunas">Belum Lunas</option>
+                    <option value="Batal">Batal</option>
+                </select>
+            </div>
+
+            <!-- Filter Metode & Size Selector -->
+            <div class="md:col-span-2 flex items-center gap-2">
+                <select wire:model.live="metodeFilter"
+                        class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#0052FF] cursor-pointer">
+                    <option value="semua">Semua Metode</option>
+                    @foreach($metodeList as $m)
+                        <option value="{{ $m->nama }}">{{ $m->nama }}</option>
+                    @endforeach
+                </select>
+                <x-table-size-selector />
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TABEL DATA TRANSAKSI HARIAN (TABULATOR)        -->
+    <!-- ============================================== -->
     <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs"
-         x-data="tabulatorHarianTable({
+         x-data="tabulatorTransaksiHarianTable({
              tableData: @js($tableData)
          })"
          x-init="initTable()"
@@ -240,43 +114,34 @@
         <div class="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2 flex-1 max-w-md">
                 <div class="relative flex-1">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-700">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </span>
                     <input type="text"
                            x-model="quickSearch"
                            @input="applyFilter()"
-                           class="w-full pl-9 pr-3 py-1.5 text-xs font-semibold text-gray-800 bg-gray-50/60 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#5E17EB] transition-all">
+                           class="w-full pl-9 pr-3 py-1.5 text-xs font-bold text-gray-900 bg-gray-50/60 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#0052FF] transition-all">
                 </div>
                 <button type="button"
                         @click="clearAllFilters"
-                        class="px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center space-x-1.5 cursor-pointer shrink-0">
-                    <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        class="px-3 py-1.5 rounded-xl border border-gray-300 text-xs font-bold text-gray-900 hover:bg-gray-100 transition-colors flex items-center space-x-1.5 cursor-pointer shrink-0">
+                    <svg class="w-3.5 h-3.5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                     <span>Reset</span>
                 </button>
             </div>
-            <div class="flex items-center gap-3 text-xs text-gray-500 font-semibold flex-wrap">
-                <!-- Toggle Group Tanggal -->
-                <button type="button"
-                        @click="toggleGrouping()"
-                        class="px-2.5 py-1 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                        :class="groupByDate ? 'bg-purple-50 text-[#5E17EB] border-purple-200 shadow-2xs' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    <span x-text="groupByDate ? 'Group Tanggal (ON)' : 'Group Tanggal'"></span>
-                </button>
-
+            <div class="flex items-center gap-3 text-xs text-gray-900 font-bold flex-wrap">
                 <!-- Font Size Selector -->
                 <x-table-size-selector />
 
                 <template x-if="selectedCount > 0">
-                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[11px] border border-emerald-200"
+                    <span class="px-2 py-0.5 rounded-md bg-blue-50 text-[#0052FF] font-bold text-[11px] border border-blue-200"
                           x-text="selectedCount + ' dipilih'"></span>
                 </template>
-                <span class="text-[11px] text-gray-400 font-medium hidden md:inline-flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
+                <span class="text-[11px] text-gray-900 font-bold hidden md:inline-flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
                     Tarik garis kolom untuk melebarkan
                 </span>
-                <span x-text="'Total ' + rowCount + ' Baris'"></span>
+                <span class="text-gray-900 font-black" x-text="'Total ' + rowCount + ' Transaksi'"></span>
             </div>
         </div>
 
@@ -286,121 +151,550 @@
     </div>
 
     <!-- ============================================== -->
-    <!-- MODAL CEK KAS CEPAT / AUDIT LACI               -->
+    <!-- MODAL 1: FORM INPUT / EDIT TRANSAKSI HARIAN    -->
     <!-- ============================================== -->
-    @if($modalCekKasOpen || $modalTutupKasOpen)
-        <div class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true"
-             x-data="{
-                 kasSistem: {{ $kasSistem }},
-                 kasFisik: @entangle('kasFisik'),
-                 get selisih() {
-                     const fisik = Number(String(this.kasFisik).replace(/[^\d]/g, '') || 0);
-                     return fisik - this.kasSistem;
-                 }
-             }">
-            <div class="fixed inset-0 bg-gray-950/70 backdrop-blur-xs transition-opacity" wire:click="closeCekKasModal"></div>
+    @if($modalFormOpen)
+        <div wire:key="modal-form-harian" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="closeFormModal"></div>
 
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-4xl border border-gray-100">
 
                     <!-- Header Modal -->
-                    <div class="bg-emerald-600 px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                    <div class="bg-[#0052FF] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
                         <div class="flex items-center gap-3.5 min-w-0">
-                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs">
-                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                             </div>
                             <div class="min-w-0">
                                 <h3 class="text-base font-bold text-white tracking-tight leading-snug">
-                                    Cek Kas Cepat / Audit Laci
+                                    {{ $transaksiId ? 'Edit Transaksi' : 'Input Transaksi Baru' }}
                                 </h3>
-                                <p class="text-xs text-emerald-100 font-medium mt-0.5">Snapshot saldo kas fisik vs sistem tanpa mengunci transaksi</p>
+                                <p class="text-xs text-blue-100 font-medium mt-0.5">
+                                    Entri data transaksi harian mandiri (tanpa mutasi stok)
+                                </p>
                             </div>
                         </div>
-                        <button type="button" wire:click="closeCekKasModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                        <button type="button" wire:click="closeFormModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
 
-                    <!-- Form Body -->
-                    <form wire:submit.prevent="prosesCekKas">
-                        <div class="p-6 space-y-4">
-                            <!-- Ringkasan Kas Sistem -->
-                            <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200/80 space-y-2 text-xs">
-                                <div class="flex justify-between font-medium text-gray-600">
-                                    <span>Modal Awal Laci:</span>
-                                    <span class="font-mono font-bold text-gray-900">Rp {{ number_format($modalAwalNominal, 0, ',', '.') }}</span>
+                    <form wire:submit.prevent="simpanTransaksi">
+                        <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto custom-scrollbar text-xs">
+
+                            @if($errors->any())
+                                <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-bold space-y-1">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span>Terdapat kesalahan input:</span>
+                                    </div>
+                                    <ul class="list-disc list-inside text-[11px] font-semibold pl-1 space-y-0.5 text-rose-600">
+                                        @foreach($errors->all() as $err)
+                                            <li>{{ $err }}</li>
+                                        @endforeach
+                                    </ul>
                                 </div>
-                                <div class="flex justify-between font-medium text-gray-600">
-                                    <span>Penjualan Kasir (Cash):</span>
-                                    <span class="font-mono font-bold text-gray-900">Rp {{ number_format($totalPenjualanCash, 0, ',', '.') }}</span>
-                                </div>
-                                <div class="flex justify-between font-medium text-gray-600">
-                                    <span>Penerimaan Servis (Cash):</span>
-                                    <span class="font-mono font-bold text-gray-900">Rp {{ number_format($totalServisCash, 0, ',', '.') }}</span>
-                                </div>
-                                <div class="flex justify-between font-medium text-rose-600">
-                                    <span>Kas Keluar Operasional (Cash):</span>
-                                    <span class="font-mono font-bold">&minus; Rp {{ number_format($totalKasKeluarCash, 0, ',', '.') }}</span>
-                                </div>
-                                <div class="pt-2 border-t border-gray-200 flex justify-between font-black text-sm">
-                                    <span class="text-gray-800">Total Kas Sistem (Seharusnya):</span>
-                                    <span class="font-mono text-emerald-600">Rp {{ number_format($kasSistem, 0, ',', '.') }}</span>
+                            @endif
+
+                            <!-- Section 1: Informasi Utama Transaksi -->
+                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
+                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">1. Informasi Transaksi</span>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <!-- Nomor Transaksi (Editable) -->
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Nomor Transaksi <span class="text-rose-500">*</span></label>
+                                        <input type="text"
+                                               wire:model="formNoTransaksi"
+                                               class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-mono font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                        @error('formNoTransaksi') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <!-- Tipe Transaksi -->
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Tipe Transaksi <span class="text-rose-500">*</span></label>
+                                        <select wire:model.live="formTipeTransaksi"
+                                                class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                            <option value="penjualan">Penjualan Produk</option>
+                                            <option value="servis">Layanan Servis</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Tanggal Transaksi -->
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Waktu Transaksi <span class="text-rose-500">*</span></label>
+                                        <input type="datetime-local"
+                                               wire:model.live="formTanggal"
+                                               class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                        @error('formTanggal') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Input Kas Fisik -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Total Uang Fisik di Laci *
-                                </label>
-                                <x-input-rupiah wire:model="kasFisik" />
-                                @error('kasFisik') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                            <!-- Section 2: Data Pelanggan -->
+                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">2. Data Pelanggan</span>
+                                    <div class="flex items-center space-x-2">
+                                        <button type="button"
+                                                wire:click="$set('formCustomerType', 'umum')"
+                                                class="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'umum' ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
+                                            Pelanggan Umum
+                                        </button>
+                                        <button type="button"
+                                                wire:click="$set('formCustomerType', 'langganan')"
+                                                class="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'langganan' ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
+                                            Pilih Master Pelanggan
+                                        </button>
+                                    </div>
+                                </div>
+
+                                @if($formCustomerType === 'langganan')
+                                    <div class="space-y-2">
+                                        <div class="relative">
+                                            <input type="text"
+                                                   wire:model.live.debounce.250ms="formCustomerSearch"
+                                                   class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                            @if(!empty($customerSuggestions) && !$formCustomerId)
+                                                <div class="absolute z-10 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
+                                                    @foreach($customerSuggestions as $cs)
+                                                        <button type="button"
+                                                                wire:key="sugg-cust-harian-{{ $cs->id }}"
+                                                                wire:click="selectCustomer({{ $cs->id }}, '{{ $cs->nama }}', '{{ $cs->no_hp }}')"
+                                                                class="w-full px-3 py-2 text-left hover:bg-blue-50 flex items-center justify-between text-xs cursor-pointer">
+                                                            <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
+                                                            <span class="font-mono text-gray-500">{{ $cs->no_hp }}</span>
+                                                        </button>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Nama Pelanggan <span class="text-rose-500">*</span></label>
+                                        <input type="text"
+                                               wire:model="formNamaPelanggan"
+                                               class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                        @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Nomor WhatsApp</label>
+                                        <input type="text"
+                                               wire:model="formNoHp"
+                                               class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-mono font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Indikator Selisih Realtime -->
-                            <div class="p-3 rounded-xl border flex items-center justify-between"
-                                 :class="{
-                                     'bg-emerald-50 border-emerald-200 text-emerald-800': selisih === 0,
-                                     'bg-rose-50 border-rose-200 text-rose-800': selisih < 0,
-                                     'bg-blue-50 border-blue-200 text-blue-800': selisih > 0
-                                 }">
+                            <!-- Section 3: Rincian Item Transaksi & Kustomisasi HPP / Jual -->
+                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">3. Rincian Item Transaksi</span>
+                                        <span class="text-[10px] text-gray-500 font-medium">Bisa memilih Master Produk / Servis atau custom manual. Stok tidak akan berkurang.</span>
+                                    </div>
+                                    <button type="button"
+                                            wire:click="addItemRow"
+                                            class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-blue-100 hover:bg-blue-200 text-[#0052FF] font-black text-[11px] transition-colors cursor-pointer">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                                        <span>Tambah Baris</span>
+                                    </button>
+                                </div>
+
+                                <div class="space-y-3">
+                                    @foreach($items as $idx => $itemRow)
+                                        <div wire:key="item-row-harian-{{ $idx }}" class="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs space-y-2">
+                                            <div class="flex items-center justify-between gap-2">
+                                                <span class="text-[10px] font-black text-gray-400 uppercase">Item #{{ $idx + 1 }}</span>
+                                                @if(count($items) > 1)
+                                                    <button type="button"
+                                                            wire:click="removeItemRow({{ $idx }})"
+                                                            class="text-rose-500 hover:text-rose-700 text-[10px] font-bold cursor-pointer">
+                                                        Hapus Baris
+                                                    </button>
+                                                @endif
+                                            </div>
+
+                                            <div class="space-y-2.5">
+                                                <!-- Baris 1: Nama Item & Master Autocomplete (Full Width) -->
+                                                <div class="relative w-full" x-data="{ openSuggest: false }" @click.outside="openSuggest = false">
+                                                    <label class="block font-bold text-gray-700 mb-0.5 text-[10px]">Nama Barang <span class="text-rose-500">*</span></label>
+                                                    <input type="text"
+                                                           wire:model.live.debounce.200ms="items.{{ $idx }}.nama_item"
+                                                           @focus="openSuggest = true"
+                                                           @click="openSuggest = true"
+                                                           @input="openSuggest = true"
+                                                           @keydown.escape="openSuggest = false"
+                                                           class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-bold text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                                    @error("items.{$idx}.nama_item")
+                                                        <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
+                                                    @enderror
+
+                                                    @if(!empty($productSuggestionsMap[$idx]) && count($productSuggestionsMap[$idx]) > 0)
+                                                        <div x-show="openSuggest" class="absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-60 overflow-y-auto">
+                                                            @foreach($productSuggestionsMap[$idx] as $sug)
+                                                                <button type="button"
+                                                                        wire:key="sugg-item-harian-{{ $idx }}-{{ $sug['type'] }}-{{ $loop->index }}"
+                                                                        @click="openSuggest = false"
+                                                                        wire:click="selectItemSuggestion({{ $idx }}, '{{ addslashes($sug['nama']) }}', {{ $sug['harga_modal'] }}, {{ $sug['harga_jual'] }}, {{ $sug['id'] ? $sug['id'] : 'null' }})"
+                                                                        class="w-full px-3.5 py-2.5 text-left hover:bg-blue-50/80 flex items-center justify-between text-xs cursor-pointer transition-colors">
+                                                                    <div class="min-w-0 pr-3">
+                                                                        <div class="flex items-center space-x-2">
+                                                                            <span class="font-bold text-gray-900 truncate">{{ $sug['nama'] }}</span>
+                                                                            <span class="text-[9px] font-black px-1.5 py-0.5 rounded {{ $sug['type'] === 'produk' ? 'bg-blue-100 text-[#0052FF]' : 'bg-purple-100 text-[#5E17EB]' }}">
+                                                                                {{ $sug['badge'] }}
+                                                                            </span>
+                                                                        </div>
+                                                                        <span class="text-[10px] text-gray-400 font-mono block mt-0.5">{{ $sug['kode'] }}</span>
+                                                                    </div>
+                                                                    <div class="text-right shrink-0">
+                                                                        <span class="text-[10px] text-amber-700 font-bold block">Modal: Rp {{ number_format($sug['harga_modal'], 0, ',', '.') }}</span>
+                                                                        <span class="text-xs text-[#0052FF] font-black block">Jual: Rp {{ number_format($sug['harga_jual'], 0, ',', '.') }}</span>
+                                                                    </div>
+                                                                </button>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+                                                </div>
+
+                                                <!-- Baris 2: Kuantiti, Biaya Modal, dan Harga Jual (3 Kolom Sejajar) -->
+                                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                                                    <!-- Kuantiti -->
+                                                    <div class="sm:col-span-3">
+                                                        <label class="block font-bold text-gray-700 mb-0.5 text-[10px]">Kuantiti <span class="text-rose-500">*</span></label>
+                                                        <input type="number"
+                                                               min="1"
+                                                               wire:model.live.debounce.250ms="items.{{ $idx }}.qty"
+                                                               class="w-full px-3 py-1.5 rounded-lg border border-gray-300 font-mono font-bold text-center text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                                        @error("items.{$idx}.qty")
+                                                            <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+
+                                                    <!-- Biaya Modal per Unit (Format Rupiah) -->
+                                                    <div class="sm:col-span-4"
+                                                         x-data="{
+                                                             raw: @entangle('items.' . $idx . '.harga_modal').live,
+                                                             get formatted() {
+                                                                 if (!this.raw && this.raw !== 0) return '';
+                                                                 let num = parseInt(this.raw.toString().replace(/[^0-9]/g, ''), 10);
+                                                                 return isNaN(num) || num === 0 ? '' : num.toLocaleString('id-ID');
+                                                             },
+                                                             update(e) {
+                                                                 let clean = e.target.value.replace(/[^0-9]/g, '');
+                                                                 this.raw = clean ? parseInt(clean, 10) : 0;
+                                                                 $wire.call('recalculateRow', {{ $idx }});
+                                                             }
+                                                         }">
+                                                        <label class="block font-bold text-amber-800 mb-0.5 text-[10px]">Biaya Modal <span class="text-rose-500">*</span></label>
+                                                        <div class="relative">
+                                                            <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-[10px] font-bold text-amber-700/70 select-none pointer-events-none font-mono">Rp</span>
+                                                            <input type="text"
+                                                                   inputmode="numeric"
+                                                                   :value="formatted"
+                                                                   @input="update($event)"
+                                                                   class="w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50/40 font-mono font-bold text-amber-900 text-xs focus:ring-2 focus:ring-amber-200 focus:border-amber-400">
+                                                        </div>
+                                                        @error("items.{$idx}.harga_modal")
+                                                            <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+
+                                                    <!-- Harga Jual per Unit (Format Rupiah) -->
+                                                    <div class="sm:col-span-5"
+                                                         x-data="{
+                                                             raw: @entangle('items.' . $idx . '.harga_jual').live,
+                                                             get formatted() {
+                                                                 if (!this.raw && this.raw !== 0) return '';
+                                                                 let num = parseInt(this.raw.toString().replace(/[^0-9]/g, ''), 10);
+                                                                 return isNaN(num) || num === 0 ? '' : num.toLocaleString('id-ID');
+                                                             },
+                                                             update(e) {
+                                                                 let clean = e.target.value.replace(/[^0-9]/g, '');
+                                                                 this.raw = clean ? parseInt(clean, 10) : 0;
+                                                                 $wire.call('recalculateRow', {{ $idx }});
+                                                             }
+                                                         }">
+                                                        <label class="block font-bold text-[#0052FF] mb-0.5 text-[10px]">Harga Jual <span class="text-rose-500">*</span></label>
+                                                        <div class="relative">
+                                                            <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-[10px] font-bold text-blue-700/70 select-none pointer-events-none font-mono">Rp</span>
+                                                            <input type="text"
+                                                                   inputmode="numeric"
+                                                                   :value="formatted"
+                                                                   @input="update($event)"
+                                                                   class="w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-blue-300 bg-blue-50/40 font-mono font-black text-[#0052FF] text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                                        </div>
+                                                        @error("items.{$idx}.harga_jual")
+                                                            <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Subtotal & Laba Baris -->
+                                            <div class="pt-1.5 border-t border-gray-100 flex items-center justify-between text-[11px]">
+                                                <div class="flex items-center space-x-3 text-gray-500 font-medium">
+                                                    <span>Subtotal Modal: <strong class="text-amber-800 font-mono">Rp {{ number_format((float)($itemRow['subtotal_modal'] ?? 0), 0, ',', '.') }}</strong></span>
+                                                    <span>Subtotal Jual: <strong class="text-gray-900 font-mono">Rp {{ number_format((float)($itemRow['subtotal_jual'] ?? 0), 0, ',', '.') }}</strong></span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-bold text-gray-600">Laba Bersih Baris:</span>
+                                                    <span class="font-mono font-black {{ ($itemRow['laba'] ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600' }} ml-1">
+                                                        Rp {{ number_format((float)($itemRow['laba'] ?? 0), 0, ',', '.') }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- Section 4: Pembayaran, Pajak & Status -->
+                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
+                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">4. Pembayaran, Pajak &amp; Status</span>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <!-- Metode Pembayaran -->
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Metode Pembayaran <span class="text-rose-500">*</span></label>
+                                        <select wire:model.live="formMetodePembayaranId"
+                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                            <option value="">-- Pilih Metode --</option>
+                                            @foreach($metodeList as $m)
+                                                <option value="{{ $m->id }}">{{ $m->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('formMetodePembayaranId') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <!-- Pajak Master PPN -->
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Pajak PPN</label>
+                                        <select wire:model.live="formPpnId"
+                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                            <option value="">Tanpa Pajak (0%)</option>
+                                            @foreach($ppnList as $p)
+                                                <option value="{{ $p->id }}">{{ $p->nama }} ({{ $p->persen }}%)</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Status Transaksi -->
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Status Transaksi <span class="text-rose-500">*</span></label>
+                                        <select wire:model="formStatus"
+                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-black text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                            <option value="Lunas">Lunas</option>
+                                            <option value="BON">BON</option>
+                                            <option value="Belum Lunas">Belum Lunas</option>
+                                            <option value="Batal">Batal</option>
+                                        </select>
+                                        @error('formStatus') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
+
+                                <!-- Catatan Opsional -->
                                 <div>
-                                    <span class="text-[10px] font-bold uppercase tracking-wider block"
-                                          x-text="selisih === 0 ? 'Status Kas: KLOP / PAS' : (selisih < 0 ? 'Status Kas: TEKOR / MINUS' : 'Status Kas: LEBIH / SURPLUS')"></span>
-                                    <span class="text-xs font-black font-mono"
-                                          x-text="'Rp ' + Number(Math.abs(selisih)).toLocaleString('id-ID')"></span>
+                                    <label class="block font-bold text-gray-700 mb-1">Catatan Transaksi</label>
+                                    <textarea wire:model="formCatatan"
+                                              rows="2"
+                                              class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]"></textarea>
                                 </div>
-                                <div class="text-[11px] font-bold"
-                                     x-text="selisih === 0 ? 'Sesuai Presisi' : (selisih < 0 ? 'Uang Kurang' : 'Uang Lebih')"></div>
                             </div>
 
-                            <!-- Catatan Audit -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Catatan Audit (Opsional)
-                                </label>
-                                <textarea wire:model="catatanAudit"
-                                          rows="2"
-                                          class="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900"></textarea>
-                                @error('catatanAudit') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-                            </div>
                         </div>
 
-                        <!-- Footer Modal -->
-                        <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-2 rounded-b-3xl">
+                        <!-- Footer Modal Form -->
+                        <div class="bg-gray-50 px-6 py-4 flex items-center justify-between rounded-b-3xl border-t border-gray-100">
                             <button type="button"
-                                    wire:click="closeCekKasModal"
-                                    class="px-4 py-2 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
+                                    wire:click="closeFormModal"
+                                    class="px-4 py-2.5 rounded-xl bg-white border border-gray-200 font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer text-xs">
                                 Batal
                             </button>
+
                             <button type="submit"
                                     wire:loading.attr="disabled"
-                                    class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-extrabold text-white shadow-md shadow-emerald-900/20 transition-all cursor-pointer flex items-center space-x-1.5">
-                                <svg wire:loading wire:target="prosesCekKas" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                                <span>Simpan Catatan Cek Kas</span>
+                                    class="px-5 py-2.5 rounded-xl bg-[#0052FF] hover:bg-blue-700 text-xs font-black text-white shadow-md shadow-blue-900/20 transition-all cursor-pointer flex items-center space-x-1.5 disabled:opacity-50">
+                                <svg wire:loading wire:target="simpanTransaksi" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                <span>Simpan Transaksi</span>
                             </button>
                         </div>
                     </form>
+
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- ============================================== -->
+    <!-- MODAL 2: LIHAT DETAIL TRANSAKSI                -->
+    <!-- ============================================== -->
+    @if($modalDetailOpen && $selectedTransaksi)
+        <div wire:key="modal-detail-harian" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="closeDetailModal"></div>
+
+            <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-gray-100">
+
+                    <!-- Header Modal Detail -->
+                    <div class="bg-[#0052FF] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Detail Transaksi</h3>
+                                <p class="text-xs text-blue-100 font-medium mt-0.5 truncate">
+                                    {{ $selectedTransaksi->no_transaksi_frontend }} &bull; {{ $selectedTransaksi->nama_pelanggan }}
+                                </p>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="closeDetailModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar text-xs">
+                        
+                        <!-- Snapshot Ringkas -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <span class="text-[10px] font-bold text-gray-900 uppercase block">No. Transaksi</span>
+                                <span class="font-mono font-black text-gray-900 block mt-0.5">{{ $selectedTransaksi->no_transaksi_frontend }}</span>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <span class="text-[10px] font-bold text-gray-900 uppercase block">Tipe</span>
+                                <span class="font-bold text-[#0052FF] uppercase block mt-0.5">{{ $selectedTransaksi->tipe_transaksi }}</span>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <span class="text-[10px] font-bold text-gray-900 uppercase block">Waktu</span>
+                                <span class="font-bold text-gray-900 block mt-0.5">{{ $selectedTransaksi->tanggal ? $selectedTransaksi->tanggal->format('d/m/Y H:i') : '-' }}</span>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <span class="text-[10px] font-bold text-gray-900 uppercase block">Petugas</span>
+                                <span class="font-bold text-gray-900 block mt-0.5">{{ $selectedTransaksi->user?->name ?? 'Kasir' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Data Pelanggan & Metode -->
+                        <div class="p-3.5 bg-gray-50/80 rounded-2xl border border-gray-200/80 flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                                <span class="text-[10px] font-bold text-gray-900 uppercase block">Pelanggan</span>
+                                <span class="font-bold text-gray-900 text-sm block">{{ $selectedTransaksi->nama_pelanggan }}</span>
+                                <span class="text-[10px] text-gray-900 font-mono font-bold">{{ $selectedTransaksi->no_hp ?: '-' }}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] font-bold text-gray-900 uppercase block">Metode / Status</span>
+                                <span class="font-bold text-gray-900 block">{{ $selectedTransaksi->metode_pembayaran }}</span>
+                                <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-black {{ $selectedTransaksi->status === 'Lunas' ? 'bg-emerald-100 text-emerald-800' : ($selectedTransaksi->status === 'Batal' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800') }}">
+                                    {{ $selectedTransaksi->status }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Rincian Item Tabel -->
+                        <div>
+                            <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block mb-2">Daftar Item Barang / Layanan:</span>
+                            <div class="rounded-xl border border-gray-200 overflow-hidden">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-gray-50 text-[10px] font-black text-gray-900 uppercase">
+                                        <tr>
+                                            <th class="py-2 px-3">Item</th>
+                                            <th class="py-2 px-3 text-center">Qty</th>
+                                            <th class="py-2 px-3 text-right">Modal (HPP)</th>
+                                            <th class="py-2 px-3 text-right">Harga Jual</th>
+                                            <th class="py-2 px-3 text-right">Laba</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        @foreach($selectedTransaksi->details as $d)
+                                            <tr>
+                                                <td class="py-2.5 px-3 font-bold text-gray-900">{{ $d->nama_item }}</td>
+                                                <td class="py-2.5 px-3 text-center font-mono font-bold text-gray-900">{{ $d->qty }}</td>
+                                                <td class="py-2.5 px-3 text-right font-mono font-bold text-amber-800">Rp {{ number_format($d->harga_modal, 0, ',', '.') }}</td>
+                                                <td class="py-2.5 px-3 text-right font-mono font-bold text-gray-900">Rp {{ number_format($d->harga_jual, 0, ',', '.') }}</td>
+                                                <td class="py-2.5 px-3 text-right font-mono font-black {{ $d->laba >= 0 ? 'text-emerald-700' : 'text-rose-600' }}">Rp {{ number_format($d->laba, 0, ',', '.') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot class="bg-blue-50/50 border-t border-blue-100 font-bold">
+                                        <tr>
+                                            <td colspan="2" class="py-2 px-3 text-gray-900 font-bold">Total Ringkasan:</td>
+                                            <td class="py-2 px-3 text-right font-mono text-amber-900 font-bold">Rp {{ number_format($selectedTransaksi->total_modal, 0, ',', '.') }}</td>
+                                            <td class="py-2 px-3 text-right font-mono text-base text-[#0052FF] font-black">Rp {{ number_format($selectedTransaksi->grand_total, 0, ',', '.') }}</td>
+                                            <td class="py-2 px-3 text-right font-mono text-base text-emerald-700 font-black">Rp {{ number_format($selectedTransaksi->total_laba, 0, ',', '.') }}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        @if($selectedTransaksi->catatan)
+                            <div class="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                                <span class="text-[10px] font-bold text-gray-900 uppercase block">Catatan:</span>
+                                <p class="font-bold text-gray-900 mt-0.5 whitespace-pre-line">{{ $selectedTransaksi->catatan }}</p>
+                            </div>
+                        @endif
+
+                    </div>
+
+                    <div class="bg-gray-50 px-6 py-4 flex items-center justify-end rounded-b-3xl border-t border-gray-100">
+                        <button type="button"
+                                wire:click="closeDetailModal"
+                                class="px-5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
+                            Tutup
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- ============================================== -->
+    <!-- MODAL 3: HAPUS TRANSAKSI                       -->
+    <!-- ============================================== -->
+    @if($modalDeleteOpen)
+        <div wire:key="modal-del-harian" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="$set('modalDeleteOpen', false)"></div>
+
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 text-xs">
+
+                    <div class="bg-rose-600 px-6 sm:px-7 py-5 text-white flex items-center justify-between rounded-t-3xl gap-4">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </div>
+                            <h3 class="text-base font-bold text-white tracking-tight">Hapus Transaksi</h3>
+                        </div>
+                    </div>
+
+                    <div class="p-6 space-y-3">
+                        <p class="text-gray-700 font-medium leading-relaxed">
+                            Apakah Anda yakin ingin menghapus data transaksi <strong class="text-gray-900 font-mono">{{ $deleteCode }}</strong>?
+                        </p>
+                        <p class="text-[11px] text-gray-500">
+                            Tindakan ini permanen dan akan menghapus seluruh rincian item di dalamnya.
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-2 rounded-b-3xl border-t border-gray-100">
+                        <button type="button"
+                                wire:click="$set('modalDeleteOpen', false)"
+                                class="px-4 py-2 rounded-xl bg-white border border-gray-200 font-bold text-gray-700 hover:bg-gray-100 cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="button"
+                                wire:click="deleteTransaksi"
+                                class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition-all shadow-md cursor-pointer">
+                            Ya, Hapus
+                        </button>
+                    </div>
 
                 </div>
             </div>
@@ -411,40 +705,21 @@
 
 @push('scripts')
 <script>
-window.tabulatorHarianTable = function(config) {
+window.tabulatorTransaksiHarianTable = function(config) {
     return {
         table: null,
+        tableSize: localStorage.getItem('soulmate_table_size') || 'md',
         quickSearch: '',
         rowCount: (config.tableData || []).length,
         selectedCount: 0,
-        groupByDate: true,
-        tableSize: localStorage.getItem('soulmate_table_size') || 'md',
-
-        setTableSize(size) {
-            this.tableSize = size;
-            localStorage.setItem('soulmate_table_size', size);
-            window.dispatchEvent(new CustomEvent('table-size-changed', { detail: size }));
-            if (this.table) {
-                this.table.redraw(true);
-            }
-        },
-
-        toggleGrouping() {
-            this.groupByDate = !this.groupByDate;
-            if (this.table) {
-                if (this.groupByDate) {
-                    this.table.setGroupBy("tanggal_group");
-                } else {
-                    this.table.setGroupBy(false);
-                }
-            }
-        },
 
         formatRupiah(val) {
             return 'Rp ' + Number(val || 0).toLocaleString('id-ID');
         },
 
         initTable() {
+            window.activeTransaksiHarianWire = this.$wire;
+
             window.addEventListener('table-size-changed', (e) => {
                 this.tableSize = e.detail;
                 if (this.table) {
@@ -476,70 +751,152 @@ window.tabulatorHarianTable = function(config) {
                 paginationSize: 25,
                 paginationSizeSelector: [15, 25, 50, 100],
                 movableColumns: true,
-                groupBy: this.groupByDate ? "tanggal_group" : false,
-                groupHeader: function(value, count, data, group) {
-                    let totalJual = data.reduce((sum, row) => sum + (Number(row.harga_jual) || 0), 0);
-                    let formattedJual = 'Rp ' + Number(totalJual || 0).toLocaleString('id-ID');
-                    return `
-                        <div class="flex flex-wrap items-center justify-between w-full pr-3 py-0.5 text-xs font-bold text-gray-800">
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded-md bg-[#5E17EB]/10 text-[#5E17EB] font-black">${value}</span>
-                                <span class="text-gray-500 font-medium text-[11px] font-mono">(${count} Transaksi)</span>
-                            </div>
-                            <div class="flex items-center gap-3 text-[11px] font-mono">
-                                <span class="text-purple-800 bg-purple-100/70 px-2 py-0.5 rounded-md border border-purple-200">TOTAL OMSET: <strong class="text-purple-700">${formattedJual}</strong></span>
-                            </div>
-                        </div>
-                    `;
-                },
-                placeholder: "Tidak ada transaksi pada periode ini.",
+                placeholder: "Belum ada transaksi hari ini.",
                 columns: [
-                    { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 35, minWidth: 35, maxWidth: 35, resizable: false },
-                    { title: "Waktu", field: "tanggal", width: 110, hozAlign: "center", sorter: "string", headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-bold text-gray-700 font-mono text-[11px]">${cell.getValue()}</span>` },
-                    { title: "No Transaksi", field: "no_transaksi", width: 125, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-extrabold text-gray-900 text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
-                    { title: "Transaksi", field: "tipe_label", width: 95, hozAlign: "center", headerFilter: "list", headerFilterParams: { valuesLookup: "all", clearable: true, multiselect: true }, headerFilterFunc: multiSelectFilterFunc, formatter: (cell) => {
-                        const val = cell.getValue();
-                        const isPJ = val === 'Penjualan';
-                        return `<span class="inline-flex px-2 py-0.5 rounded-md text-[10px] font-black ${isPJ ? 'bg-purple-50 text-[#5E17EB] border border-purple-200' : 'bg-blue-50 text-[#0052FF] border border-blue-200'}">${val}</span>`;
-                    }},
-                    { title: "Pelanggan", field: "customer", widthGrow: 1, minWidth: 95, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-bold text-gray-800 text-[11px] truncate block" title="${cell.getValue()}">${cell.getValue()}</span>` },
-                    { title: "Detail Barang & Servis", field: "item_detail", widthGrow: 2, minWidth: 150, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => {
-                        const data = cell.getData();
-                        const items = data.items_list || (cell.getValue() ? [cell.getValue()] : []);
-                        if (!items || items.length === 0) return '<span class="text-gray-400 italic text-[11px]">-</span>';
-                        return `<div class="tabulator-cell-list py-1 flex flex-col gap-1 text-[11px] leading-tight">` +
-                            items.map(it => `<div class="flex items-start gap-1.5 text-gray-700"><span class="w-1.5 h-1.5 rounded-full bg-[#5E17EB] mt-1 shrink-0"></span><span class="font-medium">${it}</span></div>`).join('') +
-                        `</div>`;
-                    }},
-                    { title: "Nilai (Omset)", field: "harga_jual", hozAlign: "right", width: 115, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-mono font-black text-gray-900 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },
-                    { title: "Pajak", field: "pajak", hozAlign: "right", width: 115, headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => {
-                        const val = cell.getValue();
-                        const data = cell.getData();
-                        const tipe = data.pajak_tipe || (val > 0 ? 'PPN' : 'Non-PPN');
-                        if (val > 0) {
-                            return `<div class="flex flex-col items-end leading-tight">
-                                <span class="font-mono font-black text-gray-900 text-[11px]">${this.formatRupiah(val)}</span>
-                                <span class="text-[9px] font-extrabold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200/80 mt-0.5 whitespace-nowrap">${tipe}</span>
-                            </div>`;
+                    { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 30, minWidth: 30, maxWidth: 30, resizable: false },
+                    {
+                        title: "No. Transaksi",
+                        field: "no_transaksi",
+                        width: 155,
+                        minWidth: 140,
+                        headerFilter: "input",
+                        headerFilterPlaceholder: "",
+                        formatter: (cell) => {
+                            const d = cell.getData();
+                            const isServis = d.tipe_transaksi === 'servis';
+                            return `
+                                <div class="leading-tight py-0.5">
+                                    <span class="font-mono font-black text-[#0052FF] block leading-tight text-[10.5px] truncate">${cell.getValue()}</span>
+                                    <div class="flex items-center gap-1 mt-0.5">
+                                        <span class="inline-block px-1 py-0.2 rounded text-[8.5px] font-black uppercase tracking-wider ${isServis ? 'bg-purple-100 text-[#5E17EB]' : 'bg-blue-100 text-[#0052FF]'}">
+                                            ${d.tipe_transaksi}
+                                        </span>
+                                        <span class="inline-block px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">${d.petugas}</span>
+                                    </div>
+                                </div>
+                            `;
                         }
-                        return `<div class="flex flex-col items-end leading-tight">
-                            <span class="font-mono text-gray-400 text-[11px]">Rp 0</span>
-                            <span class="text-[9px] font-semibold text-gray-400 mt-0.5 whitespace-nowrap">${tipe}</span>
-                        </div>`;
-                    }},
-                    { title: "Status", field: "status", width: 75, hozAlign: "center", headerFilter: "list", headerFilterParams: { valuesLookup: "all", clearable: true, multiselect: true }, headerFilterFunc: multiSelectFilterFunc, formatter: (cell) => {
-                        const isLunas = cell.getValue() === 'Lunas';
-                        return `<span class="inline-flex px-2 py-0.5 rounded text-[10px] font-black ${isLunas ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">${cell.getValue()}</span>`;
-                    }},
-                    { title: "Metode", field: "metode_bayar", width: 85, hozAlign: "center", headerFilter: "list", headerFilterParams: { valuesLookup: "all", clearable: true, multiselect: true }, headerFilterFunc: multiSelectFilterFunc, formatter: (cell) => {
-                        const isCash = cell.getData().is_cash;
-                        return `<span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold ${isCash ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-700 border border-gray-200'}">${cell.getValue()}</span>`;
-                    }},
-                    { title: "Petugas", field: "petugas", widthGrow: 1, minWidth: 90, headerFilter: "list", headerFilterParams: { valuesLookup: "all", clearable: true, multiselect: true }, headerFilterFunc: multiSelectFilterFunc, formatter: (cell) => `<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 font-bold text-[10px] truncate max-w-full" title="${cell.getValue()}">${cell.getValue()}</span>` },
+                    },
+                    {
+                        title: "Waktu",
+                        field: "waktu",
+                        width: 100,
+                        hozAlign: "center",
+                        sorter: "string",
+                        headerFilter: "input",
+                        headerFilterPlaceholder: "",
+                        formatter: (cell) => `<span class="font-bold text-slate-600 font-mono text-[10.5px]">${cell.getValue()}</span>`
+                    },
+                    {
+                        title: "Pelanggan",
+                        field: "pelanggan",
+                        widthGrow: 1,
+                        minWidth: 110,
+                        headerFilter: "input",
+                        headerFilterPlaceholder: "",
+                        formatter: (cell) => {
+                            const d = cell.getData();
+                            return `
+                                <div class="leading-tight py-0.5">
+                                    <span class="font-black text-slate-900 block truncate text-[10.5px]" title="${cell.getValue()}">${cell.getValue()}</span>
+                                    <span class="text-[9.5px] font-mono text-emerald-700 font-bold block truncate mt-0.5">${d.no_hp}</span>
+                                </div>
+                            `;
+                        }
+                    },
+                    {
+                        title: "Rincian Item",
+                        field: "rincian_item",
+                        widthGrow: 2,
+                        minWidth: 130,
+                        headerFilter: "input",
+                        headerFilterPlaceholder: "",
+                        formatter: (cell) => {
+                            const d = cell.getData();
+                            return `
+                                <div class="leading-tight py-0.5">
+                                    <span class="text-[10.5px] font-bold text-slate-800 block truncate" title="${cell.getValue()}">${cell.getValue()}</span>
+                                    <span class="text-[9.5px] text-purple-800 font-semibold block truncate mt-0.5">Metode: <strong class="text-purple-950 font-black">${d.metode_pembayaran}</strong></span>
+                                </div>
+                            `;
+                        }
+                    },
+                    {
+                        title: "Modal (HPP)",
+                        field: "total_modal",
+                        hozAlign: "right",
+                        width: 95,
+                        formatter: (cell) => `<span class="font-mono font-bold text-amber-800 text-[10.5px]">${this.formatRupiah(cell.getValue())}</span>`
+                    },
+                    {
+                        title: "Total Jual",
+                        field: "grand_total",
+                        hozAlign: "right",
+                        width: 100,
+                        formatter: (cell) => `<span class="font-mono font-black text-slate-900 text-[10.5px]">${this.formatRupiah(cell.getValue())}</span>`
+                    },
+                    {
+                        title: "Status",
+                        field: "status",
+                        width: 105,
+                        hozAlign: "center",
+                        headerFilter: "list",
+                        headerFilterParams: { values: ["Lunas", "BON", "Belum Lunas", "Batal"], clearable: true },
+                        headerFilterFunc: multiSelectFilterFunc,
+                        formatter: (cell) => {
+                            const val = cell.getValue();
+                            const id = cell.getData().id;
+                            return `
+                                <select class="py-0.5 px-1.5 rounded text-[9.5px] font-black border transition-all cursor-pointer focus:ring-1 focus:ring-blue-200 ${
+                                    val === 'Lunas' ? 'bg-emerald-50 text-emerald-800 border-emerald-400 font-black' :
+                                    (val === 'BON' || val === 'Belum Lunas' ? 'bg-amber-50 text-amber-900 border-amber-400 font-black' : 'bg-rose-50 text-rose-800 border-rose-400 font-black')
+                                }" onchange="window.updateStatusHarianDirect(${id}, this.value)">
+                                    <option value="Lunas" ${val === 'Lunas' ? 'selected' : ''}>Lunas</option>
+                                    <option value="BON" ${val === 'BON' ? 'selected' : ''}>BON</option>
+                                    <option value="Belum Lunas" ${val === 'Belum Lunas' ? 'selected' : ''}>Belum Lunas</option>
+                                    <option value="Batal" ${val === 'Batal' ? 'selected' : ''}>Batal</option>
+                                </select>
+                            `;
+                        }
+                    },
+                    {
+                        title: "Keterangan",
+                        field: "keterangan",
+                        widthGrow: 1,
+                        minWidth: 90,
+                        headerFilter: "input",
+                        headerFilterPlaceholder: "",
+                        formatter: (cell) => `<span class="text-slate-600 font-medium text-[10px] truncate block leading-tight" title="${cell.getValue()}">${cell.getValue()}</span>`
+                    },
+                    {
+                        title: "Aksi",
+                        field: "id",
+                        width: 85,
+                        maxWidth: 85,
+                        hozAlign: "center",
+                        headerSort: false,
+                        resizable: false,
+                        formatter: (cell) => {
+                            const id = cell.getValue();
+                            const data = cell.getData();
+                            const noTrx = (data.no_transaksi || '').replace(/'/g, "\\'");
+                            return `
+                                <div class="flex items-center justify-center space-x-1">
+                                    <button type="button" onclick="window.viewTransaksiHarianDetail(${id})" class="p-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer" title="Lihat Detail Transaksi">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    </button>
+                                    <button type="button" onclick="window.editTransaksiHarian(${id})" class="p-1 rounded bg-blue-50 hover:bg-blue-100 text-[#0052FF] transition-colors cursor-pointer" title="Edit Transaksi">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    </button>
+                                    <button type="button" onclick="window.deleteTransaksiHarianConfirm(${id}, '${noTrx}')" class="p-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer" title="Hapus Transaksi">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
                 ]
             });
-
-            window.tabulatorInstance = this.table;
 
             this.table.on("dataFiltered", (filters, rows) => {
                 this.rowCount = rows.length;
@@ -549,7 +906,7 @@ window.tabulatorHarianTable = function(config) {
                 this.selectedCount = rows.length;
             });
 
-            Livewire.on('harian-table-updated', ({ data }) => {
+            Livewire.on('transaksi-harian-table-updated', ({ data }) => {
                 if (this.table && Array.isArray(data)) {
                     this.table.setData(data);
                     this.rowCount = data.length;
@@ -568,11 +925,13 @@ window.tabulatorHarianTable = function(config) {
 
             this.table.setFilter((data) => {
                 return (data.no_transaksi && data.no_transaksi.toLowerCase().includes(term)) ||
-                       (data.customer && data.customer.toLowerCase().includes(term)) ||
-                       (data.item_detail && data.item_detail.toLowerCase().includes(term)) ||
-                       (data.metode_bayar && data.metode_bayar.toLowerCase().includes(term)) ||
-                       (data.status && data.status.toLowerCase().includes(term)) ||
-                       (data.petugas && data.petugas.toLowerCase().includes(term));
+                       (data.pelanggan && data.pelanggan.toLowerCase().includes(term)) ||
+                       (data.no_hp && data.no_hp.toLowerCase().includes(term)) ||
+                       (data.petugas && data.petugas.toLowerCase().includes(term)) ||
+                       (data.rincian_item && data.rincian_item.toLowerCase().includes(term)) ||
+                       (data.metode_pembayaran && data.metode_pembayaran.toLowerCase().includes(term)) ||
+                       (data.keterangan && data.keterangan.toLowerCase().includes(term)) ||
+                       (data.status && data.status.toLowerCase().includes(term));
             });
         },
 
@@ -587,6 +946,19 @@ window.tabulatorHarianTable = function(config) {
             }
         }
     };
+};
+
+window.viewTransaksiHarianDetail = (id) => {
+    if (window.activeTransaksiHarianWire) window.activeTransaksiHarianWire.openDetailModal(id);
+};
+window.editTransaksiHarian = (id) => {
+    if (window.activeTransaksiHarianWire) window.activeTransaksiHarianWire.openEditModal(id);
+};
+window.deleteTransaksiHarianConfirm = (id, noTrx) => {
+    if (window.activeTransaksiHarianWire) window.activeTransaksiHarianWire.confirmDelete(id, noTrx);
+};
+window.updateStatusHarianDirect = (id, status) => {
+    if (window.activeTransaksiHarianWire) window.activeTransaksiHarianWire.updateStatusDirect(id, status);
 };
 </script>
 @endpush

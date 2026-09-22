@@ -353,4 +353,33 @@ class LaporanPenjualanTest extends TestCase
             ->assertDontSee('PJ-260915-00101')
             ->assertSee('PJ-260915-00102');
     }
+
+    public function test_update_status_direct_and_filter_status(): void
+    {
+        $sale = Penjualan::create([
+            'cabang_id' => $this->cabangA->id,
+            'kasir_id' => $this->adminBranchA->id,
+            'customer_id' => $this->customer->id,
+            'no_transaksi' => 'INV-PJ-CB-PKP-260915-00201',
+            'tipe_transaksi' => 'langsung',
+            'tanggal' => Carbon::now(),
+            'subtotal' => 100000,
+            'total' => 100000,
+            'jumlah_bayar' => 0,
+            'metode_bayar' => 'bon',
+            'is_real' => true,
+            'status' => 'bon',
+        ]);
+
+        $this->actingAs($this->adminBranchA);
+
+        Livewire::test(LaporanPenjualanIndex::class)
+            ->set('statusFilter', 'bon')
+            ->assertSee('PJ-260915-00201')
+            ->call('updateStatusDirect', $sale->id, 'lunas');
+
+        $this->assertEquals('lunas', $sale->fresh()->status);
+        $this->assertEquals(100000, (float) $sale->fresh()->jumlah_bayar);
+        $this->assertEquals('tunai', $sale->fresh()->metode_bayar);
+    }
 }

@@ -97,6 +97,7 @@ class ServisKeluarTest extends TestCase
             'tipe_unit' => 'Asus ROG Strix',
             'keluhan' => 'Layar bergaris',
             'status' => 'selesai',
+            'is_cetak_nota' => true,
             'tanggal_masuk' => now()->subDays(2),
             'tanggal_selesai' => now(),
             'total_biaya' => 250000,
@@ -111,6 +112,7 @@ class ServisKeluarTest extends TestCase
             'tipe_unit' => 'Epson L3110',
             'keluhan' => 'Head buntu',
             'status' => 'sudah_diambil',
+            'is_cetak_nota' => true,
             'tanggal_masuk' => now()->subDays(5),
             'tanggal_selesai' => now()->subDays(3),
             'tanggal_ambil' => now()->subDays(1),
@@ -122,6 +124,31 @@ class ServisKeluarTest extends TestCase
             ->assertSee('Epson L3110')
             ->assertSee('Belum Diambil')
             ->assertSee('Sudah Diambil');
+    }
+
+    public function test_selesai_without_cetak_nota_is_not_displayed_in_servis_keluar(): void
+    {
+        $this->actingAs($this->admin);
+
+        $customer = Customer::create(['cabang_id' => $this->cabang1->id, 'nama' => 'Budi', 'no_hp' => '081234']);
+
+        $servisBelumCetak = ServisMasuk::create([
+            'no_servis' => 'INV-SV-CBPKP-260915-00099',
+            'cabang_id' => $this->cabang1->id,
+            'customer_id' => $customer->id,
+            'created_by' => $this->admin->id,
+            'kategori_perangkat' => 'laptop',
+            'tipe_unit' => 'HP Omen Gaming',
+            'keluhan' => 'Ganti thermal paste',
+            'status' => 'selesai',
+            'is_cetak_nota' => false,
+            'tanggal_masuk' => now()->subDays(1),
+            'tanggal_selesai' => now(),
+            'total_biaya' => 100000,
+        ]);
+
+        Livewire::test(ServisKeluarIndex::class)
+            ->assertDontSee('HP Omen Gaming');
     }
 
     public function test_can_process_penyerahan_and_payment(): void

@@ -4,8 +4,7 @@ namespace App\Livewire\Components;
 
 use App\Models\Cabang;
 use App\Models\KasKeluar;
-use App\Models\Penjualan;
-use App\Models\ServisMasuk;
+use App\Models\TransaksiFull;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -89,7 +88,7 @@ class NavbarRingkasanTransaksi extends Component
                 return Cabang::find((int) $sess);
             }
 
-            return Cabang::where('status', 'aktif')->first();
+            return null; // HQ = Semua cabang
         }
 
         return $user->cabang;
@@ -107,9 +106,9 @@ class NavbarRingkasanTransaksi extends Component
         $cabang = $this->activeCabang;
         $start = Carbon::parse($this->startDate)->startOfDay();
         $end = Carbon::parse($this->endDate)->endOfDay();
-        $cacheKey = 'navbar_ringkasan_' . ($cabang?->id ?? 'all') . '_' . $this->startDate . '_' . $this->endDate;
+        $cacheKey = 'navbar_ringkasan_' . ($cabang?->id ?? 'hq') . '_' . $this->startDate . '_' . $this->endDate;
 
-        $summary = \Illuminate\Support\Facades\Cache::remember($cacheKey, 60, function () use ($cabang, $start, $end) {
+        $summary = \Illuminate\Support\Facades\Cache::remember($cacheKey, 30, function () use ($cabang, $start, $end) {
             // 1. Kas Keluar
             $kasKeluarQuery = KasKeluar::whereBetween('tanggal', [$start, $end]);
             if ($cabang) {
@@ -117,103 +116,53 @@ class NavbarRingkasanTransaksi extends Component
             }
             $totalKasKeluarAll = (float) $kasKeluarQuery->sum('nominal');
 
-            // 2. Penjualan
-            $penjualanQuery = Penjualan::with('details.produk')
-                ->where('is_real', true)
-                ->whereBetween('tanggal', [$start, $end]);
+            // 2. Transaksi FULL Data
+            $trxQuery = TransaksiFull::whereBetween('tanggal', [$start, $end]);
             if ($cabang) {
-                $penjualanQuery->where('cabang_id', $cabang->id);
+                $trxQuery->where('cabang_id', $cabang->id);
             }
-            $penjualans = $penjualanQuery->get();
+            $allTrx = $trxQuery->get();
 
-            $totalPenjualanLunas = 0;
-            $totalPenjualanBon = 0;
-            $marginPenjualanTotal = 0;
-            $modalPenjualanTotal = 0;
             $totalPenjualanBruto = 0;
-
-            foreach ($penjualans as $pj) {
-                $modal = 0;
-                foreach ($pj->details as $d) {
-                    $beli = $d->produk ? (float) $d->produk->harga_beli : 0;
-                    $modal += ($beli * $d->qty);
-                }
-                $jual = (float) $pj->total;
-                $margin = $jual - $modal;
-
-                $totalPenjualanBruto += $jual;
-                $modalPenjualanTotal += $modal;
-                $marginPenjualanTotal += $margin;
-
-                if ($pj->status === 'bon' || $pj->status === 'belum_lunas') {
-                    $totalPenjualanBon += $jual;
-                } else {
-                    $totalPenjualanLunas += $jual;
-                }
-            }
-
-            // 3. Servis
-            $servisQuery = ServisMasuk::with(['details.masterServis', 'details.produk'])
-                ->whereBetween('tanggal_masuk', [$start, $end]);
-            if ($cabang) {
-                $servisQuery->where('cabang_id', $cabang->id);
-            }
-            $servisList = $servisQuery->get();
-
-            $totalServisLunas = 0;
-            $totalServisBelumLunas = 0;
-            $marginServisTotal = 0;
-            $modalServisTotal = 0;
             $totalServisBruto = 0;
+            $modalPenjualanTotal = 0;
+            $modalServisTotal = 0;
+            $marginPenjualanTotal = 0;
+            $marginServisTotal = 0;
+            $totalPemasukanLunasAll = 0;
+            $totalBelumLunasAll = 0;
             $totalMarginLunas = 0;
 
-            // Add lunas margin from Penjualan
-            foreach ($penjualans as $pj) {
-                if ($pj->status !== 'bon' && $pj->status !== 'belum_lunas') {
-                    $m = 0;
-                    foreach ($pj->details as $d) {
-                        $m += (($d->produk ? (float) $d->produk->harga_beli : 0) * $d->qty);
-                    }
-                    $totalMarginLunas += ((float) $pj->total - $m);
-                }
-            }
-
-            foreach ($servisList as $sv) {
-                if ($sv->status === 'batal') {
+            foreach ($allTrx as $trx) {
+                if ($trx->status === 'Batal') {
                     continue;
                 }
 
-                $modal = 0;
-                foreach ($sv->details as $d) {
-                    $hargaModal = 0;
-                    if ($d->masterServis) {
-                        $hargaModal = (float) $d->masterServis->harga_modal;
-                    } elseif ($d->produk) {
-                        $hargaModal = (float) $d->produk->harga_beli;
-                    }
-                    $modal += ($hargaModal * $d->qty);
-                }
-                $jual = (float) ($sv->total_biaya > 0 ? $sv->total_biaya : ($sv->estimasi_biaya ?: 0));
-                $margin = $jual - $modal;
+                $grandTotal = (float) $trx->grand_total;
+                $modal = (float) $trx->total_modal;
+                $laba = (float) $trx->total_laba;
 
-                $totalServisBruto += $jual;
-                $modalServisTotal += $modal;
-                $marginServisTotal += $margin;
-
-                $isLunas = in_array($sv->status, ['sudah_diambil', 'sudah_dibayar']) || ($sv->total_biaya > 0 && (float) $sv->bayar >= (float) $sv->total_biaya);
-                if ($isLunas) {
-                    $totalServisLunas += $jual;
-                    $totalMarginLunas += $margin;
+                if ($trx->tipe_transaksi === 'servis') {
+                    $totalServisBruto += $grandTotal;
+                    $modalServisTotal += $modal;
+                    $marginServisTotal += $laba;
                 } else {
-                    $totalServisBelumLunas += $jual;
+                    $totalPenjualanBruto += $grandTotal;
+                    $modalPenjualanTotal += $modal;
+                    $marginPenjualanTotal += $laba;
+                }
+
+                if ($trx->status === 'Lunas') {
+                    $totalPemasukanLunasAll += $grandTotal;
+                    $totalMarginLunas += $laba;
+                } elseif ($trx->status === 'BON' || $trx->status === 'Belum Lunas') {
+                    $totalBelumLunasAll += $grandTotal;
                 }
             }
 
             $totalOmzetAll = $totalPenjualanBruto + $totalServisBruto;
             $totalModalAll = $modalPenjualanTotal + $modalServisTotal;
             $totalMarginAll = $marginPenjualanTotal + $marginServisTotal;
-            $totalPemasukanLunasAll = $totalPenjualanLunas + $totalServisLunas;
-            $totalBelumLunasAll = $totalPenjualanBon + $totalServisBelumLunas;
             $labaBersihReal = $totalMarginLunas - $totalKasKeluarAll;
 
             return [

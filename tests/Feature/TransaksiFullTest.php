@@ -3,12 +3,11 @@
 namespace Tests\Feature;
 
 use App\Livewire\Transaksi\Full as TransaksiFull;
-use App\Models\KasKeluar;
-use App\Models\KategoriKasKeluar;
-use App\Models\Penjualan;
-use App\Models\PenjualanDetail;
+use App\Models\MasterPpn;
+use App\Models\MetodePembayaran;
 use App\Models\Produk;
-use App\Models\SumberDana;
+use App\Models\Stok;
+use App\Models\TransaksiFull as TransaksiFullModel;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,69 +37,114 @@ class TransaksiFullTest extends TestCase
         $this->get(route('transaksi.full'))->assertStatus(403);
     }
 
-    public function test_superadmin_can_view_transaksi_full_and_net_cash_calculation()
+    public function test_superadmin_can_create_transaksi_full_without_mutating_stock()
     {
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
 
-        $this->get(route('transaksi.full'))->assertStatus(200);
-
         $produk = Produk::first();
-        $sumberDanaCash = SumberDana::where('nama', 'like', '%Cash%')->first();
-        $kategoriKas = KategoriKasKeluar::first();
+        $stokAwal = Stok::where('produk_id', $produk->id)->where('cabang_id', $superadmin->cabang_id)->value('jumlah') ?? 50;
 
-        // 1. Buat Penjualan Cash
-        $penjualan = Penjualan::create([
-            'no_transaksi' => 'INV-PJ-PKP-2609-00001',
-            'cabang_id' => $superadmin->cabang_id,
-            'kasir_id' => $superadmin->id,
-            'tipe_transaksi' => 'penjualan_barang',
-            'tanggal' => now(),
-            'subtotal' => 200000,
-            'diskon' => 0,
-            'total' => 200000,
-            'jumlah_bayar' => 200000,
-            'kembalian' => 0,
-            'metode_bayar' => 'Cash',
-            'status' => 'lunas',
-            'is_real' => true,
+        $metode = MetodePembayaran::first();
+        $ppn = MasterPpn::first();
+
+        $test = Livewire::test(TransaksiFull::class)
+            ->call('openCreateModal')
+            ->set('formNamaPelanggan', 'Budi Santoso')
+            ->set('formNoHp', '08123456789')
+            ->set('formTipeTransaksi', 'penjualan')
+            ->set('formStatus', 'Lunas')
+            ->set('formMetodePembayaranId', $metode->id)
+            ->set('formMetodePembayaran', $metode->nama_metode)
+            ->set('formPpnId', $ppn->id)
+            ->set('formPpnPersen', $ppn->persentase)
+            ->call('selectProductForItem', 0, $produk->id, $produk->nama_produk, 100000, 150000)
+            ->set('items.0.qty', 2)
+            ->call('recalculateRow', 0)
+            ->call('simpanTransaksi')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('transaksi_fulls', [
+            'nama_pelanggan' => 'Budi Santoso',
+            'tipe_transaksi' => 'penjualan',
+            'status' => 'Lunas',
+            'grand_total' => 300000 + (300000 * ($ppn->persentase / 100)),
         ]);
 
-        PenjualanDetail::create([
-            'penjualan_id' => $penjualan->id,
-            'tipe_item' => 'barang',
-            'produk_id' => $produk->id,
-            'nama_item' => $produk->nama_produk,
-            'qty' => 2,
-            'harga' => 100000,
-            'subtotal' => 200000,
-        ]);
+        // Pastikan stok master produk TIDAK berubah sama sekali (Zero Stock Mutation)
+        $stokAkhir = Stok::where('produk_id', $produk->id)->where('cabang_id', $superadmin->cabang_id)->value('jumlah') ?? 50;
+        $this->assertEquals($stokAwal, $stokAkhir, 'Transaksi Full must never mutate stock.');
+    }
 
-        // 2. Buat Kas Keluar Cash
-        KasKeluar::create([
+    public function test_inline_status_dropdown_update()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        $transaksi = TransaksiFullModel::create([
             'cabang_id' => $superadmin->cabang_id,
             'user_id' => $superadmin->id,
-            'sumber_dana_id' => $sumberDanaCash->id,
-            'kategori_kas_keluar_id' => $kategoriKas->id,
-            'tanggal' => now(),
-            'nominal' => 50000,
-            'keterangan' => 'Beli bensin antar barang',
+            'nama_pelanggan' => 'Andi Test',
+            'no_transaksi' => 'INV-PJ-CBPKP-260922-00001',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => now()->toDateString(),
+            'total_modal' => 50000,
+            'total_jual' => 80000,
+            'total_laba' => 30000,
+            'grand_total' => 80000,
+            'status' => 'Belum Lunas',
         ]);
 
-        // 3. Test Component State & Net Cash Formula
-        $test = Livewire::test(TransaksiFull::class)
-            ->assertSet('tipeFilter', 'semua');
+        Livewire::test(TransaksiFull::class)
+            ->call('updateStatusDirect', $transaksi->id, 'Lunas');
 
-        $viewData = $test->viewData('totalPenjualanCash');
-        $this->assertNotNull($viewData);
+        $this->assertEquals('Lunas', $transaksi->fresh()->status);
+    }
 
-        $penjualanCash = $test->viewData('totalPenjualanCash');
-        $servisCash = $test->viewData('totalServisCash');
-        $kasKeluarCash = $test->viewData('totalKasKeluarCash');
-        $saldoKasTunaiBersih = $test->viewData('saldoKasTunaiBersih');
+    public function test_update_and_delete_transaksi_full()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
 
-        $expectedSaldo = ($penjualanCash + $servisCash) - $kasKeluarCash;
-        $this->assertEquals($expectedSaldo, $saldoKasTunaiBersih);
+        $transaksi = TransaksiFullModel::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'user_id' => $superadmin->id,
+            'nama_pelanggan' => 'Target Edit',
+            'no_transaksi' => 'INV-PJ-CBPKP-260922-00002',
+            'tipe_transaksi' => 'servis',
+            'tanggal' => now()->toDateString(),
+            'total_modal' => 20000,
+            'total_jual' => 50000,
+            'total_laba' => 30000,
+            'grand_total' => 50000,
+            'status' => 'BON',
+        ]);
+
+        $transaksi->details()->create([
+            'nama_item' => 'Jasa Servis Keyboard',
+            'qty' => 1,
+            'harga_modal' => 20000,
+            'harga_jual' => 50000,
+            'subtotal_modal' => 20000,
+            'subtotal_jual' => 50000,
+            'laba' => 30000,
+        ]);
+
+        // Edit
+        Livewire::test(TransaksiFull::class)
+            ->call('openEditModal', $transaksi->id)
+            ->set('formNamaPelanggan', 'Target Edit Updated')
+            ->call('simpanTransaksi')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('Target Edit Updated', $transaksi->fresh()->nama_pelanggan);
+
+        // Delete
+        Livewire::test(TransaksiFull::class)
+            ->call('confirmDelete', $transaksi->id, $transaksi->no_transaksi_frontend)
+            ->call('deleteTransaksi');
+
+        $this->assertDatabaseMissing('transaksi_fulls', ['id' => $transaksi->id]);
     }
 
     public function test_period_filter_modes_switches_dates_correctly()
@@ -122,7 +166,7 @@ class TransaksiFullTest extends TestCase
             ->assertSet('endDate', now()->endOfYear()->toDateString())
             ->call('setPeriodeMode', 'range')
             ->assertSet('periodeMode', 'range')
-            ->assertSet('startDate', now()->toDateString())
+            ->assertSet('startDate', now()->startOfMonth()->toDateString())
             ->assertSet('endDate', now()->toDateString());
     }
 }

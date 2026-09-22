@@ -26,6 +26,7 @@ class ServisMasuk extends Model
         'keluhan',
         'kondisi_barang',
         'status',
+        'is_cetak_nota',
         'tanggal_masuk',
         'tanggal_selesai',
         'tanggal_ambil',
@@ -42,6 +43,7 @@ class ServisMasuk extends Model
     protected function casts(): array
     {
         return [
+            'is_cetak_nota' => 'boolean',
             'tanggal_masuk' => 'datetime',
             'tanggal_selesai' => 'datetime',
             'tanggal_ambil' => 'datetime',
