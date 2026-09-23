@@ -47,7 +47,8 @@
 
         <div class="flex items-center space-x-3">
             <button wire:click="openCreateModal"
-                    class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-bold text-white transition-all shadow-md shadow-purple-600/20 cursor-pointer">
+                    wire:loading.attr="disabled"
+                    class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-bold text-white transition-all shadow-md shadow-purple-600/20 cursor-pointer disabled:opacity-50">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 <span>Tambah Servis</span>
             </button>
@@ -309,7 +310,8 @@
                             <td class="py-3.5 px-4 text-center whitespace-nowrap">
                                 <button type="button"
                                         wire:click="toggleAktif({{ $item->id }})"
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer transition-colors {{ $item->is_aktif ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-200' }}">
+                                        wire:loading.attr="disabled"
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer transition-colors disabled:opacity-50 {{ $item->is_aktif ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-200' }}">
                                     {{ $item->is_aktif ? 'Aktif' : 'Non-Aktif' }}
                                 </button>
                             </td>
@@ -319,13 +321,15 @@
                                 <div class="inline-flex items-center justify-center space-x-1">
                                     <button type="button"
                                             wire:click="editItem({{ $item->id }})"
-                                            class="p-1.5 rounded-lg text-gray-500 hover:text-[#5E17EB] hover:bg-purple-50 transition-colors cursor-pointer"
+                                            wire:loading.attr="disabled"
+                                            class="p-1.5 rounded-lg text-gray-500 hover:text-[#5E17EB] hover:bg-purple-50 transition-colors cursor-pointer disabled:opacity-50"
                                             title="Edit Item">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                     </button>
                                     <button type="button"
                                             wire:click="confirmDelete({{ $item->id }})"
-                                            class="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                            wire:loading.attr="disabled"
+                                            class="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-50"
                                             title="Hapus / Nonaktifkan Item">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
@@ -629,12 +633,12 @@
                             </button>
                             <button type="submit"
                                     wire:loading.attr="disabled"
-                                    class="inline-flex items-center justify-center space-x-2 px-6 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 font-bold text-xs text-white transition-all shadow-md shadow-purple-600/20 cursor-pointer disabled:opacity-50">
-                                <span wire:loading.remove wire:target="save">{{ $isEditMode ? 'Simpan Perubahan' : 'Tambahkan Item' }}</span>
-                                <span wire:loading wire:target="save" class="inline-flex items-center space-x-1.5">
-                                    <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                    <span>Menyimpan...</span>
-                                </span>
+                                    class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 text-xs font-bold text-white shadow-lg shadow-purple-900/30 transition-all cursor-pointer inline-flex items-center space-x-2">
+                                <svg wire:loading wire:target="save" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span>{{ $isEditMode ? 'Simpan Perubahan' : 'Tambahkan Item' }}</span>
                             </button>
                         </div>
                     </form>
@@ -679,12 +683,12 @@
                         <button type="button"
                                 wire:click="deleteItem"
                                 wire:loading.attr="disabled"
-                                class="inline-flex items-center justify-center space-x-2 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 font-bold text-xs text-white transition-all shadow-md shadow-rose-600/20 cursor-pointer disabled:opacity-50">
-                            <span wire:loading.remove wire:target="deleteItem">Ya, Hapus Item</span>
-                            <span wire:loading wire:target="deleteItem" class="inline-flex items-center space-x-1.5">
-                                <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                <span>Menghapus...</span>
-                            </span>
+                                class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-50 font-bold text-xs text-white transition-all shadow-md shadow-rose-600/20 cursor-pointer inline-flex items-center space-x-2">
+                            <svg wire:loading wire:target="deleteItem" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <span>Ya, Hapus Item</span>
                         </button>
                     </div>
 

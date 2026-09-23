@@ -973,7 +973,7 @@
                             </div>
                             <div class="min-w-0">
                                 <h3 class="text-base font-bold text-white tracking-tight leading-snug">Transaksi Berhasil Disimpan</h3>
-                                <p class="text-xs text-purple-200 font-mono font-medium mt-0.5">{{ $lastPenjualan->no_transaksi }}</p>
+                                <p class="text-xs text-purple-200 font-mono font-medium mt-0.5">{{ $lastPenjualan->no_transaksi_frontend }}</p>
                             </div>
                         </div>
 

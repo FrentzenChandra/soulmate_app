@@ -278,7 +278,8 @@
                                     <!-- Aksi 1: Lihat Detail Modal -->
                                     <button type="button"
                                             wire:click="openDetailModal({{ $item->id }})"
-                                            class="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer"
+                                            wire:loading.attr="disabled"
+                                            class="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer disabled:opacity-50"
                                             title="Lihat Detail Nota">
                                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </button>
@@ -287,7 +288,8 @@
                                     @if($item->status === 'selesai')
                                         <button type="button"
                                                 wire:click="openEditNotaModal({{ $item->id }})"
-                                                class="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#0052FF] transition-colors cursor-pointer"
+                                                wire:loading.attr="disabled"
+                                                class="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#0052FF] transition-colors cursor-pointer disabled:opacity-50"
                                                 title="Edit Nota Servis">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                         </button>
@@ -312,7 +314,8 @@
                                     @if($item->status === 'selesai')
                                         <button type="button"
                                                 wire:click="openAmbilModal({{ $item->id }})"
-                                                class="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all shadow-xs cursor-pointer"
+                                                wire:loading.attr="disabled"
+                                                class="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                                                 title="Pelunasan Servis">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                                         </button>
@@ -563,8 +566,15 @@
                                     <x-input-rupiah wire:model="selectedMasterServisHarga" inputClass="!py-2 !text-xs !font-bold" />
                                 </div>
                                 <div class="sm:col-span-8 flex items-end">
-                                    <button type="button" wire:click="tambahItemNota" class="w-full py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold transition-all shadow-sm cursor-pointer text-xs">
-                                        + Tambahkan Item
+                                    <button type="button"
+                                            wire:click="tambahItemNota"
+                                            wire:loading.attr="disabled"
+                                            class="w-full py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold transition-all shadow-sm cursor-pointer text-xs inline-flex items-center justify-center space-x-1.5">
+                                        <svg wire:loading wire:target="tambahItemNota" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                        </svg>
+                                        <span>+ Tambahkan Item</span>
                                     </button>
                                 </div>
                             </div>
@@ -604,7 +614,11 @@
                                                 <td class="py-2 px-3 text-right font-mono text-gray-600 whitespace-nowrap">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
                                                 <td class="py-2 px-3 text-right font-mono font-black text-gray-900 whitespace-nowrap">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
                                                 <td class="py-2 px-3 text-center whitespace-nowrap">
-                                                    <button type="button" wire:click="hapusItemNota({{ $det->id }})" class="p-1 rounded text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer" title="Hapus Item">
+                                                    <button type="button"
+                                                            wire:click="hapusItemNota({{ $det->id }})"
+                                                            wire:loading.attr="disabled"
+                                                            class="p-1 rounded text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-50"
+                                                            title="Hapus Item">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                     </button>
                                                 </td>
@@ -736,9 +750,12 @@
                             </button>
                             <button type="submit"
                                      wire:loading.attr="disabled"
-                                     class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black transition-all shadow-md cursor-pointer disabled:opacity-50">
-                                <span wire:loading.remove wire:target="prosesPenyerahanUnit">Serahkan Unit</span>
-                                <span wire:loading wire:target="prosesPenyerahanUnit">Memproses...</span>
+                                     class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black transition-all shadow-md cursor-pointer disabled:opacity-50 inline-flex items-center space-x-1.5">
+                                <svg wire:loading wire:target="prosesPenyerahanUnit" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span>Serahkan Unit</span>
                             </button>
                         </div>
                     </form>

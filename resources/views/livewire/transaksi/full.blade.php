@@ -21,7 +21,8 @@
         <div class="flex items-center space-x-2">
             <button type="button"
                     wire:click="openCreateModal"
-                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-black text-xs shadow-md shadow-purple-600/25 transition-all cursor-pointer">
+                    wire:loading.attr="disabled"
+                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-black text-xs shadow-md shadow-purple-600/25 transition-all cursor-pointer disabled:opacity-50">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                 <span>Input Transaksi Baru</span>
             </button>
@@ -807,7 +808,8 @@
                                     wire:loading.attr="disabled"
                                     class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-black text-white shadow-md shadow-purple-900/20 transition-all cursor-pointer flex items-center space-x-1.5 disabled:opacity-50">
                                 <svg wire:loading wire:target="simpanTransaksi" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                                <span>Simpan Transaksi</span>
+                                <span wire:loading.remove wire:target="simpanTransaksi">Simpan Transaksi</span>
+                                <span wire:loading wire:target="simpanTransaksi">Menyimpan...</span>
                             </button>
                         </div>
                     </form>
@@ -978,8 +980,11 @@
                         </button>
                         <button type="button"
                                 wire:click="deleteTransaksi"
-                                class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition-all shadow-md cursor-pointer">
-                            Ya, Hapus
+                                wire:loading.attr="disabled"
+                                class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition-all shadow-md cursor-pointer disabled:opacity-50 flex items-center space-x-1.5">
+                            <svg wire:loading wire:target="deleteTransaksi" class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                            <span wire:loading.remove wire:target="deleteTransaksi">Ya, Hapus</span>
+                            <span wire:loading wire:target="deleteTransaksi">Menghapus...</span>
                         </button>
                     </div>
 

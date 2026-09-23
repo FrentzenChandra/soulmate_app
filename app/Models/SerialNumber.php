@@ -12,6 +12,7 @@ class SerialNumber extends Model
 
     protected $fillable = [
         'cabang_id',
+        'customer_id',
         'user_id',
         'nama',
         'merk_tipe_spek',
@@ -22,6 +23,11 @@ class SerialNumber extends Model
     public function cabang(): BelongsTo
     {
         return $this->belongsTo(Cabang::class);
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     public function user(): BelongsTo

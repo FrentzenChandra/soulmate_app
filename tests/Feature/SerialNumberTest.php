@@ -67,14 +67,13 @@ class SerialNumberTest extends TestCase
             ->set('search', 'epson 310')
             ->assertSee('SN-EPSON-LX310-001');
 
-        // Quick Add New User & Assign
+        // Quick Add New Customer & Assign
         Livewire::test(SerialNumberIndex::class)
             ->call('openCreateModal')
-            ->call('openUserModal')
-            ->set('new_user_name', 'Teknisi Baru Test')
-            ->set('new_user_username', 'teknisi.test')
-            ->set('new_user_role', 'Teknisi')
-            ->call('saveNewUser')
+            ->call('openCustomerModal')
+            ->set('new_customer_nama', 'Bpk. Ahmad Santoso')
+            ->set('new_customer_hp', '081234567899')
+            ->call('saveNewCustomer')
             ->assertHasNoErrors()
             ->set('nama', 'Laptop Lenovo ThinkPad')
             ->set('merk_tipe_spek', 'Core i7 16GB 512GB')
@@ -83,17 +82,17 @@ class SerialNumberTest extends TestCase
             ->call('save')
             ->assertHasNoErrors();
 
-        $newUser = User::where('username', 'teknisi.test')->first();
-        $this->assertNotNull($newUser);
+        $newCustomer = \App\Models\Customer::where('nama', 'Bpk. Ahmad Santoso')->first();
+        $this->assertNotNull($newCustomer);
 
         $this->assertDatabaseHas('serial_numbers', [
             'sn' => 'SN-THINKPAD-X1-001',
-            'user_id' => $newUser->id,
+            'customer_id' => $newCustomer->id,
         ]);
 
-        // Search by User Name
+        // Search by Customer Name
         Livewire::test(SerialNumberIndex::class)
-            ->set('search', 'Teknisi Baru')
+            ->set('search', 'Ahmad Santoso')
             ->assertSee('SN-THINKPAD-X1-001');
     }
 }

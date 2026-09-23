@@ -249,19 +249,29 @@
                                 @endif
                             </td>
 
-                            <!-- 3 TOMBOL AKSI LENGKAP -->
+                            <!-- 4 TOMBOL AKSI LENGKAP -->
                             <td class="py-2.5 px-3 text-center whitespace-nowrap">
                                 <div class="flex items-center justify-center space-x-1">
 
                                     <!-- Aksi 1: Lihat Detail -->
                                     <button type="button"
                                             wire:click="openDetailModal({{ $item->id }})"
-                                            class="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer"
+                                            wire:loading.attr="disabled"
+                                            class="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer disabled:opacity-50"
                                             title="Lihat Detail &amp; Riwayat">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </button>
 
-                                    <!-- Aksi 2: Cetak Tanda Terima / Bukti Batal -->
+                                    <!-- Aksi 2: Ubah Status Pengerjaan (Logo Kunci Inggris) -->
+                                    <button type="button"
+                                            wire:click="openUbahStatusModal({{ $item->id }})"
+                                            wire:loading.attr="disabled"
+                                            class="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#0052FF] transition-colors cursor-pointer disabled:opacity-50"
+                                            title="Ubah Status Pengerjaan">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </button>
+
+                                    <!-- Aksi 3: Cetak Tanda Terima / Bukti Batal -->
                                     <a href="{{ route('servis.tanda-terima', $item->id) }}"
                                        target="_blank"
                                        class="p-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#5E17EB] transition-colors cursor-pointer"
@@ -269,11 +279,12 @@
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                     </a>
 
-                                    <!-- Aksi 3: Centang Diambil Langsung (Tanpa Biaya) -->
+                                    <!-- Aksi 4: Centang Diambil Langsung (Tanpa Biaya) -->
                                     @if(is_null($item->tanggal_ambil))
                                         <button type="button"
                                                 wire:click="openAmbilBatalModal({{ $item->id }})"
-                                                class="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all shadow-xs cursor-pointer"
+                                                wire:loading.attr="disabled"
+                                                class="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                                                 title="Serah Terima Fisik Unit Kembali ke Pelanggan">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                                         </button>
@@ -512,6 +523,88 @@
                                     class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black transition-all shadow-md cursor-pointer disabled:opacity-50">
                                 <span wire:loading.remove wire:target="serahkanUnitBatal">Konfirmasi Penyerahan Unit</span>
                                 <span wire:loading wire:target="serahkanUnitBatal">Memproses...</span>
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- ============================================== -->
+    <!-- MODAL UBAH STATUS / UPDATE STATUS CEPAT        -->
+    <!-- ============================================== -->
+    @if($modalUbahStatusOpen && $servisToUbahStatus)
+        <div wire:key="modal-ubah-status-batal" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="closeUbahStatusModal"></div>
+
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 text-xs">
+
+                    <!-- Header Modal -->
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Update Status Pengerjaan</h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Perbarui status progres servis</p>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="closeUbahStatusModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <form wire:submit.prevent="simpanUbahStatus">
+                        <div class="p-6 space-y-4">
+
+                            <div class="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase block">Tiket Servis</span>
+                                <span class="text-sm font-black text-gray-900 font-mono block">{{ $servisToUbahStatus->no_servis_frontend }}</span>
+                                <span class="text-xs text-gray-600 font-bold block">{{ $servisToUbahStatus->tipe_unit }} ({{ $servisToUbahStatus->customer?->nama }})</span>
+                            </div>
+
+                            @error('ubahStatusError')
+                                <div class="p-2.5 bg-rose-50 text-rose-700 font-bold rounded-xl border border-rose-200">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1.5">Pilih Status Baru *</label>
+                                <select wire:model="targetStatus"
+                                        class="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white font-bold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                    <option value="pengecekan">Pengecekan</option>
+                                    <option value="perbaikan">Dalam Perbaikan</option>
+                                    <option value="selesai">Selesai (Siap Diambil)</option>
+                                    <option value="batal">Batal Servis</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Catatan Perkembangan / Log</label>
+                                <textarea wire:model="catatanUbahStatus"
+                                          rows="3"
+                                          class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"></textarea>
+                            </div>
+
+                        </div>
+
+                        <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-2 rounded-b-3xl border-t border-gray-100">
+                            <button type="button" wire:click="closeUbahStatusModal" class="px-4 py-2 rounded-xl bg-white border border-gray-200 font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                    wire:loading.attr="disabled"
+                                    class="px-5 py-2 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-bold transition-all shadow-md cursor-pointer disabled:opacity-50 inline-flex items-center space-x-1.5">
+                                <svg wire:loading wire:target="simpanUbahStatus" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span>Simpan Status</span>
                             </button>
                         </div>
                     </form>

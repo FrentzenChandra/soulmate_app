@@ -511,13 +511,13 @@
                         <span class="ml-auto text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-bold">Live</span>
                     </a>
 
-                    @hasanyrole('Owner|Superadmin')
+                    @if($isOwner)
                     <a href="/pulse" target="_blank" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
                         <svg class="w-5 h-5 mr-3 text-purple-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         <span>Server Metrics</span>
                         <span class="ml-auto text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-bold">Pulse</span>
                     </a>
-                    @endhasanyrole
+                    @endif
 
                     @if($isOwner)
                         <div class="pt-6 px-1">

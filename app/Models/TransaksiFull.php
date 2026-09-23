@@ -23,6 +23,7 @@ class TransaksiFull extends Model
         'no_transaksi',
         'tipe_transaksi',
         'tanggal',
+        'tanggal_lunas',
         'metode_pembayaran_id',
         'metode_pembayaran',
         'ppn_id',
@@ -38,6 +39,7 @@ class TransaksiFull extends Model
 
     protected $casts = [
         'tanggal' => 'datetime',
+        'tanggal_lunas' => 'datetime',
         'ppn_persen' => 'decimal:2',
         'ppn_nominal' => 'decimal:2',
         'total_modal' => 'decimal:2',

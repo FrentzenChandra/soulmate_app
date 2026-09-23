@@ -46,7 +46,7 @@
                         <x-th-sort field="sn" :sortField="$sortField" :sortDirection="$sortDirection">Serial Number</x-th-sort>
                         <x-th-sort field="nama" :sortField="$sortField" :sortDirection="$sortDirection">Nama Barang</x-th-sort>
                         <x-th-sort field="merk_tipe_spek" :sortField="$sortField" :sortDirection="$sortDirection">Spesifikasi</x-th-sort>
-                        <x-th-sort field="user_id" :sortField="$sortField" :sortDirection="$sortDirection">Petugas</x-th-sort>
+                        <x-th-sort field="customer_id" :sortField="$sortField" :sortDirection="$sortDirection">Pelanggan</x-th-sort>
                         <x-th-sort field="distributor" :sortField="$sortField" :sortDirection="$sortDirection">Distributor</x-th-sort>
                         <x-th-sort field="created_at" :sortField="$sortField" :sortDirection="$sortDirection">Waktu Input</x-th-sort>
                         <th class="py-3.5 px-4 text-center w-24">Aksi</th>
@@ -68,9 +68,16 @@
                                 {{ $item->merk_tipe_spek }}
                             </td>
                             <td class="py-3.5 px-4">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg font-bold text-xs bg-purple-50 text-[#5E17EB] border border-purple-200">
-                                    {{ $item->user?->name ?? 'Admin' }}
-                                </span>
+                                @if($item->customer)
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-xs text-gray-900">{{ $item->customer->nama }}</span>
+                                        <span class="text-[11px] text-gray-500 font-mono">{{ $item->customer->no_hp ?? '-' }}</span>
+                                    </div>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600">
+                                        Pelanggan Umum
+                                    </span>
+                                @endif
                             </td>
                             <td class="py-3.5 px-4">
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
@@ -165,7 +172,7 @@
                             <!-- Nama Barang / Unit -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Nama Barang / Unit <span class="text-rose-500 font-black">*</span>
+                                    Nama Barang <span class="text-rose-500 font-black">*</span>
                                 </label>
                                 <input type="text"
                                        wire:model="nama"
@@ -176,7 +183,7 @@
                             <!-- Merk / Tipe / Spesifikasi -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Merk / Tipe / Spesifikasi <span class="text-rose-500 font-black">*</span>
+                                    Spesifikasi <span class="text-rose-500 font-black">*</span>
                                 </label>
                                 <input type="text"
                                        wire:model="merk_tipe_spek"
@@ -187,7 +194,7 @@
                             <!-- Distributor / Vendor -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Distributor / Vendor
+                                    Distributor
                                 </label>
                                 <input type="text"
                                        wire:model="distributor"
@@ -195,25 +202,25 @@
                                 @error('distributor') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Pengguna (User) Terkait -->
+                            <!-- Pelanggan Terkait -->
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                        Petugas / Pengguna <span class="text-rose-500 font-black">*</span>
+                                        Pelanggan
                                     </label>
-                                    <button type="button" wire:click="openUserModal" class="text-[11px] font-bold text-[#5E17EB] hover:text-purple-700 flex items-center space-x-1 cursor-pointer">
+                                    <button type="button" wire:click="openCustomerModal" class="text-[11px] font-bold text-[#5E17EB] hover:text-purple-700 flex items-center space-x-1 cursor-pointer">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                        <span>Tambah Pengguna</span>
+                                        <span>Tambah Pelanggan</span>
                                     </button>
                                 </div>
-                                <select wire:model="user_id"
+                                <select wire:model="customer_id"
                                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] text-xs font-semibold bg-white cursor-pointer">
-                                    <option value="">Pilih Pengguna</option>
-                                    @foreach($users as $u)
-                                        <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->role_name ?? 'Staf' }})</option>
+                                    <option value="">Pelanggan Umum (Tanpa Pelanggan Khusus)</option>
+                                    @foreach($customers as $c)
+                                        <option value="{{ $c->id }}">{{ $c->nama }} ({{ $c->no_hp ?? 'No WhatsApp' }})</option>
                                     @endforeach
                                 </select>
-                                @error('user_id') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
+                                @error('customer_id') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
@@ -238,11 +245,11 @@
     @endif
 
     <!-- ============================================== -->
-    <!-- MODAL TAMBAH PENGGUNA CEPAT                   -->
+    <!-- MODAL TAMBAH PELANGGAN CEPAT                   -->
     <!-- ============================================== -->
-    @if($userModalOpen)
+    @if($customerModalOpen)
         <div class="fixed inset-0 z-60 overflow-y-auto" role="dialog" aria-modal="true">
-            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="closeUserModal"></div>
+            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="closeCustomerModal"></div>
 
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-sm border border-gray-100">
@@ -255,81 +262,55 @@
                             </div>
                             <div class="min-w-0">
                                 <h3 class="text-base font-bold text-white tracking-tight leading-snug">
-                                    Tambah Pengguna Baru
+                                    Tambah Pelanggan Baru
                                 </h3>
-                                <p class="text-xs text-purple-200 font-medium mt-0.5">Master Pengguna Cepat</p>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Master Pelanggan Cepat</p>
                             </div>
                         </div>
-                        <button type="button" wire:click="closeUserModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                        <button type="button" wire:click="closeCustomerModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
 
                     <!-- Form Body -->
-                    <form wire:submit.prevent="saveNewUser">
+                    <form wire:submit.prevent="saveNewCustomer">
                         <div class="p-5 space-y-3.5">
-                            <!-- Nama Lengkap -->
+                            <!-- Nama Pelanggan -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Nama Pengguna <span class="text-rose-500 font-black">*</span>
+                                    Nama Pelanggan <span class="text-rose-500 font-black">*</span>
                                 </label>
                                 <input type="text"
-                                       wire:model="new_user_name"
+                                       wire:model="new_customer_nama"
                                        class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900"
                                        required>
-                                @error('new_user_name') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                @error('new_customer_nama') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Username -->
+                            <!-- Nomor WhatsApp / HP -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Username <span class="text-rose-500 font-black">*</span>
+                                    WhatsApp
                                 </label>
                                 <input type="text"
-                                       wire:model="new_user_username"
-                                       class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900"
-                                       required>
-                                @error('new_user_username') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- Peran / Role -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Peran <span class="text-rose-500 font-black">*</span>
-                                </label>
-                                <select wire:model="new_user_role"
-                                        class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900 cursor-pointer">
-                                    <option value="Admin">Admin Kasir</option>
-                                    <option value="Teknisi">Teknisi Servis</option>
-                                    <option value="Superadmin">Superadmin</option>
-                                </select>
-                                @error('new_user_role') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- Kata Sandi -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Kata Sandi
-                                </label>
-                                <input type="text"
-                                       wire:model="new_user_password"
+                                       wire:model="new_customer_hp"
                                        class="w-full text-xs font-mono font-semibold px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
-                                @error('new_user_password') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                @error('new_customer_hp') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
                         <!-- Footer Modal -->
                         <div class="bg-gray-50 px-5 py-3.5 flex items-center justify-end space-x-2 rounded-b-3xl">
                             <button type="button"
-                                    wire:click="closeUserModal"
+                                    wire:click="closeCustomerModal"
                                     class="px-3 py-1.5 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
                                 Batal
                             </button>
                             <button type="submit"
                                     wire:loading.attr="disabled"
                                     class="px-4 py-1.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-extrabold text-white shadow-md transition-all cursor-pointer flex items-center space-x-1.5">
-                                <svg wire:loading wire:target="saveNewUser" class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                                <span>Simpan Pengguna</span>
+                                <svg wire:loading wire:target="saveNewCustomer" class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                <span>Simpan Pelanggan</span>
                             </button>
                         </div>
                     </form>

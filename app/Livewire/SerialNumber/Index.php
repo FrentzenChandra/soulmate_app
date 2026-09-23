@@ -4,15 +4,13 @@ namespace App\Livewire\SerialNumber;
 
 use App\Livewire\Traits\WithSorting;
 use App\Models\Cabang;
+use App\Models\Customer;
 use App\Models\SerialNumber;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Spatie\Permission\Models\Role;
 
 #[Layout('layouts.app')]
 #[Title('Serial Number (SN) - Soulmate Komputer')]
@@ -31,7 +29,7 @@ class Index extends Component
     public ?int $snId = null;
 
     // Form fields
-    public ?int $user_id = null;
+    public ?int $customer_id = null;
 
     public string $nama = '';
 
@@ -41,16 +39,12 @@ class Index extends Component
 
     public string $distributor = '';
 
-    // Quick Add User Form Modal
-    public bool $userModalOpen = false;
+    // Quick Add Customer Form Modal
+    public bool $customerModalOpen = false;
 
-    public string $new_user_name = '';
+    public string $new_customer_nama = '';
 
-    public string $new_user_username = '';
-
-    public string $new_user_role = 'Admin';
-
-    public string $new_user_password = 'password';
+    public string $new_customer_hp = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -88,18 +82,18 @@ class Index extends Component
         return $user->cabang;
     }
 
-    public function getUsersProperty()
+    public function getCustomersProperty()
     {
         $cabang = $this->activeCabang;
-        $query = User::where('status', 'aktif');
+        $query = Customer::query();
         if ($cabang && ! Auth::user()?->isOwner()) {
             $query->where('cabang_id', $cabang->id);
         }
 
-        return $query->orderBy('name')->get();
+        return $query->orderBy('nama')->get();
     }
 
-    public function updatingSearch()
+    public function updatingSearch(): void
     {
         $this->perPage = 15;
         $this->resetPage();
@@ -108,8 +102,7 @@ class Index extends Component
     public function openCreateModal(): void
     {
         $this->resetValidation();
-        $this->reset(['snId', 'nama', 'merk_tipe_spek', 'sn', 'distributor']);
-        $this->user_id = Auth::id();
+        $this->reset(['snId', 'nama', 'merk_tipe_spek', 'sn', 'distributor', 'customer_id']);
         $this->isEditMode = false;
         $this->modalOpen = true;
     }
@@ -120,7 +113,7 @@ class Index extends Component
         $item = SerialNumber::findOrFail($id);
 
         $this->snId = $item->id;
-        $this->user_id = $item->user_id ?: Auth::id();
+        $this->customer_id = $item->customer_id;
         $this->nama = $item->nama;
         $this->merk_tipe_spek = $item->merk_tipe_spek;
         $this->sn = $item->sn;
@@ -136,66 +129,42 @@ class Index extends Component
         $this->resetValidation();
     }
 
-    public function openUserModal(): void
+    public function openCustomerModal(): void
     {
         $this->resetValidation();
-        $this->new_user_name = '';
-        $this->new_user_username = '';
-        $this->new_user_role = 'Admin';
-        $this->new_user_password = 'password';
-        $this->userModalOpen = true;
+        $this->new_customer_nama = '';
+        $this->new_customer_hp = '';
+        $this->customerModalOpen = true;
     }
 
-    public function closeUserModal(): void
+    public function closeCustomerModal(): void
     {
-        $this->userModalOpen = false;
+        $this->customerModalOpen = false;
         $this->resetValidation();
     }
 
-    public function saveNewUser(): void
+    public function saveNewCustomer(): void
     {
         $this->validate([
-            'new_user_name' => 'required|string|max:255',
-            'new_user_username' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9._-]+$/', 'unique:users,username'],
-            'new_user_role' => 'required|in:Superadmin,Admin,Teknisi',
-            'new_user_password' => 'nullable|string|min:6',
+            'new_customer_nama' => 'required|string|max:150',
+            'new_customer_hp' => 'nullable|string|max:30',
         ], [
-            'new_user_name.required' => 'Nama pengguna wajib diisi.',
-            'new_user_username.required' => 'Username wajib diisi.',
-            'new_user_username.regex' => 'Username hanya boleh huruf, angka, titik, strip, dan garis bawah.',
-            'new_user_username.unique' => 'Username ini sudah digunakan.',
-            'new_user_role.required' => 'Peran pengguna wajib dipilih.',
-            'new_user_password.min' => 'Kata sandi minimal 6 karakter.',
+            'new_customer_nama.required' => 'Nama pelanggan wajib diisi.',
         ]);
 
         $cabang = $this->activeCabang;
-        $username = strtolower(trim($this->new_user_username));
-        $email = $username.'@soulmate.local';
-        $counter = 1;
-        while (User::where('email', $email)->exists()) {
-            $email = $username.$counter.'@soulmate.local';
-            $counter++;
-        }
-
         $cabangId = $cabang?->id ?? Auth::user()?->cabang_id ?? Cabang::where('status', 'aktif')->value('id');
 
-        $user = User::create([
-            'name' => trim($this->new_user_name),
-            'username' => $username,
-            'email' => $email,
-            'password' => Hash::make($this->new_user_password ?: 'password'),
+        $customer = Customer::create([
             'cabang_id' => $cabangId,
-            'status' => 'aktif',
+            'nama' => trim($this->new_customer_nama),
+            'no_hp' => trim($this->new_customer_hp) ?: null,
+            'tipe' => 'langganan',
         ]);
 
-        if (class_exists(Role::class)) {
-            $role = Role::firstOrCreate(['name' => $this->new_user_role]);
-            $user->syncRoles([$role]);
-        }
-
-        $this->user_id = $user->id;
-        $this->userModalOpen = false;
-        $this->dispatch('swal:success', ['title' => 'Berhasil!', 'text' => 'Pengguna baru berhasil ditambahkan.']);
+        $this->customer_id = $customer->id;
+        $this->customerModalOpen = false;
+        $this->dispatch('swal:success', ['title' => 'Berhasil!', 'text' => "Pelanggan '{$customer->nama}' berhasil ditambahkan."]);
     }
 
     public function save(): void
@@ -203,33 +172,34 @@ class Index extends Component
         $cabang = $this->activeCabang;
 
         $this->validate([
-            'user_id' => 'required|exists:users,id',
+            'customer_id' => 'nullable|exists:customers,id',
             'nama' => 'required|string|max:255',
             'merk_tipe_spek' => 'required|string|max:255',
             'sn' => 'required|string|max:255',
             'distributor' => 'nullable|string|max:255',
+        ], [
+            'nama.required' => 'Nama barang/unit wajib diisi.',
+            'merk_tipe_spek.required' => 'Spesifikasi/tipe wajib diisi.',
+            'sn.required' => 'Serial number wajib diisi.',
         ]);
+
+        $data = [
+            'customer_id' => $this->customer_id,
+            'user_id' => Auth::id(),
+            'nama' => trim($this->nama),
+            'merk_tipe_spek' => trim($this->merk_tipe_spek),
+            'sn' => trim($this->sn),
+            'distributor' => trim($this->distributor) ?: null,
+        ];
 
         if ($this->isEditMode && $this->snId) {
             $item = SerialNumber::findOrFail($this->snId);
-            $item->update([
-                'user_id' => $this->user_id,
-                'nama' => trim($this->nama),
-                'merk_tipe_spek' => trim($this->merk_tipe_spek),
-                'sn' => trim($this->sn),
-                'distributor' => trim($this->distributor) ?: null,
-            ]);
+            $item->update($data);
 
             $this->dispatch('swal:success', ['title' => 'Berhasil!', 'text' => 'Data Serial Number berhasil diperbarui.']);
         } else {
-            SerialNumber::create([
-                'cabang_id' => $cabang?->id,
-                'user_id' => $this->user_id ?: Auth::id(),
-                'nama' => trim($this->nama),
-                'merk_tipe_spek' => trim($this->merk_tipe_spek),
-                'sn' => trim($this->sn),
-                'distributor' => trim($this->distributor) ?: null,
-            ]);
+            $data['cabang_id'] = $cabang?->id ?? Auth::user()?->cabang_id;
+            SerialNumber::create($data);
 
             $this->dispatch('swal:success', ['title' => 'Berhasil!', 'text' => 'Data Serial Number berhasil ditambahkan.']);
         }
@@ -248,7 +218,7 @@ class Index extends Component
     public function render()
     {
         $cabang = $this->activeCabang;
-        $query = SerialNumber::query()->with(['user']);
+        $query = SerialNumber::query()->with(['customer', 'cabang']);
 
         if ($cabang) {
             $query->where('cabang_id', $cabang->id);
@@ -264,23 +234,23 @@ class Index extends Component
                             ->orWhereRaw('LOWER(merk_tipe_spek) LIKE ?', [$pattern])
                             ->orWhereRaw('LOWER(sn) LIKE ?', [$pattern])
                             ->orWhereRaw('LOWER(distributor) LIKE ?', [$pattern])
-                            ->orWhereHas('user', function ($uq) use ($pattern) {
-                                $uq->whereRaw('LOWER(name) LIKE ?', [$pattern]);
+                            ->orWhereHas('customer', function ($cq) use ($pattern) {
+                                $cq->whereRaw('LOWER(nama) LIKE ?', [$pattern])
+                                    ->orWhereRaw('LOWER(no_hp) LIKE ?', [$pattern]);
                             });
                     });
                 }
             });
         }
 
-        $sortCol = in_array($this->sortField, ['nama', 'merk_tipe_spek', 'sn', 'distributor', 'created_at', 'user_id']) ? $this->sortField : 'created_at';
+        $sortCol = in_array($this->sortField, ['nama', 'merk_tipe_spek', 'sn', 'distributor', 'created_at', 'customer_id']) ? $this->sortField : 'created_at';
         $query->orderBy($sortCol, $this->sortDirection === 'asc' ? 'asc' : 'desc');
 
         $items = $query->paginate($this->perPage);
 
         return view('livewire.serial-number.index', [
             'items' => $items,
-            'users' => $this->users,
+            'customers' => $this->customers,
         ]);
     }
 }
-

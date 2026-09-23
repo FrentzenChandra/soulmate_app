@@ -479,6 +479,19 @@ class Full extends Component
             $totalLaba = $totalJual - $totalModal;
             $ppnNominal = ($totalJual * (float) $this->formPpnPersen) / 100;
             $grandTotal = $totalJual + $ppnNominal;
+            $tanggalParsed = Carbon::parse($this->formTanggal);
+            $tanggalLunas = null;
+
+            if ($this->formStatus === 'Lunas') {
+                if ($this->transaksiId) {
+                    $existingTrx = TransaksiFull::find($this->transaksiId);
+                    $tanggalLunas = ($existingTrx && $existingTrx->status === 'Lunas' && $existingTrx->tanggal_lunas)
+                        ? $existingTrx->tanggal_lunas
+                        : now();
+                } else {
+                    $tanggalLunas = $tanggalParsed;
+                }
+            }
 
             $data = [
                 'cabang_id' => $cabangId,
@@ -488,7 +501,8 @@ class Full extends Component
                 'no_hp' => trim($this->formNoHp) ?: null,
                 'no_transaksi' => trim($this->formNoTransaksi),
                 'tipe_transaksi' => $this->formTipeTransaksi,
-                'tanggal' => Carbon::parse($this->formTanggal),
+                'tanggal' => $tanggalParsed,
+                'tanggal_lunas' => $tanggalLunas,
                 'metode_pembayaran_id' => $this->formMetodePembayaranId,
                 'metode_pembayaran' => $this->formMetodePembayaran,
                 'ppn_id' => $this->formPpnId,
@@ -550,6 +564,11 @@ class Full extends Component
         $transaksi = TransaksiFull::find($id);
         if ($transaksi) {
             $transaksi->status = $newStatus;
+            if ($newStatus === 'Lunas') {
+                $transaksi->tanggal_lunas = $transaksi->tanggal_lunas ?: now();
+            } else {
+                $transaksi->tanggal_lunas = null;
+            }
             $transaksi->save();
             session()->flash('success', "Status transaksi {$transaksi->no_transaksi_frontend} diubah ke {$newStatus}.");
         }

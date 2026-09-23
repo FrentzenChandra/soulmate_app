@@ -275,6 +275,58 @@ class TransaksiFullSeeder extends Seeder
                     ],
                 ],
             ],
+
+            // 7. Penjualan BON Masa Lalu yang DILUNASI CASH HARI INI
+            [
+                'cabang_id' => $pkp->id,
+                'user_id' => $userPkp->id,
+                'customer_id' => $custHendra?->id,
+                'nama_pelanggan' => $custHendra?->nama ?? 'Hendra Setiawan',
+                'no_hp' => $custHendra?->no_hp ?? '081234567890',
+                'no_transaksi' => 'INV-PJ-CBPKP-' . $now->copy()->subDays(10)->format('ymd') . '-00007',
+                'tipe_transaksi' => 'penjualan',
+                'tanggal' => $now->copy()->subDays(10)->setTime(11, 0),
+                'tanggal_lunas' => $now->copy()->setTime(11, 15),
+                'metode_pembayaran_id' => $metodeCash?->id,
+                'metode_pembayaran' => $metodeCash?->nama ?? 'Cash',
+                'status' => 'Lunas',
+                'catatan' => 'Nota BON tanggal ' . $now->copy()->subDays(10)->format('d/m/Y') . ' (Beli Keyboard Logitech Wireless), baru dilunasi Tunai Cash hari ini.',
+                'items' => [
+                    [
+                        'produk_id' => null,
+                        'nama_item' => 'Keyboard Wireless Logitech K380 Multi-Device',
+                        'qty' => 1,
+                        'harga_modal' => 280000,
+                        'harga_jual' => 385000,
+                    ],
+                ],
+            ],
+
+            // 8. Servis BON Masa Lalu yang MASIH BON (Belum Lunas)
+            [
+                'cabang_id' => $pkp->id,
+                'user_id' => $userPkp->id,
+                'customer_id' => $custFajar?->id,
+                'nama_pelanggan' => $custFajar?->nama ?? 'PT Bangka Media Utama (Bpk. Fajar)',
+                'no_hp' => $custFajar?->no_hp ?? '081377889900',
+                'no_transaksi' => 'INV-SV-CBPKP-' . $now->copy()->subDays(15)->format('ymd') . '-00008',
+                'tipe_transaksi' => 'servis',
+                'tanggal' => $now->copy()->subDays(15)->setTime(16, 0),
+                'tanggal_lunas' => null,
+                'metode_pembayaran_id' => $metodeCash?->id,
+                'metode_pembayaran' => $metodeCash?->nama ?? 'Cash',
+                'status' => 'BON',
+                'catatan' => 'Servis printer Epson L3110 ganti head, status masih BON dari kantor.',
+                'items' => [
+                    [
+                        'produk_id' => null,
+                        'nama_item' => 'Jasa Servis Head Clean & Pergantian Pompa Pembuangan Epson',
+                        'qty' => 1,
+                        'harga_modal' => 45000,
+                        'harga_jual' => 150000,
+                    ],
+                ],
+            ],
         ];
 
         // =========================================================================
@@ -307,6 +359,9 @@ class TransaksiFullSeeder extends Seeder
             $trxData['total_jual'] = $totalJual;
             $trxData['total_laba'] = $totalLaba;
             $trxData['grand_total'] = $grandTotal;
+            $trxData['tanggal_lunas'] = $trxData['status'] === 'Lunas'
+                ? ($trxData['tanggal_lunas'] ?? $trxData['tanggal'])
+                : null;
 
             $created = TransaksiFull::create($trxData);
 

@@ -43,6 +43,12 @@ class Index extends Component
     public ?ServisMasuk $servisToAmbilBatal = null;
     public string $catatanSerahTerima = '';
 
+    // State Modal Ubah Status / Pulihkan
+    public bool $modalUbahStatusOpen = false;
+    public ?ServisMasuk $servisToUbahStatus = null;
+    public string $targetStatus = 'pengecekan';
+    public string $catatanUbahStatus = '';
+
     public function mount(): void
     {
         $user = Auth::user();
@@ -102,6 +108,85 @@ class Index extends Component
     {
         $this->modalAmbilBatalOpen = false;
         $this->servisToAmbilBatal = null;
+    }
+
+    public function openUbahStatusModal(int $id): void
+    {
+        $this->servisToUbahStatus = ServisMasuk::with(['customer', 'cabang'])->findOrFail($id);
+        $this->targetStatus = 'pengecekan';
+        $this->catatanUbahStatus = '';
+        $this->modalUbahStatusOpen = true;
+    }
+
+    public function closeUbahStatusModal(): void
+    {
+        $this->modalUbahStatusOpen = false;
+        $this->servisToUbahStatus = null;
+        $this->catatanUbahStatus = '';
+    }
+
+    public function simpanUbahStatus(): void
+    {
+        if (! $this->servisToUbahStatus) return;
+
+        $this->validate([
+            'targetStatus' => 'required|in:pengecekan,perbaikan,selesai,batal',
+            'catatanUbahStatus' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $now = Carbon::now();
+            $newStatus = $this->targetStatus;
+            $kodeFrontend = $this->servisToUbahStatus->no_servis_frontend;
+            $cabangId = $this->servisToUbahStatus->cabang_id;
+            $servisId = $this->servisToUbahStatus->id;
+
+            $updateData = [
+                'status' => $newStatus,
+            ];
+
+            // If restored to active service, reset tanggal_ambil so it continues workflow
+            if ($newStatus !== 'sudah_diambil') {
+                $updateData['tanggal_ambil'] = null;
+            }
+            if ($newStatus === 'selesai' && ! $this->servisToUbahStatus->tanggal_selesai) {
+                $updateData['tanggal_selesai'] = $now;
+            }
+
+            $this->servisToUbahStatus->update($updateData);
+
+            $statusLabel = match($newStatus) {
+                'pengecekan' => 'Pengecekan',
+                'perbaikan' => 'Perbaikan',
+                'menunggu_konfirmasi' => 'Menunggu Konfirmasi',
+                'selesai' => 'Selesai',
+                default => ucfirst($newStatus),
+            };
+
+            ServisStatusLog::create([
+                'servis_id' => $servisId,
+                'user_id' => Auth::id(),
+                'status' => $newStatus,
+                'tanggal' => $now,
+                'catatan' => "Status dipulihkan kembali dari Batal menjadi {$statusLabel}. " . ($this->catatanUbahStatus ?: ''),
+            ]);
+
+            DB::commit();
+
+            try {
+                broadcast(new ServisStatusUpdated($servisId, $newStatus, $kodeFrontend, $cabangId));
+            } catch (\Throwable $th) {
+                // Ignore broadcast error
+            }
+
+            $this->closeUbahStatusModal();
+            session()->flash('success', "Status servis {$kodeFrontend} berhasil diubah kembali ke {$statusLabel}!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->addError('ubahStatusError', 'Gagal memproses perubahan status: ' . $e->getMessage());
+        }
     }
 
     public function serahkanUnitBatal(): void

@@ -8,6 +8,7 @@ use App\Models\KasKeluar;
 use App\Models\ModalAwal;
 use App\Models\Penjualan;
 use App\Models\ServisMasuk;
+use App\Models\TransaksiFull;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -152,31 +153,27 @@ class Index extends Component
             })
             ->sum('nominal');
 
-        // 3. Penjualan Cash Hari Ini
-        $totalPenjualanCash = (float) Penjualan::where('cabang_id', $cabang->id)
-            ->where('is_real', true)
-            ->where('status', 'lunas')
-            ->whereBetween('tanggal', [$startToday, $endToday])
-            ->where(function ($q) {
-                $q->whereRaw('LOWER(metode_bayar) LIKE ?', ['%cash%'])
-                    ->orWhereRaw('LOWER(metode_bayar) LIKE ?', ['%tunai%']);
-            })
-            ->sum('total');
-
-        // 4. Servis Cash Hari Ini
-        $totalServisCash = (float) ServisMasuk::where('cabang_id', $cabang->id)
-            ->whereBetween('tanggal_masuk', [$startToday, $endToday])
-            ->where(function ($q) {
-                $q->whereIn('status', ['sudah_diambil', 'sudah_dibayar'])
-                    ->orWhere(function ($sq) {
-                        $sq->where('total_biaya', '>', 0)->whereColumn('bayar', '>=', 'total_biaya');
-                    });
-            })
+        // 3. Penjualan Cash Hari Ini (Berdasarkan Tanggal Lunas Cash)
+        $totalPenjualanCash = (float) TransaksiFull::where('cabang_id', $cabang->id)
+            ->where('tipe_transaksi', 'penjualan')
+            ->where('status', 'Lunas')
+            ->whereBetween('tanggal_lunas', [$startToday, $endToday])
             ->where(function ($q) {
                 $q->whereRaw('LOWER(metode_pembayaran) LIKE ?', ['%cash%'])
                     ->orWhereRaw('LOWER(metode_pembayaran) LIKE ?', ['%tunai%']);
             })
-            ->sum('total_biaya');
+            ->sum('grand_total');
+
+        // 4. Servis Cash Hari Ini (Berdasarkan Tanggal Lunas Cash)
+        $totalServisCash = (float) TransaksiFull::where('cabang_id', $cabang->id)
+            ->where('tipe_transaksi', 'servis')
+            ->where('status', 'Lunas')
+            ->whereBetween('tanggal_lunas', [$startToday, $endToday])
+            ->where(function ($q) {
+                $q->whereRaw('LOWER(metode_pembayaran) LIKE ?', ['%cash%'])
+                    ->orWhereRaw('LOWER(metode_pembayaran) LIKE ?', ['%tunai%']);
+            })
+            ->sum('grand_total');
 
         $kasSistem = $modalAwalNominal + $totalPenjualanCash + $totalServisCash - $totalKasKeluarCash;
         $kasFisik = (float) $this->kasFisik;
@@ -296,29 +293,25 @@ class Index extends Component
         if ($cabangTarget) {
             $modalAwalToday = (float) (ModalAwal::where('cabang_id', $cabangTarget->id)->whereDate('tanggal', $today)->value('nominal') ?? 0);
             
-            $penjualanCashToday = (float) Penjualan::where('cabang_id', $cabangTarget->id)
-                ->where('is_real', true)
-                ->where('status', 'lunas')
-                ->whereBetween('tanggal', [$startToday, $endToday])
-                ->where(function ($q) {
-                    $q->whereRaw('LOWER(metode_bayar) LIKE ?', ['%cash%'])
-                        ->orWhereRaw('LOWER(metode_bayar) LIKE ?', ['%tunai%']);
-                })
-                ->sum('total');
-
-            $servisCashToday = (float) ServisMasuk::where('cabang_id', $cabangTarget->id)
-                ->whereBetween('tanggal_masuk', [$startToday, $endToday])
-                ->where(function ($q) {
-                    $q->whereIn('status', ['sudah_diambil', 'sudah_dibayar'])
-                        ->orWhere(function ($sq) {
-                            $sq->where('total_biaya', '>', 0)->whereColumn('bayar', '>=', 'total_biaya');
-                        });
-                })
+            $penjualanCashToday = (float) TransaksiFull::where('cabang_id', $cabangTarget->id)
+                ->where('tipe_transaksi', 'penjualan')
+                ->where('status', 'Lunas')
+                ->whereBetween('tanggal_lunas', [$startToday, $endToday])
                 ->where(function ($q) {
                     $q->whereRaw('LOWER(metode_pembayaran) LIKE ?', ['%cash%'])
                         ->orWhereRaw('LOWER(metode_pembayaran) LIKE ?', ['%tunai%']);
                 })
-                ->sum('total_biaya');
+                ->sum('grand_total');
+
+            $servisCashToday = (float) TransaksiFull::where('cabang_id', $cabangTarget->id)
+                ->where('tipe_transaksi', 'servis')
+                ->where('status', 'Lunas')
+                ->whereBetween('tanggal_lunas', [$startToday, $endToday])
+                ->where(function ($q) {
+                    $q->whereRaw('LOWER(metode_pembayaran) LIKE ?', ['%cash%'])
+                        ->orWhereRaw('LOWER(metode_pembayaran) LIKE ?', ['%tunai%']);
+                })
+                ->sum('grand_total');
 
             $kasKeluarCashToday = (float) KasKeluar::where('cabang_id', $cabangTarget->id)
                 ->whereBetween('tanggal', [$startToday, $endToday])

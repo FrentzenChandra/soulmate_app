@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Gate::define('viewPulse', function (User $user) {
-            return $user->isOwner() || $user->hasRole('Owner') || $user->hasRole('Superadmin');
+            return $user->isOwner() || $user->hasRole('Owner');
         });
     }
 }
