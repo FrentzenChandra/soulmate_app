@@ -28,8 +28,16 @@ class SerialNumberTest extends TestCase
     public function test_authorized_user_can_access_and_crud_serial_number()
     {
         $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
-        $this->actingAs($admin);
+        $kasir = User::where('email', 'kasir.pkp@soulmate.test')->first();
+        $teknisi = User::where('email', 'teknisi.pkp@soulmate.test')->first();
 
+        $this->actingAs($kasir);
+        $this->get(route('serial-number'))->assertStatus(200);
+
+        $this->actingAs($teknisi);
+        $this->get(route('serial-number'))->assertStatus(403);
+
+        $this->actingAs($admin);
         $this->get(route('serial-number'))->assertStatus(200);
 
         // Create

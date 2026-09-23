@@ -67,7 +67,7 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin') && ! $user->hasRole('Teknisi'))) {
+        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin'))) {
             abort(403, 'Akses modul Master Servis dibatasi.');
         }
 

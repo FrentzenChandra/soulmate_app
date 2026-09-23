@@ -62,6 +62,11 @@ class Index extends Component
 
     public function mount(): void
     {
+        $user = Auth::user();
+        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin') && ! $user->hasRole('Kasir'))) {
+            abort(403, 'Akses modul Stok Cabang dibatasi.');
+        }
+
         $this->sortField = 'nama_produk';
         $this->sortDirection = 'asc';
     }

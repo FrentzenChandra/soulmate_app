@@ -93,7 +93,7 @@ class MasterServisTest extends TestCase
         $this->get(route('master.servis'))->assertOk();
 
         $this->actingAs($this->teknisi);
-        $this->get(route('master.servis'))->assertOk();
+        $this->get(route('master.servis'))->assertStatus(403);
     }
 
     public function test_can_create_jasa_and_sparepart_items(): void

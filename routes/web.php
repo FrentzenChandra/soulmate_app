@@ -69,10 +69,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/metode-pembayaran', MasterPembayaranIndex::class)->name('metode-pembayaran');
             Route::get('/sumber-dana', MasterSumberDanaIndex::class)->name('sumber-dana');
             Route::get('/kategori-kas', MasterKategoriKasIndex::class)->name('kategori-kas');
-        });
-
-        // Master Servis (Owner, Superadmin, Admin, Teknisi)
-        Route::middleware('role:Owner|Superadmin|Admin|Teknisi')->group(function () {
             Route::get('/servis', MasterServisIndex::class)->name('servis');
         });
 
@@ -172,13 +168,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/transaksi/harian', TransaksiHarian::class)->name('transaksi.harian');
     });
 
-    // Serial Number (Owner, Superadmin, Admin, Teknisi)
-    Route::middleware('role:Owner|Superadmin|Admin|Teknisi')->group(function () {
+    // Serial Number (Owner, Superadmin, Admin, Kasir)
+    Route::middleware('role:Owner|Superadmin|Admin|Kasir')->group(function () {
         Route::get('/serial-number', SerialNumberIndex::class)->name('serial-number');
     });
 
-    // Operasional Stok Cabang
-    Route::get('/cabang/stok', CabangStokIndex::class)->name('cabang.stok');
+    // Operasional Stok Cabang (Owner, Superadmin, Admin, Kasir)
+    Route::middleware('role:Owner|Superadmin|Admin|Kasir')->group(function () {
+        Route::get('/cabang/stok', CabangStokIndex::class)->name('cabang.stok');
+    });
 
     Route::post('/logout', function () {
         Auth::logout();
