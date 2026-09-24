@@ -98,13 +98,18 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
     5. Riwayat audit hari ini langsung tampil di bawah modal/halaman transaksi.
   - Kasir tetap dapat melanjutkan transaksi kasir seperti biasa.
 
-### F. Metrik Pendapatan Topbar Superadmin
+### F. Modul Saldo Rekening Standalone (`/saldo`)
+- Pencatatan saldo kas/rekening bank murni catatan mandiri (*pure record keeping*).
+- Model & Tabel: `sumber_saldos` (Master Kategori: *Pribadi*, *CV. SM PAMEN SEJAHTERA*, dsb.) & `saldo_rekenings` (Rekening Bank, Saldo, Atas Nama, No. Rekening).
+- UI 1 Tabel Terpadu dengan Dynamic Tabs filter per Sumber Saldo, Top Metric Card Total Saldo + dynamic breakdown pills, Quick Saldo update, dan Bottom summary card.
+
+### G. Metrik Pendapatan Topbar Superadmin
 - Header navbar khusus Superadmin menampilkan ringkasan performa finansial cabang secara real-time:
   - Total Penjualan Produk, Total Servis, HPP (Total Modal Barang Terjual), dan Pendapatan Nett (Penjualan - HPP).
 
 ---
 
-## 4. Standar UI/UX & Desain (Anti-AI Slop & Anti-Mojibake)
+## 4. Standar UI/UX & Desain (Anti-AI Slop, Zero Placeholder & Anti-Mojibake)
 
 1. **Color Palette**:
    - Primary: `#5E17EB` (Electric Purple)
@@ -113,10 +118,10 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
    - Neutral: `#F8F9FA` / `#FFFFFF` (White cards, subtle borders `border-gray-200`, no messy mesh gradients).
 2. **Anti-Mojibake & Tipografi Bersih**:
    - Dilarang memakai karakter rentan encoding rusak (`•`, `—`, `✓`, raw emoji). Gunakan Clean Outline SVG atau HTML entities (`&bull;`, `&middot;`).
-   - Placeholder form wajib deskriptif dan manusiawi dalam bahasa Indonesia.
+   - **Zero Placeholder Standard**: Seluruh form input, filter, modal, dan search bar TIDAK BOLEH menggunakan atribut `placeholder`. Gunakan label form yang tegas.
 3. **Standar Loading & Skeleton Loader**:
-   - Tombol aksi form (Simpan, Update, Hapus): Wajib memiliki `wire:loading` spinner, teks proses deskriptif, dan `wire:loading.attr="disabled"`.
-   - Data Fetching (Tabel & Grid): Wajib menampilkan `<x-table-skeleton />` shimmer `animate-pulse` yang sinkron presisi dengan lebar kolom tabel real.
+   - **Aksi Form & Tombol (Simpan, Update, Hapus, dsb.)**: Wajib menggunakan standar Kasir Produk: SVG spinner `animate-spin` (`<svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>`), `wire:loading wire:target="..."`, `disabled:opacity-50`, dan teks transisi proses deskriptif.
+   - **Data Fetching (Tabel & Grid)**: Wajib menampilkan `<x-table-skeleton />` / `<x-grid-skeleton />` shimmer `animate-pulse` yang sinkron presisi dengan lebar kolom tabel real.
 4. **Universal Multi-Word Loose Search**:
    - Semua kolom pencarian menggunakan substring tokenized matching multi-kata (`explode(' ', $search)`), case-insensitive (`LOWER() LIKE ?`), non-strict per karakter.
 5. **Format Rupiah Terintegrasi**:

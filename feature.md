@@ -502,3 +502,28 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
   - **Servis**: Total omzet servis selesai/diambil.
   - **HPP**: Total modal barang & sparepart terjual.
   - **Pendapatan Nett**: Selisih total omzet dengan total modal HPP (Laba Kotor).
+
+---
+
+## 22. Modul Saldo Rekening Standalone (`/saldo`)
+
+Modul pencatatan kas/rekening bank murni sebagai catatan pembukuan mandiri (tanpa relasi transaksi luar / POS):
+- **Tabel Basis Data**:
+  - `sumber_saldos`: `id`, `nama`, `deskripsi`, `timestamps`. (Default seeded: *Pribadi* dan *CV. SM PAMEN SEJAHTERA*).
+  - `saldo_rekenings`: `id`, `sumber_saldo_id` (FK cascade), `nama_bank`, `atas_nama`, `nomor_rekening`, `saldo` (decimal 15,2), `keterangan`, `timestamps`.
+- **Fitur & Antarmuka**:
+  - **Top Metric Cards**: 1 Card Utama Total Saldo Keseluruhan + Grid Mini Card ringkasan per Sumber Saldo.
+  - **Tabel Terpadu & Tab Filter Dinamis**: Filter tab per sumber saldo (`[Semua]`, `[Pribadi]`, `[CV. SM PAMEN SEJAHTERA]`, dsb.), quick edit nominal saldo (modal kilat), full CRUD rekening, dan modal kelola Sumber Saldo.
+  - **Footer Summary Widget**: Total saldo terfilter & info status sistem terkontrol dan terenkripsi.
+- **Akses Role**: `Owner`, `Superadmin`, `Admin`.
+
+---
+
+## 23. Standar Cetak Nota & Faktur Servis / Sales Invoice
+
+- **Logo Cetak**: Ukuran proporsional jelas (50px+) tanpa border hitam kaku.
+- **Header Seragam**: Layout tanggal (lengkap jam:menit:detik `H:i:s`), kasir/petugas, customer, dan nomor faktur/invoice beraksen ungu (`#5E17EB`).
+- **Hemat Kertas & Ringkas**:
+  - Deskripsi tambahan dan serial number redundan dihilangkan dari tabel rincian transaksi.
+  - Garansi dicantumkan langsung menyatu di samping nama produk (`NAMA PRODUK - GARANSI XX HARI`).
+  - Klausul servis disederhanakan: terhitung sejak tanggal konfirmasi selesai.

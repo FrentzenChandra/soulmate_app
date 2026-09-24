@@ -68,15 +68,19 @@
     <!-- Faktur Container (Strict 1-Page on 24x15 cm) -->
     <div id="invoicePrintArea" class="servis-invoice-container max-w-3xl mx-auto bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-md space-y-2.5 text-gray-900 text-xs">
 
+        @php
+            $tglSelesai = $servis->tanggal_selesai ?? ($servis->tanggal_ambil ?? $servis->updated_at);
+        @endphp
+
         <!-- Header: Store Identity & Service Invoice Info -->
         <div class="grid grid-cols-12 gap-3 items-start pb-1">
 
             <!-- Left: Logo & Toko -->
-            <div class="col-span-7 flex items-start space-x-2.5">
-                <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-10 h-10 rounded-xl object-cover shrink-0 border border-gray-100 shadow-xs">
+            <div class="col-span-7 flex items-start space-x-3">
+                <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-gray-100 shadow-xs">
                 <div>
                     <h1 class="text-base font-black text-gray-900 tracking-tight leading-none">Soulmate Komputer</h1>
-                    <p class="text-[10px] font-medium text-gray-600 mt-0.5 leading-tight">
+                    <p class="text-[10px] font-medium text-gray-600 mt-1 leading-tight">
                         {{ $servis->cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang' }}
                     </p>
                     <p class="text-[10px] font-semibold text-gray-700 mt-0.5">
@@ -86,41 +90,45 @@
             </div>
 
             <!-- Right: Meta Info (Tanggal, Jam, Kode Servis, Pelanggan) -->
-            <div class="col-span-5 grid grid-cols-2 gap-1.5 text-[11px]">
-                <div>
-                    <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Tanggal Selesai :</span>
-                    <span class="font-bold text-gray-800 font-mono text-[10px] block mt-0.5">{{ $servis->tanggal_ambil ? $servis->tanggal_ambil->format('d/m/y') : ($servis->tanggal_selesai ? $servis->tanggal_selesai->format('d/m/y') : '-') }}</span>
-                </div>
-                <div>
-                    <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Pelanggan :</span>
-                    <span class="font-bold text-gray-900 block truncate text-[10px] mt-0.5" title="{{ $servis->customer?->nama ?? 'Pelanggan Umum' }}">
-                        {{ $servis->customer?->nama ?? 'Pelanggan Umum' }}
-                    </span>
-                    <span class="text-[10px] font-mono text-gray-600 block">{{ $servis->customer?->no_hp ?? '-' }}</span>
-                </div>
-                <div class="col-span-2 pt-0.5 border-t border-gray-100 flex items-center justify-between">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase">Faktur Servis:</span>
-                    <span class="text-xs font-black text-[#5E17EB] font-mono tracking-wider">
-                        {{ $servis->no_servis_frontend ?? $servis->no_servis }}
-                    </span>
-                </div>
+            <div class="col-span-5 text-[11px]">
+                <table class="w-full">
+                    <tr>
+                        <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Tanggal Selesai</td>
+                        <td class="px-1 text-gray-400 font-bold">:</td>
+                        <td class="font-bold text-gray-800 font-mono text-[10px] py-0.5">{{ $tglSelesai ? $tglSelesai->format('d/m/Y H:i:s') : '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Pelanggan</td>
+                        <td class="px-1 text-gray-400 font-bold">:</td>
+                        <td class="font-bold text-gray-900 text-[10px] py-0.5">
+                            <span class="truncate block max-w-[170px]" title="{{ $servis->customer?->nama ?? 'Pelanggan Umum' }}">
+                                {{ $servis->customer?->nama ?? 'Pelanggan Umum' }}
+                            </span>
+                            <span class="text-[10px] font-mono text-gray-600 block">{{ $servis->customer?->no_hp ?? '-' }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">NO. FAKTUR SERVIS</td>
+                        <td class="px-1 text-gray-400 font-bold">:</td>
+                        <td class="font-black text-[#5E17EB] font-mono text-xs py-0.5">
+                            {{ $servis->no_servis_frontend ?? $servis->no_servis }}
+                        </td>
+                    </tr>
+                </table>
             </div>
 
         </div>
 
         <!-- Divider Strip -->
         <div class="border-t border-b border-dashed border-gray-400 py-0.5 text-center font-bold tracking-widest text-[10px] uppercase text-gray-700 select-none">
-            &middot;&middot;&middot;&middot;&middot; FAKTUR PELUNASAN SERVIS &middot;&middot;&middot;&middot;&middot;
+            &middot;&middot;&middot;&middot;&middot; FAKTUR SERVIS &middot;&middot;&middot;&middot;&middot;
         </div>
 
         <!-- Info Unit -->
         <div class="grid grid-cols-2 gap-2 pb-1 border-b border-dashed border-gray-200 text-[11px]">
             <div>
-                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Spesifikasi Perangkat :</span>
+                <span class="text-[9px] font-bold text-gray-500 uppercase block leading-none">PERANGKAT :</span>
                 <span class="text-xs font-bold text-gray-900 mt-0.5 inline-block">{{ $servis->tipe_unit ?: $servis->kategori_perangkat_label }}</span>
-                @if($servis->serial_number)
-                    <span class="text-[10px] text-gray-500 font-mono"> &bull; S/N: {{ $servis->serial_number }}</span>
-                @endif
             </div>
             <div class="text-right">
                 <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Petugas Kasir :</span>
@@ -134,7 +142,7 @@
                 <thead>
                     <tr class="border-b border-gray-800 text-[10px] font-bold uppercase text-gray-700">
                         <th class="py-1">No</th>
-                        <th class="py-1">Rincian Tindakan</th>
+                        <th class="py-1">Nama Barang / Jasa</th>
                         <th class="py-1 text-center">Garansi</th>
                         <th class="py-1 text-center">Qty</th>
                         <th class="py-1 text-right">Harga</th>
@@ -147,7 +155,6 @@
                             <td class="py-1 font-mono text-gray-500 text-[10px]">{{ $idx + 1 }}</td>
                             <td class="py-1 font-semibold text-gray-900">
                                 {{ $det->nama_item }}
-                                <span class="text-[9px] font-normal text-gray-500 ml-1">({{ ($det->jenis === 'sparepart' || $det->masterServis?->jenis === 'sparepart' || $det->produk_id) ? 'Sparepart' : 'Jasa Servis' }})</span>
                             </td>
                             <td class="py-1 text-center font-mono text-[10px] text-gray-700">
                                 {{ $det->garansi_label }}
@@ -210,7 +217,7 @@
                 @endphp
                 @if($hasGaransi)
                     <strong class="text-emerald-800 font-bold block uppercase">KETENTUAN GARANSI PER ITEM</strong>
-                    Garansi berlaku per item sesuai rincian pada tabel di atas terhitung sejak tanggal pengambilan unit.
+                    Garansi berlaku per item sesuai rincian pada tabel di atas terhitung sejak tanggal konfirmasi selesai.
                     <span class="block text-[9px] text-gray-500 mt-0.5">Garansi tidak berlaku jika nota hilang, segel rusak, terkena cairan, atau akibat kelalaian pemakaian/kelistrikan.</span>
                 @else
                     <strong class="text-gray-700 font-bold block">KETENTUAN LAYANAN</strong>

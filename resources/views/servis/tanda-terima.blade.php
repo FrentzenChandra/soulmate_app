@@ -124,7 +124,6 @@
                 </span>
                 <span class="text-[10px] text-gray-500">
                     Kategori: {{ $servis->kategori_perangkat_label }}
-                    @if($servis->serial_number) &bull; S/N: <strong class="font-mono text-gray-700">{{ $servis->serial_number }}</strong> @endif
                 </span>
             </div>
 

@@ -368,7 +368,6 @@ class Index extends Component
                     $q->where(function ($sq) use ($pattern) {
                         $sq->whereRaw('LOWER(no_servis) LIKE ?', [$pattern])
                             ->orWhereRaw('LOWER(tipe_unit) LIKE ?', [$pattern])
-                            ->orWhereRaw('LOWER(COALESCE(serial_number, \'\')) LIKE ?', [$pattern])
                             ->orWhereRaw('LOWER(keluhan) LIKE ?', [$pattern])
                             ->orWhereHas('customer', function ($cq) use ($pattern) {
                                 $cq->whereRaw('LOWER(nama) LIKE ?', [$pattern])

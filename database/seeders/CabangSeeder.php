@@ -16,9 +16,9 @@ class CabangSeeder extends Seeder
             [
                 'kode_cabang' => 'CB-PKP',
                 'nama_cabang' => 'Soulmate Pangkalpinang',
-                'alamat' => 'Jl. Jenderal Sudirman No. 123, Gabek, Pangkalpinang',
-                'no_telp' => '0717-422111',
-                'no_wa' => '6281271000111',
+                'alamat' => 'Jl. Masjid Jamik ,Pangkalpinang',
+                'no_telp' => '-',
+                'no_wa' => '0819-9546-6255',
                 'status' => 'aktif',
             ],
             [

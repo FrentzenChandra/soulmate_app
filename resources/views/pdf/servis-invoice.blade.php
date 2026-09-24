@@ -127,20 +127,20 @@
     $logoPath = public_path('images/logo_bulat.png');
     $logoData = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
 
-    $tglMasuk = $servis->tanggal_masuk ? $servis->tanggal_masuk->format('d/m/Y') : '-';
-    $tglAmbil = $servis->tanggal_ambil ? $servis->tanggal_ambil->format('d/m/Y') : '-';
+    $tglSelesai = $servis->tanggal_selesai ?? ($servis->tanggal_ambil ?? $servis->updated_at);
+    $tglSelesaiFormatted = $tglSelesai ? $tglSelesai->format('d/m/Y H:i:s') : '-';
 @endphp
 
     <!-- Header Section -->
     <table class="w-full header-table table-layout" style="margin-bottom: 4px;">
         <tr>
             <!-- Col 1: Logo & Store Info (52%) -->
-            <td style="width: 52%;">
+            <td style="width: 50%;">
                 <table>
                     <tr>
                         @if($logoData)
-                            <td style="width: 44px; padding-right: 8px; vertical-align: top;">
-                                <img src="{{ $logoData }}" style="width: 38px; height: 38px; object-fit: contain;">
+                            <td style="width: 58px; padding-right: 8px; vertical-align: top;">
+                                <img src="{{ $logoData }}" style="width: 50px; height: 50px; object-fit: contain;">
                             </td>
                         @endif
                         <td style="vertical-align: top;">
@@ -152,21 +152,21 @@
                 </table>
             </td>
 
-            <!-- Col 2: Meta Info (48%) -->
-            <td style="width: 48%; padding-left: 10px;">
+            <!-- Col 2: Meta Info (50%) -->
+            <td style="width: 50%; padding-left: 10px;">
                 <table class="w-full" style="font-size: 8pt;">
                     <tr>
-                        <td class="text-muted" style="width: 34%;">Tanggal Selesai</td>
-                        <td style="width: 5%;">:</td>
-                        <td class="font-bold font-mono">{{ $tglAmbil !== '-' ? $tglAmbil : $tglMasuk }}</td>
+                        <td class="text-muted font-bold uppercase" style="width: 40%; font-size: 7.5pt;">Tanggal Selesai</td>
+                        <td style="width: 4%;">:</td>
+                        <td class="font-bold font-mono">{{ $tglSelesaiFormatted }}</td>
                     </tr>
                     <tr>
-                        <td class="text-muted">Pelanggan</td>
+                        <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">Pelanggan</td>
                         <td>:</td>
-                        <td class="font-bold">{{ $customerName }} <span class="text-muted font-mono" style="font-size: 7.5pt;">({{ $customerPhone }})</span></td>
+                        <td class="font-bold">{{ $customerName }} <span class="text-muted font-mono" style="font-size: 7.5pt; font-weight: normal;">({{ $customerPhone }})</span></td>
                     </tr>
                     <tr>
-                        <td class="text-muted">Faktur Servis</td>
+                        <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">NO. FAKTUR SERVIS</td>
                         <td>:</td>
                         <td class="font-bold font-mono" style="font-size: 9pt; color: #5E17EB;">
                             {{ $servis->no_servis_frontend ?? $servis->no_servis }}
@@ -179,18 +179,15 @@
 
     <!-- Title Bar -->
     <div class="divider-title">
-        FAKTUR PELUNASAN SERVIS
+        FAKTUR SERVIS
     </div>
 
     <!-- Unit & PIC Info -->
     <table class="w-full spec-bar table-layout">
         <tr>
             <td style="width: 60%; vertical-align: middle;">
-                <span class="text-muted font-bold uppercase">Spesifikasi Perangkat :</span>
+                <span class="text-muted font-bold uppercase">PERANGKAT :</span>
                 <strong style="color: #000;">{{ $servis->tipe_unit ?: $servis->kategori_perangkat_label }}</strong>
-                @if($servis->serial_number)
-                    <span class="text-muted font-mono"> &bull; S/N: {{ $servis->serial_number }}</span>
-                @endif
             </td>
             <td style="width: 40%; vertical-align: middle; text-align: right;">
                 <span class="text-muted font-bold uppercase">Petugas Kasir :</span>
@@ -204,7 +201,7 @@
         <thead>
             <tr>
                 <th class="text-center" style="width: 5%;">No</th>
-                <th class="text-left" style="width: 40%;">Rincian Tindakan</th>
+                <th class="text-left" style="width: 40%;">Nama Barang / Jasa</th>
                 <th class="text-center" style="width: 15%;">Garansi</th>
                 <th class="text-center" style="width: 8%;">Qty</th>
                 <th class="text-right" style="width: 16%;">Harga</th>
@@ -217,7 +214,6 @@
                     <td class="text-center font-mono text-muted">{{ $idx + 1 }}</td>
                     <td>
                         <span class="font-bold">{{ $det->nama_item }}</span>
-                        <span class="text-muted" style="font-size: 7pt;">({{ ($det->jenis === 'sparepart' || $det->masterServis?->jenis === 'sparepart' || $det->produk_id) ? 'Sparepart' : 'Jasa' }})</span>
                     </td>
                     <td class="text-center font-mono" style="font-size: 7.5pt;">
                         {{ $det->garansi_label }}
@@ -287,7 +283,7 @@
                 KETENTUAN GARANSI PER ITEM
             </div>
             <div style="margin-top: 1px;">
-                Garansi berlaku per item sesuai rincian pada tabel di atas terhitung sejak tanggal pengambilan unit.
+                Garansi berlaku per item sesuai rincian pada tabel di atas terhitung sejak tanggal konfirmasi selesai.
             </div>
             <div class="text-muted" style="margin-top: 1px; font-size: 7pt;">
                 Garansi tidak berlaku jika nota hilang, segel rusak, terkena cairan, atau akibat kelalaian pemakaian/kelistrikan.

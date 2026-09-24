@@ -51,7 +51,6 @@ class Index extends Component
 
     public string $kategoriPerangkat = 'laptop';
     public string $tipeUnit = '';
-    public string $serialNumber = '';
     public array $kelengkapanChips = ['Unit'];
     public string $customKelengkapan = '';
     public string $keluhan = '';
@@ -186,7 +185,6 @@ class Index extends Component
         $this->newCustomerNoHp = '';
         $this->kategoriPerangkat = 'laptop';
         $this->tipeUnit = '';
-        $this->serialNumber = '';
         $this->kelengkapanChips = ['Unit'];
         $this->customKelengkapan = '';
         $this->keluhan = '';
@@ -221,7 +219,6 @@ class Index extends Component
         $rules = [
             'kategoriPerangkat' => 'required|in:laptop,printer,komputer,lainnya',
             'tipeUnit' => 'required|string|max:150',
-            'serialNumber' => 'nullable|string|max:100',
             'keluhan' => 'required|string|min:3',
             'kondisiBarang' => 'nullable|string|max:500',
             'catatan' => 'nullable|string|max:1000',
@@ -292,7 +289,6 @@ class Index extends Component
                 'created_by' => Auth::id(),
                 'kategori_perangkat' => $this->kategoriPerangkat,
                 'tipe_unit' => trim($this->tipeUnit),
-                'serial_number' => trim((string) $this->serialNumber) ?: null,
                 'kelengkapan' => $kelengkapanString,
                 'keluhan' => trim($this->keluhan),
                 'kondisi_barang' => trim((string) $this->kondisiBarang) ?: null,
@@ -782,7 +778,6 @@ class Index extends Component
                     $q->where(function ($sq) use ($pattern) {
                         $sq->whereRaw('LOWER(no_servis) LIKE ?', [$pattern])
                             ->orWhereRaw('LOWER(tipe_unit) LIKE ?', [$pattern])
-                            ->orWhereRaw('LOWER(COALESCE(serial_number, \'\')) LIKE ?', [$pattern])
                             ->orWhereRaw('LOWER(keluhan) LIKE ?', [$pattern])
                             ->orWhereHas('customer', function ($cq) use ($pattern) {
                                 $cq->whereRaw('LOWER(nama) LIKE ?', [$pattern])
@@ -804,7 +799,7 @@ class Index extends Component
 
         // Sorting: Prioritaskan yang sedang diproses / selesai
         $sortDir = strtolower($this->sortDirection) === 'asc' ? 'asc' : 'desc';
-        $allowedSorts = ['tanggal_masuk', 'no_servis', 'tipe_unit', 'status', 'id'];
+        $allowedSorts = ['tanggal_masuk', 'no_servis', 'tipe_unit', 'keluhan', 'status', 'id'];
         $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'tanggal_masuk';
         $query->orderBy($sortColumn, $sortDir);
 

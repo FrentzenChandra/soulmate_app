@@ -385,15 +385,9 @@
 
                         <!-- Rincian Unit & Keluhan -->
                         <div class="p-4 bg-gray-50/80 rounded-2xl border border-gray-200/80 space-y-2">
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase block">Tipe / Merk Unit</span>
-                                    <span class="font-black text-gray-900 block">{{ $selectedServis->tipe_unit }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase block">Serial Number (S/N)</span>
-                                    <span class="font-mono font-bold text-gray-700 block">{{ $selectedServis->serial_number ?: '-' }}</span>
-                                </div>
+                            <div>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase block">Tipe / Merk Unit</span>
+                                <span class="font-black text-gray-900 block">{{ $selectedServis->tipe_unit }}</span>
                             </div>
                             <div class="pt-2 border-t border-gray-200">
                                 <span class="text-[10px] font-bold text-gray-400 uppercase block">Kelengkapan Bawaan</span>
@@ -578,8 +572,8 @@
                                 <select wire:model="targetStatus"
                                         class="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white font-bold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <option value="pengecekan">Pengecekan</option>
-                                    <option value="perbaikan">Dalam Perbaikan</option>
-                                    <option value="selesai">Selesai (Siap Diambil)</option>
+                                    <option value="perbaikan">Perbaikan</option>
+                                    <option value="selesai">Selesai </option>
                                     <option value="batal">Batal Servis</option>
                                 </select>
                             </div>

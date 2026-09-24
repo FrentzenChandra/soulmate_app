@@ -18,6 +18,7 @@ use App\Livewire\Servis\Keluar\Index as ServisKeluarIndex;
 use App\Livewire\Servis\Batal\Index as ServisBatalIndex;
 use App\Livewire\KasKeluar\Index as KasKeluarIndex;
 use App\Livewire\ModalAwal\Index as ModalAwalIndex;
+use App\Livewire\Saldo\Index as SaldoIndex;
 use App\Livewire\Master\SumberDana\Index as MasterSumberDanaIndex;
 use App\Livewire\Master\KategoriKas\Index as MasterKategoriKasIndex;
 use App\Livewire\SerialNumber\Index as SerialNumberIndex;
@@ -149,9 +150,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/laporan/penjualan', LaporanPenjualanIndex::class)->name('laporan.penjualan');
     });
 
-    // Keuangan & Kas (Kas Keluar & Modal Awal & Tutup Kas)
+    // Keuangan & Kas (Kas Keluar & Modal Awal & Tutup Kas & Saldo)
     Route::middleware('role:Owner|Superadmin|Admin')->group(function () {
         Route::get('/kas-keluar', KasKeluarIndex::class)->name('kas-keluar');
+        Route::get('/saldo', SaldoIndex::class)->name('saldo.index');
     });
 
     Route::middleware('role:Owner|Superadmin')->group(function () {

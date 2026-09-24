@@ -197,7 +197,7 @@ class InvoicePdfTest extends TestCase
         // HTML view test
         $responseHtml = $this->get(route('servis.invoice', $servis->id));
         $responseHtml->assertOk();
-        $responseHtml->assertSee('FAKTUR PELUNASAN SERVIS');
+        $responseHtml->assertSee('FAKTUR SERVIS');
 
         // PDF generation test (DomPDF)
         $responsePdf = $this->get(route('servis.invoice', ['servis' => $servis->id, 'format' => 'pdf']));

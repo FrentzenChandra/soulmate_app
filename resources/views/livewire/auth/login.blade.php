@@ -40,12 +40,12 @@
             <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo Soulmate" class="w-11 h-11 rounded-xl object-contain bg-white/10 backdrop-blur-md p-1 border border-white/20 shadow-md">
             <div>
                 <span class="text-lg font-extrabold text-white tracking-tight block leading-tight">SOULMATE</span>
-                <span class="text-[11px] text-purple-300 font-semibold tracking-wider uppercase">Pusat Servis & Point of Sale</span>
+                {{-- <span class="text-[11px] text-purple-300 font-semibold tracking-wider uppercase">Pusat Servis & Point of Sale</span> --}}
             </div>
         </div>
 
         <!-- Middle Branding Info -->
-        <div class="relative z-10 my-auto py-6">
+        {{-- <div class="relative z-10 my-auto py-6">
             <div class="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md text-white text-xs font-bold px-3.5 py-1.5 rounded-full mb-3 border border-white/20 shadow-lg">
                 <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
                 <span>Cepat &bull; Transparan &bull; Terpercaya</span>
@@ -67,7 +67,7 @@
                     <span class="text-sm font-bold text-white">CCTV Supervised</span>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <!-- Footer inside Hero -->
         <div class="relative z-10 text-[11px] text-gray-400 border-t border-white/10 pt-3 flex items-center justify-between">

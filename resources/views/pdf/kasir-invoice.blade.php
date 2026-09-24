@@ -100,6 +100,7 @@
 @php
     $cabang = $penjualan->cabang;
     $customerName = $penjualan->customer?->nama ?? 'Pelanggan Umum';
+    $customerPhone = $penjualan->customer?->no_hp ?? '-';
     $cashierName = $penjualan->kasir?->name ?? 'Kasir';
     $address = $cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang';
     $phone = $cabang?->no_wa ?? $cabang?->no_telp ?? '081995466255';
@@ -109,24 +110,16 @@
     $logoData = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
 @endphp
 
-    <!-- System Header -->
-    <table class="w-full text-muted" style="margin-bottom: 2px; font-size: 7.5pt;">
+    <!-- Header Section -->
+    <table class="w-full header-table table-layout" style="margin-bottom: 4px;">
         <tr>
-            <td class="text-left font-mono">{{ $penjualan->tanggal->format('d/m/Y H:i:s') }}</td>
-            <td class="text-right font-bold" style="letter-spacing: 1px;">SOULMATE KASIR</td>
-        </tr>
-    </table>
-
-    <!-- Header Section (3 Columns) -->
-    <table class="w-full header-table table-layout" style="margin-bottom: 2px;">
-        <tr>
-            <!-- Col 1: Logo & Store Info (48%) -->
-            <td style="width: 48%;">
+            <!-- Col 1: Logo & Store Info (50%) -->
+            <td style="width: 50%;">
                 <table>
                     <tr>
                         @if($logoData)
-                            <td style="width: 42px; padding-right: 8px; vertical-align: top;">
-                                <img src="{{ $logoData }}" style="width: 36px; height: 36px; object-fit: contain;">
+                            <td style="width: 58px; padding-right: 8px; vertical-align: top;">
+                                <img src="{{ $logoData }}" style="width: 50px; height: 50px; object-fit: contain;">
                             </td>
                         @endif
                         <td style="vertical-align: top;">
@@ -138,39 +131,30 @@
                 </table>
             </td>
 
-            <!-- Col 2: Date & Invoice No (26%) -->
-            <td style="width: 26%; padding-left: 8px; font-size: 8pt;">
-                <table class="w-full">
+            <!-- Col 2: Meta Info (50%) -->
+            <td style="width: 50%; padding-left: 10px;">
+                <table class="w-full" style="font-size: 8pt;">
                     <tr>
-                        <td class="text-muted" style="width: 48%;">Tanggal</td>
-                        <td style="width: 6%;">:</td>
-                        <td class="font-bold">{{ $penjualan->tanggal->format('d-m-Y') }}</td>
+                        <td class="text-muted font-bold uppercase" style="width: 38%; font-size: 7.5pt;">Tanggal</td>
+                        <td style="width: 4%;">:</td>
+                        <td class="font-bold font-mono">{{ $penjualan->tanggal->format('d/m/Y H:i:s') }}</td>
                     </tr>
                     <tr>
-                        <td class="text-muted">Jam</td>
+                        <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">Pelanggan</td>
                         <td>:</td>
-                        <td class="font-mono text-muted" style="font-size: 7.5pt;">{{ $penjualan->tanggal->format('H:i:s') }}</td>
+                        <td class="font-bold">{{ $customerName }} @if($customerPhone && $customerPhone !== '-') <span class="text-muted font-mono" style="font-size: 7.5pt; font-weight: normal;">({{ $customerPhone }})</span> @endif</td>
                     </tr>
                     <tr>
-                        <td class="text-muted" style="padding-top: 2px;">No.Trans</td>
-                        <td style="padding-top: 2px;">:</td>
-                        <td class="font-mono font-bold" style="padding-top: 2px; font-size: 8.5pt;">{{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}</td>
-                    </tr>
-                </table>
-            </td>
-
-            <!-- Col 3: Customer & Payment (26%) -->
-            <td style="width: 26%; padding-left: 8px; font-size: 8pt;">
-                <table class="w-full">
-                    <tr>
-                        <td class="text-muted" style="width: 45%;">Pelanggan</td>
-                        <td style="width: 6%;">:</td>
-                        <td class="font-bold truncate">{{ $customerName }}</td>
+                        <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">Pembayaran</td>
+                        <td>:</td>
+                        <td class="font-bold uppercase" style="{{ $penjualan->status === 'bon' ? 'color: #b45309;' : '' }}">{{ $penjualan->status === 'bon' ? 'BON (BELUM LUNAS)' : $metodeBayar }}</td>
                     </tr>
                     <tr>
-                        <td class="text-muted" style="padding-top: 2px;">Bayar</td>
-                        <td style="padding-top: 2px;">:</td>
-                        <td class="font-bold uppercase" style="padding-top: 2px;">{{ $metodeBayar }}</td>
+                        <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">NO. PENJUALAN</td>
+                        <td>:</td>
+                        <td class="font-bold font-mono" style="font-size: 9pt; color: #5E17EB;">
+                            {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}
+                        </td>
                     </tr>
                 </table>
             </td>
@@ -186,11 +170,11 @@
     <table class="w-full items-table table-layout">
         <thead>
             <tr>
-                <th class="text-left" style="width: 18%;">Kode barang</th>
-                <th class="text-left" style="width: 42%;">Nama barang</th>
-                <th class="text-center" style="width: 12%;">Jumlah</th>
-                <th class="text-right" style="width: 14%;">Harga (Rp.)</th>
-                <th class="text-right" style="width: 14%;">Total (Rp.)</th>
+                <th class="text-left" style="width: 20%;">Kode Barang</th>
+                <th class="text-left" style="width: 44%;">Nama Barang</th>
+                <th class="text-center" style="width: 10%;">Jumlah</th>
+                <th class="text-right" style="width: 13%;">Harga (Rp)</th>
+                <th class="text-right" style="width: 13%;">Total (Rp)</th>
             </tr>
         </thead>
         <tbody>
@@ -201,9 +185,6 @@
                     </td>
                     <td>
                         <span class="font-bold">{{ $d->nama_item }}</span>
-                        @if($d->produk?->deskripsi)
-                            <div class="text-muted" style="font-size: 7pt;">{{ Str::limit($d->produk->deskripsi, 45) }}</div>
-                        @endif
                     </td>
                     <td class="text-center font-bold font-mono">
                         {{ $d->qty }} UNIT

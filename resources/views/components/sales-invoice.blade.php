@@ -3,183 +3,147 @@
 @php
     $cabang = $penjualan->cabang;
     $customerName = $penjualan->customer?->nama ?? 'Pelanggan Umum';
+    $customerPhone = $penjualan->customer?->no_hp ?? '-';
     $cashierName = $penjualan->kasir?->name ?? 'Kasir';
     $address = $cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang';
     $phone = $cabang?->no_wa ?? $cabang?->no_telp ?? '081995466255';
-    $metodeBayar = strtolower($penjualan->metode_bayar ?? 'cash');
+    $metodeBayar = strtoupper($penjualan->metode_bayar ?? 'CASH');
 @endphp
 
-<div id="salesInvoicePrintArea" class="sales-invoice-container bg-white text-gray-900 font-sans p-6 sm:p-8 max-w-[24cm] w-full mx-auto rounded-xl border border-gray-200 shadow-sm print:shadow-none print:border-none print:p-0">
+<div id="salesInvoicePrintArea" class="sales-invoice-container max-w-3xl mx-auto bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-md space-y-2.5 text-gray-900 text-xs">
 
-    <!-- Top System Header Label -->
-    <div class="flex justify-between items-center text-[10px] text-gray-500 font-mono mb-2">
-        <span>{{ $penjualan->tanggal->format('m/d/y, h:i A') }}</span>
-        <span class="font-bold tracking-wider">SOULMATE KASIR</span>
+    <!-- Header: Store Identity & Sales Invoice Info -->
+    <div class="grid grid-cols-12 gap-3 items-start pb-1">
+
+        <!-- Left: Logo & Toko -->
+        <div class="col-span-7 flex items-start space-x-3">
+            <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-gray-100 shadow-xs">
+            <div>
+                <h1 class="text-base font-black text-gray-900 tracking-tight leading-none">Soulmate Komputer</h1>
+                <p class="text-[10px] font-medium text-gray-600 mt-1 leading-tight">
+                    {{ $address }}
+                </p>
+                <p class="text-[10px] font-semibold text-gray-700 mt-0.5">
+                    WhatsApp: {{ $phone }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Right: Meta Info (Tanggal, Pelanggan, Pembayaran, No. Penjualan) -->
+        <div class="col-span-5 text-[11px]">
+            <table class="w-full">
+                <tr>
+                    <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Tanggal</td>
+                    <td class="px-1 text-gray-400 font-bold">:</td>
+                    <td class="font-bold text-gray-800 font-mono text-[10px] py-0.5">{{ $penjualan->tanggal->format('d/m/Y H:i:s') }}</td>
+                </tr>
+                <tr>
+                    <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Pelanggan</td>
+                    <td class="px-1 text-gray-400 font-bold">:</td>
+                    <td class="font-bold text-gray-900 text-[10px] py-0.5">
+                        <span class="truncate block max-w-[170px]" title="{{ $customerName }}">
+                            {{ $customerName }}
+                        </span>
+                        @if($customerPhone && $customerPhone !== '-')
+                            <span class="text-[10px] font-mono text-gray-600 block">{{ $customerPhone }}</span>
+                        @endif
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Pembayaran</td>
+                    <td class="px-1 text-gray-400 font-bold">:</td>
+                    <td class="font-bold uppercase text-[10px] py-0.5 {{ $penjualan->status === 'bon' ? 'text-amber-700 font-black' : 'text-gray-900' }}">
+                        {{ $penjualan->status === 'bon' ? 'BON (BELUM LUNAS)' : $metodeBayar }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">NO. PENJUALAN</td>
+                    <td class="px-1 text-gray-400 font-bold">:</td>
+                    <td class="font-black text-[#5E17EB] font-mono text-xs py-0.5">
+                        {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+
     </div>
 
-    <!-- Header Grid: Company Info, Meta Col 1, Meta Col 2 -->
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start pb-3">
-        <!-- Left: Logo & Company Address -->
-        <div class="md:col-span-6 flex items-start space-x-3">
-            <div class="w-12 h-12 rounded-lg border-2 border-gray-900 flex items-center justify-center shrink-0 p-1">
-                <img src="{{ asset('images/logo_bulat.png') }}" alt="Soulmate Logo" class="w-full h-full object-contain">
-            </div>
-            <div>
-                <h2 class="text-lg font-bold text-gray-900 tracking-tight leading-none">Soulmate Komputer</h2>
-                <p class="text-[11px] text-gray-600 mt-1 leading-snug">{{ $address }}</p>
-                <p class="text-[11px] text-gray-800 font-medium mt-0.5">WhatsApp: {{ $phone }}</p>
-            </div>
-        </div>
-
-        <!-- Center: Tanggal & No.Transaksi -->
-        <div class="md:col-span-3 text-[11px] space-y-1">
-            <div class="grid grid-cols-2 gap-1">
-                <span class="text-gray-600">Tanggal :</span>
-                <span class="font-bold text-gray-900">{{ $penjualan->tanggal->format('d-m-Y') }}</span>
-            </div>
-            <div class="grid grid-cols-2 gap-1">
-                <span></span>
-                <span class="font-mono text-gray-700 text-[10px]">{{ $penjualan->tanggal->format('H:i:s') }}</span>
-            </div>
-            <div class="pt-1">
-                <span class="text-gray-600 block">No.Transaksi:</span>
-                <span class="font-bold font-mono text-gray-900 text-xs block">{{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}</span>
-            </div>
-        </div>
-
-        <!-- Right: Pelanggan & Pembayaran -->
-        <div class="md:col-span-3 text-[11px] space-y-1">
-            <div>
-                <span class="text-gray-600 block">Pelanggan :</span>
-                <span class="font-bold text-gray-900 block truncate">{{ $customerName }}</span>
-            </div>
-            <div class="pt-1">
-                <span class="text-gray-600 block">Pembayaran :</span>
-                <span class="font-bold {{ $penjualan->status === 'bon' ? 'text-amber-700' : 'text-gray-900' }} uppercase block">{{ $penjualan->status === 'bon' ? 'BON (BELUM LUNAS)' : $metodeBayar }}</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Title Bar -->
-    <div class="border-t-2 border-b-2 border-dashed border-gray-800 py-1.5 my-3 text-center">
-        <h3 class="text-xs sm:text-sm font-bold tracking-[0.25em] text-gray-900 uppercase">
-            S A L E S &nbsp; I N V O I C E
-        </h3>
+    <!-- Divider Strip -->
+    <div class="border-t border-b border-dashed border-gray-400 py-0.5 text-center font-bold tracking-widest text-[10px] uppercase text-gray-700 select-none">
+        &middot;&middot;&middot;&middot;&middot; S A L E S &nbsp; I N V O I C E &middot;&middot;&middot;&middot;&middot;
     </div>
 
     <!-- Items Table -->
-    <div class="overflow-x-auto">
-        <table class="w-full text-xs">
+    <div>
+        <table class="w-full text-left border-collapse text-[11px]">
             <thead>
-                <tr class="border-b border-dashed border-gray-800 text-[11px]">
-                    <th class="py-2 px-1 text-left font-bold text-gray-900 w-28">Kode barang</th>
-                    <th class="py-2 px-2 text-left sm:text-center font-bold text-gray-900">Nama barang</th>
-                    <th class="py-2 px-2 text-center font-bold text-gray-900 w-20">Jumlah</th>
-                    <th class="py-2 px-2 text-right font-bold text-gray-900 w-28">Harga (Rp.)</th>
-                    <th class="py-2 px-1 text-right font-bold text-gray-900 w-28">Total (Rp.)</th>
+                <tr class="border-b border-gray-800 text-[10px] font-bold uppercase text-gray-700">
+                    <th class="py-1 text-left w-24">Kode Barang</th>
+                    <th class="py-1 text-left">Nama Barang</th>
+                    <th class="py-1 text-center w-16">Jumlah</th>
+                    <th class="py-1 text-right w-24">Harga (Rp)</th>
+                    <th class="py-1 text-right w-28">Total (Rp)</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-dashed divide-gray-200">
+            <tbody class="divide-y divide-gray-100">
                 @foreach($penjualan->details as $d)
-                    <tr class="text-[11px] text-gray-800">
-                        <!-- Kode barang -->
-                        <td class="py-2.5 px-1 font-mono align-top text-gray-700">
+                    <tr>
+                        <td class="py-1 font-mono text-gray-600 text-[10px] align-top">
                             {{ $d->produk?->barcode ?: 'BRG-' . str_pad((string)$d->produk_id, 4, '0', STR_PAD_LEFT) }}
                         </td>
-
-                        <!-- Nama barang -->
-                        <td class="py-2.5 px-2 align-top text-left sm:text-center">
-                            <span class="font-semibold text-gray-900 block leading-snug">{{ $d->nama_item }}</span>
-                            @if($d->produk?->deskripsi)
-                                <span class="text-[10px] text-gray-500 block leading-tight">{{ Str::limit($d->produk->deskripsi, 60) }}</span>
-                            @endif
+                        <td class="py-1 align-top">
+                            <span class="font-semibold text-gray-900 block leading-snug">
+                                {{ $d->nama_item }}
+                            </span>
                         </td>
-
-                        <!-- Jumlah -->
-                        <td class="py-2.5 px-2 text-center align-top font-bold whitespace-nowrap text-gray-900">
-                            {{ $d->qty }} UNIT
-                        </td>
-
-                        <!-- Harga -->
-                        <td class="py-2.5 px-2 text-right align-top whitespace-nowrap text-gray-800">
-                            {{ number_format($d->harga, 0, ',', '.') }}
-                        </td>
-
-                        <!-- Total -->
-                        <td class="py-2.5 px-1 text-right align-top font-bold whitespace-nowrap text-gray-900">
-                            {{ number_format($d->subtotal, 0, ',', '.') }}
-                        </td>
+                        <td class="py-1 text-center font-mono font-bold align-top whitespace-nowrap text-gray-900">{{ $d->qty }} UNIT</td>
+                        <td class="py-1 text-right font-mono align-top whitespace-nowrap">Rp {{ number_format($d->harga, 0, ',', '.') }}</td>
+                        <td class="py-1 text-right font-mono font-bold align-top whitespace-nowrap text-gray-900">Rp {{ number_format($d->subtotal, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>
+            <tfoot>
+                <tr class="border-t border-gray-800 font-bold text-xs">
+                    <td colspan="4" class="py-1 text-right uppercase">GRANDTOTAL :</td>
+                    <td class="py-1 text-right font-mono text-[#5E17EB]">Rp {{ number_format($penjualan->total, 0, ',', '.') }}</td>
+                </tr>
+                @if($penjualan->diskon > 0)
+                    <tr class="font-medium text-[10px] text-gray-600">
+                        <td colspan="4" class="py-0.5 text-right">Potongan Diskon :</td>
+                        <td class="py-0.5 text-right font-mono text-rose-600">- Rp {{ number_format($penjualan->diskon, 0, ',', '.') }}</td>
+                    </tr>
+                @endif
+                @if($penjualan->ppn_nominal > 0)
+                    <tr class="font-medium text-[10px] text-gray-600">
+                        <td colspan="4" class="py-0.5 text-right">PPN ({{ (int)$penjualan->ppn_persen }}%) :</td>
+                        <td class="py-0.5 text-right font-mono">Rp {{ number_format($penjualan->ppn_nominal, 0, ',', '.') }}</td>
+                    </tr>
+                @endif
+            </tfoot>
         </table>
     </div>
 
-    <!-- Separator Line -->
-    <div class="border-b-2 border-dashed border-gray-800 my-3"></div>
-
-    <!-- Bottom Section: Customer Sign, Cashier Sign, Totals Summary -->
-    <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start pt-2 text-xs">
-        <!-- Sign Customer -->
-        <div class="sm:col-span-4 text-center flex flex-col justify-between h-28">
-            <p class="font-medium text-gray-700 text-[11px]">Customer,</p>
-            <p class="font-bold text-gray-900 text-xs border-b border-gray-400 pb-0.5 mx-4 truncate">
+    <!-- Tanda Tangan Section -->
+    <div class="grid grid-cols-2 gap-6 pt-2 text-center text-[10px]">
+        <div>
+            <p class="font-medium text-gray-500">Pelanggan,</p>
+            <div class="h-6"></div>
+            <p class="font-bold text-gray-900 border-t border-gray-300 pt-0.5 inline-block min-w-[120px]">
                 {{ $customerName }}
             </p>
         </div>
-
-        <!-- Sign Cashier -->
-        <div class="sm:col-span-4 text-center flex flex-col justify-between h-28">
-            <p class="font-medium text-gray-700 text-[11px]">Cashier,</p>
-            <p class="font-bold text-gray-900 text-xs border-b border-gray-400 pb-0.5 mx-4 truncate">
+        <div>
+            <p class="font-medium text-gray-500">Kasir Toko,</p>
+            <div class="h-6"></div>
+            <p class="font-bold text-gray-900 border-t border-gray-300 pt-0.5 inline-block min-w-[120px]">
                 {{ $cashierName }}
             </p>
-        </div>
-
-        <!-- Totals Summary (Without Total Pembayaran, Grandtotal only) -->
-        <div class="sm:col-span-4 space-y-1.5 text-xs">
-            <div class="flex justify-between items-center text-gray-700">
-                <span class="font-medium">Subtotal</span>
-                <div class="flex items-center space-x-1 font-mono">
-                    <span class="text-gray-500 text-[11px]">Rp.</span>
-                    <span class="font-bold text-right min-w-[85px] text-gray-900">{{ number_format($penjualan->subtotal, 0, ',', '.') }}</span>
-                </div>
-            </div>
-
-            <div class="flex justify-between items-center text-gray-700">
-                <span class="font-medium">Potongan</span>
-                <div class="flex items-center space-x-1 font-mono">
-                    <span class="text-gray-500 text-[11px]">{{ $penjualan->diskon > 0 ? 'Rp.' : '' }}</span>
-                    <span class="font-bold text-right min-w-[85px] {{ $penjualan->diskon > 0 ? 'text-rose-600' : 'text-gray-900' }}">
-                        {{ $penjualan->diskon > 0 ? number_format($penjualan->diskon, 0, ',', '.') : '0' }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="flex justify-between items-center text-gray-700">
-                <span class="font-medium">PPN ({{ (int)$penjualan->ppn_persen }}%)</span>
-                <div class="flex items-center space-x-1 font-mono">
-                    <span class="text-gray-500 text-[11px]">{{ $penjualan->ppn_nominal > 0 ? 'Rp.' : '' }}</span>
-                    <span class="font-bold text-right min-w-[85px] text-gray-900">
-                        {{ $penjualan->ppn_nominal > 0 ? number_format($penjualan->ppn_nominal, 0, ',', '.') : '0' }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="flex justify-between items-center font-black pt-1.5 border-t border-gray-300 text-gray-900">
-                <span class="text-xs uppercase">Grandtotal</span>
-                <div class="flex items-center space-x-1 font-mono">
-                    <span class="text-[11px]">Rp.</span>
-                    <span class="text-sm font-black text-right min-w-[85px] text-gray-900">{{ number_format($penjualan->total, 0, ',', '.') }}</span>
-                </div>
-            </div>
         </div>
     </div>
 
     <!-- Footer Notes -->
-    <div class="text-center pt-8 pb-2 space-y-1 border-t border-gray-100 mt-6 text-[11px] text-gray-700">
-        <p class="font-medium">Terimakasih Telah Berbelanja di Soulmate Komputer</p>
-        <p class="text-[10px] text-gray-500">Barang yang sudah dibeli tidak dapat ditukar/dikembalikan tanpa perjanjian sebelumnya</p>
+    <div class="text-center pt-2 text-[10px] text-gray-600 border-t border-dashed border-gray-200 mt-2">
+        <p class="font-medium">Terimakasih Telah Berbelanja di Soulmate Komputer &bull; Barang yang sudah dibeli tidak dapat ditukar/dikembalikan tanpa perjanjian sebelumnya</p>
     </div>
 
 </div>

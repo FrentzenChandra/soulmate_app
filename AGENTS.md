@@ -11,7 +11,10 @@
 - **Dilarang Menggunakan Placeholder (Zero Placeholder Standard):** Seluruh inputan form, filter, textarea, modal, dan kolom pencarian di seluruh aplikasi **TIDAK BOLEH** menggunakan atribut `placeholder` (wajib dikosongkan/dihilangkan full). Gunakan label form yang tegas dan jelas di atas/samping input.
 - **Standar Loading & Skeleton Universal:**
   * **Upload Foto/Media:** Loading indicator WAJIB terpusat di tengah parent (`flex-col items-center justify-center`) dengan spinner dan progress bar animasi di bagian tengah container.
-  * **Aksi Form (POST, PUT/PATCH, DELETE, EDIT):** Semua tombol aksi WAJIB dilengkapi `wire:loading` spinner, status disabled (`wire:loading.attr="disabled"`), dan teks proses deskriptif.
+  * **Aksi Form & Tombol (POST, PUT/PATCH, DELETE, EDIT, Modal Actions):** Semua tombol aksi dan form WAJIB menggunakan **Standar Loading Kasir Produk**:
+    - Animasi spinner SVG Heroicons (`<svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>`) dipicu via `wire:loading wire:target="..."`.
+    - Status disabled dinamis (`wire:loading.attr="disabled" disabled:opacity-50 cursor-not-allowed`).
+    - Teks proses deskriptif bertransisi (`wire:loading.remove` &rarr; `wire:loading`, contoh: `Simpan` &rarr; `Menyimpan...`, `Hapus` &rarr; `Menghapus...`).
   * **Query / Data Fetching (GET, Search, Filter, Sort):** Tabel dan katalog grid WAJIB menampilkan **Skeleton Loader** (`<x-table-skeleton />` / `<x-grid-skeleton />`) dengan efek shimmer `animate-pulse` saat request query berlangsung.
 - **Standar Label Tunggal & Tegas (Anti-Ambiguitas):**
   * Dilarang menggunakan label majemuk bergaris miring (`/`) atau ampersand (`&` / `&amp;`) pada UI frontend seperti nama kolom tabel, header modal, tombol aksi, dan cetakan nota (contoh DILARANG: `Unit & Keluhan`, `Hp/WA`, `Teknisi / Kasir`, `Servis & Kelengkapan`, `Status & Waktu Ambil`).

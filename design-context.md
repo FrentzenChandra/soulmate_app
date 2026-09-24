@@ -140,7 +140,9 @@ BRANCH OBFUSCATION & CLEAN WORKSPACE (ROLE ISOLATION):
 * Zero Branch Leakage: Navbar, notifikasi, breadcrumb, dan modal staf tidak menampilkan switcher cabang atau tag cabang lain.
 * Multi-Branch Management (Owner Only): Hanya akun Owner dengan konteks HQ yang menampilkan selector cabang, badge cabang global, dan dashboard konsolidasi.
 
-GLOBAL SEARCH & FORM ERGONOMICS:
+GLOBAL SEARCH, FORM ERGONOMICS & LOADING ACTION:
 * Loose Multi-Word Search: Semua form pencarian (POS, Master Produk, Stok Cabang, User, Pelanggan, Kategori) mendukung pencarian multi-kata tokenized, case-insensitive, dan non-strict.
 * Streamlined Quick Customer Modal: Input pelanggan baru di POS dan Master Data difokuskan murni pada 2 field esensial: Nama Pelanggan dan Nomor Kontak / WhatsApp.
-* Humanized Indonesian Placeholders: Placeholder wajib deskriptif (contoh: `placeholder="Ketik nama produk, barcode, atau kategori..."`, `placeholder="Nama pelanggan atau perusahaan..."`, `placeholder="Contoh: 081234567890"`).
+* Zero Placeholder Standard: Seluruh form input, modal, dan filter dilarang menggunakan atribut placeholder. Gunakan label form yang tegas.
+* Universal Loading Action Standard: Seluruh tombol aksi form (POST/PUT/DELETE/Submit) wajib menggunakan ikon SVG spinner Heroicons (`<svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>`), `wire:loading wire:target="..."`, dan teks transisi proses.
+

@@ -170,7 +170,6 @@
                     </div>
                     <div class="text-muted" style="font-size: 7pt; margin-top: 1px;">
                         Kategori: {{ $servis->kategori_perangkat_label }}
-                        @if($servis->serial_number) &bull; S/N: <strong class="font-mono">{{ $servis->serial_number }}</strong> @endif
                     </div>
                 </div>
 

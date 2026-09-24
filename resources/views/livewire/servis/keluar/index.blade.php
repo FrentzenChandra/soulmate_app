@@ -196,7 +196,7 @@
                                 <span class="font-mono font-black text-gray-900 block group-hover:text-[#5E17EB] transition-colors leading-tight">
                                     {{ $item->no_servis_frontend }}
                                 </span>
-                                <span class="text-[10px] font-medium text-gray-400 block leading-tight mt-0.5">
+                                <span class="text-[10px] font-medium text-gray-600 block leading-tight mt-0.5">
                                     {{ $item->cabang?->nama_cabang ?? 'Pusat' }}
                                 </span>
                             </td>
@@ -206,7 +206,7 @@
                                 <span class="font-bold text-gray-900 block truncate max-w-[150px] leading-tight" title="{{ $item->customer?->nama ?? 'Pelanggan Umum' }}">
                                     {{ $item->customer?->nama ?? 'Pelanggan Umum' }}
                                 </span>
-                                <span class="text-[10px] font-mono text-gray-500 block leading-tight mt-0.5">
+                                <span class="text-[10px] font-mono text-gray-600 block leading-tight mt-0.5">
                                     {{ $item->customer?->no_hp ?? '-' }}
                                 </span>
                             </td>
@@ -221,7 +221,7 @@
                                         {{ $item->tipe_unit }}
                                     </span>
                                 </div>
-                                <p class="text-[10px] text-gray-500 font-medium truncate mt-0.5 leading-tight" title="{{ $item->keluhan }}">
+                                <p class="text-[10px] text-gray-600 font-medium truncate mt-0.5 leading-tight" title="{{ $item->keluhan }}">
                                     Keluhan: <span class="text-gray-700">{{ $item->keluhan }}</span>
                                 </p>
                             </td>
@@ -231,8 +231,8 @@
                                 <span class="text-[11px] font-bold text-gray-800 block truncate" title="{{ $item->details->pluck('nama_item')->implode(', ') ?: 'Tidak ada tindakan tambahan' }}">
                                     {{ $item->details->pluck('nama_item')->implode(', ') ?: 'Pengecekan Standard' }}
                                 </span>
-                                <span class="text-[10px] text-gray-400 block truncate mt-0.5" title="{{ $item->kelengkapan }}">
-                                    Bawaan: {{ $item->kelengkapan ?: 'Hanya Unit' }}
+                                <span class="text-[10px] text-gray-600 block truncate mt-0.5" title="{{ $item->kelengkapan }}">
+                                    Bawaan: <span class="text-gray-700">{{ $item->kelengkapan ?: 'Hanya Unit' }}</span>
                                 </span>
                             </td>
 
@@ -258,14 +258,14 @@
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">
                                         &bull; Belum Diambil
                                     </span>
-                                    <span class="text-[10px] text-gray-400 font-medium block mt-0.5">
+                                    <span class="text-[10px] text-gray-600 font-medium block mt-0.5">
                                         Selesai: {{ $item->tanggal_selesai ? $item->tanggal_selesai->format('d/m/y H:i') : '-' }}
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                         Sudah Diambil
                                     </span>
-                                    <span class="text-[10px] font-mono text-gray-500 font-bold block mt-0.5">
+                                    <span class="text-[10px] font-mono text-gray-600 font-bold block mt-0.5">
                                         {{ $item->tanggal_ambil ? $item->tanggal_ambil->translatedFormat('d M Y, H:i') : '-' }}
                                     </span>
                                 @endif

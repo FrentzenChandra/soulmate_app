@@ -186,12 +186,13 @@
          :class="'table-size-' + tableSize"
          class="card-custom bg-white overflow-hidden border border-gray-200 shadow-sm rounded-2xl">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse table-fixed min-w-[960px]">
+            <table class="w-full text-left border-collapse table-fixed min-w-[1050px]">
                 <colgroup>
                     <col style="width: 140px;">
                     <col style="width: 130px;">
-                    <col style="width: 160px;">
-                    <col style="width: 250px;">
+                    <col style="width: 150px;">
+                    <col style="width: 220px;">
+                    <col style="width: 220px;">
                     @if($isHQ)
                         <col style="width: 110px;">
                     @endif
@@ -204,6 +205,7 @@
                         <x-th-sort field="tanggal_masuk" :sortField="$sortField" :sortDirection="$sortDirection" class="py-2.5 px-3">Waktu Masuk</x-th-sort>
                         <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500">Pelanggan</th>
                         <x-th-sort field="tipe_unit" :sortField="$sortField" :sortDirection="$sortDirection" class="py-2.5 px-3">Perangkat</x-th-sort>
+                        <x-th-sort field="keluhan" :sortField="$sortField" :sortDirection="$sortDirection" class="py-2.5 px-3">Keluhan</x-th-sort>
                         @if($isHQ)
                             <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500">Cabang</th>
                         @endif
@@ -222,7 +224,8 @@
                             <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-24"></div></td>
                             <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-20"></div></td>
                             <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-28"></div></td>
-                            <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-44"></div></td>
+                            <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-40"></div></td>
+                            <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-40"></div></td>
                             @if($isHQ)
                                 <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-16"></div></td>
                             @endif
@@ -244,7 +247,7 @@
                                 <span class="font-mono font-black text-gray-900 block group-hover:text-[#5E17EB] transition-colors leading-tight">
                                     {{ $item->no_servis_frontend }}
                                 </span>
-                                <span class="text-[10px] font-medium text-gray-400 block leading-tight mt-0.5">
+                                <span class="text-[10px] font-medium text-gray-600 block leading-tight mt-0.5">
                                     {{ $item->pembuat?->name ?? 'Staf' }}
                                 </span>
                             </td>
@@ -254,7 +257,7 @@
                                 <span class="font-bold text-gray-800 block leading-tight">
                                     {{ $item->tanggal_masuk ? $item->tanggal_masuk->translatedFormat('d M Y') : '-' }}
                                 </span>
-                                <span class="text-[10px] font-mono text-gray-400 block leading-tight mt-0.5">
+                                <span class="text-[10px] font-mono text-gray-600 block leading-tight mt-0.5">
                                     {{ $item->tanggal_masuk ? $item->tanggal_masuk->format('H:i') . ' WIB' : '-' }}
                                 </span>
                             </td>
@@ -264,12 +267,12 @@
                                 <span class="font-bold text-gray-900 block truncate max-w-[150px] leading-tight" title="{{ $item->customer?->nama ?? 'Pelanggan Umum' }}">
                                     {{ $item->customer?->nama ?? 'Pelanggan Umum' }}
                                 </span>
-                                <span class="text-[10px] font-mono text-gray-500 block leading-tight mt-0.5">
+                                <span class="text-[10px] font-mono text-gray-600 block leading-tight mt-0.5">
                                     {{ $item->customer?->no_hp ?? '-' }}
                                 </span>
                             </td>
 
-                            <!-- Unit & Keluhan -->
+                            <!-- Perangkat -->
                             <td class="py-2.5 px-3 max-w-xs">
                                 <div class="flex items-center space-x-1.5 truncate">
                                     <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider shrink-0 {{ $item->kategori_perangkat === 'laptop' ? 'bg-blue-100 text-blue-700' : ($item->kategori_perangkat === 'komputer' ? 'bg-purple-100 text-purple-700' : ($item->kategori_perangkat === 'printer' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-700')) }}">
@@ -279,8 +282,15 @@
                                         {{ $item->tipe_unit }}
                                     </span>
                                 </div>
-                                <p class="text-[10px] text-gray-500 font-medium truncate mt-0.5 leading-tight" title="{{ $item->keluhan }}">
-                                    Keluhan: <span class="text-gray-700">{{ $item->keluhan }}</span>
+                                <p class="text-[10px] text-gray-600 font-medium truncate mt-0.5 leading-tight" title="{{ $item->kelengkapan ?: '-' }}">
+                                    Kelengkapan: <span class="text-gray-700 font-semibold">{{ $item->kelengkapan ?: '-' }}</span>
+                                </p>
+                            </td>
+
+                            <!-- Keluhan -->
+                            <td class="py-2.5 px-3 max-w-xs">
+                                <p class="text-xs font-semibold text-gray-700 truncate leading-snug" title="{{ $item->keluhan }}">
+                                    {{ $item->keluhan ?: '-' }}
                                 </p>
                             </td>
 
@@ -354,7 +364,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $isHQ ? 7 : 6 }}" class="py-12 text-center">
+                            <td colspan="{{ $isHQ ? 8 : 7 }}" class="py-12 text-center">
                                 <div class="flex flex-col items-center justify-center text-gray-400">
                                     <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                                     <p class="font-bold text-gray-600">Belum ada data servis masuk ditemukan</p>
@@ -713,15 +723,9 @@
 
                         <!-- Rincian Unit & Keluhan -->
                         <div class="p-4 bg-gray-50/80 rounded-2xl border border-gray-200/80 space-y-2">
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase block">Tipe / Merk Unit</span>
-                                    <span class="font-black text-gray-900 block">{{ $selectedServis->tipe_unit }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase block">Serial Number (S/N)</span>
-                                    <span class="font-mono font-bold text-gray-700 block">{{ $selectedServis->serial_number ?: '-' }}</span>
-                                </div>
+                            <div>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase block">Tipe / Merk Unit</span>
+                                <span class="font-black text-gray-900 block">{{ $selectedServis->tipe_unit }}</span>
                             </div>
                             <div class="pt-2 border-t border-gray-200">
                                 <span class="text-[10px] font-bold text-gray-400 uppercase block">Kelengkapan Bawaan</span>
@@ -1021,7 +1025,7 @@
                                 <select wire:model="updateStatus"
                                         class="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white font-bold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <option value="pengecekan">Pengecekan </option>
-                                    <option value="perbaikan">Dalam Perbaikan</option>
+                                    <option value="perbaikan">Perbaikan</option>
                                     <option value="selesai">Selesai (Siap Diambil)</option>
                                     <option value="batal">Batal Servis</option>
                                 </select>
@@ -1095,7 +1099,7 @@
 
                                 <!-- Autocomplete Master Servis -->
                                 <div class="sm:col-span-5 relative">
-                                    <label class="block font-bold text-gray-700 mb-1">Cari Master Servis Atau Input Custom</label>
+                                    <label class="block font-bold text-gray-700 mb-1">Cari Master Servis</label>
                                     <input type="text"
                                            wire:model.live.debounce.250ms="itemSearch"
                                            class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
@@ -1119,7 +1123,7 @@
                                 </div>
 
                                 <!-- Nama Item Terpilih / Input Manual -->
-                                <div class="sm:col-span-3">
+                                <div class="sm:col-span-3 hidden">
                                     <label class="block font-bold text-gray-700 mb-1">Nama Item *</label>
                                     <input type="text"
                                            wire:model="selectedMasterServisNama"
