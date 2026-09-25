@@ -166,10 +166,7 @@
                         <tr class="hover:bg-purple-50/20 transition-colors" wire:loading.remove wire:target="search, sortField, sortDirection">
                             <td class="py-3.5 px-4">
                                 @if($item->customer)
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-xs text-gray-900">{{ $item->customer->nama }}</span>
-                                        <span class="text-[11px] text-gray-500 font-mono">{{ $item->customer->no_hp ?? '-' }}</span>
-                                    </div>
+                                    <span class="font-bold text-xs text-gray-900">{{ $item->customer->nama }}</span>
                                 @else
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600">
                                         Pelanggan Umum
