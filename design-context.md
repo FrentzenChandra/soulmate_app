@@ -108,6 +108,8 @@ COMPONEN & ICONOGRAPHY GUIDELINES:
   background putih bersih
 * Gradasi & Banner: linear-gradient(135deg, #5E17EB, #E6007A) untuk pengumuman
 * Ikonografi Minimalis: Gunakan Clean Outline SVG secara hemat dan tertata rapi. Jangan membebani user dengan icon di setiap tombol/label. Warna icon netral (`text-gray-400` / `text-gray-500`), hanya berubah menjadi warna brand (`#5E17EB` atau `#0052FF`) saat menu aktif / di-hover.
+* Tanda Bintang Wajib Isi: Wajib berwarna merah dengan styling Tailwind `<span class="text-rose-500">*</span>`. Dilarang menulis tanda bintang mentah tanpa tag warna merah.
+* Sidebar Auto-Scroll Navigation: Sidebar container (`<nav>`) memiliki scroll vertikal otomatis berbasis Alpine `x-init` & `scrollIntoView` ke elemen menu yang sedang aktif (`block: 'center', behavior: 'smooth'`) saat refresh halaman maupun saat mobile drawer dibuka.
 
 MEDIA UPLOAD & LIVE PREVIEW SYSTEM:
 * Instant Visual Feedback: Setiap form upload gambar (Produk, Avatar Pengguna) WAJIB menampilkan kartu preview visual real-time sebelum data disimpan.

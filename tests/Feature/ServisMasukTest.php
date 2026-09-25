@@ -349,4 +349,104 @@ class ServisMasukTest extends TestCase
         $response->assertSee('Citra Kirana');
         $response->assertSee('www.soulmatekomputer.com');
     }
+
+    public function test_can_add_jasa_and_sparepart_items_in_tindakan_modal(): void
+    {
+        $this->actingAs($this->admin);
+
+        $cust = Customer::create(['cabang_id' => $this->cabang1->id, 'nama' => 'Rian Hidayat', 'no_hp' => '081234567899']);
+        $servis = ServisMasuk::create([
+            'no_servis' => 'INV-SV-CBPKP-260915-00100',
+            'cabang_id' => $this->cabang1->id,
+            'customer_id' => $cust->id,
+            'created_by' => $this->admin->id,
+            'kategori_perangkat' => 'laptop',
+            'tipe_unit' => 'Asus ROG Strix',
+            'keluhan' => 'Layar bergaris dan ganti SSD',
+            'status' => 'perbaikan',
+            'tanggal_masuk' => now(),
+        ]);
+
+        $jasa = \App\Models\MasterServis::create([
+            'kode_item' => 'JS-001',
+            'nama_item' => 'Jasa Ganti LCD & Repaste Thermal',
+            'jenis' => 'jasa',
+            'kategori_perangkat' => 'laptop',
+            'harga_modal' => 0,
+            'harga_jual' => 150000,
+            'garansi_default_hari' => 30,
+            'is_aktif' => true,
+        ]);
+
+        $kategori = \App\Models\KategoriProduk::create(['nama_kategori' => 'Storage']);
+        $produk = \App\Models\Produk::create([
+            'kategori_id' => $kategori->id,
+            'nama_produk' => 'SSD NVMe 512GB Kingston',
+            'harga_beli' => 450000,
+            'harga_jual' => 600000,
+            'barcode' => '89912345678',
+        ]);
+        \App\Models\Stok::create([
+            'produk_id' => $produk->id,
+            'cabang_id' => $this->cabang1->id,
+            'jumlah' => 10,
+            'min_stok' => 2,
+            'is_aktif' => true,
+        ]);
+
+        $stokCabang2 = \App\Models\Stok::create([
+            'produk_id' => $produk->id,
+            'cabang_id' => $this->cabang2->id,
+            'jumlah' => 5,
+            'min_stok' => 1,
+            'is_aktif' => true,
+        ]);
+
+        // 1. Tambah Jasa Servis
+        Livewire::test(ServisMasukIndex::class)
+            ->call('openTindakanModal', $servis->id)
+            ->call('setItemType', 'jasa')
+            ->call('selectMasterItem', $jasa->id, $jasa->nama_item, 'jasa', $jasa->harga_jual, 30)
+            ->call('tambahItemTindakan')
+            ->assertHasNoErrors();
+
+        // 2. Cek validasi jika qty melebihi stok fisik cabang
+        Livewire::test(ServisMasukIndex::class)
+            ->call('openTindakanModal', $servis->id)
+            ->call('setItemType', 'sparepart')
+            ->call('selectProdukItem', $produk->id, $produk->nama_produk, $produk->harga_jual, 10, 90)
+            ->set('itemQty', 99)
+            ->call('tambahItemTindakan')
+            ->assertHasErrors(['itemQty']);
+
+        // 3. Tambah Sparepart dari Master Produk (Qty = 2)
+        Livewire::test(ServisMasukIndex::class)
+            ->call('openTindakanModal', $servis->id)
+            ->call('setItemType', 'sparepart')
+            ->call('selectProdukItem', $produk->id, $produk->nama_produk, $produk->harga_jual, 10, 90)
+            ->set('itemQty', 2)
+            ->call('tambahItemTindakan')
+            ->assertHasNoErrors();
+
+        $servis->refresh();
+        $this->assertEquals(2, $servis->details()->count());
+        $this->assertEquals(1350000, (float) $servis->total_biaya);
+
+        // Assert stok cabang 1 berkurang dari 10 menjadi 8
+        $stokCabang1 = \App\Models\Stok::where('produk_id', $produk->id)->where('cabang_id', $this->cabang1->id)->first();
+        $this->assertEquals(8, $stokCabang1->jumlah);
+
+        // Assert stok cabang 2 tetap 5 (terisolasi per cabang)
+        $stokCabang2->refresh();
+        $this->assertEquals(5, $stokCabang2->jumlah);
+
+        // 4. Hapus item sparepart dari rincian -> Stok cabang 1 harus kembali jadi 10
+        $sparepartDetail = $servis->details()->where('produk_id', $produk->id)->first();
+        Livewire::test(ServisMasukIndex::class)
+            ->call('openTindakanModal', $servis->id)
+            ->call('hapusItemTindakan', $sparepartDetail->id);
+
+        $stokCabang1->refresh();
+        $this->assertEquals(10, $stokCabang1->jumlah);
+    }
 }

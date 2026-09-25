@@ -259,7 +259,7 @@ class Index extends Component
         $data = [
             'kode_item' => trim($this->kode_item) ?: null,
             'nama_item' => trim($this->nama_item),
-            'jenis' => $this->jenis,
+            'jenis' => 'jasa', // Master Servis difokuskan murni untuk Layanan Jasa
             'kategori_perangkat' => $this->kategori_perangkat,
             'harga_modal' => (float) ($this->harga_modal ?: 0),
             'harga_jual' => (float) $this->harga_jual,
@@ -277,7 +277,8 @@ class Index extends Component
             session()->flash('success', "Item servis '{$item->nama_item}' berhasil ditambahkan!");
         }
 
-        // Simpan stok cabang jika jenis adalah sparepart
+        /*
+        // Simpan stok cabang jika jenis adalah sparepart (DINONAKTIFKAN / DI-HIDE: STOK DISATUKAN KE MASTER PRODUK)
         if ($this->jenis === 'sparepart') {
             $cabangs = Cabang::where('status', 'aktif')->get();
             foreach ($cabangs as $c) {
@@ -291,6 +292,7 @@ class Index extends Component
                 );
             }
         }
+        */
 
         $this->dispatch('stockUpdated');
         $this->closeFormModal();
@@ -353,7 +355,8 @@ class Index extends Component
         $targetCabangId = ($isOwner && $activeBranchSession !== 'hq') ? (int) $activeBranchSession : ($user->cabang_id ?? Cabang::first()?->id ?? 1);
         $activeCabang = Cabang::find($targetCabangId) ?? Cabang::first();
 
-        $query = MasterServis::with(['stoks']);
+        // Query Master Servis (Murni Layanan Jasa)
+        $query = MasterServis::where('jenis', 'jasa')->with(['stoks']);
 
         // Loose Multi-Word Search Standard
         if (! empty(trim($this->search))) {
@@ -435,6 +438,8 @@ class Index extends Component
 
         // Stats Ringkas
         $totalJasa = MasterServis::where('jenis', 'jasa')->where('is_aktif', true)->count();
+        $totalJasaAll = MasterServis::where('jenis', 'jasa')->count();
+        $totalKategori = MasterServis::where('jenis', 'jasa')->where('is_aktif', true)->distinct('kategori_perangkat')->count('kategori_perangkat');
         $totalSparepart = MasterServis::where('jenis', 'sparepart')->where('is_aktif', true)->count();
 
         return view('livewire.master.servis.index', [
@@ -442,6 +447,8 @@ class Index extends Component
             'totalItems' => $totalItems,
             'hasMore' => $hasMore,
             'totalJasa' => $totalJasa,
+            'totalJasaAll' => $totalJasaAll,
+            'totalKategori' => $totalKategori,
             'totalSparepart' => $totalSparepart,
             'activeCabang' => $activeCabang,
         ]);

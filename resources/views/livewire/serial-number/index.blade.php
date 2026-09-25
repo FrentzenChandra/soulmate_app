@@ -406,7 +406,7 @@
                             <!-- Nama Pelanggan -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Nama Pelanggan <span class="text-rose-500 font-black">*</span>
+                                    Nama Lengkap Pelanggan <span class="text-rose-500 font-black">*</span>
                                 </label>
                                 <input type="text"
                                        wire:model="new_customer_nama"
@@ -415,7 +415,7 @@
                                 @error('new_customer_nama') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Nomor WhatsApp / HP -->
+                            <!-- WhatsApp -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                     WhatsApp
@@ -436,9 +436,11 @@
                             </button>
                             <button type="submit"
                                     wire:loading.attr="disabled"
-                                    class="px-4 py-1.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-extrabold text-white shadow-md transition-all cursor-pointer flex items-center space-x-1.5">
+                                    wire:target="saveNewCustomer"
+                                    class="px-4 py-1.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-extrabold text-white shadow-md transition-all cursor-pointer flex items-center space-x-1.5">
                                 <svg wire:loading wire:target="saveNewCustomer" class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                                <span>Simpan Pelanggan</span>
+                                <span wire:loading.remove wire:target="saveNewCustomer">Simpan Pelanggan</span>
+                                <span wire:loading wire:target="saveNewCustomer">Menyimpan...</span>
                             </button>
                         </div>
                     </form>

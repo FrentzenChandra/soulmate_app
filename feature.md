@@ -527,3 +527,11 @@ Modul pencatatan kas/rekening bank murni sebagai catatan pembukuan mandiri (tanp
   - Deskripsi tambahan dan serial number redundan dihilangkan dari tabel rincian transaksi.
   - Garansi dicantumkan langsung menyatu di samping nama produk (`NAMA PRODUK - GARANSI XX HARI`).
   - Klausul servis disederhanakan: terhitung sejak tanggal konfirmasi selesai.
+
+---
+
+## 24. Navigasi Cerdas & Auto-Scroll Sidebar Menu Aktif
+
+- **Auto-Scroll Elemen Aktif**: Container navigasi sidebar desktop dan drawer mobile otomatis melakukan scroll vertikal halus (`scrollIntoView({ block: 'center', behavior: 'smooth' })`) ke menu item yang sedang aktif.
+- **Responsif & Multi-Platform**: Bekerja otomatis saat halaman dimuat (page refresh / load) maupun saat drawer menu dibuka pada perangkat mobile (`sidebarOpen`).
+

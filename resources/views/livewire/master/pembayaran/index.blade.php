@@ -232,7 +232,7 @@
                             <!-- Nama Metode -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Nama Metode *
+                                    Nama Metode <span class="text-rose-500">*</span>
                                 </label>
                                 <input type="text"
                                        wire:model="nama"
@@ -243,7 +243,7 @@
                             <!-- Kategori Metode -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Kategori Metode *
+                                    Kategori Metode <span class="text-rose-500">*</span>
                                 </label>
                                 <select wire:model="kategori"
                                         class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">

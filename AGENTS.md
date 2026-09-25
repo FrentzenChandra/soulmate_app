@@ -1,7 +1,7 @@
 # Workspace Agent Guidelines
 
 ## 1. Graphify Auto-Update
-- Jalankan auto-update graphify (via `python -m graphify.cli update`) setiap kali terjadi perubahan kode, penambahan fitur, atau commit di project.
+<!-- - Ini TIDAK USAH Jalankan auto-update graphify (via `python -m graphify.cli update`) setiap kali terjadi perubahan kode, penambahan fitur, atau commit di project. -->
 - Gunakan `graphify query` untuk menelusuri relasi kode, god nodes, dan dependensi sebelum melakukan refaktor.
 
 ## 2. UI & Design Standards (Anti-AI Slop, Anti-Mojibake & Loading/Skeleton)
@@ -19,6 +19,12 @@
 - **Standar Label Tunggal & Tegas (Anti-Ambiguitas):**
   * Dilarang menggunakan label majemuk bergaris miring (`/`) atau ampersand (`&` / `&amp;`) pada UI frontend seperti nama kolom tabel, header modal, tombol aksi, dan cetakan nota (contoh DILARANG: `Unit & Keluhan`, `Hp/WA`, `Teknisi / Kasir`, `Servis & Kelengkapan`, `Status & Waktu Ambil`).
   * WAJIB menggunakan **SATU NAMA TUNGGAL** yang spesifik dan jelas (contoh: `Perangkat`, `WhatsApp`, `Petugas`, `Tindakan`, `Status`, `Pelunasan`).
+- **Standar Tanda Bintang Wajib Isi Merah (Red Asterisk Standard):**
+  * Seluruh simbol bintang asteris (`*`) yang menandakan bahwa suatu kolom input / form / modal WAJIB diisi **HARUS BERWARNA MERAH** menggunakan styling Tailwind: `<span class="text-rose-500">*</span>` (atau `<span class="text-rose-500 font-bold">*</span>`).
+  * Dilarang keras menulis tanda bintang mentah tanpa tag warna merah (contoh DILARANG: `Nama *`, `Harga Satuan *`, `Tanggal *`).
+- **Sidebar Auto-Scroll Active Menu Standard:**
+  * Container `<nav>` sidebar (desktop & mobile drawer) WAJIB mengimplementasikan auto-scroll vertikal (`scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' })`) ke elemen tautan menu yang sedang aktif saat halaman dimuat atau saat drawer mobile dibuka (`$watch('sidebarOpen')`).
+  * Deteksi elemen aktif menargetkan selector warna brand solid aktif (`a.bg-[#5E17EB]`, `a.bg-[#0052FF]`, `a.bg-brand-purple`, `a.bg-brand-blue`, `[data-sidebar-active]`).
 
 ## 3. Global Multi-Word Loose Search Standard
 - **Universal Non-Strict Multi-Word Search:** Semua fitur pencarian di seluruh project WAJIB menggunakan tokenized substring matching multi-kata (`explode(' ', $search)`), *case-insensitive* (`LOWER(col) LIKE ?`), dan tidak *strict* per huruf/kata. Pencarian harus mencocokkan setiap kata kunci di berbagai kolom relevan (nama, barcode, no hp, username, kategori, dll).
@@ -29,9 +35,15 @@
 - Dilarang menampilkan label cabang, switcher cabang, tag nama cabang, atau breadcrumb cabang pada navbar, header, notifikasi, dan katalog bagi non-owner.
 - Hanya role **Owner** yang memiliki akses ke switcher cabang, konteks Kantor Pusat (HQ), dan visibilitas multi-cabang.
 
-## 5. Simplified Customer Data Standard
-- Data pelanggan operasional harian disederhanakan murni menjadi **Nama Pelanggan** (`nama`) dan **Nomor WhatsApp / HP** (`no_hp`).
-- Hilangkan kolom foto, alamat rumit, dan tipe keanggotaan/badge di alur cepat kasir & master pelanggan harian.
+## 5. Simplified Customer Data & Selection Standard
+- **Field Ringkas & Fokus Operasional:** Data pelanggan operasional harian disederhanakan murni menjadi **Nama Pelanggan** (`nama`) dan **Nomor WhatsApp / HP** (`no_hp`). Hilangkan kolom foto, alamat rumit, dan tipe keanggotaan/badge di alur cepat kasir, transaksi, & master pelanggan harian.
+- **Standar Alur Input & Pemilihan Pelanggan (Pola Servis Masuk):**
+  * **Toggle Switcher:** Dua mode jelas &rarr; `Pilih Terdaftar` vs `+ Pelanggan Baru`.
+  * **Autocomplete Terdaftar:** Pencarian multi-kata tokenized substring matching dengan dropdown saran instan.
+  * **Kartu Pelanggan Terpilih:** Menampilkan nama & nomor kontak pelanggan yang dipilih dengan tombol aksi `Ganti` / reset.
+  * **Registrasi Pelanggan Cepat:** Input `Nama Lengkap Pelanggan` & `WhatsApp`, otomatis tersimpan dengan `cabang_id` aktif dan langsung terpilih pada transaksi/tiket yang sedang dibuka.
+  * **Standar Tombol Loading:** Animasi SVG Heroicons spinner, transisi teks status (`Simpan` &rarr; `Menyimpan...`), dan proteksi `wire:loading.attr="disabled"`.
+  * **Zero Placeholder Standard:** Seluruh input form pelanggan tanpa atribut `placeholder`.
 
 ## 6. Daily Invoice Sequence & Frontend Display
 - **Format Backend:** `INV-PJ-[KODE_CABANG]-[YYMMDD]-[00001]` (counter atomik di-reset setiap hari per cabang).
@@ -96,3 +108,9 @@
 
 ## 15. Proactive Anomaly & Discrepancy Reporting
 - **Wajib Lapor Anomali / Ketidakwajaran:** Setiap kali agen menemukan kejanggalan struktural di codebase (misal: rute/komponen aktif yang tidak ada di menu navigasi, dead code/link putus, inkonsistensi permission/role antar halaman, data filter yang bocor antar cabang, query rawan bug/N+1, atau fitur gantung), agen **WAJIB langsung proaktif memberitahu user** secara lugas tanpa menunggu ditanya.
+
+## 16. Targeted & Scoped Testing Standard
+- **Larangan Full Test Acak:** Dilarang menjalankan full test suite (`php artisan test`) pada setiap conversation/turn kecuali diminta secara eksplisit oleh user untuk release gate.
+- **Pengujian Tertarget & Cepat:** Setiap kali melakukan perubahan kode atau verifikasi, eksekusi test WAJIB diarahkan secara spesifik pada modul yang diubah dan modul yang berhubungan langsung:
+  * Gunakan flag `--filter`: `docker exec soulmate_apps php artisan test --filter <TestClass>` (contoh: `--filter ServisMasukTest`, `--filter KasirPosTest`, `--filter ProductAndStockTest`).
+  * Atau targetkan file spesifik: `docker exec soulmate_apps php artisan test tests/Feature/<NamaTest>.php`.

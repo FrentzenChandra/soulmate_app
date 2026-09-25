@@ -202,7 +202,7 @@
                             <!-- Waktu / Tanggal -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Waktu Input *
+                                    Waktu Input <span class="text-rose-500">*</span>
                                 </label>
                                 <input type="datetime-local"
                                        wire:model="tanggal"
@@ -214,7 +214,7 @@
                                 <!-- Sumber Dana -->
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Sumber Dana *
+                                        Sumber Dana <span class="text-rose-500">*</span>
                                     </label>
                                     <select wire:model="sumber_dana_id"
                                             class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
@@ -228,7 +228,7 @@
                                 <!-- Kategori Kas Keluar -->
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Kategori Biaya *
+                                        Kategori Biaya <span class="text-rose-500">*</span>
                                     </label>
                                     <select wire:model="kategori_kas_keluar_id"
                                             class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
@@ -243,7 +243,7 @@
                             <!-- Nominal Uang -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Total Uang Keluar *
+                                    Total Uang Keluar <span class="text-rose-500">*</span>
                                 </label>
                                 <x-input-rupiah wire:model="nominal" />
                                 @error('nominal') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
@@ -252,7 +252,7 @@
                             <!-- Keterangan -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Keterangan Pengeluaran *
+                                    Keterangan Pengeluaran <span class="text-rose-500">*</span>
                                 </label>
                                 <textarea wire:model="keterangan"
                                           rows="3"

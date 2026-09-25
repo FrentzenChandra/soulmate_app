@@ -3,6 +3,7 @@
 ## 1. UI & Design Standards (Anti-AI Slop)
 - Dilarang keras memakai gradient acak / multi-color mesh gradient (AI slop) kecuali diminta eksplisit.
 - Gunakan solid modern color palette: Brand Purple (`#5E17EB`), Tech Blue (`#0052FF`), Accent Pink (`#E6007A`), neutral slate/gray, white cards, clean borders, subtle shadows.
+- Sidebar Auto-Scroll: `<nav>` sidebar otomatis memusatkan link menu aktif via Alpine `x-init` & `scrollIntoView({ block: 'center', behavior: 'smooth' })`.
 
 ## 2. Global Multi-Word Loose Search Standard
 - Semua input pencarian wajib multi-kata tokenized (`explode(' ', $search)`), case-insensitive (`LOWER() LIKE ?`), non-strict per huruf/kata across relevant columns.
@@ -28,3 +29,7 @@
 
 ## 7. Graphify Auto-Update
 - Jalankan `python -m graphify.cli update` setiap selesai melakukan perubahan kode.
+
+## 8. Targeted & Scoped Testing Standard
+- Eksekusi pengujian secara tertarget per modul yang diubah (`docker exec soulmate_apps php artisan test --filter <TestClass>` atau path `tests/Feature/...`) untuk memangkas waktu tunggu dari ~3 menit menjadi 2-10 detik. Dilarang full test di setiap iterasi kecil.
+

@@ -473,14 +473,14 @@
                                 @else
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div>
-                                            <label class="block font-bold text-gray-700 mb-1">Nama Lengkap Pelanggan *</label>
+                                            <label class="block font-bold text-gray-700 mb-1">Nama Lengkap Pelanggan <span class="text-rose-500">*</span></label>
                                             <input type="text"
                                                    wire:model="newCustomerNama"
                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                             @error('newCustomerNama') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
                                         </div>
                                         <div>
-                                            <label class="block font-bold text-gray-700 mb-1">No. WhatsApp / HP *</label>
+                                            <label class="block font-bold text-gray-700 mb-1">WhatsApp <span class="text-rose-500">*</span></label>
                                             <input type="text"
                                                    wire:model="newCustomerNoHp"
                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
@@ -518,7 +518,7 @@
                                 </div>
 
                                 <div>
-                                    <label class="block font-bold text-gray-700 mb-1">Tipe / Merk Perangkat *</label>
+                                    <label class="block font-bold text-gray-700 mb-1">Tipe Perangkat <span class="text-rose-500">*</span></label>
                                     <input type="text"
                                            wire:model="tipeUnit"
                                            class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
@@ -549,7 +549,7 @@
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Keluhan Kerusakan / Permasalahan *</label>
+                                        <label class="block font-bold text-gray-700 mb-1">Keluhan Kerusakan <span class="text-rose-500">*</span></label>
                                         <textarea wire:model="keluhan"
                                                   rows="3"
                                                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"></textarea>
@@ -576,12 +576,13 @@
 
                             <button type="submit"
                                     wire:loading.attr="disabled"
-                                    class="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-bold text-white transition-all shadow-md shadow-purple-600/20 cursor-pointer disabled:opacity-50">
+                                    class="inline-flex items-center justify-center space-x-2 px-6 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-bold text-white transition-all shadow-md shadow-purple-600/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg wire:loading wire:target="simpanServisMasuk" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
                                 <span wire:loading.remove wire:target="simpanServisMasuk">Simpan &amp; Cetak Tanda Terima</span>
-                                <span wire:loading wire:target="simpanServisMasuk" class="flex items-center space-x-1">
-                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                    <span>Menyimpan &amp; Mencetak...</span>
-                                </span>
+                                <span wire:loading wire:target="simpanServisMasuk">Menyimpan...</span>
                             </button>
                         </div>
                     </form>
@@ -834,7 +835,7 @@
 
                             <!-- Kategori Perangkat -->
                             <div>
-                                <label class="block font-bold text-gray-700 mb-1">Kategori Perangkat *</label>
+                                <label class="block font-bold text-gray-700 mb-1">Kategori Perangkat <span class="text-rose-500">*</span></label>
                                 <select wire:model="editKategoriPerangkat"
                                         class="w-full px-3 py-2 rounded-xl border border-gray-300 font-bold text-gray-800">
                                     <option value="laptop">Laptop</option>
@@ -845,7 +846,7 @@
                             </div>
 
                             <div>
-                                <label class="block font-bold text-gray-700 mb-1">Tipe / Merk Unit *</label>
+                                <label class="block font-bold text-gray-700 mb-1">Tipe Perangkat <span class="text-rose-500">*</span></label>
                                 <input type="text"
                                        wire:model="editTipeUnit"
                                        class="w-full px-3 py-2 rounded-xl border border-gray-300 font-bold text-gray-800">
@@ -870,7 +871,7 @@
                             </div>
 
                             <div>
-                                <label class="block font-bold text-gray-700 mb-1">Keluhan Kerusakan *</label>
+                                <label class="block font-bold text-gray-700 mb-1">Keluhan Kerusakan <span class="text-rose-500">*</span></label>
                                 <textarea wire:model="editKeluhan"
                                           rows="3"
                                           class="w-full px-3 py-2 rounded-xl border border-gray-300 font-semibold text-gray-800"></textarea>
@@ -887,11 +888,17 @@
                         </div>
 
                         <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-2 rounded-b-3xl border-t border-gray-100">
-                            <button type="button" wire:click="closeEditModal" class="px-4 py-2 rounded-xl bg-white border border-gray-200 font-bold text-gray-700">
+                            <button type="button" wire:click="closeEditModal" class="px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
                                 Batal
                             </button>
-                            <button type="submit" class="px-5 py-2 rounded-xl bg-[#0052FF] hover:bg-blue-700 text-white font-bold transition-all shadow-md">
-                                Simpan Perubahan
+                            <button type="submit"
+                                    wire:loading.attr="disabled"
+                                    class="px-5 py-2.5 rounded-xl bg-[#0052FF] hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs transition-all shadow-md cursor-pointer inline-flex items-center space-x-2">
+                                <svg wire:loading wire:target="simpanEditServis" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span>Simpan Perubahan</span>
                             </button>
                         </div>
                     </form>
@@ -938,11 +945,17 @@
                         </div>
 
                         <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-2 rounded-b-3xl border-t border-gray-100">
-                            <button type="button" wire:click="closeCatatanTeknisiModal" class="px-4 py-2 rounded-xl bg-white border border-gray-200 font-bold text-gray-700">
+                            <button type="button" wire:click="closeCatatanTeknisiModal" class="px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
                                 Batal
                             </button>
-                            <button type="submit" class="px-5 py-2 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-bold transition-all shadow-md">
-                                Simpan Catatan
+                            <button type="submit"
+                                    wire:loading.attr="disabled"
+                                    class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs transition-all shadow-md cursor-pointer inline-flex items-center space-x-2">
+                                <svg wire:loading wire:target="simpanCatatanTeknisi" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span>Simpan Catatan</span>
                             </button>
                         </div>
                     </form>
@@ -972,11 +985,18 @@
                     </div>
 
                     <div class="flex items-center justify-center space-x-2 pt-2">
-                        <button type="button" wire:click="closeDeleteModal" class="px-4 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200">
+                        <button type="button" wire:click="closeDeleteModal" class="px-4 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 cursor-pointer">
                             Batal
                         </button>
-                        <button type="button" wire:click="konfirmasiHapusServis" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-md shadow-rose-600/20">
-                            Ya, Hapus Data
+                        <button type="button"
+                                wire:click="konfirmasiHapusServis"
+                                wire:loading.attr="disabled"
+                                class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-rose-600/20 cursor-pointer inline-flex items-center space-x-2">
+                            <svg wire:loading wire:target="konfirmasiHapusServis" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <span>Ya, Hapus Data</span>
                         </button>
                     </div>
 
@@ -1021,10 +1041,10 @@
                             </div>
 
                             <div>
-                                <label class="block font-bold text-gray-700 mb-1.5">Pilih Status Baru *</label>
+                                <label class="block font-bold text-gray-700 mb-1.5">Pilih Status Baru <span class="text-rose-500">*</span></label>
                                 <select wire:model="updateStatus"
                                         class="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white font-bold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
-                                    <option value="pengecekan">Pengecekan </option>
+                                    <option value="pengecekan">Pengecekan</option>
                                     <option value="perbaikan">Perbaikan</option>
                                     <option value="selesai">Selesai (Siap Diambil)</option>
                                     <option value="batal">Batal Servis</option>
@@ -1041,14 +1061,17 @@
                         </div>
 
                         <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-2 rounded-b-3xl border-t border-gray-100">
-                            <button type="button" wire:click="closeStatusModal" class="px-4 py-2 rounded-xl bg-white border border-gray-200 font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
+                            <button type="button" wire:click="closeStatusModal" class="px-4 py-2 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
                                 Batal
                             </button>
                             <button type="submit"
                                     wire:loading.attr="disabled"
-                                    class="px-5 py-2 rounded-xl bg-[#0052FF] hover:bg-blue-700 text-white font-bold transition-all shadow-md cursor-pointer disabled:opacity-50">
-                                <span wire:loading.remove wire:target="simpanUpdateStatus">Simpan Status</span>
-                                <span wire:loading wire:target="simpanUpdateStatus">Menyimpan...</span>
+                                    class="px-5 py-2.5 rounded-xl bg-[#0052FF] hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs transition-all shadow-md cursor-pointer inline-flex items-center space-x-2">
+                                <svg wire:loading wire:target="simpanUpdateStatus" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span>Simpan Status</span>
                             </button>
                         </div>
                     </form>
@@ -1066,7 +1089,7 @@
             <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="closeTindakanModal"></div>
 
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl border border-gray-100">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl border border-gray-100 text-xs">
 
                     <!-- Header Modal -->
                     <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
@@ -1081,41 +1104,95 @@
                                 </p>
                             </div>
                         </div>
-                        <button type="button" wire:click="closeTindakanModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                        <button type="button" wire:click="closeTindakanModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0" title="Tutup">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
 
                     <!-- Body Modal Tindakan -->
-                    <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar text-xs">
+                    <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
 
-                        <!-- Form Tambah Tindakan/Komponen dari Master Servis -->
-                        <div class="p-4 bg-gray-50/90 rounded-2xl border border-gray-200 space-y-3">
-                            <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">
-                                + Tambah Jasa Servis Dan Sparepart
-                            </span>
+                        <!-- Form Tambah Tindakan / Komponen -->
+                        <div class="p-4 bg-gray-50/90 rounded-2xl border border-gray-200 space-y-3.5">
+                            
+                            <!-- Toggle Pilihan Sumber: Layanan Jasa vs Sparepart Produk -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-gray-200/80">
+                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">
+                                    + Tambah Rincian Servis
+                                </span>
+                                <div class="inline-flex p-1 rounded-xl bg-gray-200/70 space-x-1">
+                                    <button type="button"
+                                            wire:click="setItemType('jasa')"
+                                            class="px-3 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer inline-flex items-center space-x-1.5 {{ $itemType === 'jasa' ? 'bg-[#5E17EB] text-white shadow-xs' : 'text-gray-600 hover:text-gray-900' }}">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        <span>Layanan Jasa</span>
+                                    </button>
+                                    <button type="button"
+                                            wire:click="setItemType('sparepart')"
+                                            class="px-3 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer inline-flex items-center space-x-1.5 {{ $itemType === 'sparepart' ? 'bg-[#5E17EB] text-white shadow-xs' : 'text-gray-600 hover:text-gray-900' }}">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+                                        <span>Sparepart (Produk)</span>
+                                    </button>
+                                </div>
+                            </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
 
-                                <!-- Autocomplete Master Servis -->
-                                <div class="sm:col-span-5 relative">
-                                    <label class="block font-bold text-gray-700 mb-1">Cari Master Servis</label>
-                                    <input type="text"
-                                           wire:model.live.debounce.250ms="itemSearch"
-                                           class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                                <!-- Autocomplete Input (Zero Placeholder Standard) -->
+                                <div class="sm:col-span-6 relative">
+                                    <label class="block font-bold text-gray-700 mb-1">
+                                        {{ $itemType === 'jasa' ? 'Cari Layanan Jasa (Master Servis)' : 'Cari Sparepart (Master Produk)' }}
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text"
+                                               wire:model.live.debounce.250ms="itemSearch"
+                                               class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100">
+                                        @if($selectedMasterServisId || $selectedProdukId)
+                                            <button type="button" wire:click="resetItemForm" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-rose-500 cursor-pointer" title="Reset Pilihan">
+                                                &times;
+                                            </button>
+                                        @endif
+                                    </div>
 
-                                    @if(!empty($masterServisSuggestions) && !$selectedMasterServisId)
+                                    <!-- Dropdown Saran Layanan Jasa -->
+                                    @if($itemType === 'jasa' && !empty($masterServisSuggestions) && !$selectedMasterServisId)
                                         <div class="absolute z-20 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-48 overflow-y-auto">
                                             @foreach($masterServisSuggestions as $ms)
                                                 <button type="button"
                                                         wire:key="sugg-ms-{{ $ms->id }}"
-                                                        wire:click="selectMasterItem({{ $ms->id }}, '{{ $ms->nama_item }}', '{{ $ms->jenis }}', {{ $ms->harga_jual }}, {{ $ms->garansi_default_hari ?? 0 }})"
+                                                        wire:click="selectMasterItem({{ $ms->id }}, '{{ $ms->nama_item }}', 'jasa', {{ $ms->harga_jual }}, {{ $ms->garansi_default_hari ?? 0 }})"
                                                         class="w-full px-3 py-2 text-left hover:bg-purple-50 flex items-center justify-between text-xs cursor-pointer">
                                                     <div>
                                                         <span class="font-bold text-gray-900 block">{{ $ms->nama_item }}</span>
-                                                        <span class="text-[10px] text-gray-400 uppercase font-mono">{{ $ms->jenis_label }} &bull; {{ $ms->kode_item }} &bull; Garansi {{ $ms->garansi_default_hari ?? 0 }} Hari</span>
+                                                        <span class="text-[10px] text-gray-400 uppercase font-mono">{{ $ms->kategori_perangkat_label }} &bull; Garansi {{ $ms->garansi_default_hari ?? 0 }} Hari</span>
                                                     </div>
-                                                    <span class="font-mono font-bold text-purple-700">Rp {{ number_format($ms->harga_jual, 0, ',', '.') }}</span>
+                                                    <span class="font-mono font-bold text-blue-700">Rp {{ number_format($ms->harga_jual, 0, ',', '.') }}</span>
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    <!-- Dropdown Saran Sparepart dari Master Produk -->
+                                    @if($itemType === 'sparepart' && !empty($produkSuggestions) && !$selectedProdukId)
+                                        <div class="absolute z-20 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-48 overflow-y-auto">
+                                            @foreach($produkSuggestions as $prod)
+                                                @php
+                                                    $stkCabang = $prod->stoks->firstWhere('cabang_id', $activeServis->cabang_id)?->jumlah ?? 0;
+                                                @endphp
+                                                <button type="button"
+                                                        wire:key="sugg-prod-{{ $prod->id }}"
+                                                        wire:click="selectProdukItem({{ $prod->id }}, '{{ $prod->nama_produk }}', {{ $prod->harga_jual }}, {{ $stkCabang }}, 30)"
+                                                        class="w-full px-3 py-2 text-left hover:bg-purple-50 flex items-center justify-between text-xs cursor-pointer">
+                                                    <div>
+                                                        <span class="font-bold text-gray-900 block">{{ $prod->nama_produk }}</span>
+                                                        <div class="flex items-center space-x-2 mt-0.5">
+                                                            <span class="text-[10px] text-gray-400 font-mono">{{ $prod->barcode ?: 'Tanpa Barcode' }}</span>
+                                                            <span class="text-[10px] font-bold px-1.5 py-0.2 rounded {{ $stkCabang > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200' }}">
+                                                                Stok: {{ $stkCabang }} Unit
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <span class="font-mono font-bold text-purple-700">Rp {{ number_format($prod->harga_jual, 0, ',', '.') }}</span>
                                                 </button>
                                             @endforeach
                                         </div>
@@ -1123,25 +1200,21 @@
                                 </div>
 
                                 <!-- Nama Item Terpilih / Input Manual -->
-                                <div class="sm:col-span-3 ">
-                                    <label class="block font-bold text-gray-700 mb-1">Nama Item *</label>
+                                <div class="sm:col-span-6">
+                                    <label class="block font-bold text-gray-700 mb-1">Nama Item <span class="text-rose-500">*</span></label>
                                     <input type="text"
                                            wire:model="selectedMasterServisNama"
                                            class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-800">
                                 </div>
 
-                                <!-- Jenis -->
-                                <div class="sm:col-span-2">
-                                    <label class="block font-bold text-gray-700 mb-1">Jenis</label>
-                                    <select wire:model="selectedMasterServisJenis" class="w-full px-2.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-800">
-                                        <option value="jasa">Jasa</option>
-                                        <option value="sparepart">Sparepart</option>
-                                    </select>
-                                </div>
-
                                 <!-- Qty -->
-                                <div class="sm:col-span-2">
-                                    <label class="block font-bold text-gray-700 mb-1">Qty</label>
+                                <div class="sm:col-span-3">
+                                    <label class="block font-bold text-gray-700 mb-1">
+                                        Qty
+                                        @if($itemType === 'sparepart' && $selectedStokTersedia !== null)
+                                            <span class="text-[10px] font-normal text-purple-700 font-mono">(Sisa {{ $selectedStokTersedia }})</span>
+                                        @endif
+                                    </label>
                                     <input type="number"
                                            min="1"
                                            wire:model="itemQty"
@@ -1158,17 +1231,22 @@
                                 </div>
 
                                 <!-- Harga Satuan -->
-                                <div class="sm:col-span-4">
-                                    <label class="block font-bold text-gray-700 mb-1">Harga Satuan *</label>
+                                <div class="sm:col-span-6">
+                                    <label class="block font-bold text-gray-700 mb-1">Harga Satuan <span class="text-rose-500">*</span></label>
                                     <x-input-rupiah wire:model="selectedMasterServisHarga" inputClass="!py-2 !text-xs !font-bold font-mono" />
                                 </div>
 
                                 <!-- Tombol Tambah -->
-                                <div class="sm:col-span-5 flex items-end">
+                                <div class="sm:col-span-12 flex items-end justify-end pt-1">
                                     <button type="button"
                                             wire:click="tambahItemTindakan"
-                                            class="w-full py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-sm transition-all cursor-pointer">
-                                        + Tambahkan ke Rincian Servis
+                                            wire:loading.attr="disabled"
+                                            class="w-full sm:w-auto py-2.5 px-5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-purple-600/20 transition-all cursor-pointer inline-flex items-center justify-center space-x-2">
+                                        <svg wire:loading wire:target="tambahItemTindakan" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                        </svg>
+                                        <span>+ Tambahkan ke Rincian Servis</span>
                                     </button>
                                 </div>
 
@@ -1181,40 +1259,48 @@
                                 Rincian Biaya Tindakan &amp; Komponen
                             </span>
 
-                            <div class="border border-gray-200 rounded-2xl overflow-hidden">
+                            <div class="border border-gray-200 rounded-2xl overflow-hidden shadow-2xs">
                                 <table class="w-full text-left border-collapse">
                                     <thead>
-                                        <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-extrabold text-gray-500 uppercase">
-                                            <th class="py-2 px-3">Item / Tindakan</th>
-                                            <th class="py-2 px-3 text-center whitespace-nowrap">Jenis</th>
-                                            <th class="py-2 px-3 text-center whitespace-nowrap">Garansi</th>
-                                            <th class="py-2 px-3 text-center whitespace-nowrap">Qty</th>
-                                            <th class="py-2 px-3 text-right whitespace-nowrap">Harga</th>
-                                            <th class="py-2 px-3 text-right whitespace-nowrap">Subtotal</th>
-                                            <th class="py-2 px-3 text-center whitespace-nowrap">Aksi</th>
+                                        <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">
+                                            <th class="py-2.5 px-3.5">Item / Tindakan</th>
+                                            <th class="py-2.5 px-3 text-center whitespace-nowrap">Tipe</th>
+                                            <th class="py-2.5 px-3 text-center whitespace-nowrap">Garansi</th>
+                                            <th class="py-2.5 px-3 text-center whitespace-nowrap">Qty</th>
+                                            <th class="py-2.5 px-3 text-right whitespace-nowrap">Harga</th>
+                                            <th class="py-2.5 px-3 text-right whitespace-nowrap">Subtotal</th>
+                                            <th class="py-2.5 px-3 text-center whitespace-nowrap">Aksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-100">
+                                    <tbody class="divide-y divide-gray-100 text-xs">
                                         @forelse($activeServis->details as $det)
                                             <tr wire:key="tindakan-det-{{ $det->id }}" class="hover:bg-gray-50/50">
-                                                <td class="py-2 px-3 font-bold text-gray-900">{{ $det->nama_item }}</td>
-                                                <td class="py-2 px-3 text-center whitespace-nowrap">
-                                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $det->jenis === 'jasa' ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700' }}">
-                                                        {{ $det->jenis }}
-                                                    </span>
+                                                <td class="py-2.5 px-3.5 font-bold text-gray-900">
+                                                    {{ $det->nama_item }}
                                                 </td>
-                                                <td class="py-2 px-3 text-center whitespace-nowrap">
+                                                <td class="py-2.5 px-3 text-center whitespace-nowrap">
+                                                    @if($det->jenis === 'jasa')
+                                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
+                                                            Layanan Jasa
+                                                        </span>
+                                                    @else
+                                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-50 text-[#5E17EB] border border-purple-200">
+                                                            Sparepart
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td class="py-2.5 px-3 text-center whitespace-nowrap">
                                                     <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold whitespace-nowrap {{ $det->garansi_hari > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'text-gray-400' }}">
                                                         {{ $det->garansi_label }}
                                                     </span>
                                                 </td>
-                                                <td class="py-2 px-3 text-center font-mono font-bold whitespace-nowrap">{{ $det->qty }}</td>
-                                                <td class="py-2 px-3 text-right font-mono text-gray-600 whitespace-nowrap">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
-                                                <td class="py-2 px-3 text-right font-mono font-black text-gray-900 whitespace-nowrap">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
-                                                <td class="py-2 px-3 text-center whitespace-nowrap">
+                                                <td class="py-2.5 px-3 text-center font-mono font-bold whitespace-nowrap">{{ $det->qty }}</td>
+                                                <td class="py-2.5 px-3 text-right font-mono text-gray-600 whitespace-nowrap">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
+                                                <td class="py-2.5 px-3 text-right font-mono font-black text-gray-900 whitespace-nowrap">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
+                                                <td class="py-2.5 px-3 text-center whitespace-nowrap">
                                                     <button type="button"
                                                             wire:click="hapusItemTindakan({{ $det->id }})"
-                                                            class="p-1 rounded text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
+                                                            class="p-1 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
                                                             title="Hapus Item">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                     </button>
@@ -1254,9 +1340,17 @@
                         <button type="button"
                                 wire:click="selesaikanServis"
                                 wire:confirm="Selesaikan pengerjaan unit servis ini? Status akan diperbarui menjadi Selesai (Siap Diambil)."
-                                class="inline-flex items-center justify-center space-x-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md shadow-emerald-600/25 transition-all cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                            <span>Selesaikan Pengerjaan Unit</span>
+                                wire:loading.attr="disabled"
+                                class="inline-flex items-center justify-center space-x-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md shadow-emerald-600/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                            <svg wire:loading.remove wire:target="selesaikanServis" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <svg wire:loading wire:target="selesaikanServis" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <span wire:loading.remove wire:target="selesaikanServis">Selesaikan Pengerjaan Unit</span>
+                            <span wire:loading wire:target="selesaikanServis">Menyelesaikan...</span>
                         </button>
                     </div>
 

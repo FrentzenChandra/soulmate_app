@@ -8,9 +8,11 @@ use App\Models\Cabang;
 use App\Models\Customer;
 use App\Models\MasterServis;
 use App\Models\MasterServisStok;
+use App\Models\Produk;
 use App\Models\ServisDetail;
 use App\Models\ServisMasuk;
 use App\Models\ServisStatusLog;
+use App\Models\Stok;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -92,13 +94,16 @@ class Index extends Component
     public bool $modalTindakanOpen = false;
     public ?int $activeServisId = null;
     public ?ServisMasuk $activeServis = null;
+    public string $itemType = 'jasa'; // 'jasa' | 'sparepart'
     public string $itemSearch = '';
     public ?int $selectedMasterServisId = null;
+    public ?int $selectedProdukId = null;
     public string $selectedMasterServisNama = '';
     public string $selectedMasterServisJenis = 'jasa';
     public $selectedMasterServisHarga = 0;
     public int $itemQty = 1;
-    public int $itemGaransiHari = 0;
+    public int $itemGaransiHari = 30;
+    public ?int $selectedStokTersedia = null;
 
     // State Modal Konfirmasi Sukses & Cetak Tanda Terima Baru
     public bool $modalSuccessOpen = false;
@@ -457,8 +462,20 @@ class Index extends Component
     {
         if (! $this->deleteServisId) return;
 
-        $servis = ServisMasuk::findOrFail($this->deleteServisId);
+        $servis = ServisMasuk::with('details')->findOrFail($this->deleteServisId);
         $kodeFrontend = $servis->no_servis_frontend;
+
+        // Kembalikan seluruh stok sparepart produk ke cabang terkait
+        foreach ($servis->details as $det) {
+            if ($det->produk_id) {
+                $stok = Stok::where('produk_id', $det->produk_id)
+                    ->where('cabang_id', $servis->cabang_id)
+                    ->first();
+                if ($stok) {
+                    $stok->increment('jumlah', $det->qty);
+                }
+            }
+        }
 
         // Delete details and logs
         $servis->details()->delete();
@@ -512,6 +529,21 @@ class Index extends Component
                 $this->servisToUpdate->tanggal_ambil = $now;
             }
 
+            // Kembalikan stok sparepart jika servis dibatalkan
+            if ($newStatus === 'batal' && $oldStatus !== 'batal') {
+                $this->servisToUpdate->load('details');
+                foreach ($this->servisToUpdate->details as $det) {
+                    if ($det->produk_id) {
+                        $stok = Stok::where('produk_id', $det->produk_id)
+                            ->where('cabang_id', $this->servisToUpdate->cabang_id)
+                            ->first();
+                        if ($stok) {
+                            $stok->increment('jumlah', $det->qty);
+                        }
+                    }
+                }
+            }
+
             $this->servisToUpdate->save();
 
             ServisStatusLog::create([
@@ -546,14 +578,9 @@ class Index extends Component
     public function openTindakanModal(int $id): void
     {
         $this->activeServisId = $id;
-        $this->activeServis = ServisMasuk::with(['details.masterServis', 'customer', 'cabang'])->findOrFail($id);
-        $this->itemSearch = '';
-        $this->selectedMasterServisId = null;
-        $this->selectedMasterServisNama = '';
-        $this->selectedMasterServisJenis = 'jasa';
-        $this->selectedMasterServisHarga = 0;
-        $this->itemQty = 1;
-        $this->itemGaransiHari = 0;
+        $this->activeServis = ServisMasuk::with(['details.masterServis', 'details.produk', 'customer', 'cabang'])->findOrFail($id);
+        $this->itemType = 'jasa';
+        $this->resetItemForm();
         $this->modalTindakanOpen = true;
     }
 
@@ -562,14 +589,48 @@ class Index extends Component
         $this->modalTindakanOpen = false;
         $this->activeServisId = null;
         $this->activeServis = null;
+        $this->resetItemForm();
+    }
+
+    public function setItemType(string $type): void
+    {
+        $this->itemType = in_array($type, ['jasa', 'sparepart']) ? $type : 'jasa';
+        $this->resetItemForm();
+    }
+
+    public function resetItemForm(): void
+    {
+        $this->itemSearch = '';
+        $this->selectedMasterServisId = null;
+        $this->selectedProdukId = null;
+        $this->selectedMasterServisNama = '';
+        $this->selectedMasterServisJenis = $this->itemType;
+        $this->selectedMasterServisHarga = 0;
+        $this->itemQty = 1;
+        $this->itemGaransiHari = $this->itemType === 'jasa' ? 30 : 0;
+        $this->selectedStokTersedia = null;
     }
 
     public function selectMasterItem(int $id, string $nama, string $jenis, float $harga, int $garansiHari = 0): void
     {
         $this->selectedMasterServisId = $id;
+        $this->selectedProdukId = null;
         $this->selectedMasterServisNama = $nama;
-        $this->selectedMasterServisJenis = $jenis;
+        $this->selectedMasterServisJenis = 'jasa';
         $this->selectedMasterServisHarga = $harga;
+        $this->itemGaransiHari = $garansiHari;
+        $this->itemSearch = $nama;
+        $this->selectedStokTersedia = null;
+    }
+
+    public function selectProdukItem(int $id, string $nama, float $harga, int $stok = 0, int $garansiHari = 0): void
+    {
+        $this->selectedProdukId = $id;
+        $this->selectedMasterServisId = null;
+        $this->selectedMasterServisNama = $nama;
+        $this->selectedMasterServisJenis = 'sparepart';
+        $this->selectedMasterServisHarga = $harga;
+        $this->selectedStokTersedia = $stok;
         $this->itemGaransiHari = $garansiHari;
         $this->itemSearch = $nama;
     }
@@ -589,13 +650,30 @@ class Index extends Component
             'itemGaransiHari' => 'required|integer|min:0|max:3650',
         ]);
 
+        // Cek dan kurangi stok fisik cabang jika sparepart
+        if ($this->selectedProdukId) {
+            $cabangId = $this->activeServis->cabang_id;
+            $stok = Stok::where('produk_id', $this->selectedProdukId)
+                ->where('cabang_id', $cabangId)
+                ->first();
+
+            $sisaStok = $stok ? $stok->jumlah : 0;
+            if ($sisaStok < (int) $this->itemQty) {
+                $this->addError('itemQty', "Stok sparepart di cabang ini tidak mencukupi (Tersedia: {$sisaStok} unit).");
+                return;
+            }
+
+            $stok->decrement('jumlah', (int) $this->itemQty);
+        }
+
         $subtotal = (float) $this->selectedMasterServisHarga * (int) $this->itemQty;
 
         ServisDetail::create([
             'servis_id' => $this->activeServisId,
             'master_servis_id' => $this->selectedMasterServisId,
+            'produk_id' => $this->selectedProdukId,
             'nama_item' => $this->selectedMasterServisNama,
-            'jenis' => $this->selectedMasterServisJenis,
+            'jenis' => $this->selectedMasterServisJenis ?: ($this->selectedProdukId ? 'sparepart' : 'jasa'),
             'qty' => $this->itemQty,
             'harga' => (float) $this->selectedMasterServisHarga,
             'subtotal' => $subtotal,
@@ -604,24 +682,29 @@ class Index extends Component
 
         $this->recalculateServisTotal($this->activeServisId);
 
-        $this->itemSearch = '';
-        $this->selectedMasterServisId = null;
-        $this->selectedMasterServisNama = '';
-        $this->selectedMasterServisJenis = 'jasa';
-        $this->selectedMasterServisHarga = 0;
-        $this->itemQty = 1;
-        $this->itemGaransiHari = 0;
+        $this->resetItemForm();
 
-        $this->activeServis = ServisMasuk::with(['details.masterServis', 'customer', 'cabang'])->find($this->activeServisId);
+        $this->activeServis = ServisMasuk::with(['details.masterServis', 'details.produk', 'customer', 'cabang'])->find($this->activeServisId);
     }
 
     public function hapusItemTindakan(int $detailId): void
     {
         $detail = ServisDetail::where('servis_id', $this->activeServisId)->find($detailId);
         if ($detail) {
+            // Kembalikan stok jika item adalah sparepart dari produk
+            if ($detail->produk_id) {
+                $cabangId = $this->activeServis->cabang_id;
+                $stok = Stok::where('produk_id', $detail->produk_id)
+                    ->where('cabang_id', $cabangId)
+                    ->first();
+                if ($stok) {
+                    $stok->increment('jumlah', $detail->qty);
+                }
+            }
+
             $detail->delete();
             $this->recalculateServisTotal($this->activeServisId);
-            $this->activeServis = ServisMasuk::with(['details.masterServis', 'customer', 'cabang'])->find($this->activeServisId);
+            $this->activeServis = ServisMasuk::with(['details.masterServis', 'details.produk', 'customer', 'cabang'])->find($this->activeServisId);
         }
     }
 
@@ -723,15 +806,35 @@ class Index extends Component
             })->take(5)->get();
         }
 
-        // Suggestions for Master Servis items in Tindakan modal
+        // Suggestions for items in Tindakan modal
         $masterServisSuggestions = [];
-        if ($this->modalTindakanOpen && ! empty($this->itemSearch) && ! $this->selectedMasterServisId) {
-            $msQuery = MasterServis::where('is_aktif', true);
-            $pattern = '%' . strtolower($this->itemSearch) . '%';
-            $masterServisSuggestions = $msQuery->where(function ($q) use ($pattern) {
-                $q->whereRaw('LOWER(nama_item) LIKE ?', [$pattern])
-                  ->orWhereRaw('LOWER(kode_item) LIKE ?', [$pattern]);
-            })->take(6)->get();
+        $produkSuggestions = [];
+        if ($this->modalTindakanOpen && ! empty($this->itemSearch) && ! $this->selectedMasterServisId && ! $this->selectedProdukId) {
+            $pattern = '%' . strtolower(trim($this->itemSearch)) . '%';
+            $targetCabangId = $this->activeServis?->cabang_id ?? ($user->isOwner() ? (int) $activeBranchSession : (int) $user->cabang_id);
+
+            if ($this->itemType === 'jasa') {
+                $masterServisSuggestions = MasterServis::where('jenis', 'jasa')
+                    ->where('is_aktif', true)
+                    ->where(function ($q) use ($pattern) {
+                        $q->whereRaw('LOWER(nama_item) LIKE ?', [$pattern])
+                          ->orWhereRaw('LOWER(COALESCE(kode_item, \'\')) LIKE ?', [$pattern]);
+                    })
+                    ->take(6)
+                    ->get();
+            } else {
+                $produkSuggestions = Produk::where(function ($q) use ($pattern) {
+                        $q->whereRaw('LOWER(nama_produk) LIKE ?', [$pattern])
+                          ->orWhereRaw('LOWER(COALESCE(barcode, \'\')) LIKE ?', [$pattern]);
+                    })
+                    ->with(['stoks' => function ($sq) use ($targetCabangId) {
+                        if ($targetCabangId) {
+                            $sq->where('cabang_id', $targetCabangId);
+                        }
+                    }])
+                    ->take(6)
+                    ->get();
+            }
         }
 
         // Query Utama Servis Masuk (pengecekan, perbaikan, ATAU selesai yang belum dicetak notanya)
@@ -818,6 +921,7 @@ class Index extends Component
             'cabangs' => $cabangs,
             'customerSuggestions' => $customerSuggestions,
             'masterServisSuggestions' => $masterServisSuggestions,
+            'produkSuggestions' => $produkSuggestions,
             'isHQ' => $isHQ,
             'isOwner' => $isOwner,
         ]);

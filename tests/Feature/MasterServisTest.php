@@ -96,16 +96,15 @@ class MasterServisTest extends TestCase
         $this->get(route('master.servis'))->assertStatus(403);
     }
 
-    public function test_can_create_jasa_and_sparepart_items(): void
+    public function test_can_create_jasa_items(): void
     {
         $this->actingAs($this->owner);
 
-        // 1. Create Jasa Servis
+        // Create Jasa Servis
         Livewire::test(\App\Livewire\Master\Servis\Index::class)
             ->call('openCreateModal')
             ->set('kode_item', 'JS-999')
             ->set('nama_item', 'Service Keyboard Mechanical')
-            ->set('jenis', 'jasa')
             ->set('kategori_perangkat', 'komputer')
             ->set('harga_modal', 10000)
             ->set('harga_jual', 100000)
@@ -119,26 +118,6 @@ class MasterServisTest extends TestCase
             'nama_item' => 'Service Keyboard Mechanical',
             'jenis' => 'jasa',
             'harga_jual' => 100000,
-        ]);
-
-        // 2. Create Sparepart Servis
-        Livewire::test(\App\Livewire\Master\Servis\Index::class)
-            ->call('openCreateModal')
-            ->set('kode_item', 'SP-999')
-            ->set('nama_item', 'Thermal Paste Arctic MX-6')
-            ->set('jenis', 'sparepart')
-            ->set('kategori_perangkat', 'semua')
-            ->set('harga_modal', 80000)
-            ->set('harga_jual', 135000)
-            ->set('garansi_default_hari', 0)
-            ->call('save')
-            ->assertHasNoErrors();
-
-        $this->assertDatabaseHas('master_servis', [
-            'kode_item' => 'SP-999',
-            'nama_item' => 'Thermal Paste Arctic MX-6',
-            'jenis' => 'sparepart',
-            'harga_jual' => 135000,
         ]);
     }
 
@@ -254,61 +233,20 @@ class MasterServisTest extends TestCase
 
         MasterServis::create(['nama_item' => 'Install Ulang Windows 11 Pro', 'jenis' => 'jasa', 'kategori_perangkat' => 'komputer', 'harga_jual' => 80000, 'is_aktif' => true]);
         MasterServis::create(['nama_item' => 'Ganti Head Printer Canon G2010', 'jenis' => 'jasa', 'kategori_perangkat' => 'printer', 'harga_jual' => 60000, 'is_aktif' => true]);
-        MasterServis::create(['nama_item' => 'SSD NVMe Kingston 512GB', 'jenis' => 'sparepart', 'kategori_perangkat' => 'laptop', 'harga_jual' => 500000, 'is_aktif' => true]);
+        MasterServis::create(['nama_item' => 'Service Engsel Laptop Asus', 'jenis' => 'jasa', 'kategori_perangkat' => 'laptop', 'harga_jual' => 150000, 'is_aktif' => true]);
 
         // Search multi kata: "windows install"
         Livewire::test(\App\Livewire\Master\Servis\Index::class)
             ->set('search', 'windows install')
             ->assertSee('Install Ulang Windows 11 Pro')
             ->assertDontSee('Ganti Head Printer')
-            ->assertDontSee('SSD NVMe Kingston');
+            ->assertDontSee('Service Engsel Laptop');
 
-        // Filter Jenis: sparepart
+        // Filter Kategori: printer
         Livewire::test(\App\Livewire\Master\Servis\Index::class)
-            ->set('jenisFilter', 'sparepart')
-            ->assertSee('SSD NVMe Kingston')
+            ->set('kategoriFilter', 'printer')
+            ->assertSee('Ganti Head Printer')
             ->assertDontSee('Install Ulang Windows 11 Pro');
-    }
-
-    public function test_sparepart_stock_creation_and_editing(): void
-    {
-        $this->actingAs($this->owner);
-
-        Livewire::test(\App\Livewire\Master\Servis\Index::class)
-            ->call('openCreateModal')
-            ->set('kode_item', 'SP-RAM-01')
-            ->set('nama_item', 'RAM DDR4 8GB 3200MHz')
-            ->set('jenis', 'sparepart')
-            ->set('kategori_perangkat', 'laptop')
-            ->set('harga_modal', 250000)
-            ->set('harga_jual', 350000)
-            ->set("initialStock.{$this->cabang->id}", 5)
-            ->set("minStock.{$this->cabang->id}", 2)
-            ->call('save')
-            ->assertHasNoErrors();
-
-        $item = MasterServis::where('kode_item', 'SP-RAM-01')->first();
-        $this->assertNotNull($item);
-        $this->assertDatabaseHas('master_servis_stoks', [
-            'master_servis_id' => $item->id,
-            'cabang_id' => $this->cabang->id,
-            'jumlah' => 5,
-            'min_stok' => 2,
-        ]);
-
-        // Edit stock
-        Livewire::test(\App\Livewire\Master\Servis\Index::class)
-            ->call('editItem', $item->id)
-            ->set("initialStock.{$this->cabang->id}", 1)
-            ->call('save')
-            ->assertHasNoErrors();
-
-        $this->assertDatabaseHas('master_servis_stoks', [
-            'master_servis_id' => $item->id,
-            'cabang_id' => $this->cabang->id,
-            'jumlah' => 1,
-            'min_stok' => 2,
-        ]);
     }
 
     public function test_notification_bell_triggers_for_critical_sparepart(): void

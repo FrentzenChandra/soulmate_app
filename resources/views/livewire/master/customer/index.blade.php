@@ -224,7 +224,7 @@
                             <!-- Nama Pelanggan -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Nama Pelanggan <span class="text-rose-500">*</span>
+                                    Nama Lengkap Pelanggan <span class="text-rose-500">*</span>
                                 </label>
                                 <input type="text" 
                                        wire:model="nama" 
@@ -232,10 +232,10 @@
                                 @error('nama') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- No HP / WhatsApp -->
+                            <!-- WhatsApp -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    No. WhatsApp / HP
+                                    WhatsApp
                                 </label>
                                 <input type="text" 
                                        wire:model="no_hp" 
@@ -270,12 +270,13 @@
                             </button>
                             <button type="submit" 
                                     wire:loading.attr="disabled"
-                                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-purple-900/30 transition-all cursor-pointer">
-                                <svg wire:loading wire:target="save" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    class="inline-flex items-center justify-center space-x-2 px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs shadow-md shadow-purple-900/30 transition-all cursor-pointer">
+                                <svg wire:loading wire:target="save" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                 </svg>
-                                <span>{{ $isEditMode ? 'Simpan Perubahan' : 'Daftarkan Pelanggan' }}</span>
+                                <span wire:loading.remove wire:target="save">{{ $isEditMode ? 'Simpan Perubahan' : 'Daftarkan Pelanggan' }}</span>
+                                <span wire:loading wire:target="save">Menyimpan...</span>
                             </button>
                         </div>
                     </form>

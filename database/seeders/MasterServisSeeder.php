@@ -116,7 +116,10 @@ class MasterServisSeeder extends Seeder
                 'is_aktif' => true,
             ],
 
-            // SPAREPART SERVIS
+            // =========================================================================
+            // SPAREPART SERVIS (DINONAKTIFKAN / DI-HIDE: STOK DISATUKAN KE MASTER PRODUK)
+            // =========================================================================
+            /*
             [
                 'kode_item' => 'SP-001',
                 'nama_item' => 'SSD NVMe PCIe 256GB Gen 3x4',
@@ -194,6 +197,7 @@ class MasterServisSeeder extends Seeder
                 'keterangan' => 'Karet penarik kertas printer yang aus / paper jam',
                 'is_aktif' => true,
             ],
+            */
         ];
 
         $cabangs = \App\Models\Cabang::all();
@@ -204,7 +208,8 @@ class MasterServisSeeder extends Seeder
                 $item
             );
 
-            // Inisialisasi stok jika jenis sparepart
+            /*
+            // Inisialisasi stok jika jenis sparepart (DI-HIDE / COMMENT)
             if ($item['jenis'] === 'sparepart') {
                 foreach ($cabangs as $c) {
                     \App\Models\MasterServisStok::updateOrCreate(
@@ -222,6 +227,7 @@ class MasterServisSeeder extends Seeder
                     );
                 }
             }
+            */
         }
     }
 }

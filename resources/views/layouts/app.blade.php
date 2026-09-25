@@ -99,7 +99,17 @@
 
             <!-- Navigation Links with Fading Bottom -->
             <div class="relative flex-1 min-h-0 flex flex-col">
-                <nav class="flex-1 px-3 py-1 space-y-1 overflow-y-auto custom-scrollbar pb-8">
+                <nav x-data x-init="$nextTick(() => {
+                        const scrollToActive = () => {
+                            const active = $el.querySelector('a.bg-\\[\\#5E17EB\\], a.bg-\\[\\#0052FF\\], a.bg-brand-purple, a.bg-brand-blue, [data-sidebar-active]');
+                            if (active) {
+                                active.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+                            }
+                        };
+                        scrollToActive();
+                        $watch('sidebarOpen', val => { if (val) setTimeout(scrollToActive, 150); });
+                    })"
+                    class="flex-1 px-3 py-1 space-y-1 overflow-y-auto custom-scrollbar pb-8">
 
                 @php
                     $isOwner = auth()->user()->isOwner();
@@ -353,11 +363,36 @@
                         Kasir POS
                     </a>
 
-                    <a href="{{ route('laporan.penjualan') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('laporan.penjualan*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('laporan.penjualan*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                        Riwayat Transaksi
-                    </a>
+                    <div x-data="{ open: {{ request()->routeIs('laporan.penjualan*') ? 'true' : 'false' }} }" class="space-y-1">
+                        <button @click="open = !open"
+                            type="button"
+                            class="w-full group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('laporan.penjualan*') ? 'bg-gray-800/80 text-white' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-3 {{ request()->routeIs('laporan.penjualan*') ? 'text-[#0052FF]' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                <span>Riwayat Transaksi</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div x-show="open" x-cloak class="pl-8 pr-2 space-y-1 py-1">
+                            <a href="{{ route('laporan.penjualan', ['tipeTransaksiFilter' => 'real']) }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('laporan.penjualan*') && request('tipeTransaksiFilter') === 'real' ? 'bg-[#0052FF] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('laporan.penjualan*') && request('tipeTransaksiFilter') === 'real' ? 'bg-white' : 'bg-emerald-400' }} mr-2.5"></span>
+                                <span>Penjualan Real</span>
+                            </a>
+                            <a href="{{ route('laporan.penjualan', ['tipeTransaksiFilter' => 'non_real']) }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('laporan.penjualan*') && request('tipeTransaksiFilter') === 'non_real' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('laporan.penjualan*') && request('tipeTransaksiFilter') === 'non_real' ? 'bg-white' : 'bg-amber-400' }} mr-2.5"></span>
+                                <span>Nota Non-Real</span>
+                            </a>
+                            <a href="{{ route('laporan.penjualan', ['tipeTransaksiFilter' => 'semua']) }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('laporan.penjualan*') && (request('tipeTransaksiFilter') === 'semua' || !request('tipeTransaksiFilter')) ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('laporan.penjualan*') && (request('tipeTransaksiFilter') === 'semua' || !request('tipeTransaksiFilter')) ? 'bg-white' : 'bg-gray-400' }} mr-2.5"></span>
+                                <span>Semua Transaksi</span>
+                            </a>
+                        </div>
+                    </div>
                     @endhasanyrole
 
                     <!-- 3. Layanan Servis -->

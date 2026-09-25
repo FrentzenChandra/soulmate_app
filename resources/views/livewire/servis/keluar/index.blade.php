@@ -543,7 +543,7 @@
                                     @endif
                                 </div>
                                 <div class="sm:col-span-3">
-                                    <label class="block font-bold text-gray-700 mb-1">Nama Item *</label>
+                                    <label class="block font-bold text-gray-700 mb-1">Nama Item <span class="text-rose-500">*</span></label>
                                     <input type="text" wire:model="selectedMasterServisNama" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-xs">
                                 </div>
                                 <div class="sm:col-span-2">
@@ -562,7 +562,7 @@
                                     <input type="number" min="0" wire:model="itemGaransiHari" class="w-full px-2 py-2 rounded-xl border border-gray-300 bg-white font-bold text-center text-xs">
                                 </div>
                                 <div class="sm:col-span-4">
-                                    <label class="block font-bold text-gray-700 mb-1">Harga Satuan *</label>
+                                    <label class="block font-bold text-gray-700 mb-1">Harga Satuan <span class="text-rose-500">*</span></label>
                                     <x-input-rupiah wire:model="selectedMasterServisHarga" inputClass="!py-2 !text-xs !font-bold" />
                                 </div>
                                 <div class="sm:col-span-8 flex items-end">
@@ -705,7 +705,7 @@
 
                             <!-- Metode Pembayaran -->
                             <div>
-                                <label class="block font-bold text-gray-700 mb-1">Metode Pembayaran *</label>
+                                <label class="block font-bold text-gray-700 mb-1">Metode Pembayaran <span class="text-rose-500">*</span></label>
                                 <div class="grid grid-cols-3 gap-2">
                                     <button type="button"
                                             wire:click="$set('metodePembayaran', 'cash')"
@@ -727,7 +727,7 @@
 
                             <!-- Nominal Bayar -->
                             <div>
-                                <label class="block font-bold text-gray-700 mb-1">Nominal Diterima Kasir *</label>
+                                <label class="block font-bold text-gray-700 mb-1">Nominal Diterima Kasir <span class="text-rose-500">*</span></label>
                                 <x-input-rupiah wire:model.live.debounce.250ms="nominalBayar" inputClass="!py-2.5 !text-sm !font-mono !font-bold" />
                                 @error('nominalBayar') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
                             </div>

@@ -230,7 +230,7 @@
                             <!-- Tanggal -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Tanggal *
+                                    Tanggal <span class="text-rose-500">*</span>
                                 </label>
                                 @if($isSuperOrOwner)
                                     <input type="date"
@@ -249,7 +249,7 @@
                             <!-- Nominal Modal Awal -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Nominal Modal Awal (Cash) *
+                                    Nominal Modal Awal (Cash) <span class="text-rose-500">*</span>
                                 </label>
                                 <x-input-rupiah wire:model="nominal" />
                                 @error('nominal') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror

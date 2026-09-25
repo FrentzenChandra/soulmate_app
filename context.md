@@ -126,6 +126,8 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
    - Semua kolom pencarian menggunakan substring tokenized matching multi-kata (`explode(' ', $search)`), case-insensitive (`LOWER() LIKE ?`), non-strict per karakter.
 5. **Format Rupiah Terintegrasi**:
    - Input harga menggunakan komponen Alpine.js `<x-input-rupiah>` dengan separator ribuan otomatis (`250.000`), tetap mengikat nilai integer/float ke backend.
+6. **Sidebar Auto-Scroll Menu Aktif**:
+   - Navigasi sidebar (`<nav>`) otomatis melakukan scroll vertikal (`scrollIntoView({ block: 'center', behavior: 'smooth' })`) memusatkan menu yang sedang aktif pada desktop dan saat drawer mobile dibuka.
 
 ---
 

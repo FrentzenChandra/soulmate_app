@@ -1050,21 +1050,21 @@
                         <div class="p-6 space-y-4">
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Nama Pelanggan <span class="text-rose-500">*</span>
+                                    Nama Lengkap Pelanggan <span class="text-rose-500">*</span>
                                 </label>
                                 <input type="text"
                                        wire:model="newCustomerNama"
-                                       class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] @error('newCustomerNama') border-rose-500 @enderror">
+                                       class="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] @error('newCustomerNama') border-rose-500 @enderror">
                                 @error('newCustomerNama') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Nomor HP / WhatsApp
+                                    WhatsApp
                                 </label>
                                 <input type="text"
                                        wire:model="newCustomerHp"
-                                       class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB]">
+                                       class="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB]">
                             </div>
                         </div>
 
@@ -1077,9 +1077,9 @@
                             <button type="submit"
                                     wire:loading.attr="disabled"
                                     wire:target="saveNewCustomer"
-                                    class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 text-xs font-extrabold text-white shadow-md shadow-purple-900/20 transition-all cursor-pointer flex items-center space-x-2">
-                                <svg wire:loading wire:target="saveNewCustomer" class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                                <span wire:loading.remove wire:target="saveNewCustomer">Simpan & Pilih</span>
+                                    class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-extrabold text-white shadow-md shadow-purple-900/20 transition-all cursor-pointer flex items-center space-x-2">
+                                <svg wire:loading wire:target="saveNewCustomer" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                <span wire:loading.remove wire:target="saveNewCustomer">Simpan &amp; Pilih</span>
                                 <span wire:loading wire:target="saveNewCustomer">Menyimpan...</span>
                             </button>
                         </div>

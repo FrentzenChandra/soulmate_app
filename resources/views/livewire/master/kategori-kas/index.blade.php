@@ -148,7 +148,7 @@
                         <div class="p-6 space-y-4">
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Nama Kategori *
+                                    Nama Kategori <span class="text-rose-500">*</span>
                                 </label>
                                 <input type="text"
                                        wire:model="nama"

@@ -568,7 +568,7 @@
                             @enderror
 
                             <div>
-                                <label class="block font-bold text-gray-700 mb-1.5">Pilih Status Baru *</label>
+                                <label class="block font-bold text-gray-700 mb-1.5">Pilih Status Baru <span class="text-rose-500">*</span></label>
                                 <select wire:model="targetStatus"
                                         class="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white font-bold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <option value="pengecekan">Pengecekan</option>
