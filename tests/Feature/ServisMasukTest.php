@@ -111,7 +111,6 @@ class ServisMasukTest extends TestCase
             ->set('newCustomerNoHp', '081299887766')
             ->set('kategoriPerangkat', 'laptop')
             ->set('tipeUnit', 'Asus TUF Gaming FX505')
-            ->set('serialNumber', 'SN-TUF-9988')
             ->set('kelengkapanChips', ['Unit', 'Adaptor / Charger'])
             ->set('customKelengkapan', 'Tas Ransel Asus')
             ->set('keluhan', 'Layar blank hitam setelah booting')

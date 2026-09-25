@@ -43,39 +43,40 @@ class SerialNumberTest extends TestCase
         // Create
         Livewire::test(SerialNumberIndex::class)
             ->call('openCreateModal')
-            ->set('nama', 'Printer Epson LX-310')
-            ->set('merk_tipe_spek', 'Dot Matrix 9-Pin 80 Kolom')
-            ->set('sn', 'SN-EPSON-LX310-001')
-            ->set('distributor', 'PT Epson Indonesia')
+            ->set('merk', 'Asus')
+            ->set('tipe_spek', 'ROG Strix G15 G513')
+            ->set('sn', 'SN-ASUS-ROG-001')
+            ->set('distributor', 'PT Asus Indonesia')
             ->call('save')
             ->assertHasNoErrors();
 
         $this->assertDatabaseHas('serial_numbers', [
-            'sn' => 'SN-EPSON-LX310-001',
-            'nama' => 'Printer Epson LX-310',
-            'distributor' => 'PT Epson Indonesia',
+            'sn' => 'SN-ASUS-ROG-001',
+            'merk' => 'Asus',
+            'tipe_spek' => 'ROG Strix G15 G513',
+            'distributor' => 'PT Asus Indonesia',
         ]);
 
-        $snItem = SerialNumber::where('sn', 'SN-EPSON-LX310-001')->first();
+        $snItem = SerialNumber::where('sn', 'SN-ASUS-ROG-001')->first();
 
         // Edit
         Livewire::test(SerialNumberIndex::class)
             ->call('openEditModal', $snItem->id)
-            ->set('distributor', 'PT Epson Authorized Distri')
+            ->set('distributor', 'PT Asus Authorized Distri')
             ->call('save')
             ->assertHasNoErrors();
 
         $this->assertDatabaseHas('serial_numbers', [
             'id' => $snItem->id,
-            'distributor' => 'PT Epson Authorized Distri',
+            'distributor' => 'PT Asus Authorized Distri',
         ]);
 
         // Search
         Livewire::test(SerialNumberIndex::class)
-            ->set('search', 'epson 310')
-            ->assertSee('SN-EPSON-LX310-001');
+            ->set('search', 'asus rog')
+            ->assertSee('SN-ASUS-ROG-001');
 
-        // Quick Add New Customer & Assign
+        // Quick Add New Customer & Custom Brand Create
         Livewire::test(SerialNumberIndex::class)
             ->call('openCreateModal')
             ->call('openCustomerModal')
@@ -83,8 +84,9 @@ class SerialNumberTest extends TestCase
             ->set('new_customer_hp', '081234567899')
             ->call('saveNewCustomer')
             ->assertHasNoErrors()
-            ->set('nama', 'Laptop Lenovo ThinkPad')
-            ->set('merk_tipe_spek', 'Core i7 16GB 512GB')
+            ->set('merk', '__custom__')
+            ->set('custom_merk', 'Lenovo Custom')
+            ->set('tipe_spek', 'ThinkPad X1 Carbon Gen 10')
             ->set('sn', 'SN-THINKPAD-X1-001')
             ->set('distributor', 'Lenovo ID')
             ->call('save')
@@ -96,12 +98,30 @@ class SerialNumberTest extends TestCase
         $this->assertDatabaseHas('serial_numbers', [
             'sn' => 'SN-THINKPAD-X1-001',
             'customer_id' => $newCustomer->id,
+            'merk' => 'Lenovo Custom',
+            'tipe_spek' => 'ThinkPad X1 Carbon Gen 10',
         ]);
 
-        // Search by Customer Name
+        // Search by Customer Name & Single Character & Test Periode Mode Filters
         Livewire::test(SerialNumberIndex::class)
             ->set('search', 'Ahmad Santoso')
-            ->assertSee('SN-THINKPAD-X1-001');
+            ->assertSee('SN-THINKPAD-X1-001')
+            ->set('search', 'r')
+            ->assertSee('Total Unit per Brand Laptop')
+            ->assertSee('Asus')
+            ->assertSee('Lenovo Custom')
+            ->call('setPeriodeMode', 'semua')
+            ->assertSee('Unit Total')
+            ->call('setPeriodeMode', 'hari_ini')
+            ->assertSee('Unit Total')
+            ->call('setPeriodeMode', 'range')
+            ->assertSee('Unit Total')
+            ->call('setPeriodeMode', 'bulanan')
+            ->set('filterBulan', date('m'))
+            ->assertSee('Unit Total')
+            ->call('setPeriodeMode', 'tahunan')
+            ->set('filterTahun', date('Y'))
+            ->assertSee('Unit Total');
     }
 }
 

@@ -1123,7 +1123,7 @@
                                 </div>
 
                                 <!-- Nama Item Terpilih / Input Manual -->
-                                <div class="sm:col-span-3 hidden">
+                                <div class="sm:col-span-3 ">
                                     <label class="block font-bold text-gray-700 mb-1">Nama Item *</label>
                                     <input type="text"
                                            wire:model="selectedMasterServisNama"

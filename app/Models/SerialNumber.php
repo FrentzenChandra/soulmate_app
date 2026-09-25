@@ -15,6 +15,8 @@ class SerialNumber extends Model
         'customer_id',
         'user_id',
         'nama',
+        'merk',
+        'tipe_spek',
         'merk_tipe_spek',
         'sn',
         'distributor',

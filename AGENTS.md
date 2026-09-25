@@ -73,6 +73,26 @@
   * Jika waktu lokal telah melewati jam 10:00 pagi (`now()->hour >= 10`) dan cabang belum mencatat modal awal kasir, navbar lonceng notifikasi otomatis memicu badge merah berkedip (`animate-pulse`) dan card peringatan prioritas tinggi dengan tombol aksi langsung `Input Modal Awal`.
   * Pada konteks Owner HQ, sistem memantau seluruh cabang aktif yang belum mengisi modal awal.
 
-## 13. Skills & Capabilities
+## 13. Universal Date & Period Filter Standard (Format Transaksi FULL)
+- **Standar Filter Periode Global:** Seluruh modul tabel/index dan laporan di aplikasi yang memiliki filter tanggal WAJIB mengikuti format dan arsitektur filter **Transaksi FULL**:
+  * **Tombol Switcher Tab Mode:**
+    - `Semua` (`setPeriodeMode('semua')`) &rarr; Menampilkan seluruh data tanpa batasan tanggal (`startDate = ''; endDate = '';`).
+    - `Hari Ini` (`setPeriodeMode('hari_ini')`) &rarr; Mengunci tanggal hari ini (`startDate = now()->toDateString(); endDate = now()->toDateString();`).
+    - `Rentang Tanggal` (`setPeriodeMode('range')`) &rarr; Rentang awal bulan sampai hari ini (`startDate = now()->startOfMonth()->toDateString(); endDate = now()->toDateString();`).
+    - `Bulanan` (`setPeriodeMode('bulanan')`) &rarr; Filter dinamis berdasarkan `filterBulan` dan `filterTahun`.
+    - `Tahunan` (`setPeriodeMode('tahunan')`) &rarr; Filter dinamis berdasarkan `filterTahun`.
+  * **Input Tanggal Dinamis (UI Blade):**
+    - Posisi input dinamis WAJIB diletakkan di sisi kanan otomatis (`sm:ml-auto` / `auto-right`) setelah tombol mode periode.
+    - Saat mode `range` / `hari_ini`: Tampilkan input `startDate` dan `endDate` dengan pemisah teks `s/d`.
+    - Saat mode `bulanan`: Tampilkan dropdown `filterBulan` (`1`..`12`) dan dropdown `filterTahun`.
+    - Saat mode `tahunan`: Tampilkan dropdown `filterTahun`.
+  * **Sinkronisasi Query Backend:**
+    - Gunakan helper tunggal `applyDateFilter($query)` yang memfilter kolom timestamp/tanggal (`whereBetween('created_at', [$start, $end])` atau `whereBetween('tanggal', [$start, $end])`).
+    - Filter berlaku serentak pada metrik/ringkasan card di atas tabel dan pagination query tabel.
+
+## 14. Skills & Capabilities
 - Dalam konteks workspace project: Aktifkan seluruh ekosistem skill (Caveman, Ponytail, Graphify, TDD, Surgical Patch, Subagents).
 - Pertahankan gaya komunikasi ringkas, padat, dan hemat token (Caveman mode).
+
+## 15. Proactive Anomaly & Discrepancy Reporting
+- **Wajib Lapor Anomali / Ketidakwajaran:** Setiap kali agen menemukan kejanggalan struktural di codebase (misal: rute/komponen aktif yang tidak ada di menu navigasi, dead code/link putus, inkonsistensi permission/role antar halaman, data filter yang bocor antar cabang, query rawan bug/N+1, atau fitur gantung), agen **WAJIB langsung proaktif memberitahu user** secara lugas tanpa menunggu ditanya.

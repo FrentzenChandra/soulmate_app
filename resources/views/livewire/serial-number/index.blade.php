@@ -21,17 +21,125 @@
         </button>
     </div>
 
-    <!-- Toolbar Filters & Search -->
-    <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div class="relative flex-1">
-            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+    <!-- ============================================== -->
+    <!-- RINGKASAN UNIT PER BRAND LAPTOP                -->
+    <!-- ============================================== -->
+    <div class="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-xs space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#5E17EB]"></span>
+                <h2 class="text-xs font-black text-gray-900 uppercase tracking-wider">Total Unit per Brand Laptop</h2>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-black bg-purple-50 text-[#5E17EB] border border-purple-200">
+                {{ $brandStats['total_unit'] ?? 0 }} Unit Total
             </span>
-            <input type="text"
-                   wire:model.live.debounce.300ms="search"
-                   class="w-full pl-10 pr-4 py-2.5 text-sm font-semibold text-gray-800 bg-gray-50/60 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#5E17EB] focus:border-transparent transition-all">
         </div>
-        <x-table-size-selector />
+
+        <!-- Brand Cards Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3" wire:loading.class="opacity-60">
+            @forelse($brandStats['by_brand'] ?? [] as $brandName => $totalCount)
+                <div class="bg-gray-50/70 hover:bg-purple-50/40 p-3.5 rounded-xl border border-gray-200/90 hover:border-purple-300 transition-all flex flex-col justify-between shadow-2xs">
+                    <div class="flex items-center justify-between gap-1 mb-2">
+                        <span class="text-[11px] font-black text-gray-700 uppercase tracking-wider truncate" title="{{ $brandName }}">
+                            {{ $brandName }}
+                        </span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#0052FF]"></span>
+                    </div>
+                    <div class="flex items-baseline justify-between">
+                        <span class="text-lg font-black text-gray-900 font-mono">
+                            {{ $totalCount }}
+                        </span>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase">Unit</span>
+                    </div>
+                </div>
+            @empty
+                <div class="col-span-full py-6 text-center text-xs font-bold text-gray-400 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+                    Belum ada data unit pada periode yang dipilih.
+                </div>
+            @endforelse
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- FILTER BAR, PERIODE & PENCARIAN                -->
+    <!-- ============================================== -->
+    <div class="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-xs space-y-4">
+        <!-- Baris 1: Mode Periode Switcher & Input Tanggal Dinamis -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-100">
+            <div class="flex items-center space-x-1.5 bg-gray-100 p-1 rounded-xl">
+                <button type="button"
+                        wire:click="setPeriodeMode('semua')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'semua' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                    Semua
+                </button>
+                <button type="button"
+                        wire:click="setPeriodeMode('hari_ini')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'hari_ini' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                    Hari Ini
+                </button>
+                <button type="button"
+                        wire:click="setPeriodeMode('range')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'range' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                    Rentang Tanggal
+                </button>
+                <button type="button"
+                        wire:click="setPeriodeMode('bulanan')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'bulanan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                    Bulanan
+                </button>
+                <button type="button"
+                        wire:click="setPeriodeMode('tahunan')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'tahunan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                    Tahunan
+                </button>
+            </div>
+
+            <!-- Input Tanggal Dinamis (Auto-Right) -->
+            <div class="flex items-center space-x-2 sm:ml-auto">
+                @if($periodeMode === 'range' || $periodeMode === 'hari_ini')
+                    <input type="date"
+                           wire:model.live="startDate"
+                           class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB]">
+                    <span class="text-xs font-bold text-gray-400">s/d</span>
+                    <input type="date"
+                           wire:model.live="endDate"
+                           class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB]">
+                @elseif($periodeMode === 'bulanan')
+                    <select wire:model.live="filterBulan"
+                            class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB]">
+                        @foreach(range(1, 12) as $m)
+                            <option value="{{ sprintf('%02d', $m) }}">{{ Carbon\Carbon::create()->month($m)->translatedFormat('F') }}</option>
+                        @endforeach
+                    </select>
+                    <select wire:model.live="filterTahun"
+                            class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB]">
+                        @foreach(range(now()->year - 3, now()->year + 1) as $y)
+                            <option value="{{ $y }}">{{ $y }}</option>
+                        @endforeach
+                    </select>
+                @elseif($periodeMode === 'tahunan')
+                    <select wire:model.live="filterTahun"
+                            class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB]">
+                        @foreach(range(now()->year - 3, now()->year + 1) as $y)
+                            <option value="{{ $y }}">{{ $y }}</option>
+                        @endforeach
+                    </select>
+                @endif
+            </div>
+        </div>
+
+        <!-- Baris 2: Search & Size Selector -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="relative flex-1">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </span>
+                <input type="text"
+                       wire:model.live.debounce.300ms="search"
+                       class="w-full pl-10 pr-4 py-2.5 text-xs font-bold text-gray-800 bg-gray-50/70 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#5E17EB] focus:border-transparent transition-all">
+            </div>
+            <x-table-size-selector />
+        </div>
     </div>
 
     <!-- Data Table -->
@@ -43,10 +151,10 @@
             <table class="w-full text-left text-sm border-collapse">
                 <thead>
                     <tr class="bg-gray-50/80 border-b border-gray-200 text-xs font-black uppercase text-gray-500 tracking-wider">
+                        <x-th-sort field="customer_id" :sortField="$sortField" :sortDirection="$sortDirection">Nama Pembeli</x-th-sort>
+                        <x-th-sort field="merk" :sortField="$sortField" :sortDirection="$sortDirection">Merk Laptop</x-th-sort>
+                        <x-th-sort field="tipe_spek" :sortField="$sortField" :sortDirection="$sortDirection">Tipe Spek</x-th-sort>
                         <x-th-sort field="sn" :sortField="$sortField" :sortDirection="$sortDirection">Serial Number</x-th-sort>
-                        <x-th-sort field="nama" :sortField="$sortField" :sortDirection="$sortDirection">Nama Barang</x-th-sort>
-                        <x-th-sort field="merk_tipe_spek" :sortField="$sortField" :sortDirection="$sortDirection">Spesifikasi</x-th-sort>
-                        <x-th-sort field="customer_id" :sortField="$sortField" :sortDirection="$sortDirection">Pelanggan</x-th-sort>
                         <x-th-sort field="distributor" :sortField="$sortField" :sortDirection="$sortDirection">Distributor</x-th-sort>
                         <x-th-sort field="created_at" :sortField="$sortField" :sortDirection="$sortDirection">Waktu Input</x-th-sort>
                         <th class="py-3.5 px-4 text-center w-24">Aksi</th>
@@ -56,17 +164,6 @@
                     <x-table-skeleton :columns="7" :rows="5" target="search, sortField, sortDirection" />
                     @forelse($items as $item)
                         <tr class="hover:bg-purple-50/20 transition-colors" wire:loading.remove wire:target="search, sortField, sortDirection">
-                            <td class="py-3.5 px-4">
-                                <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-sm sm:text-base font-mono font-black bg-blue-50 text-[#0052FF] border border-blue-200 tracking-wider">
-                                    {{ $item->sn }}
-                                </span>
-                            </td>
-                            <td class="py-3.5 px-4 font-bold text-gray-900 text-sm">
-                                {{ $item->nama }}
-                            </td>
-                            <td class="py-3.5 px-4 text-gray-600 text-sm">
-                                {{ $item->merk_tipe_spek }}
-                            </td>
                             <td class="py-3.5 px-4">
                                 @if($item->customer)
                                     <div class="flex flex-col">
@@ -78,6 +175,19 @@
                                         Pelanggan Umum
                                     </span>
                                 @endif
+                            </td>
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-black bg-purple-50 text-[#5E17EB] border border-purple-200 tracking-wider">
+                                    {{ $item->merk ?: '-' }}
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-4 font-bold text-gray-800 text-xs">
+                                {{ $item->tipe_spek ?: $item->merk_tipe_spek ?: '-' }}
+                            </td>
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-mono font-black bg-blue-50 text-[#0052FF] border border-blue-200 tracking-wider">
+                                    {{ $item->sn }}
+                                </span>
                             </td>
                             <td class="py-3.5 px-4">
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
@@ -158,55 +268,11 @@
                     <!-- Form Body -->
                     <form wire:submit.prevent="save">
                         <div class="p-6 space-y-4">
-                            <!-- Serial Number (SN) -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Serial Number <span class="text-rose-500 font-black">*</span>
-                                </label>
-                                <input type="text"
-                                       wire:model="sn"
-                                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] text-xs font-semibold">
-                                @error('sn') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- Nama Barang / Unit -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Nama Barang <span class="text-rose-500 font-black">*</span>
-                                </label>
-                                <input type="text"
-                                       wire:model="nama"
-                                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] text-xs font-semibold">
-                                @error('nama') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- Merk / Tipe / Spesifikasi -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Spesifikasi <span class="text-rose-500 font-black">*</span>
-                                </label>
-                                <input type="text"
-                                       wire:model="merk_tipe_spek"
-                                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] text-xs font-semibold">
-                                @error('merk_tipe_spek') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- Distributor / Vendor -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Distributor
-                                </label>
-                                <input type="text"
-                                       wire:model="distributor"
-                                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] text-xs font-semibold">
-                                @error('distributor') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- Pelanggan Terkait -->
+                            <!-- 1. Nama Pembeli / Pelanggan -->
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                        Pelanggan
+                                        Nama Pembeli
                                     </label>
                                     <button type="button" wire:click="openCustomerModal" class="text-[11px] font-bold text-[#5E17EB] hover:text-purple-700 flex items-center space-x-1 cursor-pointer">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -221,6 +287,68 @@
                                     @endforeach
                                 </select>
                                 @error('customer_id') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- 2. Merk Laptop -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    Merk Laptop <span class="text-rose-500 font-black">*</span>
+                                </label>
+                                <select wire:model.live="merk"
+                                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] text-xs font-semibold bg-white cursor-pointer">
+                                    <option value="">Pilih Merk Laptop</option>
+                                    @foreach($merkList as $m)
+                                        <option value="{{ $m }}">{{ $m }}</option>
+                                    @endforeach
+                                    <option value="__custom__">+ Tambah Merk Baru...</option>
+                                </select>
+                                @error('merk') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
+
+                                @if($merk === '__custom__')
+                                    <div class="mt-2.5">
+                                        <label class="block text-[11px] font-bold text-purple-700 uppercase tracking-wider mb-1">
+                                            Nama Merk Baru <span class="text-rose-500 font-black">*</span>
+                                        </label>
+                                        <input type="text"
+                                               wire:model="custom_merk"
+                                               class="w-full px-4 py-2 rounded-xl border border-purple-300 focus:ring-2 focus:ring-[#5E17EB] text-xs font-semibold bg-purple-50/40"
+                                               autofocus>
+                                        @error('custom_merk') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- 3. Tipe Spek -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    Tipe Spek <span class="text-rose-500 font-black">*</span>
+                                </label>
+                                <input type="text"
+                                       wire:model="tipe_spek"
+                                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] text-xs font-semibold">
+                                @error('tipe_spek') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- 4. Serial Number (SN) -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    Serial Number <span class="text-rose-500 font-black">*</span>
+                                </label>
+                                <input type="text"
+                                       wire:model="sn"
+                                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] text-xs font-semibold font-mono">
+                                @error('sn') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- 5. Distributor / Vendor -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    Distributor
+                                </label>
+                                <input type="text"
+                                       wire:model="distributor"
+                                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] text-xs font-semibold">
+                                @error('distributor') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
