@@ -47,10 +47,13 @@ class Harian extends Component
     public string $formNoTransaksi = '';
     public string $formTipeTransaksi = 'penjualan';
     public string $formTanggal = '';
+    public string $formTanggalOnly = '';
+    public string $formJam = '';
+    public ?int $formUserId = null;
     public string $formCustomerType = 'umum';
     public ?int $formCustomerId = null;
     public string $formCustomerSearch = '';
-    public string $formNamaPelanggan = 'Pelanggan Umum';
+    public string $formNamaPelanggan = 'KONSUMEN';
     public string $formNoHp = '';
     public ?int $formMetodePembayaranId = null;
     public string $formMetodePembayaran = 'Cash';
@@ -116,7 +119,11 @@ class Harian extends Component
         $this->resetForm();
         $this->transaksiId = null;
         $this->formTanggal = now()->format('Y-m-d\TH:i');
+        $this->formTanggalOnly = now()->toDateString();
+        $this->formJam = now()->format('H:i');
         $this->formTipeTransaksi = 'penjualan';
+        $this->formNamaPelanggan = 'KONSUMEN';
+        $this->formUserId = Auth::id();
         $this->generateDefaultNoTransaksi();
 
         $activePpn = MasterPpn::getAktifCached();
@@ -144,9 +151,12 @@ class Harian extends Component
         $this->formNoTransaksi = $transaksi->no_transaksi_frontend;
         $this->formTipeTransaksi = $transaksi->tipe_transaksi;
         $this->formTanggal = $transaksi->tanggal ? $transaksi->tanggal->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i');
+        $this->formTanggalOnly = $transaksi->tanggal ? $transaksi->tanggal->toDateString() : now()->toDateString();
+        $this->formJam = $transaksi->tanggal ? $transaksi->tanggal->format('H:i') : now()->format('H:i');
+        $this->formUserId = $transaksi->user_id ?: Auth::id();
         $this->formCustomerType = $transaksi->customer_id ? 'langganan' : 'umum';
         $this->formCustomerId = $transaksi->customer_id;
-        $this->formNamaPelanggan = $transaksi->nama_pelanggan;
+        $this->formNamaPelanggan = $transaksi->nama_pelanggan ?: 'KONSUMEN';
         $this->formNoHp = $transaksi->no_hp ?? '';
         $this->formMetodePembayaranId = $transaksi->metode_pembayaran_id;
         $this->formMetodePembayaran = $transaksi->metode_pembayaran;
@@ -189,10 +199,13 @@ class Harian extends Component
         $this->formNoTransaksi = '';
         $this->formTipeTransaksi = 'penjualan';
         $this->formTanggal = '';
+        $this->formTanggalOnly = '';
+        $this->formJam = '';
+        $this->formUserId = null;
         $this->formCustomerType = 'umum';
         $this->formCustomerId = null;
         $this->formCustomerSearch = '';
-        $this->formNamaPelanggan = 'Pelanggan Umum';
+        $this->formNamaPelanggan = 'KONSUMEN';
         $this->formNoHp = '';
         $this->formMetodePembayaranId = null;
         $this->formMetodePembayaran = 'Cash';
@@ -403,7 +416,7 @@ class Harian extends Component
             $totalLaba = $totalJual - $totalModal;
             $ppnNominal = ($totalJual * (float) $this->formPpnPersen) / 100;
             $grandTotal = $totalJual + $ppnNominal;
-            $tanggalParsed = Carbon::parse($this->formTanggal);
+            $tanggalParsed = Carbon::parse(($this->formTanggalOnly ?: now()->toDateString()).' '.($this->formJam ?: now()->format('H:i')));
             $tanggalLunas = null;
 
             if ($this->formStatus === 'Lunas') {
@@ -419,9 +432,9 @@ class Harian extends Component
 
             $data = [
                 'cabang_id' => $cabangId,
-                'user_id' => Auth::id(),
+                'user_id' => $this->formUserId ?: Auth::id(),
                 'customer_id' => $this->formCustomerType === 'langganan' ? $this->formCustomerId : null,
-                'nama_pelanggan' => trim($this->formNamaPelanggan) ?: 'Pelanggan Umum',
+                'nama_pelanggan' => trim($this->formNamaPelanggan) ?: 'KONSUMEN',
                 'no_hp' => trim($this->formNoHp) ?: null,
                 'no_transaksi' => trim($this->formNoTransaksi),
                 'tipe_transaksi' => $this->formTipeTransaksi,
@@ -538,6 +551,13 @@ class Harian extends Component
 
         $ppnList = MasterPpn::where('is_aktif', true)->orderBy('persen')->get();
         $metodeList = MetodePembayaran::where('is_aktif', true)->orderBy('urutan')->get();
+
+        $pegawaiList = \App\Models\User::query()
+            ->with('roles')
+            ->where('status', 'aktif')
+            ->when(! $isHQ && $user->cabang_id, fn($q) => $q->where('cabang_id', $user->cabang_id))
+            ->orderBy('name')
+            ->get();
 
         // Autocomplete Customer
         $customerSuggestions = [];
@@ -671,6 +691,10 @@ class Harian extends Component
                 'petugas' => $item->user?->name ?? 'Kasir',
                 'pelanggan' => $item->nama_pelanggan,
                 'no_hp' => $item->no_hp ?: '-',
+                'items_list' => $item->details->map(fn($d) => [
+                    'qty' => $d->qty,
+                    'nama' => $d->nama_item,
+                ])->values()->all(),
                 'rincian_item' => $item->details->map(fn($d) => $d->qty . 'x ' . $d->nama_item)->implode(', ') ?: 'Tanpa item',
                 'metode_pembayaran' => $item->metode_pembayaran,
                 'total_modal' => (float) $item->total_modal,
@@ -690,6 +714,7 @@ class Harian extends Component
             'hasMore' => $hasMore,
             'ppnList' => $ppnList,
             'metodeList' => $metodeList,
+            'pegawaiList' => $pegawaiList,
             'customerSuggestions' => $customerSuggestions,
             'productSuggestionsMap' => $productSuggestionsMap,
             'isHQ' => $isHQ,

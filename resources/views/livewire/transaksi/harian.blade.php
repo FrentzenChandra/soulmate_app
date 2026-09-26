@@ -172,13 +172,21 @@
                                     {{ $transaksiId ? 'Edit Transaksi' : 'Input Transaksi Baru' }}
                                 </h3>
                                 <p class="text-xs text-blue-100 font-medium mt-0.5">
-                                    Entri data transaksi harian mandiri (tanpa mutasi stok)
+                                    Entri data transaksi harian mandiri dengan kustomisasi HPP modal dan laba bersih
                                 </p>
                             </div>
                         </div>
-                        <button type="button" wire:click="closeFormModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
+                        <div class="flex items-center gap-3 shrink-0">
+                            <!-- Badge Tanggal Transaksi di Ujung Kanan Header -->
+                            <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 border border-white/20 text-white text-xs font-bold font-mono shadow-2xs">
+                                <svg class="w-3.5 h-3.5 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <span>{{ \Carbon\Carbon::parse($formTanggalOnly ?: now())->translatedFormat('l, d F Y') }}</span>
+                            </div>
+
+                            <button type="button" wire:click="closeFormModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
                     </div>
 
                     <form wire:submit.prevent="simpanTransaksi">
@@ -200,35 +208,31 @@
 
                             <!-- Section 1: Informasi Utama Transaksi -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
-                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">1. Informasi Transaksi</span>
-                                
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    <!-- Nomor Transaksi (Editable) -->
-                                    <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Nomor Transaksi <span class="text-rose-500">*</span></label>
-                                        <input type="text"
-                                               wire:model="formNoTransaksi"
-                                               class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-mono font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                        @error('formNoTransaksi') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
-                                    </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">1. Informasi Transaksi</span>
+                                    <span class="text-[11px] font-bold text-gray-500 font-mono sm:hidden">
+                                        {{ \Carbon\Carbon::parse($formTanggalOnly ?: now())->translatedFormat('d M Y') }}
+                                    </span>
+                                </div>
 
-                                    <!-- Tipe Transaksi -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <!-- Tipe Transaksi (Pewarnaan Ungu / Kuning) -->
                                     <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Tipe Transaksi <span class="text-rose-500">*</span></label>
+                                        <label class="block font-bold text-gray-700 mb-1">Tipe Transaksi <span class="text-rose-500 font-bold">*</span></label>
                                         <select wire:model.live="formTipeTransaksi"
-                                                class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                                class="w-full px-3.5 py-2 rounded-xl border font-bold text-xs transition-all cursor-pointer {{ $formTipeTransaksi === 'penjualan' ? 'bg-purple-50/80 border-purple-300 text-[#5E17EB] focus:ring-2 focus:ring-purple-200' : 'bg-amber-50/80 border-amber-300 text-amber-900 focus:ring-2 focus:ring-amber-200' }}">
                                             <option value="penjualan">Penjualan Produk</option>
                                             <option value="servis">Layanan Servis</option>
                                         </select>
                                     </div>
 
-                                    <!-- Tanggal Transaksi -->
+                                    <!-- Jam Transaksi (Input Jam Saja) -->
                                     <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Waktu Transaksi <span class="text-rose-500">*</span></label>
-                                        <input type="datetime-local"
-                                               wire:model.live="formTanggal"
-                                               class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                        @error('formTanggal') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                        <label class="block font-bold text-gray-700 mb-1">Waktu Transaksi <span class="text-rose-500 font-bold">*</span></label>
+                                        <input type="time"
+                                               wire:model.live="formJam"
+                                               class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-mono font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                        @error('formJam') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                             </div>
@@ -280,20 +284,23 @@
                                     </div>
                                 @endif
 
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="grid grid-cols-1 {{ $formCustomerType === 'langganan' ? 'sm:grid-cols-2' : '' }} gap-3">
                                     <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Nama Lengkap Pelanggan <span class="text-rose-500">*</span></label>
+                                        <label class="block font-bold text-gray-700 mb-1">Nama Lengkap Pelanggan <span class="text-rose-500 font-bold">*</span></label>
                                         <input type="text"
                                                wire:model="formNamaPelanggan"
                                                class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
                                         @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
                                     </div>
-                                    <div>
-                                        <label class="block font-bold text-gray-700 mb-1">WhatsApp</label>
-                                        <input type="text"
-                                               wire:model="formNoHp"
-                                               class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-mono font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                    </div>
+
+                                    @if($formCustomerType === 'langganan')
+                                        <div>
+                                            <label class="block font-bold text-gray-700 mb-1">WhatsApp</label>
+                                            <input type="text"
+                                                   wire:model="formNoHp"
+                                                   class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-mono font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -314,7 +321,7 @@
 
                                 <div class="space-y-3">
                                     @foreach($items as $idx => $itemRow)
-                                        <div wire:key="item-row-harian-{{ $idx }}" class="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs space-y-2">
+                                        <div wire:key="item-row-harian-{{ $idx }}" class="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs space-y-3">
                                             <div class="flex items-center justify-between gap-2">
                                                 <span class="text-[10px] font-black text-gray-400 uppercase">Item #{{ $idx + 1 }}</span>
                                                 @if(count($items) > 1)
@@ -326,17 +333,17 @@
                                                 @endif
                                             </div>
 
-                                            <div class="space-y-2.5">
-                                                <!-- Baris 1: Nama Item & Master Autocomplete (Full Width) -->
+                                            <div class="space-y-3">
+                                                <!-- Baris 1: Item (Full Width & Lapang) -->
                                                 <div class="relative w-full" x-data="{ openSuggest: false }" @click.outside="openSuggest = false">
-                                                    <label class="block font-bold text-gray-700 mb-0.5 text-[10px]">Nama Barang <span class="text-rose-500">*</span></label>
+                                                    <label class="block font-bold text-gray-700 mb-1 text-[11px]">Item <span class="text-rose-500 font-bold">*</span></label>
                                                     <input type="text"
                                                            wire:model.live.debounce.200ms="items.{{ $idx }}.nama_item"
                                                            @focus="openSuggest = true"
                                                            @click="openSuggest = true"
                                                            @input="openSuggest = true"
                                                            @keydown.escape="openSuggest = false"
-                                                           class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-bold text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                                           class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 font-bold text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
                                                     @error("items.{$idx}.nama_item")
                                                         <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
                                                     @enderror
@@ -360,7 +367,7 @@
                                                                     </div>
                                                                     <div class="text-right shrink-0">
                                                                         <span class="text-[10px] text-amber-700 font-bold block">Modal: Rp {{ number_format($sug['harga_modal'], 0, ',', '.') }}</span>
-                                                                        <span class="text-xs text-[#0052FF] font-black block">Jual: Rp {{ number_format($sug['harga_jual'], 0, ',', '.') }}</span>
+                                                                        <span class="text-xs text-[#0052FF] font-black block">Biaya: Rp {{ number_format($sug['harga_jual'], 0, ',', '.') }}</span>
                                                                     </div>
                                                                 </button>
                                                             @endforeach
@@ -368,11 +375,11 @@
                                                     @endif
                                                 </div>
 
-                                                <!-- Baris 2: Kuantiti, Biaya Modal, dan Harga Jual (3 Kolom Sejajar) -->
-                                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-                                                    <!-- Kuantiti -->
+                                                <!-- Baris 2: Kuantitas, Biaya, Modal (Urutan Baru) -->
+                                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1 border-t border-gray-100">
+                                                    <!-- 1. Kuantitas -->
                                                     <div class="sm:col-span-3">
-                                                        <label class="block font-bold text-gray-700 mb-0.5 text-[10px]">Kuantiti <span class="text-rose-500">*</span></label>
+                                                        <label class="block font-bold text-gray-700 mb-1 text-[10px]">Kuantitas <span class="text-rose-500 font-bold">*</span></label>
                                                         <input type="number"
                                                                min="1"
                                                                wire:model.live.debounce.250ms="items.{{ $idx }}.qty"
@@ -382,36 +389,7 @@
                                                         @enderror
                                                     </div>
 
-                                                    <!-- Biaya Modal per Unit (Format Rupiah) -->
-                                                    <div class="sm:col-span-4"
-                                                         x-data="{
-                                                             raw: @entangle('items.' . $idx . '.harga_modal').live,
-                                                             get formatted() {
-                                                                 if (!this.raw && this.raw !== 0) return '';
-                                                                 let num = parseInt(this.raw.toString().replace(/[^0-9]/g, ''), 10);
-                                                                 return isNaN(num) || num === 0 ? '' : num.toLocaleString('id-ID');
-                                                             },
-                                                             update(e) {
-                                                                 let clean = e.target.value.replace(/[^0-9]/g, '');
-                                                                 this.raw = clean ? parseInt(clean, 10) : 0;
-                                                                 $wire.call('recalculateRow', {{ $idx }});
-                                                             }
-                                                         }">
-                                                        <label class="block font-bold text-amber-800 mb-0.5 text-[10px]">Biaya Modal <span class="text-rose-500">*</span></label>
-                                                        <div class="relative">
-                                                            <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-[10px] font-bold text-amber-700/70 select-none pointer-events-none font-mono">Rp</span>
-                                                            <input type="text"
-                                                                   inputmode="numeric"
-                                                                   :value="formatted"
-                                                                   @input="update($event)"
-                                                                   class="w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50/40 font-mono font-bold text-amber-900 text-xs focus:ring-2 focus:ring-amber-200 focus:border-amber-400">
-                                                        </div>
-                                                        @error("items.{$idx}.harga_modal")
-                                                            <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
-                                                        @enderror
-                                                    </div>
-
-                                                    <!-- Harga Jual per Unit (Format Rupiah) -->
+                                                    <!-- 2. Biaya (Harga Jual per Unit) -->
                                                     <div class="sm:col-span-5"
                                                          x-data="{
                                                              raw: @entangle('items.' . $idx . '.harga_jual').live,
@@ -426,7 +404,7 @@
                                                                  $wire.call('recalculateRow', {{ $idx }});
                                                              }
                                                          }">
-                                                        <label class="block font-bold text-[#0052FF] mb-0.5 text-[10px]">Harga Jual <span class="text-rose-500">*</span></label>
+                                                        <label class="block font-bold text-[#0052FF] mb-1 text-[10px]">Biaya <span class="text-rose-500 font-bold">*</span></label>
                                                         <div class="relative">
                                                             <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-[10px] font-bold text-blue-700/70 select-none pointer-events-none font-mono">Rp</span>
                                                             <input type="text"
@@ -439,17 +417,46 @@
                                                             <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
                                                         @enderror
                                                     </div>
+
+                                                    <!-- 3. Modal (HPP per Unit) -->
+                                                    <div class="sm:col-span-4"
+                                                         x-data="{
+                                                             raw: @entangle('items.' . $idx . '.harga_modal').live,
+                                                             get formatted() {
+                                                                 if (!this.raw && this.raw !== 0) return '';
+                                                                 let num = parseInt(this.raw.toString().replace(/[^0-9]/g, ''), 10);
+                                                                 return isNaN(num) || num === 0 ? '' : num.toLocaleString('id-ID');
+                                                             },
+                                                             update(e) {
+                                                                 let clean = e.target.value.replace(/[^0-9]/g, '');
+                                                                 this.raw = clean ? parseInt(clean, 10) : 0;
+                                                                 $wire.call('recalculateRow', {{ $idx }});
+                                                             }
+                                                         }">
+                                                        <label class="block font-bold text-amber-800 mb-1 text-[10px]">Modal <span class="text-rose-500 font-bold">*</span></label>
+                                                        <div class="relative">
+                                                            <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-[10px] font-bold text-amber-700/70 select-none pointer-events-none font-mono">Rp</span>
+                                                            <input type="text"
+                                                                   inputmode="numeric"
+                                                                   :value="formatted"
+                                                                   @input="update($event)"
+                                                                   class="w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50/40 font-mono font-bold text-amber-900 text-xs focus:ring-2 focus:ring-amber-200 focus:border-amber-500">
+                                                        </div>
+                                                        @error("items.{$idx}.harga_modal")
+                                                            <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <!-- Subtotal & Laba Baris -->
-                                            <div class="pt-1.5 border-t border-gray-100 flex items-center justify-between text-[11px]">
+                                            <div class="pt-2 border-t border-gray-100 flex items-center justify-between text-[11px]">
                                                 <div class="flex items-center space-x-3 text-gray-500 font-medium">
+                                                    <span>Subtotal Biaya: <strong class="text-gray-900 font-mono">Rp {{ number_format((float)($itemRow['subtotal_jual'] ?? 0), 0, ',', '.') }}</strong></span>
                                                     <span>Subtotal Modal: <strong class="text-amber-800 font-mono">Rp {{ number_format((float)($itemRow['subtotal_modal'] ?? 0), 0, ',', '.') }}</strong></span>
-                                                    <span>Subtotal Jual: <strong class="text-gray-900 font-mono">Rp {{ number_format((float)($itemRow['subtotal_jual'] ?? 0), 0, ',', '.') }}</strong></span>
                                                 </div>
                                                 <div>
-                                                    <span class="font-bold text-gray-600">Laba Bersih Baris:</span>
+                                                    <span class="font-bold text-gray-600">Laba Bersih:</span>
                                                     <span class="font-mono font-black {{ ($itemRow['laba'] ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600' }} ml-1">
                                                         Rp {{ number_format((float)($itemRow['laba'] ?? 0), 0, ',', '.') }}
                                                     </span>
@@ -460,61 +467,141 @@
                                 </div>
                             </div>
 
-                            <!-- Section 4: Pembayaran, Pajak & Status -->
-                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
-                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">4. Pembayaran, Pajak &amp; Status</span>
+                            <!-- Section 4: Pembayaran, Pajak, Status & Pegawai -->
+                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3.5">
+                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">4. Pembayaran, Pajak, Status &amp; Pegawai</span>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    <!-- Metode Pembayaran -->
-                                    <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Metode Pembayaran <span class="text-rose-500">*</span></label>
-                                        <select wire:model.live="formMetodePembayaranId"
-                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                            <option value="">-- Pilih Metode --</option>
-                                            @foreach($metodeList as $m)
-                                                <option value="{{ $m->id }}">{{ $m->nama }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('formMetodePembayaranId') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                <div class="space-y-3">
+                                    <!-- Baris 1: Status Transaksi & Pajak PPN -->
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <!-- 1. Status Transaksi -->
+                                        <div>
+                                            <label class="block font-bold text-gray-700 mb-1">Status Transaksi <span class="text-rose-500 font-bold">*</span></label>
+                                            <select wire:model="formStatus"
+                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-black text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all cursor-pointer">
+                                                <option value="Lunas">Lunas</option>
+                                                <option value="BON">BON</option>
+                                                <option value="Belum Lunas">Belum Lunas</option>
+                                                <option value="Batal">Batal</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- 2. Pajak Master PPN -->
+                                        <div>
+                                            <label class="block font-bold text-gray-700 mb-1">Pajak PPN</label>
+                                            <select wire:model.live="formPpnId"
+                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all cursor-pointer">
+                                                @if(!$ppnList->contains(fn($p) => (float)$p->persen == 0))
+                                                    <option value="">Tanpa PPN</option>
+                                                @endif
+                                                @foreach($ppnList as $p)
+                                                    <option value="{{ $p->id }}">
+                                                        {{ (float)$p->persen > 0 ? $p->nama . ' (' . $p->persen . '%)' : $p->nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
 
-                                    <!-- Pajak Master PPN -->
-                                    <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Pajak PPN</label>
-                                        <select wire:model.live="formPpnId"
-                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                            @if(!$ppnList->contains(fn($p) => (float)$p->persen == 0))
-                                                <option value="">Tanpa PPN</option>
-                                            @endif
-                                            @foreach($ppnList as $p)
-                                                <option value="{{ $p->id }}">
-                                                    {{ (float)$p->persen > 0 ? $p->nama . ' (' . $p->persen . '%)' : $p->nama }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                    <!-- Baris 2: Metode Pembayaran & Pegawai (Baris Baru) -->
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-gray-200/60">
+                                        <!-- 3. Metode Pembayaran -->
+                                        <div>
+                                            <label class="block font-bold text-gray-700 mb-1">Metode Pembayaran <span class="text-rose-500 font-bold">*</span></label>
+                                            <select wire:model.live="formMetodePembayaranId"
+                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all cursor-pointer">
+                                                <option value="">-- Pilih Metode --</option>
+                                                @foreach($metodeList as $m)
+                                                    <option value="{{ $m->id }}">{{ $m->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('formMetodePembayaran') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                        </div>
 
-                                    <!-- Status Transaksi -->
-                                    <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Status Transaksi <span class="text-rose-500">*</span></label>
-                                        <select wire:model="formStatus"
-                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-black text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                            <option value="Lunas">Lunas</option>
-                                            <option value="BON">BON</option>
-                                            <option value="Belum Lunas">Belum Lunas</option>
-                                            <option value="Batal">Batal</option>
-                                        </select>
-                                        @error('formStatus') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                        <!-- 4. Pegawai / Petugas (Custom Dropdown UI) -->
+                                        <div x-data="{
+                                            open: false,
+                                            selectedId: @entangle('formUserId').live,
+                                            users: @js($pegawaiList->map(fn($u) => [
+                                                'id' => $u->id,
+                                                'name' => $u->name,
+                                                'role' => $u->roles->first()?->name ?? 'Staf'
+                                            ])),
+                                            get selectedUser() {
+                                                return this.users.find(u => u.id == this.selectedId) || this.users[0] || { name: 'Pilih Pegawai', role: '' };
+                                            },
+                                            select(id) {
+                                                this.selectedId = id;
+                                                this.open = false;
+                                            }
+                                        }" class="relative" @click.outside="open = false">
+                                            <label class="block font-bold text-gray-700 mb-1">Pegawai <span class="text-rose-500 font-bold">*</span></label>
+                                            
+                                            <!-- Trigger Button -->
+                                            <button type="button"
+                                                    @click="open = !open"
+                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-xs flex items-center justify-between gap-2 shadow-2xs hover:border-[#0052FF] focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all cursor-pointer text-left">
+                                                <div class="flex items-center gap-2 min-w-0">
+                                                    <div class="w-6 h-6 rounded-lg bg-blue-100 text-[#0052FF] flex items-center justify-center font-black text-[10px] shrink-0">
+                                                        <span x-text="selectedUser.name ? selectedUser.name.charAt(0).toUpperCase() : 'P'"></span>
+                                                    </div>
+                                                    <div class="min-w-0 truncate">
+                                                        <span class="block truncate text-gray-900 text-xs font-bold" x-text="selectedUser.name"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-1.5 shrink-0">
+                                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-blue-50 text-[#0052FF] border border-blue-100"
+                                                          x-text="selectedUser.role"></span>
+                                                    <svg class="w-4 h-4 text-gray-400 transition-transform" :class="open ? 'rotate-180 text-[#0052FF]' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                </div>
+                                            </button>
+
+                                            <!-- Custom Dropdown Menu -->
+                                            <div x-show="open"
+                                                 x-transition:enter="transition ease-out duration-100"
+                                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                                 x-transition:leave="transition ease-in duration-75"
+                                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                                 class="absolute z-40 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-56 overflow-y-auto custom-scrollbar"
+                                                 style="display: none;">
+                                                <template x-for="user in users" :key="user.id">
+                                                    <button type="button"
+                                                            @click="select(user.id)"
+                                                            class="w-full px-3 py-2.5 text-left flex items-center justify-between gap-2 hover:bg-blue-50/70 transition-colors cursor-pointer"
+                                                            :class="user.id == selectedId ? 'bg-blue-50 text-[#0052FF]' : 'text-gray-800'">
+                                                        <div class="flex items-center gap-2.5 min-w-0">
+                                                            <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
+                                                                 :class="user.id == selectedId ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-100 text-gray-700'">
+                                                                <span x-text="user.name.charAt(0).toUpperCase()"></span>
+                                                            </div>
+                                                            <div class="min-w-0">
+                                                                <span class="block truncate font-bold text-xs" :class="user.id == selectedId ? 'text-[#0052FF]' : 'text-gray-900'" x-text="user.name"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center gap-1.5 shrink-0">
+                                                            <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
+                                                                  :class="user.id == selectedId ? 'bg-blue-200/80 text-blue-950 font-black' : 'bg-gray-100 text-gray-600'"
+                                                                  x-text="user.role"></span>
+                                                            <template x-if="user.id == selectedId">
+                                                                <svg class="w-4 h-4 text-[#0052FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                            </template>
+                                                        </div>
+                                                    </button>
+                                                </template>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <!-- Catatan Opsional -->
-                                <div>
-                                    <label class="block font-bold text-gray-700 mb-1">Catatan Transaksi</label>
-                                    <textarea wire:model="formCatatan"
-                                              rows="2"
-                                              class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]"></textarea>
-                                </div>
+                            <!-- Section 5: Catatan Transaksi -->
+                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-2">
+                                <label class="block font-bold text-gray-700 text-[11px] uppercase tracking-wider">5. Catatan Transaksi</label>
+                                <textarea wire:model="formCatatan"
+                                          rows="2"
+                                          class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]"></textarea>
                             </div>
 
                         </div>
@@ -772,8 +859,8 @@ window.tabulatorTransaksiHarianTable = function(config) {
                     {
                         title: "No. Transaksi",
                         field: "no_transaksi",
-                        width: 155,
-                        minWidth: 140,
+                        width: 145,
+                        minWidth: 130,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
                         formatter: (cell) => {
@@ -783,10 +870,11 @@ window.tabulatorTransaksiHarianTable = function(config) {
                                 <div class="leading-tight py-0.5">
                                     <span class="font-mono font-black text-[#0052FF] block leading-tight text-[10.5px] truncate">${cell.getValue()}</span>
                                     <div class="flex items-center gap-1 mt-0.5">
-                                        <span class="inline-block px-1 py-0.2 rounded text-[8.5px] font-black uppercase tracking-wider ${isServis ? 'bg-purple-100 text-[#5E17EB]' : 'bg-blue-100 text-[#0052FF]'}">
+                                        <span class="inline-block px-1.5 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider ${isServis ? 'bg-purple-100 text-[#5E17EB]' : 'bg-blue-100 text-[#0052FF]'}">
                                             ${d.tipe_transaksi}
                                         </span>
-                                        <span class="inline-block px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">${d.petugas}</span>
+                                        {{-- Sembunyikan badge pegawai di tabel (tersedia di modal detail) --}}
+                                        {{-- <span class="inline-block px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">${d.petugas}</span> --}}
                                     </div>
                                 </div>
                             `;
@@ -823,15 +911,29 @@ window.tabulatorTransaksiHarianTable = function(config) {
                         title: "Rincian Item",
                         field: "rincian_item",
                         widthGrow: 2,
-                        minWidth: 130,
+                        minWidth: 140,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
                         formatter: (cell) => {
                             const d = cell.getData();
+                            const items = d.items_list || [];
+                            let itemsHtml = '';
+                            if (items.length > 0) {
+                                itemsHtml = items.map(it => `
+                                    <div class="flex items-start gap-1.5 leading-tight py-0.5">
+                                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#0052FF] shrink-0 mt-1"></span>
+                                        <span class="text-[10px] font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
+                                    </div>
+                                `).join('');
+                            } else {
+                                itemsHtml = `<span class="text-[10px] text-gray-400 italic">Tanpa item</span>`;
+                            }
                             return `
-                                <div class="leading-tight py-0.5">
-                                    <span class="text-[10.5px] font-bold text-slate-800 block truncate" title="${cell.getValue()}">${cell.getValue()}</span>
-                                    <span class="text-[9.5px] text-purple-800 font-semibold block truncate mt-0.5">Metode: <strong class="text-purple-950 font-black">${d.metode_pembayaran}</strong></span>
+                                <div class="py-1">
+                                    <div class="space-y-0.5">${itemsHtml}</div>
+                                    <div class="mt-1 pt-1 border-t border-gray-100 flex items-center justify-between">
+                                        <span class="text-[9px] text-blue-800 font-semibold">Metode: <strong class="text-blue-950 font-black">${d.metode_pembayaran}</strong></span>
+                                    </div>
                                 </div>
                             `;
                         }
@@ -874,6 +976,8 @@ window.tabulatorTransaksiHarianTable = function(config) {
                             `;
                         }
                     },
+                    /*
+                    // Kolom Keterangan di-hide (tersedia di modal detail)
                     {
                         title: "Keterangan",
                         field: "keterangan",
@@ -883,6 +987,7 @@ window.tabulatorTransaksiHarianTable = function(config) {
                         headerFilterPlaceholder: "",
                         formatter: (cell) => `<span class="text-slate-600 font-medium text-[10px] truncate block leading-tight" title="${cell.getValue()}">${cell.getValue()}</span>`
                     },
+                    */
                     {
                         title: "Aksi",
                         field: "id",

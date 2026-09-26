@@ -1179,8 +1179,8 @@ window.tabulatorTransaksiFullTable = function(config) {
                     {
                         title: "No. Transaksi",
                         field: "no_transaksi",
-                        width: 155,
-                        minWidth: 140,
+                        width: 145,
+                        minWidth: 130,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
                         formatter: (cell) => {
@@ -1190,10 +1190,11 @@ window.tabulatorTransaksiFullTable = function(config) {
                                 <div class="leading-tight py-0.5">
                                     <span class="font-mono font-black text-[#0052FF] block leading-tight text-[10.5px] truncate">${cell.getValue()}</span>
                                     <div class="flex items-center gap-1 mt-0.5">
-                                        <span class="inline-block px-1 py-0.2 rounded text-[8.5px] font-black uppercase tracking-wider ${isServis ? 'bg-purple-100 text-[#5E17EB]' : 'bg-blue-100 text-[#0052FF]'}">
+                                        <span class="inline-block px-1.5 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider ${isServis ? 'bg-purple-100 text-[#5E17EB]' : 'bg-blue-100 text-[#0052FF]'}">
                                             ${d.tipe_transaksi}
                                         </span>
-                                        <span class="inline-block px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">${d.petugas}</span>
+                                        {{-- Sembunyikan badge pegawai di tabel (tersedia di modal detail) --}}
+                                        {{-- <span class="inline-block px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">${d.petugas}</span> --}}
                                     </div>
                                 </div>
                             `;
@@ -1230,15 +1231,29 @@ window.tabulatorTransaksiFullTable = function(config) {
                         title: "Rincian Item",
                         field: "rincian_item",
                         widthGrow: 2,
-                        minWidth: 130,
+                        minWidth: 140,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
                         formatter: (cell) => {
                             const d = cell.getData();
+                            const items = d.items_list || [];
+                            let itemsHtml = '';
+                            if (items.length > 0) {
+                                itemsHtml = items.map(it => `
+                                    <div class="flex items-start gap-1.5 leading-tight py-0.5">
+                                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#5E17EB] shrink-0 mt-1"></span>
+                                        <span class="text-[10px] font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
+                                    </div>
+                                `).join('');
+                            } else {
+                                itemsHtml = `<span class="text-[10px] text-gray-400 italic">Tanpa item</span>`;
+                            }
                             return `
-                                <div class="leading-tight py-0.5">
-                                    <span class="text-[10.5px] font-bold text-slate-800 block truncate" title="${cell.getValue()}">${cell.getValue()}</span>
-                                    <span class="text-[9.5px] text-purple-800 font-semibold block truncate mt-0.5">Metode: <strong class="text-purple-950 font-black">${d.metode_pembayaran}</strong></span>
+                                <div class="py-1">
+                                    <div class="space-y-0.5">${itemsHtml}</div>
+                                    <div class="mt-1 pt-1 border-t border-gray-100 flex items-center justify-between">
+                                        <span class="text-[9px] text-purple-800 font-semibold">Metode: <strong class="text-purple-950 font-black">${d.metode_pembayaran}</strong></span>
+                                    </div>
                                 </div>
                             `;
                         }
@@ -1291,6 +1306,8 @@ window.tabulatorTransaksiFullTable = function(config) {
                             `;
                         }
                     },
+                    /*
+                    // Kolom Keterangan di-hide (tersedia di modal detail)
                     {
                         title: "Keterangan",
                         field: "keterangan",
@@ -1300,6 +1317,7 @@ window.tabulatorTransaksiFullTable = function(config) {
                         headerFilterPlaceholder: "",
                         formatter: (cell) => `<span class="text-slate-600 font-medium text-[10px] truncate block leading-tight" title="${cell.getValue()}">${cell.getValue()}</span>`
                     },
+                    */
                     {
                         title: "Aksi",
                         field: "id",

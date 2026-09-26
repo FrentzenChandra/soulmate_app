@@ -843,6 +843,10 @@ class Full extends Component
                 'petugas' => $item->user?->name ?? 'Kasir',
                 'pelanggan' => $item->nama_pelanggan,
                 'no_hp' => $item->no_hp ?: '-',
+                'items_list' => $item->details->map(fn($d) => [
+                    'qty' => $d->qty,
+                    'nama' => $d->nama_item,
+                ])->values()->all(),
                 'rincian_item' => $item->details->map(fn($d) => $d->qty . 'x ' . $d->nama_item)->implode(', ') ?: 'Tanpa item',
                 'metode_pembayaran' => $item->metode_pembayaran,
                 'total_modal' => (float) $item->total_modal,
