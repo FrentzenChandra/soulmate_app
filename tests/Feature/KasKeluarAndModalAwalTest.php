@@ -94,6 +94,84 @@ class KasKeluarAndModalAwalTest extends TestCase
         ]);
     }
 
+    public function test_kas_keluar_period_filter_modes_and_table_data()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        KasKeluar::query()->delete();
+
+        $sumberDana = SumberDana::first();
+        $kategori = KategoriKasKeluar::first();
+
+        // Buat kas keluar di beberapa tanggal berbeda
+        KasKeluar::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'user_id' => $superadmin->id,
+            'tanggal' => now()->startOfDay()->format('Y-m-d H:i:s'),
+            'keterangan' => 'Pengeluaran Hari Ini',
+            'nominal' => 150000,
+            'sumber_dana_id' => $sumberDana->id,
+            'kategori_kas_keluar_id' => $kategori->id,
+        ]);
+
+        KasKeluar::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'user_id' => $superadmin->id,
+            'tanggal' => now()->subMonths(2)->format('Y-m-d H:i:s'),
+            'keterangan' => 'Pengeluaran Dua Bulan Lalu',
+            'nominal' => 200000,
+            'sumber_dana_id' => $sumberDana->id,
+            'kategori_kas_keluar_id' => $kategori->id,
+        ]);
+
+        KasKeluar::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'user_id' => $superadmin->id,
+            'tanggal' => now()->subYears(2)->format('Y-m-d H:i:s'),
+            'keterangan' => 'Pengeluaran Dua Tahun Lalu',
+            'nominal' => 500000,
+            'sumber_dana_id' => $sumberDana->id,
+            'kategori_kas_keluar_id' => $kategori->id,
+        ]);
+
+        // Test mode hari_ini
+        Livewire::test(KasKeluarIndex::class)
+            ->call('setPeriodeMode', 'hari_ini')
+            ->assertSet('startDate', now()->toDateString())
+            ->assertSet('endDate', now()->toDateString())
+            ->assertViewHas('totalKasKeluar', 150000)
+            ->assertDispatched('kas-keluar-table-updated');
+
+        // Test mode range (awal bulan s/d hari ini)
+        Livewire::test(KasKeluarIndex::class)
+            ->call('setPeriodeMode', 'range')
+            ->assertSet('startDate', now()->startOfMonth()->toDateString())
+            ->assertSet('endDate', now()->toDateString());
+
+        // Test mode bulanan
+        Livewire::test(KasKeluarIndex::class)
+            ->call('setPeriodeMode', 'bulanan')
+            ->set('filterBulan', now()->format('m'))
+            ->set('filterTahun', now()->format('Y'))
+            ->assertSet('startDate', now()->startOfMonth()->toDateString())
+            ->assertSet('endDate', now()->endOfMonth()->toDateString());
+
+        // Test mode tahunan
+        Livewire::test(KasKeluarIndex::class)
+            ->call('setPeriodeMode', 'tahunan')
+            ->set('filterTahun', now()->format('Y'))
+            ->assertSet('startDate', now()->startOfYear()->toDateString())
+            ->assertSet('endDate', now()->endOfYear()->toDateString());
+
+        // Test mode semua
+        Livewire::test(KasKeluarIndex::class)
+            ->call('setPeriodeMode', 'semua')
+            ->assertSet('startDate', '')
+            ->assertSet('endDate', '')
+            ->assertViewHas('totalKasKeluar', 850000);
+    }
+
     public function test_modal_awal_can_be_set_and_updated()
     {
         $admin = User::where('email', 'admin.pkp@soulmate.test')->first();

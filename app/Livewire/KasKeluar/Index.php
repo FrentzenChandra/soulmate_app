@@ -7,6 +7,7 @@ use App\Models\Cabang;
 use App\Models\KasKeluar;
 use App\Models\KategoriKasKeluar;
 use App\Models\SumberDana;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -25,9 +26,15 @@ class Index extends Component
 
     public ?string $kategoriFilter = 'semua';
 
+    public string $periodeMode = 'range'; // 'hari_ini' | 'range' | 'bulanan' | 'tahunan' | 'semua'
+
     public ?string $startDate = null;
 
     public ?string $endDate = null;
+
+    public string $filterBulan = '';
+
+    public string $filterTahun = '';
 
     public int $perPage = 15;
 
@@ -67,8 +74,65 @@ class Index extends Component
 
         $this->startDate = $this->startDate ?: now()->startOfMonth()->toDateString();
         $this->endDate = $this->endDate ?: now()->toDateString();
+        $this->filterBulan = now()->format('m');
+        $this->filterTahun = now()->format('Y');
         $this->sortField = 'tanggal';
         $this->sortDirection = 'desc';
+    }
+
+    public function setPeriodeMode(string $mode): void
+    {
+        $this->periodeMode = $mode;
+        if ($mode === 'semua') {
+            $this->startDate = '';
+            $this->endDate = '';
+        } elseif ($mode === 'hari_ini') {
+            $this->startDate = now()->toDateString();
+            $this->endDate = now()->toDateString();
+        } elseif ($mode === 'range') {
+            $this->startDate = now()->startOfMonth()->toDateString();
+            $this->endDate = now()->toDateString();
+        } elseif ($mode === 'bulanan') {
+            $this->applyBulanan();
+        } elseif ($mode === 'tahunan') {
+            $this->applyTahunan();
+        }
+        $this->resetPage();
+    }
+
+    public function updatedFilterBulan(): void
+    {
+        if ($this->periodeMode === 'bulanan') {
+            $this->applyBulanan();
+        }
+        $this->resetPage();
+    }
+
+    public function updatedFilterTahun(): void
+    {
+        if ($this->periodeMode === 'bulanan') {
+            $this->applyBulanan();
+        } elseif ($this->periodeMode === 'tahunan') {
+            $this->applyTahunan();
+        }
+        $this->resetPage();
+    }
+
+    private function applyBulanan(): void
+    {
+        $year = (int) ($this->filterTahun ?: now()->year);
+        $month = (int) ($this->filterBulan ?: now()->month);
+        $date = Carbon::createFromDate($year, $month, 1);
+        $this->startDate = $date->copy()->startOfMonth()->toDateString();
+        $this->endDate = $date->copy()->endOfMonth()->toDateString();
+    }
+
+    private function applyTahunan(): void
+    {
+        $year = (int) ($this->filterTahun ?: now()->year);
+        $date = Carbon::createFromDate($year, 1, 1);
+        $this->startDate = $date->copy()->startOfYear()->toDateString();
+        $this->endDate = $date->copy()->endOfYear()->toDateString();
     }
 
     public function getActiveCabangProperty(): ?Cabang
@@ -209,11 +273,11 @@ class Index extends Component
             $query->where('cabang_id', $cabang->id);
         }
 
-        if ($this->startDate) {
+        if (! empty($this->startDate)) {
             $query->whereDate('tanggal', '>=', $this->startDate);
         }
 
-        if ($this->endDate) {
+        if (! empty($this->endDate)) {
             $query->whereDate('tanggal', '<=', $this->endDate);
         }
 
@@ -225,7 +289,8 @@ class Index extends Component
                     $q->where(function ($sub) use ($pattern) {
                         $sub->whereRaw('LOWER(keterangan) LIKE ?', [$pattern])
                             ->orWhereHas('sumberDana', fn ($sq) => $sq->whereRaw('LOWER(nama) LIKE ?', [$pattern]))
-                            ->orWhereHas('kategori', fn ($kq) => $kq->whereRaw('LOWER(nama) LIKE ?', [$pattern]));
+                            ->orWhereHas('kategori', fn ($kq) => $kq->whereRaw('LOWER(nama) LIKE ?', [$pattern]))
+                            ->orWhereHas('user', fn ($uq) => $uq->whereRaw('LOWER(name) LIKE ?', [$pattern]));
                     });
                 }
             });
@@ -247,10 +312,27 @@ class Index extends Component
         $sortCol = in_array($this->sortField, ['tanggal', 'nominal', 'keterangan']) ? $this->sortField : 'tanggal';
         $query->orderBy($sortCol, $this->sortDirection === 'asc' ? 'asc' : 'desc');
 
-        $items = $query->paginate($this->perPage);
+        $allData = (clone $query)->get();
+
+        $tableData = $allData->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'tanggal_raw' => $item->tanggal ? $item->tanggal->format('Y-m-d H:i') : '',
+                'tanggal_group' => $item->tanggal ? $item->tanggal->translatedFormat('l, d F Y') : '-',
+                'waktu' => $item->tanggal ? $item->tanggal->format('d/m/Y H:i') : '-',
+                'kategori' => $item->kategori?->nama ?? 'Umum',
+                'sumber_dana' => $item->sumberDana?->nama ?? 'Kasir',
+                'keterangan' => $item->keterangan ?: '-',
+                'petugas' => $item->user?->name ?? 'Petugas',
+                'nominal' => (float) $item->nominal,
+                'nominal_formatted' => 'Rp ' . number_format($item->nominal, 0, ',', '.'),
+            ];
+        })->values()->all();
+
+        $this->dispatch('kas-keluar-table-updated', data: $tableData);
 
         return view('livewire.kas-keluar.index', [
-            'items' => $items,
+            'tableData' => $tableData,
             'totalKasKeluar' => $totalKasKeluar,
             'totalCash' => $totalCash,
             'totalNonCash' => $totalNonCash,

@@ -38,6 +38,13 @@
             box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04);
             border: 1px solid rgba(0, 0, 0, 0.05);
         }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
         @media print {
             aside, header, nav, .no-print {
                 display: none !important;
@@ -109,7 +116,7 @@
                         scrollToActive();
                         $watch('sidebarOpen', val => { if (val) setTimeout(scrollToActive, 150); });
                     })"
-                    class="flex-1 px-3 py-1 space-y-1 overflow-y-auto custom-scrollbar pb-8">
+                    class="flex-1 px-3 py-1 space-y-1 overflow-y-auto no-scrollbar pb-8">
 
                 @php
                     $isOwner = auth()->user()->isOwner();

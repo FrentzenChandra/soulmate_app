@@ -679,5 +679,14 @@
     font-size: 13px !important;
 }
 
+/* Hide scrollbar for Chrome, Safari, Edge, Opera, and Firefox */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
 
 
