@@ -518,9 +518,10 @@
                                             @error('formMetodePembayaran') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
                                         </div>
 
-                                        <!-- 4. Pegawai / Petugas (Custom Dropdown UI) -->
+                                        <!-- 4. Pegawai / Petugas (Custom Dropdown UI dengan Search) -->
                                         <div x-data="{
                                             open: false,
+                                            search: '',
                                             selectedId: @entangle('formUserId').live,
                                             users: @js($pegawaiList->map(fn($u) => [
                                                 'id' => $u->id,
@@ -530,16 +531,22 @@
                                             get selectedUser() {
                                                 return this.users.find(u => u.id == this.selectedId) || this.users[0] || { name: 'Pilih Pegawai', role: '' };
                                             },
+                                            get filteredUsers() {
+                                                if (!this.search.trim()) return this.users;
+                                                const q = this.search.toLowerCase();
+                                                return this.users.filter(u => u.name.toLowerCase().includes(q) || u.role.toLowerCase().includes(q));
+                                            },
                                             select(id) {
                                                 this.selectedId = id;
                                                 this.open = false;
+                                                this.search = '';
                                             }
-                                        }" class="relative" @click.outside="open = false">
+                                        }" class="relative" @click.outside="open = false; search = ''">
                                             <label class="block font-bold text-gray-700 mb-1">Pegawai <span class="text-rose-500 font-bold">*</span></label>
                                             
                                             <!-- Trigger Button -->
                                             <button type="button"
-                                                    @click="open = !open"
+                                                    @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
                                                     class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-xs flex items-center justify-between gap-2 shadow-2xs hover:border-[#0052FF] focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all cursor-pointer text-left">
                                                 <div class="flex items-center gap-2 min-w-0">
                                                     <div class="w-6 h-6 rounded-lg bg-blue-100 text-[#0052FF] flex items-center justify-center font-black text-[10px] shrink-0">
@@ -564,32 +571,57 @@
                                                  x-transition:leave="transition ease-in duration-75"
                                                  x-transition:leave-start="transform opacity-100 scale-100"
                                                  x-transition:leave-end="transform opacity-0 scale-95"
-                                                 class="absolute z-40 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-56 overflow-y-auto custom-scrollbar"
+                                                 class="absolute z-40 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-60 overflow-y-auto custom-scrollbar"
                                                  style="display: none;">
-                                                <template x-for="user in users" :key="user.id">
-                                                    <button type="button"
-                                                            @click="select(user.id)"
-                                                            class="w-full px-3 py-2.5 text-left flex items-center justify-between gap-2 hover:bg-blue-50/70 transition-colors cursor-pointer"
-                                                            :class="user.id == selectedId ? 'bg-blue-50 text-[#0052FF]' : 'text-gray-800'">
-                                                        <div class="flex items-center gap-2.5 min-w-0">
-                                                            <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
-                                                                 :class="user.id == selectedId ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-100 text-gray-700'">
-                                                                <span x-text="user.name.charAt(0).toUpperCase()"></span>
+                                                
+                                                <!-- Search Box (Zero Placeholder) -->
+                                                <div class="p-2 border-b border-gray-100 bg-gray-50/80 sticky top-0 z-10">
+                                                    <div class="relative">
+                                                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-gray-400">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                                        </span>
+                                                        <input type="text"
+                                                               x-model="search"
+                                                               x-ref="searchInput"
+                                                               @keydown.escape="open = false; search = ''"
+                                                               class="w-full pl-8 pr-2.5 py-1 rounded-lg border border-gray-200 bg-white font-semibold text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]"
+                                                               aria-label="Cari Pegawai">
+                                                    </div>
+                                                </div>
+
+                                                <!-- User List -->
+                                                <div class="divide-y divide-gray-100">
+                                                    <template x-for="user in filteredUsers" :key="user.id">
+                                                        <button type="button"
+                                                                @click="select(user.id)"
+                                                                class="w-full px-3 py-2.5 text-left flex items-center justify-between gap-2 hover:bg-blue-50/70 transition-colors cursor-pointer"
+                                                                :class="user.id == selectedId ? 'bg-blue-50 text-[#0052FF]' : 'text-gray-800'">
+                                                            <div class="flex items-center gap-2.5 min-w-0">
+                                                                <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
+                                                                     :class="user.id == selectedId ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-100 text-gray-700'">
+                                                                    <span x-text="user.name.charAt(0).toUpperCase()"></span>
+                                                                </div>
+                                                                <div class="min-w-0">
+                                                                    <span class="block truncate font-bold text-xs" :class="user.id == selectedId ? 'text-[#0052FF]' : 'text-gray-900'" x-text="user.name"></span>
+                                                                </div>
                                                             </div>
-                                                            <div class="min-w-0">
-                                                                <span class="block truncate font-bold text-xs" :class="user.id == selectedId ? 'text-[#0052FF]' : 'text-gray-900'" x-text="user.name"></span>
+                                                            <div class="flex items-center gap-1.5 shrink-0">
+                                                                <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
+                                                                      :class="user.id == selectedId ? 'bg-blue-200/80 text-blue-950 font-black' : 'bg-gray-100 text-gray-600'"
+                                                                      x-text="user.role"></span>
+                                                                <template x-if="user.id == selectedId">
+                                                                    <svg class="w-4 h-4 text-[#0052FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                                </template>
                                                             </div>
+                                                        </button>
+                                                    </template>
+
+                                                    <template x-if="filteredUsers.length === 0">
+                                                        <div class="p-3 text-center text-xs text-gray-400 font-medium">
+                                                            Pegawai tidak ditemukan
                                                         </div>
-                                                        <div class="flex items-center gap-1.5 shrink-0">
-                                                            <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
-                                                                  :class="user.id == selectedId ? 'bg-blue-200/80 text-blue-950 font-black' : 'bg-gray-100 text-gray-600'"
-                                                                  x-text="user.role"></span>
-                                                            <template x-if="user.id == selectedId">
-                                                                <svg class="w-4 h-4 text-[#0052FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                                            </template>
-                                                        </div>
-                                                    </button>
-                                                </template>
+                                                    </template>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
