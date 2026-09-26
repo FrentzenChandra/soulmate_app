@@ -59,6 +59,7 @@ class Full extends Component
     public ?int $transaksiId = null;
     public string $formNoTransaksi = '';
     public string $formTipeTransaksi = 'penjualan'; // 'penjualan' | 'servis'
+    public ?string $formKategoriPerangkat = 'laptop'; // 'laptop' | 'komputer' | 'printer' | 'lainnya'
     public string $formTanggal = '';
     public string $formTanggalOnly = '';
     public string $formJam = '';
@@ -198,6 +199,7 @@ class Full extends Component
         $this->formJam = now()->format('H:i');
         $this->formTanggal = now()->format('Y-m-d\TH:i');
         $this->formTipeTransaksi = 'penjualan';
+        $this->formKategoriPerangkat = 'laptop';
         $this->formNamaPelanggan = 'KONSUMEN';
         $this->formUserId = Auth::id();
         $this->generateDefaultNoTransaksi();
@@ -230,6 +232,7 @@ class Full extends Component
         $this->transaksiId = $transaksi->id;
         $this->formNoTransaksi = $transaksi->no_transaksi_frontend;
         $this->formTipeTransaksi = $transaksi->tipe_transaksi;
+        $this->formKategoriPerangkat = $transaksi->kategori_perangkat ?? ($transaksi->tipe_transaksi === 'servis' ? 'laptop' : null);
         $this->formTanggalOnly = $transaksi->tanggal ? $transaksi->tanggal->toDateString() : now()->toDateString();
         $this->formJam = $transaksi->tanggal ? $transaksi->tanggal->format('H:i') : now()->format('H:i');
         $this->formTanggal = $transaksi->tanggal ? $transaksi->tanggal->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i');
@@ -278,6 +281,7 @@ class Full extends Component
         $this->transaksiId = null;
         $this->formNoTransaksi = '';
         $this->formTipeTransaksi = 'penjualan';
+        $this->formKategoriPerangkat = 'laptop';
         $this->formTanggal = '';
         $this->formCustomerType = 'umum';
         $this->formCustomerId = null;
@@ -297,6 +301,10 @@ class Full extends Component
 
     public function updatedFormTipeTransaksi(): void
     {
+        if ($this->formTipeTransaksi === 'servis' && empty($this->formKategoriPerangkat)) {
+            $this->formKategoriPerangkat = 'laptop';
+        }
+
         if (! $this->transaksiId) {
             $this->generateDefaultNoTransaksi();
         }
@@ -455,6 +463,7 @@ class Full extends Component
         $this->validate([
             'formNoTransaksi' => 'required|string|max:100',
             'formTipeTransaksi' => 'required|in:penjualan,servis',
+            'formKategoriPerangkat' => 'nullable|in:laptop,komputer,printer,lainnya',
             'formTanggal' => 'required|date',
             'formNamaPelanggan' => 'required|string|max:150',
             'formMetodePembayaran' => 'required|string|max:50',
@@ -525,6 +534,7 @@ class Full extends Component
                 'no_hp' => trim($this->formNoHp) ?: null,
                 'no_transaksi' => trim($this->formNoTransaksi),
                 'tipe_transaksi' => $this->formTipeTransaksi,
+                'kategori_perangkat' => $this->formTipeTransaksi === 'servis' ? ($this->formKategoriPerangkat ?: 'laptop') : null,
                 'tanggal' => $tanggalParsed,
                 'tanggal_lunas' => $tanggalLunas,
                 'metode_pembayaran_id' => $this->formMetodePembayaranId,

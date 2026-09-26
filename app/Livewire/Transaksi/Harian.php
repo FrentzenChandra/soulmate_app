@@ -46,6 +46,7 @@ class Harian extends Component
     public ?int $transaksiId = null;
     public string $formNoTransaksi = '';
     public string $formTipeTransaksi = 'penjualan';
+    public ?string $formKategoriPerangkat = 'laptop';
     public string $formTanggal = '';
     public string $formTanggalOnly = '';
     public string $formJam = '';
@@ -122,6 +123,7 @@ class Harian extends Component
         $this->formTanggalOnly = now()->toDateString();
         $this->formJam = now()->format('H:i');
         $this->formTipeTransaksi = 'penjualan';
+        $this->formKategoriPerangkat = 'laptop';
         $this->formNamaPelanggan = 'KONSUMEN';
         $this->formUserId = Auth::id();
         $this->generateDefaultNoTransaksi();
@@ -150,6 +152,7 @@ class Harian extends Component
         $this->transaksiId = $transaksi->id;
         $this->formNoTransaksi = $transaksi->no_transaksi_frontend;
         $this->formTipeTransaksi = $transaksi->tipe_transaksi;
+        $this->formKategoriPerangkat = $transaksi->kategori_perangkat ?? ($transaksi->tipe_transaksi === 'servis' ? 'laptop' : null);
         $this->formTanggal = $transaksi->tanggal ? $transaksi->tanggal->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i');
         $this->formTanggalOnly = $transaksi->tanggal ? $transaksi->tanggal->toDateString() : now()->toDateString();
         $this->formJam = $transaksi->tanggal ? $transaksi->tanggal->format('H:i') : now()->format('H:i');
@@ -198,6 +201,7 @@ class Harian extends Component
         $this->transaksiId = null;
         $this->formNoTransaksi = '';
         $this->formTipeTransaksi = 'penjualan';
+        $this->formKategoriPerangkat = 'laptop';
         $this->formTanggal = '';
         $this->formTanggalOnly = '';
         $this->formJam = '';
@@ -220,6 +224,10 @@ class Harian extends Component
 
     public function updatedFormTipeTransaksi(): void
     {
+        if ($this->formTipeTransaksi === 'servis' && empty($this->formKategoriPerangkat)) {
+            $this->formKategoriPerangkat = 'laptop';
+        }
+
         if (! $this->transaksiId) {
             $this->generateDefaultNoTransaksi();
         }
@@ -373,6 +381,7 @@ class Harian extends Component
         $this->validate([
             'formNoTransaksi' => 'required|string|max:100',
             'formTipeTransaksi' => 'required|in:penjualan,servis',
+            'formKategoriPerangkat' => 'nullable|in:laptop,komputer,printer,lainnya',
             'formTanggal' => 'required|date',
             'formNamaPelanggan' => 'required|string|max:150',
             'formMetodePembayaran' => 'required|string|max:50',
@@ -438,6 +447,7 @@ class Harian extends Component
                 'no_hp' => trim($this->formNoHp) ?: null,
                 'no_transaksi' => trim($this->formNoTransaksi),
                 'tipe_transaksi' => $this->formTipeTransaksi,
+                'kategori_perangkat' => $this->formTipeTransaksi === 'servis' ? ($this->formKategoriPerangkat ?: 'laptop') : null,
                 'tanggal' => $tanggalParsed,
                 'tanggal_lunas' => $tanggalLunas,
                 'metode_pembayaran_id' => $this->formMetodePembayaranId,

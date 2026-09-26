@@ -22,6 +22,7 @@ class TransaksiFull extends Model
         'no_hp',
         'no_transaksi',
         'tipe_transaksi',
+        'kategori_perangkat',
         'tanggal',
         'tanggal_lunas',
         'metode_pembayaran_id',
@@ -106,6 +107,20 @@ class TransaksiFull extends Model
             'belum_lunas' => 'Belum Lunas',
             'batal' => 'Batal',
             default => ucfirst($this->status),
+        };
+    }
+
+    public function getKategoriPerangkatLabelAttribute(): ?string
+    {
+        if (! $this->kategori_perangkat) {
+            return null;
+        }
+
+        return match (strtolower($this->kategori_perangkat)) {
+            'laptop' => 'Laptop',
+            'printer' => 'Printer',
+            'komputer', 'pc' => 'Komputer',
+            default => ucfirst($this->kategori_perangkat ?: 'Lainnya'),
         };
     }
 }

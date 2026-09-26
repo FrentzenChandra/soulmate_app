@@ -65,7 +65,7 @@
                     Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
                 </span>
                 <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                    Total pendapatan kotor
+                    Pendapatan Kotor
                 </span>
             </div>
         </div>
@@ -83,7 +83,7 @@
                     Rp {{ number_format($totalModal, 0, ',', '.') }}
                 </span>
                 <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                    Total modal pokok
+                    Modal Pokok
                 </span>
             </div>
         </div>
@@ -101,7 +101,7 @@
                     Rp {{ number_format($totalLaba, 0, ',', '.') }}
                 </span>
                 <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                    Total laba kotor / margin
+                    margin
                 </span>
             </div>
         </div>
@@ -137,7 +137,7 @@
                     Rp {{ number_format($totalBon, 0, ',', '.') }}
                 </span>
                 <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                    Belum lunas / tertunda
+                    Bon
                 </span>
             </div>
         </div>
@@ -155,7 +155,7 @@
                     Rp {{ number_format($totalUangCash, 0, ',', '.') }}
                 </span>
                 <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                    Kas fisik laci hari ini
+                    Cash Fisik Pada Hari ini 
                 </span>
             </div>
         </div>
@@ -442,6 +442,50 @@
                                                class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-mono font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                         @error('formJam') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
                                     </div>
+
+                                    @if($formTipeTransaksi === 'servis')
+                                        <div class="sm:col-span-2 pt-2 border-t border-amber-200/60">
+                                            <label class="block font-bold text-gray-700 mb-1.5 text-xs">
+                                                Kategori Perangkat <span class="text-rose-500 font-bold">*</span>
+                                            </label>
+                                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                                <!-- Laptop -->
+                                                <button type="button"
+                                                        wire:click="$set('formKategoriPerangkat', 'laptop')"
+                                                        class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer {{ $formKategoriPerangkat === 'laptop' ? 'bg-[#5E17EB] text-white border-[#5E17EB] shadow-xs' : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300' }}">
+                                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                                    <span>Laptop</span>
+                                                </button>
+
+                                                <!-- Komputer -->
+                                                <button type="button"
+                                                        wire:click="$set('formKategoriPerangkat', 'komputer')"
+                                                        class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer {{ $formKategoriPerangkat === 'komputer' ? 'bg-[#5E17EB] text-white border-[#5E17EB] shadow-xs' : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300' }}">
+                                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                                    <span>Komputer</span>
+                                                </button>
+
+                                                <!-- Printer -->
+                                                <button type="button"
+                                                        wire:click="$set('formKategoriPerangkat', 'printer')"
+                                                        class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer {{ $formKategoriPerangkat === 'printer' ? 'bg-[#5E17EB] text-white border-[#5E17EB] shadow-xs' : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300' }}">
+                                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                                    <span>Printer</span>
+                                                </button>
+
+                                                <!-- Lainnya -->
+                                                <button type="button"
+                                                        wire:click="$set('formKategoriPerangkat', 'lainnya')"
+                                                        class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer {{ $formKategoriPerangkat === 'lainnya' ? 'bg-[#5E17EB] text-white border-[#5E17EB] shadow-xs' : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300' }}">
+                                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                                                    <span>Lainnya</span>
+                                                </button>
+                                            </div>
+                                            @error('formKategoriPerangkat')
+                                                <span class="text-rose-500 font-bold block mt-1 text-[10px]">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -751,7 +795,7 @@
                                             }
                                         }" class="relative" @click.outside="open = false; search = ''">
                                             <label class="block font-bold text-gray-700 mb-1">Pegawai <span class="text-rose-500 font-bold">*</span></label>
-                                            
+
                                             <!-- Trigger Button -->
                                             <button type="button"
                                                     @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
@@ -781,7 +825,7 @@
                                                  x-transition:leave-end="transform opacity-0 scale-95"
                                                  class="absolute z-40 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-60 overflow-y-auto custom-scrollbar"
                                                  style="display: none;">
-                                                
+
                                                 <!-- Search Box (Zero Placeholder) -->
                                                 <div class="p-2 border-b border-gray-100 bg-gray-50/80 sticky top-0 z-10">
                                                     <div class="relative">
@@ -900,7 +944,7 @@
                     <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar text-xs">
 
                         <!-- Snapshot Ringkas -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <div class="grid grid-cols-2 {{ $selectedTransaksi->tipe_transaksi === 'servis' && $selectedTransaksi->kategori_perangkat ? 'sm:grid-cols-5' : 'sm:grid-cols-4' }} gap-2.5">
                             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">No. Transaksi</span>
                                 <span class="font-mono font-black text-gray-900 block mt-0.5">{{ $selectedTransaksi->no_transaksi_frontend }}</span>
@@ -909,6 +953,12 @@
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">Tipe</span>
                                 <span class="font-bold text-[#5E17EB] uppercase block mt-0.5">{{ $selectedTransaksi->tipe_transaksi }}</span>
                             </div>
+                            @if($selectedTransaksi->tipe_transaksi === 'servis' && $selectedTransaksi->kategori_perangkat)
+                                <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
+                                    <span class="text-[10px] font-bold text-amber-900 uppercase block">Perangkat</span>
+                                    <span class="font-bold text-amber-900 block mt-0.5">{{ $selectedTransaksi->kategori_perangkat_label }}</span>
+                                </div>
+                            @endif
                             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">Waktu</span>
                                 <span class="font-bold text-gray-900 block mt-0.5">{{ $selectedTransaksi->tanggal ? $selectedTransaksi->tanggal->format('d/m/Y H:i') : '-' }}</span>

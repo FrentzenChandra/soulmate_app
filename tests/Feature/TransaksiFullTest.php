@@ -233,4 +233,53 @@ class TransaksiFullTest extends TestCase
             ->set('tipeFilter', 'servis')
             ->assertViewHas('totalPendapatan', 50000.0);
     }
+
+    public function test_can_create_and_edit_servis_transaksi_with_device_category()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        $metode = MetodePembayaran::first();
+
+        // 1. Create Servis Transaksi with kategori 'printer'
+        $test = Livewire::test(TransaksiFull::class)
+            ->call('openCreateModal')
+            ->set('formNamaPelanggan', 'Joko Servis Printer')
+            ->set('formTipeTransaksi', 'servis')
+            ->set('formKategoriPerangkat', 'printer')
+            ->set('formStatus', 'Lunas')
+            ->set('formMetodePembayaranId', $metode->id)
+            ->set('formMetodePembayaran', $metode->nama)
+            ->set('items.0.nama_item', 'Servis Head Printer Epson L3110')
+            ->set('items.0.qty', 1)
+            ->set('items.0.harga_modal', 50000)
+            ->set('items.0.harga_jual', 150000)
+            ->call('recalculateRow', 0)
+            ->call('simpanTransaksi')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('transaksi_fulls', [
+            'nama_pelanggan' => 'Joko Servis Printer',
+            'tipe_transaksi' => 'servis',
+            'kategori_perangkat' => 'printer',
+            'status' => 'Lunas',
+            'grand_total' => 150000,
+        ]);
+
+        $trx = TransaksiFullModel::where('nama_pelanggan', 'Joko Servis Printer')->first();
+        $this->assertEquals('Printer', $trx->kategori_perangkat_label);
+
+        // 2. Edit Servis Transaksi to kategori 'laptop'
+        Livewire::test(TransaksiFull::class)
+            ->call('openEditModal', $trx->id)
+            ->assertSet('formKategoriPerangkat', 'printer')
+            ->set('formKategoriPerangkat', 'laptop')
+            ->call('simpanTransaksi')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('transaksi_fulls', [
+            'id' => $trx->id,
+            'kategori_perangkat' => 'laptop',
+        ]);
+    }
 }
