@@ -27,5 +27,29 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            if ($request->expectsJson() || $request->hasHeader('X-Livewire')) {
+                return response()->json([
+                    'message' => 'Sesi Anda telah berakhir. Silakan masuk kembali.',
+                    'redirect' => route('login'),
+                ], 419);
+            }
+
+            return redirect()->guest(route('login'))->with('warning', 'Sesi Anda telah berakhir. Silakan masuk kembali.');
+        });
+
+        $exceptions->respond(function ($response, $e, $request) {
+            if ($response->getStatusCode() === 419) {
+                if ($request->expectsJson() || $request->hasHeader('X-Livewire')) {
+                    return response()->json([
+                        'message' => 'Sesi Anda telah berakhir. Silakan masuk kembali.',
+                        'redirect' => route('login'),
+                    ], 419);
+                }
+
+                return redirect()->guest(route('login'))->with('warning', 'Sesi Anda telah berakhir. Silakan masuk kembali.');
+            }
+
+            return $response;
+        });
     })->create();

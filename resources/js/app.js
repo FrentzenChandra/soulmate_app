@@ -244,3 +244,60 @@ if (document.readyState === 'loading') {
     initSwalListeners();
 }
 
+// =========================================================================
+// Multi-Tab Logout & Expired Session Graceful Handler (Anti-419 / Auto Redirect)
+// =========================================================================
+const redirectToLogin = () => {
+    localStorage.setItem('soulmate_logged_out', Date.now().toString());
+    if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+    }
+};
+
+// Sync logout across open browser tabs
+window.addEventListener('storage', (e) => {
+    if (e.key === 'soulmate_logged_out' && e.newValue) {
+        if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+        }
+    }
+});
+
+// Clear logout marker when on /login page
+if (window.location.pathname === '/login') {
+    localStorage.removeItem('soulmate_logged_out');
+}
+
+// Broadcast logout on logout form submit
+document.addEventListener('submit', (e) => {
+    if (e.target && e.target.action && e.target.action.includes('/logout')) {
+        localStorage.setItem('soulmate_logged_out', Date.now().toString());
+    }
+});
+
+// Intercept Livewire 3 request failures for 419 Page Expired & 401 Unauthorized
+document.addEventListener('livewire:init', () => {
+    if (window.Livewire) {
+        window.Livewire.hook('request', ({ fail }) => {
+            fail(({ status, preventDefault }) => {
+                if (status === 419 || status === 401) {
+                    preventDefault();
+                    redirectToLogin();
+                }
+            });
+        });
+
+        window.Livewire.hook('navigate', (context) => {
+            if (context && typeof context.fail === 'function') {
+                context.fail(({ status, preventDefault }) => {
+                    if (status === 419 || status === 401) {
+                        preventDefault();
+                        redirectToLogin();
+                    }
+                });
+            }
+        });
+    }
+});
+
+
