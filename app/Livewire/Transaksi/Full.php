@@ -9,6 +9,7 @@ use App\Models\KasKeluar;
 use App\Models\MasterPpn;
 use App\Models\MasterServis;
 use App\Models\MetodePembayaran;
+use App\Models\ModalAwal;
 use App\Models\Produk;
 use App\Models\TransaksiFull;
 use App\Models\TransaksiFullDetail;
@@ -38,6 +39,9 @@ class Full extends Component
 
     #[Url(except: 'semua')]
     public string $metodeFilter = 'semua';
+
+    #[Url(except: 'semua')]
+    public string $ppnFilter = 'semua'; // 'semua' | 'ppn' | 'non_ppn'
 
     #[Url(except: 'semua')]
     public string $cabangFilter = 'semua';
@@ -168,6 +172,11 @@ class Full extends Component
     }
 
     public function updatingMetodeFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingPpnFilter(): void
     {
         $this->resetPage();
     }
@@ -743,6 +752,15 @@ class Full extends Component
             $query->where('metode_pembayaran', $this->metodeFilter);
         }
 
+        // Filter Pajak PPN
+        if ($this->ppnFilter === 'ppn') {
+            $query->whereNotNull('ppn_id')->where('ppn_persen', '>', 0);
+        } elseif ($this->ppnFilter === 'non_ppn') {
+            $query->where(function ($q) {
+                $q->whereNull('ppn_id')->orWhere('ppn_persen', '<=', 0);
+            });
+        }
+
         // Multi-Word Loose Search
         if (! empty($this->search)) {
             $cleanSearch = trim($this->search);
@@ -761,67 +779,66 @@ class Full extends Component
             });
         }
 
-        // Hitung Ringkasan Finansial (Excluding Batal)
+        // Hitung 6 Ringkasan Finansial Utama
         $summaryBase = clone $query;
         $allCurrent = $summaryBase->get();
         $nonBatal = $allCurrent->where('status', '!==', 'Batal');
 
-        $totalOmset = $nonBatal->sum('grand_total');
-        $totalModal = $nonBatal->sum('total_modal');
-        $totalLaba = $nonBatal->sum('total_laba');
+        $totalPendapatan = (float) $nonBatal->sum('grand_total');
+        $totalModal = (float) $nonBatal->sum('total_modal');
+        $totalLaba = (float) $nonBatal->sum('total_laba');
+        $totalLunas = (float) $allCurrent->where('status', 'Lunas')->sum('grand_total');
+        $totalBon = (float) $allCurrent->whereIn('status', ['BON', 'Belum Lunas'])->sum('grand_total');
         $totalTransaksiCount = $allCurrent->count();
 
-        // Hitung Kas Keluar pada periode & cabang yang sama
-        $kasKeluarQ = KasKeluar::query();
+        // Hitung Uang Cash di Laci HARI INI (Terkunci Hari Ini / Realtime Kasir)
+        $todayDate = now()->toDateString();
+        $todayStart = now()->startOfDay();
+        $todayEnd = now()->endOfDay();
+
+        $modalAwalQ = ModalAwal::whereDate('tanggal', $todayDate);
+        $kasKeluarQ = KasKeluar::whereBetween('tanggal', [$todayStart, $todayEnd]);
+        $cashMasukQ = TransaksiFull::query()
+            ->where('status', 'Lunas')
+            ->where(function ($q) {
+                $q->whereRaw('LOWER(metode_pembayaran) LIKE ?', ['%cash%'])
+                    ->orWhereRaw('LOWER(metode_pembayaran) LIKE ?', ['%tunai%']);
+            })
+            ->where(function ($q) use ($todayStart, $todayEnd) {
+                $q->whereBetween('tanggal_lunas', [$todayStart, $todayEnd])
+                    ->orWhere(function ($sq) use ($todayStart, $todayEnd) {
+                        $sq->whereNull('tanggal_lunas')
+                            ->whereBetween('tanggal', [$todayStart, $todayEnd]);
+                    });
+            });
+
         if (! $isHQ) {
             $targetCabangId = $isOwner ? (int) $activeBranchSession : (int) $user->cabang_id;
-            if ($targetCabangId) $kasKeluarQ->where('cabang_id', $targetCabangId);
+            if ($targetCabangId) {
+                $modalAwalQ->where('cabang_id', $targetCabangId);
+                $kasKeluarQ->where('cabang_id', $targetCabangId);
+                $cashMasukQ->where('cabang_id', $targetCabangId);
+            }
         } elseif ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
+            $modalAwalQ->where('cabang_id', (int) $this->cabangFilter);
             $kasKeluarQ->where('cabang_id', (int) $this->cabangFilter);
+            $cashMasukQ->where('cabang_id', (int) $this->cabangFilter);
         }
-        if (! empty($this->startDate)) {
-            $start = Carbon::parse($this->startDate)->startOfDay();
-            $end = Carbon::parse($this->endDate ?: $this->startDate)->endOfDay();
-            $kasKeluarQ->whereBetween('tanggal', [$start, $end]);
-        }
-        $totalKasKeluar = (float) $kasKeluarQ->sum('nominal');
-        $kasBersihNett = $totalLaba - $totalKasKeluar;
 
-        // Granular Metrics untuk 5 Ringkasan Card
-        $trxLunas = $allCurrent->where('status', 'Lunas');
-        $trxBon = $allCurrent->whereIn('status', ['BON', 'Belum Lunas']);
+        $totalModalAwal = (float) $modalAwalQ->sum('nominal');
 
-        // Card 1: OMZET - KAS KELUAR
-        $omsetLunas = (float) $trxLunas->sum('grand_total');
-        $omsetBon = (float) $trxBon->sum('grand_total');
-        $kasRealLunas = $omsetLunas - $totalKasKeluar;
-        $saldoPlusBon = ($omsetLunas + $omsetBon) - $totalKasKeluar;
+        // Kas Keluar Cash Hari Ini
+        $totalKasKeluarCash = (float) $kasKeluarQ->where(function ($q) {
+            $q->whereHas('sumberDana', function ($sq) {
+                $sq->whereRaw('LOWER(nama) LIKE ?', ['%cash%'])
+                    ->orWhereRaw('LOWER(nama) LIKE ?', ['%tunai%'])
+                    ->orWhereRaw('LOWER(nama) LIKE ?', ['%kasir%']);
+            })->orWhereDoesntHave('sumberDana');
+        })->sum('nominal');
 
-        // Card 2: PENJUALAN PRODUK
-        $penjualanLunas = (float) $trxLunas->where('tipe_transaksi', 'penjualan')->sum('grand_total');
-        $penjualanBon = (float) $trxBon->where('tipe_transaksi', 'penjualan')->sum('grand_total');
-        $penjualanTotal = $penjualanLunas + $penjualanBon;
-        $penjualanNettLunas = (float) $trxLunas->where('tipe_transaksi', 'penjualan')->sum('total_laba');
-        $penjualanNettBon = (float) $trxBon->where('tipe_transaksi', 'penjualan')->sum('total_laba');
-        $penjualanNettTotal = $penjualanNettLunas + $penjualanNettBon;
+        $transaksiCashMasuk = (float) $cashMasukQ->sum('grand_total');
 
-        // Card 3: LAYANAN SERVIS
-        $servisLunas = (float) $trxLunas->where('tipe_transaksi', 'servis')->sum('grand_total');
-        $servisBon = (float) $trxBon->where('tipe_transaksi', 'servis')->sum('grand_total');
-        $servisTotal = $servisLunas + $servisBon;
-        $servisNettLunas = (float) $trxLunas->where('tipe_transaksi', 'servis')->sum('total_laba');
-        $servisNettBon = (float) $trxBon->where('tipe_transaksi', 'servis')->sum('total_laba');
-        $servisNettTotal = $servisNettLunas + $servisNettBon;
-
-        // Card 4: TOTAL PIUTANG & BON
-        $totalPiutangBon = $omsetBon;
-        $totalNettPiutang = $penjualanNettBon + $servisNettBon;
-
-        // Card 5: LABA BERSIH (NETT)
-        $marginLunas = (float) $trxLunas->sum('total_laba');
-        $marginBon = (float) $trxBon->sum('total_laba');
-        $labaTransaksiLunas = $marginLunas - $totalKasKeluar;
-        $labaPlusBon = ($marginLunas + $marginBon) - $totalKasKeluar;
+        $totalUangCash = $totalModalAwal + $transaksiCashMasuk - $totalKasKeluarCash;
 
         // Sorting
         $sortDir = strtolower($this->sortDirection) === 'asc' ? 'asc' : 'desc';
@@ -864,44 +881,15 @@ class Full extends Component
             'tableData' => $tableData,
             'totalItems' => $totalItems,
             'hasMore' => $hasMore,
-            'totalOmset' => $totalOmset,
-            'totalModal' => $totalModal,
-            'totalLaba' => $totalLaba,
-            'totalKasKeluar' => $totalKasKeluar,
-            'kasBersihNett' => $kasBersihNett,
             'totalTransaksiCount' => $totalTransaksiCount,
 
-            // Card 1
-            'omsetLunas' => $omsetLunas,
-            'omsetBon' => $omsetBon,
-            'kasRealLunas' => $kasRealLunas,
-            'saldoPlusBon' => $saldoPlusBon,
-
-            // Card 2
-            'penjualanLunas' => $penjualanLunas,
-            'penjualanBon' => $penjualanBon,
-            'penjualanTotal' => $penjualanTotal,
-            'penjualanNettLunas' => $penjualanNettLunas,
-            'penjualanNettBon' => $penjualanNettBon,
-            'penjualanNettTotal' => $penjualanNettTotal,
-
-            // Card 3
-            'servisLunas' => $servisLunas,
-            'servisBon' => $servisBon,
-            'servisTotal' => $servisTotal,
-            'servisNettLunas' => $servisNettLunas,
-            'servisNettBon' => $servisNettBon,
-            'servisNettTotal' => $servisNettTotal,
-
-            // Card 4
-            'totalPiutangBon' => $totalPiutangBon,
-            'totalNettPiutang' => $totalNettPiutang,
-
-            // Card 5
-            'marginLunas' => $marginLunas,
-            'marginBon' => $marginBon,
-            'labaTransaksiLunas' => $labaTransaksiLunas,
-            'labaPlusBon' => $labaPlusBon,
+            // 6 Kotak Metrik Finansial
+            'totalPendapatan' => $totalPendapatan,
+            'totalModal' => $totalModal,
+            'totalLaba' => $totalLaba,
+            'totalLunas' => $totalLunas,
+            'totalBon' => $totalBon,
+            'totalUangCash' => $totalUangCash,
 
             'cabangs' => $cabangs,
             'ppnList' => $ppnList,

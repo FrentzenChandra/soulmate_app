@@ -169,4 +169,68 @@ class TransaksiFullTest extends TestCase
             ->assertSet('startDate', now()->startOfMonth()->toDateString())
             ->assertSet('endDate', now()->toDateString());
     }
+
+    public function test_filter_ppn_and_type_updates_metrics_dynamically()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        TransaksiFullModel::query()->delete();
+
+        $ppn = MasterPpn::where('persen', '>', 0)->first();
+        $ppnId = $ppn ? $ppn->id : 2;
+        $ppnPersen = $ppn ? (float) $ppn->persen : 11.00;
+
+        // 1. Transaksi dengan PPN
+        TransaksiFullModel::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'user_id' => $superadmin->id,
+            'nama_pelanggan' => 'Pelanggan PPN',
+            'no_transaksi' => 'INV-PJ-CBPKP-260922-00010',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => now()->toDateString(),
+            'ppn_id' => $ppnId,
+            'ppn_persen' => $ppnPersen,
+            'ppn_nominal' => 11000,
+            'total_modal' => 70000,
+            'total_jual' => 100000,
+            'total_laba' => 30000,
+            'grand_total' => 111000,
+            'status' => 'Lunas',
+        ]);
+
+        // 2. Transaksi Non-PPN
+        TransaksiFullModel::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'user_id' => $superadmin->id,
+            'nama_pelanggan' => 'Pelanggan Non PPN',
+            'no_transaksi' => 'INV-PJ-CBPKP-260922-00011',
+            'tipe_transaksi' => 'servis',
+            'tanggal' => now()->toDateString(),
+            'ppn_id' => null,
+            'ppn_persen' => 0,
+            'ppn_nominal' => 0,
+            'total_modal' => 20000,
+            'total_jual' => 50000,
+            'total_laba' => 30000,
+            'grand_total' => 50000,
+            'status' => 'Lunas',
+        ]);
+
+        // Test Filter PPN
+        Livewire::test(TransaksiFull::class)
+            ->set('ppnFilter', 'ppn')
+            ->assertViewHas('totalPendapatan', 111000.0)
+            ->assertViewHas('totalModal', 70000.0)
+            ->assertViewHas('totalLaba', 30000.0)
+            // Test Filter Non-PPN
+            ->set('ppnFilter', 'non_ppn')
+            ->assertViewHas('totalPendapatan', 50000.0)
+            ->assertViewHas('totalModal', 20000.0)
+            ->assertViewHas('totalLaba', 30000.0)
+            // Test Filter Servis saja
+            ->set('ppnFilter', 'semua')
+            ->set('tipeFilter', 'servis')
+            ->assertViewHas('totalPendapatan', 50000.0);
+    }
 }

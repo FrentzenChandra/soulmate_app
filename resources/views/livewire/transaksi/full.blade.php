@@ -47,206 +47,116 @@
     <!-- CARD RINGKASAN FINANSIAL LENGKAP               -->
     <!-- ============================================== -->
     <!-- ============================================== -->
-    <!-- CARD RINGKASAN FINANSIAL LENGKAP    <!-- ============================================== -->
-    <!-- RINGKASAN METRIK FINANSIAL                     -->
     <!-- ============================================== -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+    <!-- RINGKASAN METRIK FINANSIAL (6 KOTAK UTAMA)      -->
+    <!-- ============================================== -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
 
-        <!-- Card 1: OMZET - KAS KELUAR -->
-        <div class="bg-white p-3.5 rounded-2xl border border-emerald-200 shadow-xs flex flex-col justify-between">
-            <div class="flex items-center justify-between pb-2 border-b border-emerald-100">
-                <span class="text-[10px] font-black text-emerald-950 uppercase tracking-wider">Omzet &minus; Kas Keluar</span>
-                <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase tracking-wider border border-emerald-200">
-                    Arus Kas
+        <!-- 1. Pendapatan -->
+        <div class="bg-white p-3.5 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between pb-2 border-b border-blue-100/80">
+                <span class="text-[10px] font-black text-blue-950 uppercase tracking-wider">Pendapatan</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-blue-50 text-[#0052FF] border border-blue-200/60">
+                    Omzet
                 </span>
             </div>
-
-            <div class="space-y-2 mt-2">
-                <!-- Sub-box 1: Transaksi Lunas -->
-                <div class="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-slate-800">Transaksi Lunas:</span>
-                        <span class="font-mono font-black text-xs {{ $kasRealLunas >= 0 ? 'text-emerald-700' : 'text-rose-600' }}">
-                            Rp {{ number_format($kasRealLunas, 0, ',', '.') }}
-                        </span>
-                    </div>
-                    <div class="flex items-center justify-between text-[9px] font-mono font-semibold mt-1">
-                        <span class="text-emerald-700">+ Masuk Lunas: Rp {{ number_format($omsetLunas, 0, ',', '.') }}</span>
-                        <span class="text-rose-600">&minus; Kas Keluar: Rp {{ number_format($totalKasKeluar, 0, ',', '.') }}</span>
-                    </div>
-                </div>
-
-                <!-- Sub-box 2: Saldo (+ Piutang Bon) -->
-                <div class="p-2.5 rounded-xl bg-purple-50/60 border border-purple-100">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-purple-900">Saldo (+ Piutang Bon):</span>
-                        <span class="font-mono font-black text-xs {{ $saldoPlusBon >= 0 ? 'text-[#5E17EB]' : 'text-rose-600' }}">
-                            Rp {{ number_format($saldoPlusBon, 0, ',', '.') }}
-                        </span>
-                    </div>
-                    <div class="space-y-0.5 text-[9px] font-mono font-semibold mt-1">
-                        <div class="flex justify-between text-slate-700">
-                            <span>+ Masuk Lunas:</span>
-                            <span class="font-bold text-emerald-700">Rp {{ number_format($omsetLunas, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex justify-between text-amber-700 font-bold">
-                            <span>+ Bon:</span>
-                            <span>Rp {{ number_format($omsetBon, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex justify-between text-rose-600 font-bold">
-                            <span>&minus; Kas Keluar:</span>
-                            <span>Rp {{ number_format($totalKasKeluar, 0, ',', '.') }}</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="mt-3">
+                <span class="text-lg sm:text-xl font-mono font-black text-blue-700 tracking-tight block">
+                    Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
+                </span>
+                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                    Total pendapatan kotor
+                </span>
             </div>
         </div>
 
-        <!-- Card 2: PENJUALAN PRODUK -->
-        <div class="bg-white p-3.5 rounded-2xl border border-blue-200 shadow-xs flex flex-col justify-between">
-            <div class="flex items-center justify-between pb-2 border-b border-blue-100">
-                <span class="text-[10px] font-black text-blue-950 uppercase tracking-wider">Penjualan Produk</span>
-                <span class="px-2 py-0.5 rounded-md bg-blue-50 text-[#0052FF] text-[9px] font-black uppercase tracking-wider border border-blue-200">
-                    Produk
+        <!-- 2. Modal -->
+        <div class="bg-white p-3.5 rounded-2xl border border-amber-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between pb-2 border-b border-amber-100/80">
+                <span class="text-[10px] font-black text-amber-950 uppercase tracking-wider">Modal</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200/60">
+                    HPP
                 </span>
             </div>
-
-            <div class="space-y-1.5 mt-2 text-[11px]">
-                <div class="flex justify-between items-center">
-                    <span class="text-slate-700 font-bold">Lunas:</span>
-                    <span class="font-mono font-bold text-blue-700">Rp {{ number_format($penjualanLunas, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-amber-800 font-bold">Bon:</span>
-                    <span class="font-mono font-bold text-amber-700">Rp {{ number_format($penjualanBon, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex justify-between items-center text-[10px] text-slate-600 font-semibold">
-                    <span>Total (Lunas + Bon):</span>
-                    <span class="font-mono font-bold text-slate-900">Rp {{ number_format($penjualanTotal, 0, ',', '.') }}</span>
-                </div>
-
-                <div class="border-t border-blue-100 pt-1.5 space-y-1.5">
-                    <div class="flex justify-between items-center">
-                        <span class="text-emerald-800 font-bold">Nett Lunas:</span>
-                        <span class="font-mono font-black text-emerald-600">Rp {{ number_format($penjualanNettLunas, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-purple-900 font-bold">Nett (+ Bon):</span>
-                        <span class="font-mono font-black text-[#5E17EB]">Rp {{ number_format($penjualanNettTotal, 0, ',', '.') }}</span>
-                    </div>
-                </div>
+            <div class="mt-3">
+                <span class="text-lg sm:text-xl font-mono font-black text-amber-800 tracking-tight block">
+                    Rp {{ number_format($totalModal, 0, ',', '.') }}
+                </span>
+                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                    Total modal pokok
+                </span>
             </div>
         </div>
 
-        <!-- Card 3: LAYANAN SERVIS -->
-        <div class="bg-white p-3.5 rounded-2xl border border-teal-200 shadow-xs flex flex-col justify-between">
-            <div class="flex items-center justify-between pb-2 border-b border-teal-100">
-                <span class="text-[10px] font-black text-teal-950 uppercase tracking-wider">Layanan Servis</span>
-                <span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 text-[9px] font-black uppercase tracking-wider border border-teal-200">
-                    Servis
+        <!-- 3. Laba -->
+        <div class="bg-white p-3.5 rounded-2xl border border-purple-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between pb-2 border-b border-purple-100/80">
+                <span class="text-[10px] font-black text-purple-950 uppercase tracking-wider">Laba</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-purple-50 text-[#5E17EB] border border-purple-200/60">
+                    Margin
                 </span>
             </div>
-
-            <div class="space-y-1.5 mt-2 text-[11px]">
-                <div class="flex justify-between items-center">
-                    <span class="text-slate-700 font-bold">Lunas:</span>
-                    <span class="font-mono font-bold text-teal-700">Rp {{ number_format($servisLunas, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-amber-800 font-bold">Belum Lunas:</span>
-                    <span class="font-mono font-bold text-amber-700">Rp {{ number_format($servisBon, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex justify-between items-center text-[10px] text-slate-600 font-semibold">
-                    <span>Total (Lunas + Bon):</span>
-                    <span class="font-mono font-bold text-slate-900">Rp {{ number_format($servisTotal, 0, ',', '.') }}</span>
-                </div>
-
-                <div class="border-t border-teal-100 pt-1.5 space-y-1.5">
-                    <div class="flex justify-between items-center">
-                        <span class="text-blue-800 font-bold">Nett Lunas:</span>
-                        <span class="font-mono font-black text-blue-600">Rp {{ number_format($servisNettLunas, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-purple-900 font-bold">Nett (+ Bon):</span>
-                        <span class="font-mono font-black text-[#5E17EB]">Rp {{ number_format($servisNettTotal, 0, ',', '.') }}</span>
-                    </div>
-                </div>
+            <div class="mt-3">
+                <span class="text-lg sm:text-xl font-mono font-black {{ $totalLaba >= 0 ? 'text-[#5E17EB]' : 'text-rose-600' }} tracking-tight block">
+                    Rp {{ number_format($totalLaba, 0, ',', '.') }}
+                </span>
+                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                    Total laba kotor / margin
+                </span>
             </div>
         </div>
 
-        <!-- Card 4: TOTAL PIUTANG & BON -->
-        <div class="bg-amber-50/30 p-3.5 rounded-2xl border border-amber-300 shadow-xs flex flex-col justify-between">
-            <div class="flex items-center justify-between pb-2 border-b border-amber-200">
-                <span class="text-[10px] font-black text-amber-950 uppercase tracking-wider">Total Piutang &amp; Bon</span>
-                <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 text-[9px] font-black uppercase tracking-wider border border-amber-200">
-                    Belum Lunas
+        <!-- 4. Lunas -->
+        <div class="bg-white p-3.5 rounded-2xl border border-emerald-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between pb-2 border-b border-emerald-100/80">
+                <span class="text-[10px] font-black text-emerald-950 uppercase tracking-wider">Lunas</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                    Terbayar
                 </span>
             </div>
-
-            <div class="mt-2 space-y-1">
-                <span class="text-xl font-mono font-black text-amber-600 tracking-tight block">
-                    Rp {{ number_format($totalPiutangBon, 0, ',', '.') }}
+            <div class="mt-3">
+                <span class="text-lg sm:text-xl font-mono font-black text-emerald-600 tracking-tight block">
+                    Rp {{ number_format($totalLunas, 0, ',', '.') }}
                 </span>
-                <span class="text-[10px] text-amber-900 font-semibold block">
-                    Produk &amp; Servis belum dibayar
+                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                    Transaksi berstatus lunas
                 </span>
-
-                <div class="border-t border-amber-200/80 pt-2 mt-2 space-y-1 text-[10px] font-mono">
-                    <div class="flex justify-between text-amber-950 font-black">
-                        <span>Nett Piutang (Laba):</span>
-                        <span class="text-amber-800">Rp {{ number_format($totalNettPiutang, 0, ',', '.') }}</span>
-                    </div>
-                </div>
             </div>
         </div>
 
-        <!-- Card 5: LABA BERSIH (NETT) -->
-        <div class="bg-white p-3.5 rounded-2xl border border-purple-200 shadow-xs flex flex-col justify-between">
-            <div class="flex items-center justify-between pb-2 border-b border-purple-100">
-                <span class="text-[10px] font-black text-purple-950 uppercase tracking-wider">Laba Bersih (Nett)</span>
-                <span class="px-2 py-0.5 rounded-md bg-purple-100 text-[#5E17EB] text-[9px] font-black uppercase tracking-wider border border-purple-200">
-                    Margin &minus; Kas Keluar
+        <!-- 5. Bon -->
+        <div class="bg-white p-3.5 rounded-2xl border border-rose-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between pb-2 border-b border-rose-100/80">
+                <span class="text-[10px] font-black text-rose-950 uppercase tracking-wider">Bon</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200/60">
+                    Piutang
                 </span>
             </div>
+            <div class="mt-3">
+                <span class="text-lg sm:text-xl font-mono font-black text-rose-600 tracking-tight block">
+                    Rp {{ number_format($totalBon, 0, ',', '.') }}
+                </span>
+                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                    Belum lunas / tertunda
+                </span>
+            </div>
+        </div>
 
-            <div class="space-y-2 mt-2">
-                <!-- Sub-box 1: Laba Transaksi (Lunas) -->
-                <div class="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-slate-800">Laba Transaksi (Lunas):</span>
-                        <span class="font-mono font-black text-xs {{ $labaTransaksiLunas >= 0 ? 'text-emerald-700' : 'text-rose-600' }}">
-                            Rp {{ number_format($labaTransaksiLunas, 0, ',', '.') }}
-                        </span>
-                    </div>
-                    <div class="flex items-center justify-between text-[9px] font-mono font-semibold mt-1">
-                        <span class="text-emerald-700">+ Margin Lunas: Rp {{ number_format($marginLunas, 0, ',', '.') }}</span>
-                        <span class="text-rose-600">&minus; Kas Keluar: Rp {{ number_format($totalKasKeluar, 0, ',', '.') }}</span>
-                    </div>
-                </div>
-
-                <!-- Sub-box 2: Laba (+ Piutang Bon) -->
-                <div class="p-2.5 rounded-xl bg-purple-50/60 border border-purple-100">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-purple-900">Laba (+ Piutang Bon):</span>
-                        <span class="font-mono font-black text-xs {{ $labaPlusBon >= 0 ? 'text-[#5E17EB]' : 'text-rose-600' }}">
-                            Rp {{ number_format($labaPlusBon, 0, ',', '.') }}
-                        </span>
-                    </div>
-                    <div class="space-y-0.5 text-[9px] font-mono font-semibold mt-1">
-                        <div class="flex justify-between text-slate-700">
-                            <span>+ Margin Lunas:</span>
-                            <span class="font-bold text-emerald-700">Rp {{ number_format($marginLunas, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex justify-between text-amber-700 font-bold">
-                            <span>+ Margin Bon:</span>
-                            <span>Rp {{ number_format($marginBon, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex justify-between text-rose-600 font-bold">
-                            <span>&minus; Kas Keluar:</span>
-                            <span>Rp {{ number_format($totalKasKeluar, 0, ',', '.') }}</span>
-                        </div>
-                    </div>
-                </div>
+        <!-- 6. Uang Cash -->
+        <div class="bg-white p-3.5 rounded-2xl border border-teal-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between pb-2 border-b border-teal-100/80">
+                <span class="text-[10px] font-black text-teal-950 uppercase tracking-wider">Uang Cash</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-teal-50 text-teal-700 border border-teal-200/60">
+                    Hari Ini
+                </span>
+            </div>
+            <div class="mt-3">
+                <span class="text-lg sm:text-xl font-mono font-black {{ $totalUangCash >= 0 ? 'text-teal-700' : 'text-rose-600' }} tracking-tight block">
+                    Rp {{ number_format($totalUangCash, 0, ',', '.') }}
+                </span>
+                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                    Kas fisik laci hari ini
+                </span>
             </div>
         </div>
 
@@ -316,11 +226,11 @@
             </div>
         </div>
 
-        <!-- Baris 2: Search & Filter Kategori/Status -->
+        <!-- Baris 2: Search & Filter Kategori/Status/Pajak -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3">
 
             <!-- Pencarian Multi-Kata Longgar -->
-            <div class="md:col-span-5 relative">
+            <div class="md:col-span-3 relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
@@ -348,6 +258,16 @@
                     <option value="BON">BON</option>
                     <option value="Belum Lunas">Belum Lunas</option>
                     <option value="Batal">Batal</option>
+                </select>
+            </div>
+
+            <!-- Filter Pajak PPN -->
+            <div class="md:col-span-2">
+                <select wire:model.live="ppnFilter"
+                        class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
+                    <option value="semua">Semua Pajak</option>
+                    <option value="ppn">Transaksi PPN</option>
+                    <option value="non_ppn">Non-PPN</option>
                 </select>
             </div>
 
