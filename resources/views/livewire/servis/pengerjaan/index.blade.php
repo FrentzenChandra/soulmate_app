@@ -241,12 +241,17 @@
                             
                             <!-- Tiket & Waktu -->
                             <td class="py-2 px-3 min-w-[120px] whitespace-nowrap">
-                                <span class="font-mono font-black text-[#5E17EB] text-xs block leading-tight">
+                                <span class="font-mono font-black text-[#5E17EB] text-xs block leading-tight truncate">
                                     {{ $sv->no_servis_frontend }}
                                 </span>
-                                <span class="text-[10px] text-gray-400 font-mono block leading-tight">
-                                    {{ $sv->tanggal_masuk ? $sv->tanggal_masuk->format('d/m/Y H:i') : '-' }}
-                                </span>
+                                <div class="flex items-center space-x-1 mt-0.5">
+                                    @if(! $sv->is_real)
+                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-extrabold text-[8px] uppercase tracking-wider shrink-0">Non-Real</span>
+                                    @endif
+                                    <span class="text-[10px] text-gray-400 font-mono block leading-tight truncate">
+                                        {{ $sv->tanggal_masuk ? $sv->tanggal_masuk->format('d/m/Y H:i') : '-' }}
+                                    </span>
+                                </div>
                             </td>
 
                             <!-- Pelanggan -->

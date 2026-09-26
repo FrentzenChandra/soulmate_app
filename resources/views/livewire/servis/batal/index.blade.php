@@ -100,7 +100,7 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
 
             <!-- Pencarian Multi-Kata Longgar -->
-            <div class="{{ $isHQ ? 'md:col-span-6' : 'md:col-span-8' }} relative">
+            <div class="{{ $isHQ ? 'md:col-span-4' : 'md:col-span-5' }} relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
@@ -109,8 +109,18 @@
                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-semibold text-gray-800 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all">
             </div>
 
+            <!-- Filter Tipe Transaksi: Real vs Non-Real -->
+            <div class="md:col-span-2">
+                <select wire:model.live="tipeFilter"
+                        class="w-full py-2.5 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all cursor-pointer">
+                    <option value="semua">Semua Tipe</option>
+                    <option value="real">Servis Real</option>
+                    <option value="non_real">Servis Non-Real</option>
+                </select>
+            </div>
+
             <!-- Filter Status Pengambilan Fisik Unit -->
-            <div class="{{ $isHQ ? 'md:col-span-3' : 'md:col-span-4' }} flex items-center gap-2">
+            <div class="{{ $isHQ ? 'md:col-span-3' : 'md:col-span-5' }} flex items-center gap-2">
                 <select wire:model.live="statusPengambilan"
                         class="w-full py-2.5 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all cursor-pointer">
                     <option value="semua">Semua Status Fisik Unit</option>
@@ -167,7 +177,7 @@
                 <!-- Skeleton Loader saat Query/Filter/Search/Sort/Pagination -->
                 <tbody wire:key="servis-batal-skeleton-body"
                        wire:loading.delay
-                       wire:target="search, statusPengambilan, cabangFilter, sortBy, sortField, sortDirection, loadMore"
+                       wire:target="search, statusPengambilan, tipeFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
                        class="divide-y divide-gray-100 bg-white">
                     @for($i = 0; $i < 6; $i++)
                         <tr class="animate-pulse">
@@ -183,19 +193,24 @@
 
                 <tbody wire:key="servis-batal-data-body"
                        wire:loading.remove
-                       wire:target="search, statusPengambilan, cabangFilter, sortBy, sortField, sortDirection, loadMore"
+                       wire:target="search, statusPengambilan, tipeFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
                        class="divide-y divide-gray-100 text-xs">
                     @forelse($servisList as $item)
                         <tr wire:key="servis-batal-row-{{ $item->id }}" class="hover:bg-purple-50/30 transition-colors group {{ is_null($item->tanggal_ambil) ? 'bg-rose-50/20' : '' }}">
 
                             <!-- No Tiket Servis -->
                             <td class="py-2.5 px-3 whitespace-nowrap {{ is_null($item->tanggal_ambil) ? 'border-l-4 border-rose-500' : 'border-l-4 border-gray-400' }}">
-                                <span class="font-mono font-black text-gray-900 block group-hover:text-[#5E17EB] transition-colors leading-tight">
+                                <span class="font-mono font-black text-gray-900 block group-hover:text-[#5E17EB] transition-colors leading-tight truncate">
                                     {{ $item->no_servis_frontend }}
                                 </span>
-                                <span class="text-[10px] font-medium text-gray-400 block leading-tight mt-0.5">
-                                    {{ $item->cabang?->nama_cabang ?? 'Pusat' }}
-                                </span>
+                                <div class="flex items-center space-x-1.5 mt-0.5">
+                                    @if(! $item->is_real)
+                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-extrabold text-[8px] uppercase tracking-wider shrink-0">Non-Real</span>
+                                    @endif
+                                    <span class="text-[10px] font-medium text-gray-400 truncate leading-tight">
+                                        {{ $item->cabang?->nama_cabang ?? 'Pusat' }}
+                                    </span>
+                                </div>
                             </td>
 
                             <!-- Pelanggan -->
@@ -352,6 +367,11 @@
                                     <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/20 text-white border border-white/30">
                                         Servis Dibatalkan
                                     </span>
+                                    @if(! $selectedServis->is_real)
+                                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-amber-400 text-amber-950">
+                                            NON-REAL
+                                        </span>
+                                    @endif
                                 </div>
                                 <p class="text-xs text-purple-200 font-medium mt-0.5">
                                     Masuk: {{ $selectedServis->tanggal_masuk ? $selectedServis->tanggal_masuk->translatedFormat('d F Y - H:i') . ' WIB' : '-' }}

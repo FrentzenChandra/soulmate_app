@@ -36,6 +36,9 @@ class Index extends Component
     public string $statusFilter = 'semua'; // 'semua' | 'pengecekan' | 'perbaikan'
 
     #[Url(except: 'semua')]
+    public string $tipeFilter = 'semua'; // 'semua' | 'real' | 'non_real'
+
+    #[Url(except: 'semua')]
     public string $kategoriFilter = 'semua';
 
     #[Url(except: 'semua')]
@@ -45,6 +48,8 @@ class Index extends Component
 
     // State Modal Form Penerimaan Servis Baru
     public bool $modalCreateOpen = false;
+    public bool $isReal = true;
+    public string $customTanggalMasuk = '';
     public string $customerType = 'langganan'; // 'langganan' | 'baru'
     public ?int $selectedCustomerId = null;
     public string $customerSearch = '';
@@ -145,6 +150,12 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function updatingTipeFilter(): void
+    {
+        $this->perPage = 15;
+        $this->resetPage();
+    }
+
     public function updatingCabangFilter(): void
     {
         $this->perPage = 15;
@@ -183,6 +194,8 @@ class Index extends Component
 
     private function resetCreateForm(): void
     {
+        $this->isReal = true;
+        $this->customTanggalMasuk = '';
         $this->customerType = 'langganan';
         $this->selectedCustomerId = null;
         $this->customerSearch = '';
@@ -229,6 +242,10 @@ class Index extends Component
             'catatan' => 'nullable|string|max:1000',
         ];
 
+        if (! $this->isReal && ! empty($this->customTanggalMasuk)) {
+            $rules['customTanggalMasuk'] = 'required|date';
+        }
+
         if ($this->customerType === 'baru') {
             $rules['newCustomerNama'] = 'required|string|min:2|max:100';
             $rules['newCustomerNoHp'] = 'required|string|min:8|max:20';
@@ -242,6 +259,7 @@ class Index extends Component
             'newCustomerNama.required' => 'Nama pelanggan baru wajib diisi.',
             'newCustomerNoHp.required' => 'Nomor WhatsApp / HP pelanggan wajib diisi.',
             'selectedCustomerId.required' => 'Silakan pilih data pelanggan terdaftar.',
+            'customTanggalMasuk.required' => 'Tanggal masuk servis wajib diisi.',
         ]);
 
         try {
@@ -260,9 +278,13 @@ class Index extends Component
                 $finalCustomerId = $this->selectedCustomerId;
             }
 
+            // Tanggal masuk (custom jika non-real, now jika real)
+            $tanggalMasuk = (! $this->isReal && ! empty($this->customTanggalMasuk))
+                ? Carbon::parse($this->customTanggalMasuk)
+                : Carbon::now();
+
             // Generate Nomor Servis Atomik Harian: INV-SV-[CABANG]-[YYMMDD]-[00001]
-            $now = Carbon::now();
-            $dateCode = $now->format('ymd');
+            $dateCode = $tanggalMasuk->format('ymd');
             $kodeCabangClean = str_replace('-', '', $cabang->kode_cabang);
             $prefix = "INV-SV-{$kodeCabangClean}-{$dateCode}-";
 
@@ -298,7 +320,8 @@ class Index extends Component
                 'keluhan' => trim($this->keluhan),
                 'kondisi_barang' => trim((string) $this->kondisiBarang) ?: null,
                 'status' => 'pengecekan',
-                'tanggal_masuk' => $now,
+                'is_real' => $this->isReal,
+                'tanggal_masuk' => $tanggalMasuk,
                 'estimasi_biaya' => 0,
                 'total_biaya' => 0,
                 'catatan' => trim((string) $this->catatan) ?: null,
@@ -308,8 +331,8 @@ class Index extends Component
                 'servis_id' => $servis->id,
                 'user_id' => Auth::id(),
                 'status' => 'pengecekan',
-                'tanggal' => $now,
-                'catatan' => 'Penerimaan unit servis baru di toko (Tahap Pengecekan/Diagnosa).',
+                'tanggal' => $tanggalMasuk,
+                'catatan' => 'Penerimaan unit servis baru di toko (Tahap Pengecekan/Diagnosa).' . (! $this->isReal ? ' [Servis Non-Real]' : ''),
             ]);
 
             DB::commit();
@@ -465,14 +488,16 @@ class Index extends Component
         $servis = ServisMasuk::with('details')->findOrFail($this->deleteServisId);
         $kodeFrontend = $servis->no_servis_frontend;
 
-        // Kembalikan seluruh stok sparepart produk ke cabang terkait
-        foreach ($servis->details as $det) {
-            if ($det->produk_id) {
-                $stok = Stok::where('produk_id', $det->produk_id)
-                    ->where('cabang_id', $servis->cabang_id)
-                    ->first();
-                if ($stok) {
-                    $stok->increment('jumlah', $det->qty);
+        // Kembalikan seluruh stok sparepart produk ke cabang terkait jika servis REAL
+        if ($servis->is_real) {
+            foreach ($servis->details as $det) {
+                if ($det->produk_id) {
+                    $stok = Stok::where('produk_id', $det->produk_id)
+                        ->where('cabang_id', $servis->cabang_id)
+                        ->first();
+                    if ($stok) {
+                        $stok->increment('jumlah', $det->qty);
+                    }
                 }
             }
         }
@@ -529,8 +554,8 @@ class Index extends Component
                 $this->servisToUpdate->tanggal_ambil = $now;
             }
 
-            // Kembalikan stok sparepart jika servis dibatalkan
-            if ($newStatus === 'batal' && $oldStatus !== 'batal') {
+            // Kembalikan stok sparepart jika servis dibatalkan (Hanya jika servis REAL)
+            if ($newStatus === 'batal' && $oldStatus !== 'batal' && $this->servisToUpdate->is_real) {
                 $this->servisToUpdate->load('details');
                 foreach ($this->servisToUpdate->details as $det) {
                     if ($det->produk_id) {
@@ -650,8 +675,8 @@ class Index extends Component
             'itemGaransiHari' => 'required|integer|min:0|max:3650',
         ]);
 
-        // Cek dan kurangi stok fisik cabang jika sparepart
-        if ($this->selectedProdukId) {
+        // Cek dan kurangi stok fisik cabang jika sparepart dan servis REAL
+        if ($this->selectedProdukId && $this->activeServis->is_real) {
             $cabangId = $this->activeServis->cabang_id;
             $stok = Stok::where('produk_id', $this->selectedProdukId)
                 ->where('cabang_id', $cabangId)
@@ -691,8 +716,8 @@ class Index extends Component
     {
         $detail = ServisDetail::where('servis_id', $this->activeServisId)->find($detailId);
         if ($detail) {
-            // Kembalikan stok jika item adalah sparepart dari produk
-            if ($detail->produk_id) {
+            // Kembalikan stok jika item adalah sparepart dari produk dan servis REAL
+            if ($detail->produk_id && $this->activeServis->is_real) {
                 $cabangId = $this->activeServis->cabang_id;
                 $stok = Stok::where('produk_id', $detail->produk_id)
                     ->where('cabang_id', $cabangId)
@@ -848,6 +873,13 @@ class Index extends Component
             }
         } elseif ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
             $query->where('cabang_id', (int) $this->cabangFilter);
+        }
+
+        // Filter Tipe Transaksi (Real vs Non-Real)
+        if ($this->tipeFilter === 'real') {
+            $query->where('is_real', true);
+        } elseif ($this->tipeFilter === 'non_real') {
+            $query->where('is_real', false);
         }
 
         // Filter Status di Servis Masuk

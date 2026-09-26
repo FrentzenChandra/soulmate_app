@@ -30,6 +30,9 @@ class Index extends Component
     public string $statusPengambilan = 'semua'; // 'semua' | 'belum_diambil' | 'sudah_diambil'
 
     #[Url(except: 'semua')]
+    public string $tipeFilter = 'semua'; // 'semua' | 'real' | 'non_real'
+
+    #[Url(except: 'semua')]
     public string $cabangFilter = 'semua';
 
     public int $perPage = 15;
@@ -74,6 +77,12 @@ class Index extends Component
     }
 
     public function updatingStatusPengambilan(): void
+    {
+        $this->perPage = 15;
+        $this->resetPage();
+    }
+
+    public function updatingTipeFilter(): void
     {
         $this->perPage = 15;
         $this->resetPage();
@@ -247,6 +256,13 @@ class Index extends Component
             }
         } elseif ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
             $query->where('cabang_id', (int) $this->cabangFilter);
+        }
+
+        // Filter Tipe Transaksi (Real vs Non-Real)
+        if ($this->tipeFilter === 'real') {
+            $query->where('is_real', true);
+        } elseif ($this->tipeFilter === 'non_real') {
+            $query->where('is_real', false);
         }
 
         // Filter Status Pengambilan Fisik Unit

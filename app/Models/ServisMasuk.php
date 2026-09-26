@@ -26,6 +26,7 @@ class ServisMasuk extends Model
         'keluhan',
         'kondisi_barang',
         'status',
+        'is_real',
         'is_cetak_nota',
         'tanggal_masuk',
         'tanggal_selesai',
@@ -43,6 +44,7 @@ class ServisMasuk extends Model
     protected function casts(): array
     {
         return [
+            'is_real' => 'boolean',
             'is_cetak_nota' => 'boolean',
             'tanggal_masuk' => 'datetime',
             'tanggal_selesai' => 'datetime',
@@ -54,6 +56,16 @@ class ServisMasuk extends Model
             'kembalian' => 'decimal:2',
             'garansi_hari' => 'integer',
         ];
+    }
+
+    public function scopeReal($query)
+    {
+        return $query->where('is_real', true);
+    }
+
+    public function scopeNonReal($query)
+    {
+        return $query->where('is_real', false);
     }
 
     public function cabang(): BelongsTo

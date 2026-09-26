@@ -253,6 +253,10 @@ class Index extends Component
 
     protected function potongStokSparepart(ServisMasuk $servis): void
     {
+        if (! $servis->is_real) {
+            return;
+        }
+
         $spareparts = ServisDetail::where('servis_id', $servis->id)->whereNotNull('produk_id')->get();
         foreach ($spareparts as $item) {
             $stok = Stok::where('cabang_id', $servis->cabang_id)

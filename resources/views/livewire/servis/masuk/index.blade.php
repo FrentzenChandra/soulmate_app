@@ -127,13 +127,23 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
 
             <!-- Pencarian Multi-Kata Longgar -->
-            <div class="{{ $isHQ ? 'md:col-span-5' : 'md:col-span-6' }} relative">
+            <div class="{{ $isHQ ? 'md:col-span-3' : 'md:col-span-4' }} relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
                 <input type="text"
                        wire:model.live.debounce.300ms="search"
                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-semibold text-gray-800 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all">
+            </div>
+
+            <!-- Filter Tipe Transaksi: Real vs Non-Real -->
+            <div class="md:col-span-2">
+                <select wire:model.live="tipeFilter"
+                        class="w-full py-2.5 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all cursor-pointer">
+                    <option value="semua">Semua Tipe</option>
+                    <option value="real">Servis Real</option>
+                    <option value="non_real">Servis Non-Real</option>
+                </select>
             </div>
 
             <!-- Filter Status di Servis Masuk -->
@@ -189,12 +199,12 @@
             <table class="w-full text-left border-collapse table-fixed min-w-[1050px]">
                 <colgroup>
                     <col style="width: 140px;">
-                    <col style="width: 130px;">
-                    <col style="width: 150px;">
+                    <col style="width: 110px;">
+                    <col style="width: 140px;">
                     <col style="width: 220px;">
-                    <col style="width: 220px;">
+                    <col style="width: 260px;">
                     @if($isHQ)
-                        <col style="width: 110px;">
+                        <col style="width: 100px;">
                     @endif
                     <col style="width: 120px;">
                     <col style="width: 160px;">
@@ -217,7 +227,7 @@
                 <!-- Skeleton Loader saat Query/Filter/Search/Sort/Pagination -->
                 <tbody wire:key="servis-skeleton-body"
                        wire:loading.delay
-                       wire:target="search, statusFilter, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
+                       wire:target="search, statusFilter, tipeFilter, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
                        class="divide-y divide-gray-100 bg-white">
                     @for($i = 0; $i < 6; $i++)
                         <tr class="animate-pulse">
@@ -237,19 +247,24 @@
 
                 <tbody wire:key="servis-data-body"
                        wire:loading.remove
-                       wire:target="search, statusFilter, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
+                       wire:target="search, statusFilter, tipeFilter, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
                        class="divide-y divide-gray-100 text-xs">
                     @forelse($servisList as $item)
                         <tr wire:key="servis-row-{{ $item->id }}" class="hover:bg-purple-50/30 transition-colors group {{ $item->status === 'selesai' ? 'bg-emerald-50/15' : '' }}">
 
                             <!-- No Tiket Servis -->
                             <td class="py-2.5 px-3 whitespace-nowrap {{ $item->status === 'pengecekan' ? 'border-l-4 border-amber-500' : ($item->status === 'selesai' ? 'border-l-4 border-emerald-500' : 'border-l-4 border-blue-500') }}">
-                                <span class="font-mono font-black text-gray-900 block group-hover:text-[#5E17EB] transition-colors leading-tight">
+                                <span class="font-mono font-black text-gray-900 block group-hover:text-[#5E17EB] transition-colors leading-tight truncate">
                                     {{ $item->no_servis_frontend }}
                                 </span>
-                                <span class="text-[10px] font-medium text-gray-600 block leading-tight mt-0.5">
-                                    {{ $item->pembuat?->name ?? 'Staf' }}
-                                </span>
+                                <div class="flex items-center space-x-1.5 mt-0.5">
+                                    @if(! $item->is_real)
+                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-extrabold text-[8px] uppercase tracking-wider shrink-0">Non-Real</span>
+                                    @endif
+                                    <span class="text-[10px] font-medium text-gray-600 truncate leading-tight">
+                                        {{ $item->pembuat?->name ?? 'Staf' }}
+                                    </span>
+                                </div>
                             </td>
 
                             <!-- Tanggal Masuk -->
@@ -423,6 +438,42 @@
                                     {{ $message }}
                                 </div>
                             @enderror
+
+                            <!-- Pilihan Tipe Servis & Tanggal Masuk -->
+                            <div class="bg-purple-50/50 p-4 rounded-2xl border border-purple-100 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">Tipe Servis</span>
+                                    <div class="flex items-center space-x-2">
+                                        <button type="button"
+                                                wire:click="$set('isReal', true)"
+                                                class="px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer {{ $isReal ? 'bg-[#5E17EB] text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50' }}">
+                                            Servis Real
+                                        </button>
+                                        <button type="button"
+                                                wire:click="$set('isReal', false)"
+                                                class="px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer {{ ! $isReal ? 'bg-amber-500 text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50' }}">
+                                            Servis Non-Real
+                                        </button>
+                                    </div>
+                                </div>
+
+                                @if(! $isReal)
+                                    <div class="pt-2 border-t border-purple-100/80 space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <label class="block font-bold text-gray-700 text-xs">
+                                                Tanggal Masuk <span class="text-rose-500">*</span>
+                                            </label>
+                                        </div>
+                                        <input type="datetime-local"
+                                               wire:model="customTanggalMasuk"
+                                               class="w-full px-3.5 py-2 rounded-xl border border-amber-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-amber-200 focus:border-amber-500">
+                                        @error('customTanggalMasuk') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
+                                        <p class="text-[10px] text-gray-500">
+                                            &bull; Servis Non-Real tidak akan mengurangi stok sparepart gudang cabang dan tidak dimasukkan ke laporan omzet kas.
+                                        </p>
+                                    </div>
+                                @endif
+                            </div>
 
                             <!-- Data Pelanggan -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
@@ -664,6 +715,11 @@
                                     <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/20 text-white border border-white/30">
                                         {{ $selectedServis->kategori_perangkat_label }}
                                     </span>
+                                    @if(! $selectedServis->is_real)
+                                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-amber-400 text-amber-950">
+                                            NON-REAL
+                                        </span>
+                                    @endif
                                 </div>
                                 <p class="text-xs text-purple-200 font-medium mt-0.5">
                                     Masuk: {{ $selectedServis->tanggal_masuk ? $selectedServis->tanggal_masuk->translatedFormat('d F Y - H:i') . ' WIB' : '-' }}
@@ -1114,7 +1170,7 @@
 
                         <!-- Form Tambah Tindakan / Komponen -->
                         <div class="p-4 bg-gray-50/90 rounded-2xl border border-gray-200 space-y-3.5">
-                            
+
                             <!-- Toggle Pilihan Sumber: Layanan Jasa vs Sparepart Produk -->
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-gray-200/80">
                                 <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">
