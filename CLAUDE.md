@@ -33,3 +33,8 @@
 ## 8. Targeted & Scoped Testing Standard
 - Eksekusi pengujian secara tertarget per modul yang diubah (`docker exec soulmate_apps php artisan test --filter <TestClass>` atau path `tests/Feature/...`) untuk memangkas waktu tunggu dari ~3 menit menjadi 2-10 detik. Dilarang full test di setiap iterasi kecil.
 
+## 9. User Soft Delete & Historical Relations Standard
+- Model `User` menggunakan `SoftDeletes`.
+- Seluruh relasi `belongsTo(User::class)` pada model transaksi, kas, servis, audit (`TransaksiFull`, `ServisMasuk`, `KasKeluar`, `ModalAwal`, `CekKasLog`, `TutupKas`, `Penjualan`, `SerialNumber`, `ServisStatusLog`) WAJIB menggunakan `->withTrashed()` untuk menjaga keutuhan riwayat masa lalu.
+
+

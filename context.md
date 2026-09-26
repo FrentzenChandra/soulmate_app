@@ -68,17 +68,32 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
 - **Kasir POS Produk** (`/kasir/produk`): Penjualan produk retail biasa dengan keranjang belanja, diskon, PPN, opsi Penjualan Non-Real, dan cetak invoice.
 - **Nomor Transaksi Atomik Harian**:
   - Backend Penjualan: `INV-PJ-[KODE_CABANG]-[YYMMDD]-[00001]` -> Frontend: `PJ-[YYMMDD]-[00001]`
-### D. Manajemen Kas Keluar & Serial Number (Superadmin)
+### D. Manajemen Pengguna (Master User & Soft Delete)
+- **Master User** (`/master/user`):
+  - Pengelolaan akun pengguna (`Owner`, `Superadmin`, `Teknisi`, `Admin`).
+  - **Soft Delete Mechanism**: Model `User` mengimplementasikan `SoftDeletes` (`deleted_at`).
+  - **Proteksi Hapus**: Dilarang menghapus diri sendiri (*self-lockout guard*), dilarang menghapus akun Owner terakhir (*minimal 1 owner guard*), serta Superadmin terisolasi hanya bisa menghapus staf non-owner di cabangnya sendiri.
+  - **Integritas Relasi Historis**: Seluruh relasi `belongsTo(User::class)` pada model transaksi, kas, servis, audit, dan serial number menggunakan `->withTrashed()` sehingga nota dan log masa lalu tetap menampilkan nama staf aslinya.
+
+### E. Manajemen Kas Keluar & Serial Number (Superadmin)
 - **Kas Keluar** (`/kas-keluar`):
+  - Menggunakan library spreadsheet interaktif **Tabulator.js**.
   - Pencatatan pengeluaran kas cabang dengan waktu input, keterangan, total uang, sumber dana (Master Sumber Dana: Cash, BCA, TF BCA), dan kategori (Master Kategori Kas Keluar).
+  - Dilengkapi multi-mode filter periode (Semua, Hari Ini, Rentang Tanggal, Bulanan, Tahunan), Group by Tanggal, Column Filters interaktif, dan Table Font Size Selector (S/M/L).
 - **Serial Number** (`/serial-number`):
   - Registrasi & pelacakan unit/perangkat dengan kolom Nama, Merk Tipe Spek, Serial Number (SN), dan Distributor.
 
-### E. Modul Transaksi Berbasis Tabulator.js (Transaksi FULL & Transaksi Harian)
+### F. Modul Transaksi Berbasis Tabulator.js (Transaksi FULL & Transaksi Harian)
 - **1. Transaksi FULL** (`/transaksi/full` - Superadmin):
   - Menggunakan library **Tabulator.js**.
   - Rekapitulasi: Penjualan Real (Cash) + Penjualan Servis Selesai/Diambil (Cash) - Kas Keluar (Cash).
   - Kolom Data: Modal (HPP), Harga Jual, Status Pembayaran (Lunas, Bon), Transaksi (Penjualan / Servis auto-detect), Pajak (PPN atau `-`), Metode Pembayaran, Teknisi (pengguna role teknisi di cabang terkait).
+  - **Modal Input Transaksi Baru Terstruktur**:
+    - Input waktu transaksi fokus jam (`<input type="time">`) dengan badge tanggal aktif di header modal.
+    - Seleksi tipe transaksi dinamis warna (Ungu untuk Penjualan, Kuning/Amber untuk Servis).
+    - Mode Pelanggan ringkas: Default `KONSUMEN`, input WhatsApp tersembunyi pada mode umum.
+    - Baris Item penuh (Item full-width) dengan urutan kolom: Kuantitas, Biaya, Modal.
+    - Baris Pembayaran & Pegawai terpisah rapi dengan custom dropdown Pegawai interaktif dan Pajak PPN bersih (`Tanpa PPN` tanpa persentase `(0%)`).
 - **2. Transaksi Harian** (`/transaksi/harian` - Admin & Superadmin):
   - Menggunakan library **Tabulator.js**.
   - Histori transaksi real hari ini saja (*today only*): Penjualan produk & Servis diambil.

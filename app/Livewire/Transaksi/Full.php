@@ -56,10 +56,13 @@ class Full extends Component
     public string $formNoTransaksi = '';
     public string $formTipeTransaksi = 'penjualan'; // 'penjualan' | 'servis'
     public string $formTanggal = '';
+    public string $formTanggalOnly = '';
+    public string $formJam = '';
+    public ?int $formUserId = null;
     public string $formCustomerType = 'umum'; // 'umum' | 'langganan'
     public ?int $formCustomerId = null;
     public string $formCustomerSearch = '';
-    public string $formNamaPelanggan = 'Pelanggan Umum';
+    public string $formNamaPelanggan = 'KONSUMEN';
     public string $formNoHp = '';
     public ?int $formMetodePembayaranId = null;
     public string $formMetodePembayaran = 'Cash';
@@ -182,8 +185,12 @@ class Full extends Component
     {
         $this->resetForm();
         $this->transaksiId = null;
+        $this->formTanggalOnly = now()->toDateString();
+        $this->formJam = now()->format('H:i');
         $this->formTanggal = now()->format('Y-m-d\TH:i');
         $this->formTipeTransaksi = 'penjualan';
+        $this->formNamaPelanggan = 'KONSUMEN';
+        $this->formUserId = Auth::id();
         $this->generateDefaultNoTransaksi();
 
         // PPN Default jika ada yang aktif
@@ -214,10 +221,13 @@ class Full extends Component
         $this->transaksiId = $transaksi->id;
         $this->formNoTransaksi = $transaksi->no_transaksi_frontend;
         $this->formTipeTransaksi = $transaksi->tipe_transaksi;
+        $this->formTanggalOnly = $transaksi->tanggal ? $transaksi->tanggal->toDateString() : now()->toDateString();
+        $this->formJam = $transaksi->tanggal ? $transaksi->tanggal->format('H:i') : now()->format('H:i');
         $this->formTanggal = $transaksi->tanggal ? $transaksi->tanggal->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i');
+        $this->formUserId = $transaksi->user_id ?: Auth::id();
         $this->formCustomerType = $transaksi->customer_id ? 'langganan' : 'umum';
         $this->formCustomerId = $transaksi->customer_id;
-        $this->formNamaPelanggan = $transaksi->nama_pelanggan;
+        $this->formNamaPelanggan = $transaksi->nama_pelanggan ?: 'KONSUMEN';
         $this->formNoHp = $transaksi->no_hp ?? '';
         $this->formMetodePembayaranId = $transaksi->metode_pembayaran_id;
         $this->formMetodePembayaran = $transaksi->metode_pembayaran;
@@ -479,7 +489,10 @@ class Full extends Component
             $totalLaba = $totalJual - $totalModal;
             $ppnNominal = ($totalJual * (float) $this->formPpnPersen) / 100;
             $grandTotal = $totalJual + $ppnNominal;
-            $tanggalParsed = Carbon::parse($this->formTanggal);
+
+            $dateBase = ! empty($this->formTanggalOnly) ? $this->formTanggalOnly : now()->toDateString();
+            $timeBase = ! empty($this->formJam) ? $this->formJam : now()->format('H:i');
+            $tanggalParsed = Carbon::parse($dateBase . ' ' . $timeBase);
             $tanggalLunas = null;
 
             if ($this->formStatus === 'Lunas') {
@@ -493,11 +506,13 @@ class Full extends Component
                 }
             }
 
+            $userId = $this->formUserId ?: Auth::id();
+
             $data = [
                 'cabang_id' => $cabangId,
-                'user_id' => Auth::id(),
+                'user_id' => $userId,
                 'customer_id' => $this->formCustomerType === 'langganan' ? $this->formCustomerId : null,
-                'nama_pelanggan' => trim($this->formNamaPelanggan) ?: 'Pelanggan Umum',
+                'nama_pelanggan' => trim($this->formNamaPelanggan) ?: 'KONSUMEN',
                 'no_hp' => trim($this->formNoHp) ?: null,
                 'no_transaksi' => trim($this->formNoTransaksi),
                 'tipe_transaksi' => $this->formTipeTransaksi,
@@ -623,6 +638,13 @@ class Full extends Component
         $cabangs = $isHQ ? Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get() : collect();
         $ppnList = MasterPpn::where('is_aktif', true)->orderBy('persen')->get();
         $metodeList = MetodePembayaran::where('is_aktif', true)->orderBy('urutan')->get();
+
+        $pegawaiList = \App\Models\User::query()
+            ->with('roles')
+            ->where('status', 'aktif')
+            ->when(! $isHQ && $user->cabang_id, fn($q) => $q->where('cabang_id', $user->cabang_id))
+            ->orderBy('name')
+            ->get();
 
         // Autocomplete Customer di Form Modal
         $customerSuggestions = [];
@@ -880,6 +902,7 @@ class Full extends Component
             'cabangs' => $cabangs,
             'ppnList' => $ppnList,
             'metodeList' => $metodeList,
+            'pegawaiList' => $pegawaiList,
             'customerSuggestions' => $customerSuggestions,
             'productSuggestionsMap' => $productSuggestionsMap,
             'isHQ' => $isHQ,

@@ -413,7 +413,12 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
   - Inisialisasi otomatis sesi `active_branch_id` saat login sukses berdasarkan data cabang pengguna.
 - **Registrasi Publik Dinonaktifkan**:
   - `Features::registration()` dinonaktifkan di `config/fortify.php`.
-  - Akun baru hanya dapat didaftarkan secara berjenjang melalui Master Pengguna (`/master/users`) oleh **Owner** (global semua cabang/role) atau **Superadmin** (khusus staf cabangnya).
+  - Akun baru hanya dapat didaftarkan secara berjenjang melalui Master Pengguna (`/master/user`) oleh **Owner** (global semua cabang/role) atau **Superadmin** (khusus staf cabangnya).
+- **Master Pengguna & Soft Delete (`/master/user`)**:
+  - Model `User` mengimplementasikan `Illuminate\Database\Eloquent\SoftDeletes` (`deleted_at`).
+  - Akun yang dihapus otomatis tersembunyi dari tabel index, pencarian, dan dropdown staf aktif.
+  - Proteksi hapus: larangan hapus akun sendiri (*self-lockout*), larangan hapus owner terakhir (*minimal 1 owner*), dan isolasi cabang untuk Superadmin.
+  - Relasi data historis (nota penjualan lama, servis, kas keluar, modal awal, audit kas) diamankan dengan `->withTrashed()` sehingga nama staf pembuat tetap terbaca utuh.
 - **Halaman Profil Pengguna Terintegrasi (`/user/profile`)**:
   - **Hero Overview Card**: Foto profil/inisial avatar, nama lengkap, username (`@username`), badge role (`Owner HQ`, `Superadmin`, `Teknisi`, `Admin`), cabang tugas, email, nomor WhatsApp, serta indikator status perlindungan 2FA.
   - **Tab 1 — Informasi Profil & Kontak**: Ubah nama lengkap, username (info read-only dari admin), email, nomor WhatsApp/HP, serta upload/hapus foto profil.
@@ -431,6 +436,8 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
 ## 17. Modul Kas Keluar, Master Sumber Dana & Kategori Kas Keluar
 
 - **Kas Keluar** (`/kas-keluar` - Superadmin & Owner):
+  - Menggunakan library spreadsheet grid **Tabulator.js** dengan interactive column filtering, group by tanggal, dan Table Size Selector (S/M/L).
+  - Standar filter periode lengkap: Semua, Hari Ini, Rentang Tanggal, Bulanan, dan Tahunan.
   - Pencatatan pengeluaran operasional cabang: Waktu Input, Keterangan, Total Uang / Nominal, Sumber Dana, Kategori Kas Keluar.
   - **Master Sumber Dana** (`/master/sumber-dana`): Pilihan asal uang (Cash / Tunai, BCA, TF BCA, dll).
   - **Master Kategori Kas Keluar** (`/master/kategori-kas`): Klasifikasi biaya (Operasional Toko, Listrik & Air, Konsumsi Karyawan, ATK, Maintenance, Lainnya).
@@ -458,6 +465,12 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
     - Pajak (PPN terhitung atau `-` jika servis)
     - Metode Pembayaran (Master Metode Pembayaran)
     - Teknisi (Daftar teknisi cabang terkait)
+  - **Modal Input Transaksi Baru Terstruktur**:
+    - Input waktu transaksi fokus jam (`<input type="time">`) dengan badge tanggal aktif di header modal.
+    - Seleksi tipe transaksi dinamis warna (Ungu untuk Penjualan, Kuning/Amber untuk Servis).
+    - Mode Pelanggan ringkas: Default `KONSUMEN`, input WhatsApp tersembunyi pada mode umum.
+    - Baris Item penuh (Item full-width) dengan urutan kolom: Kuantitas, Biaya, Modal.
+    - Baris Pembayaran & Pegawai terpisah rapi dengan custom dropdown Pegawai interaktif dan Pajak PPN bersih (`Tanpa PPN` tanpa persentase `(0%)`).
 - **Transaksi Harian (`/transaksi/harian` - Admin & Superadmin)**:
   - Menampilkan transaksi khusus hari ini saja (*today only*): Penjualan produk real + Servis yang sudah diambil hari itu.
   - Kolom Grid Tabulator: Modal, Harga Jual, Nett (Harga Jual - Modal), Pajak, Metode Pembayaran, Keterangan.

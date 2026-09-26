@@ -62,7 +62,7 @@ class Penjualan extends Model
 
     public function kasir()
     {
-        return $this->belongsTo(User::class, 'kasir_id');
+        return $this->belongsTo(User::class, 'kasir_id')->withTrashed();
     }
 
     public function customer()

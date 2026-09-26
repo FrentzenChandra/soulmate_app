@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -241,13 +242,13 @@ class Index extends Component
                 'string',
                 'max:50',
                 'alpha_dash',
-                'unique:users,username,'.($this->userId ?? 'NULL').',id',
+                Rule::unique('users', 'username')->whereNull('deleted_at')->ignore($this->userId),
             ],
             'email' => [
                 'required',
                 'email',
                 'max:255',
-                'unique:users,email,'.($this->userId ?? 'NULL').',id',
+                Rule::unique('users', 'email')->whereNull('deleted_at')->ignore($this->userId),
             ],
             'password' => $this->isEditMode ? 'nullable|min:6' : 'required|min:6',
             'role_name' => 'required|in:'.implode(',', $allowedRoles),
@@ -400,6 +401,43 @@ class Index extends Component
         $user->update(['status' => $newStatus]);
 
         session()->flash('success', "Status akun {$user->name} diubah menjadi ".ucfirst($newStatus).'.');
+    }
+
+    public function deleteUser(int $id): void
+    {
+        $currentUser = Auth::user();
+        $user = User::findOrFail($id);
+
+        // RBAC check
+        if (! $currentUser->isOwner()) {
+            if ($user->isOwner() || (int) $user->cabang_id !== (int) $currentUser->cabang_id) {
+                session()->flash('error', 'Anda tidak memiliki otoritas untuk menghapus akun ini.');
+
+                return;
+            }
+        }
+
+        // Self-lockout check
+        if ($user->id === Auth::id()) {
+            session()->flash('error', 'Anda tidak dapat menghapus akun yang sedang Anda gunakan.');
+
+            return;
+        }
+
+        // Minimal 1 active owner check
+        if ($user->isOwner()) {
+            $activeOwnersCount = User::role('Owner')->where('status', 'aktif')->count();
+            if ($activeOwnersCount <= 1) {
+                session()->flash('error', 'Minimal harus ada 1 akun Owner di sistem.');
+
+                return;
+            }
+        }
+
+        $namaUser = $user->name;
+        $user->delete();
+
+        session()->flash('success', "Akun pengguna {$namaUser} berhasil dihapus.");
     }
 
     public function render()

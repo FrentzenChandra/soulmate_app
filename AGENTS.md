@@ -114,3 +114,13 @@
 - **Pengujian Tertarget & Cepat:** Setiap kali melakukan perubahan kode atau verifikasi, eksekusi test WAJIB diarahkan secara spesifik pada modul yang diubah dan modul yang berhubungan langsung:
   * Gunakan flag `--filter`: `docker exec soulmate_apps php artisan test --filter <TestClass>` (contoh: `--filter ServisMasukTest`, `--filter KasirPosTest`, `--filter ProductAndStockTest`).
   * Atau targetkan file spesifik: `docker exec soulmate_apps php artisan test tests/Feature/<NamaTest>.php`.
+
+## 17. User Soft Delete & Historical Data Integrity Standard
+- **Soft Delete Wajib untuk User:** Model `User` menggunakan `Illuminate\Database\Eloquent\SoftDeletes`. Pengguna yang dihapus tidak dihapus permanen dari database melainkan diberi timestamp `deleted_at`.
+- **Proteksi Hapus Pengguna:**
+  * Pengguna dilarang menghapus akunnya sendiri (*self-lockout guard*).
+  * Sistem wajib mempertahankan minimal 1 akun Owner aktif (*minimal 1 owner guard*).
+  * Superadmin hanya berhak menghapus akun staf non-owner di cabangnya sendiri.
+- **Integritas Relasi Historis:** Semua relasi `belongsTo(User::class)` pada model transaksi, servis, kas, dan audit log (`TransaksiFull`, `ServisMasuk`, `KasKeluar`, `ModalAwal`, `CekKasLog`, `TutupKas`, `ServisStatusLog`, `Penjualan`, `SerialNumber`) **WAJIB menggunakan `->withTrashed()`** agar riwayat dan nota masa lalu tetap menampilkan nama staf pembuat aslinya tanpa menghasilkan error null.
+- **Validasi Unik Email & Username:** Validasi unik pada form pengguna wajib mengabaikan akun yang telah di-soft-delete (`Rule::unique('users', 'email')->whereNull('deleted_at')`).
+

@@ -68,17 +68,17 @@ class ServisMasuk extends Model
 
     public function teknisi(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'teknisi_id');
+        return $this->belongsTo(User::class, 'teknisi_id')->withTrashed();
     }
 
     public function kasir(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'kasir_id');
+        return $this->belongsTo(User::class, 'kasir_id')->withTrashed();
     }
 
     public function pembuat(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by')->withTrashed();
     }
 
     public function details(): HasMany
