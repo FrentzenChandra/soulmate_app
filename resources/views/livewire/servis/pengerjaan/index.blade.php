@@ -183,21 +183,23 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse table-fixed min-w-[950px]">
                 <colgroup>
-                    <col class="{{ $isHQ ? 'w-[14%]' : 'w-[15%]' }}">
-                    <col class="{{ $isHQ ? 'w-[15%]' : 'w-[17%]' }}">
-                    <col class="{{ $isHQ ? 'w-[18%]' : 'w-[23%]' }}">
+                    <col class="{{ $isHQ ? 'w-[12%]' : 'w-[13%]' }}">
+                    <col class="{{ $isHQ ? 'w-[7%]' : 'w-[8%]' }}">
+                    <col class="{{ $isHQ ? 'w-[14%]' : 'w-[16%]' }}">
+                    <col class="{{ $isHQ ? 'w-[17%]' : 'w-[21%]' }}">
                     @if($isHQ)
-                        <col class="w-[11%]">
+                        <col class="w-[10%]">
                     @endif
-                    <col class="{{ $isHQ ? 'w-[14%]' : 'w-[15%]' }}">
                     <col class="{{ $isHQ ? 'w-[13%]' : 'w-[14%]' }}">
                     <col class="{{ $isHQ ? 'w-[13%]' : 'w-[14%]' }}">
-                    <col class="w-[12%]">
+                    <col class="{{ $isHQ ? 'w-[14%]' : 'w-[14%]' }}">
+                    <col class="w-[10%]">
                 </colgroup>
 
                 <thead>
                     <tr class="border-b border-gray-200 bg-gray-50/80 text-[10px] font-extrabold text-gray-500 uppercase tracking-wider">
                         <x-th-sort field="tanggal_masuk" :sortField="$sortField" :sortDirection="$sortDirection" class="py-2.5 px-3">Waktu / Tiket</x-th-sort>
+                        <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500 text-center">Tipe</th>
                         <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500">Pelanggan</th>
                         <x-th-sort field="tipe_unit" :sortField="$sortField" :sortDirection="$sortDirection" class="py-2.5 px-3">Unit &amp; Keluhan</x-th-sort>
                         @if($isHQ)
@@ -218,6 +220,7 @@
                     @for($i = 0; $i < 6; $i++)
                         <tr class="animate-pulse">
                             <td class="py-2 px-3"><div class="h-3 bg-gray-200 rounded w-24"></div></td>
+                            <td class="py-2 px-3 text-center"><div class="h-4 bg-gray-200 rounded-full w-12 mx-auto"></div></td>
                             <td class="py-2 px-3"><div class="h-3 bg-gray-200 rounded w-24"></div></td>
                             <td class="py-2 px-3"><div class="h-3 bg-gray-200 rounded w-36"></div></td>
                             @if($isHQ)
@@ -244,14 +247,18 @@
                                 <span class="font-mono font-black text-[#5E17EB] text-xs block leading-tight truncate">
                                     {{ $sv->no_servis_frontend }}
                                 </span>
-                                <div class="flex items-center space-x-1 mt-0.5">
-                                    @if(! $sv->is_real)
-                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-extrabold text-[8px] uppercase tracking-wider shrink-0">Non-Real</span>
-                                    @endif
-                                    <span class="text-[10px] text-gray-400 font-mono block leading-tight truncate">
-                                        {{ $sv->tanggal_masuk ? $sv->tanggal_masuk->format('d/m/Y H:i') : '-' }}
-                                    </span>
-                                </div>
+                                <span class="text-[10px] text-gray-400 font-mono block leading-tight truncate mt-0.5">
+                                    {{ $sv->tanggal_masuk ? $sv->tanggal_masuk->format('d/m/Y H:i') : '-' }}
+                                </span>
+                            </td>
+
+                            <!-- Tipe Transaksi -->
+                            <td class="py-2 px-3 text-center whitespace-nowrap">
+                                @if($sv->is_real)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">Real</span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">Non-Real</span>
+                                @endif
                             </td>
 
                             <!-- Pelanggan -->

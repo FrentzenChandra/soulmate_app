@@ -154,19 +154,21 @@
          :class="'table-size-' + tableSize"
          class="card-custom bg-white overflow-hidden border border-gray-200 shadow-sm rounded-2xl">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse table-fixed min-w-[1060px]">
+            <table class="w-full text-left border-collapse table-fixed min-w-[1100px]">
                 <colgroup>
-                    <col style="width: 140px;">
-                    <col style="width: 160px;">
-                    <col style="width: 220px;">
-                    <col style="width: 200px;">
-                    <col style="width: 140px;">
-                    <col style="width: 160px;">
-                    <col style="width: 160px;">
+                    <col style="width: 130px;">
+                    <col style="width: 90px;">
+                    <col style="width: 150px;">
+                    <col style="width: 210px;">
+                    <col style="width: 190px;">
+                    <col style="width: 130px;">
+                    <col style="width: 150px;">
+                    <col style="width: 150px;">
                 </colgroup>
                 <thead>
                     <tr class="border-b border-gray-200 bg-gray-50/80 text-[10px] font-extrabold text-gray-500 uppercase tracking-wider">
                         <x-th-sort field="no_servis" :sortField="$sortField" :sortDirection="$sortDirection" class="py-2.5 px-3">Kode Servis</x-th-sort>
+                        <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500 text-center">Tipe</th>
                         <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500">Pelanggan</th>
                         <x-th-sort field="tipe_unit" :sortField="$sortField" :sortDirection="$sortDirection" class="py-2.5 px-3">Perangkat</x-th-sort>
                         <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500">Tindakan</th>
@@ -184,6 +186,7 @@
                     @for($i = 0; $i < 6; $i++)
                         <tr class="animate-pulse">
                             <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-24"></div></td>
+                            <td class="py-2.5 px-3 text-center"><div class="h-4 bg-gray-200 rounded-full w-14 mx-auto"></div></td>
                             <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-28"></div></td>
                             <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-40"></div></td>
                             <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-36"></div></td>
@@ -206,14 +209,18 @@
                                 <span class="font-mono font-black text-gray-900 block group-hover:text-[#5E17EB] transition-colors leading-tight truncate">
                                     {{ $item->no_servis_frontend }}
                                 </span>
-                                <div class="flex items-center space-x-1.5 mt-0.5">
-                                    @if(! $item->is_real)
-                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-extrabold text-[8px] uppercase tracking-wider shrink-0">Non-Real</span>
-                                    @endif
-                                    <span class="text-[10px] font-medium text-gray-600 truncate leading-tight">
-                                        {{ $item->cabang?->nama_cabang ?? 'Pusat' }}
-                                    </span>
-                                </div>
+                                <span class="text-[10px] font-medium text-gray-600 block leading-tight mt-0.5 truncate">
+                                    {{ $item->cabang?->nama_cabang ?? 'Pusat' }}
+                                </span>
+                            </td>
+
+                            <!-- Tipe Transaksi -->
+                            <td class="py-2.5 px-3 text-center whitespace-nowrap">
+                                @if($item->is_real)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">Real</span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">Non-Real</span>
+                                @endif
                             </td>
 
                             <!-- Pelanggan -->
