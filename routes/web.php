@@ -58,29 +58,29 @@ Route::middleware('auth')->group(function () {
             Route::get('/ppn', MasterPpnIndex::class)->name('ppn');
         });
 
-        // Owner & Superadmin Only (Kecuali Pengguna)
+        // Owner & Superadmin Only
         Route::middleware('role:Owner|Superadmin')->group(function () {
             Route::get('/users', MasterUserIndex::class)->name('users');
-        });
-
-        // Owner, Superadmin, & Admin (Full CRUD Master)
-        Route::middleware('role:Owner|Superadmin|Admin')->group(function () {
-            Route::get('/produk', MasterProdukIndex::class)->name('produk');
             Route::get('/kategori', MasterKategoriIndex::class)->name('kategori');
             Route::get('/metode-pembayaran', MasterPembayaranIndex::class)->name('metode-pembayaran');
             Route::get('/sumber-dana', MasterSumberDanaIndex::class)->name('sumber-dana');
             Route::get('/kategori-kas', MasterKategoriKasIndex::class)->name('kategori-kas');
+        });
+
+        // Owner, Superadmin, Admin, Bendahara, & Teknisi (Produk & Servis)
+        Route::middleware('role:Owner|Superadmin|Admin|Bendahara|Teknisi')->group(function () {
+            Route::get('/produk', MasterProdukIndex::class)->name('produk');
             Route::get('/servis', MasterServisIndex::class)->name('servis');
         });
 
-        // Customer / Pelanggan (Owner, Superadmin, Admin, Kasir, Teknisi)
-        Route::middleware('role:Owner|Superadmin|Admin|Kasir|Teknisi')->group(function () {
+        // Customer / Pelanggan (Owner, Superadmin, Admin, Bendahara, Kasir, Teknisi)
+        Route::middleware('role:Owner|Superadmin|Admin|Bendahara|Kasir|Teknisi')->group(function () {
             Route::get('/customer', MasterCustomerIndex::class)->name('customer');
         });
     });
 
-    // Layanan Servis & Reparasi (Owner, Superadmin, Admin, Teknisi, Kasir)
-    Route::middleware('role:Owner|Superadmin|Admin|Teknisi|Kasir')->group(function () {
+    // Layanan Servis & Reparasi (Owner, Superadmin, Admin, Bendahara, Teknisi, Kasir)
+    Route::middleware('role:Owner|Superadmin|Admin|Bendahara|Teknisi|Kasir')->group(function () {
         Route::get('/servis/masuk', ServisMasukIndex::class)->name('servis.masuk');
         Route::get('/servis/keluar', ServisKeluarIndex::class)->name('servis.keluar');
         Route::get('/servis/batal', ServisBatalIndex::class)->name('servis.batal');
@@ -125,8 +125,8 @@ Route::middleware('auth')->group(function () {
         })->name('servis.invoice');
     });
 
-    // Kasir POS & Penjualan (Owner, Superadmin, Admin, Kasir)
-    Route::middleware('role:Owner|Superadmin|Admin|Kasir')->group(function () {
+    // Kasir POS & Penjualan (Owner, Superadmin, Admin, Bendahara, Kasir)
+    Route::middleware('role:Owner|Superadmin|Admin|Bendahara|Kasir')->group(function () {
         Route::get('/kasir/produk', KasirProdukIndex::class)->name('kasir.produk');
         Route::get('/kasir/produk/invoice/{penjualan}', function (\App\Models\Penjualan $penjualan) {
             $user = Auth::user();
@@ -150,33 +150,34 @@ Route::middleware('auth')->group(function () {
         Route::get('/laporan/penjualan', LaporanPenjualanIndex::class)->name('laporan.penjualan');
     });
 
-    // Keuangan & Kas (Kas Keluar & Modal Awal & Tutup Kas & Saldo)
-    Route::middleware('role:Owner|Superadmin|Admin')->group(function () {
+    // Keuangan & Kas (Kas Keluar & Saldo: Owner, Superadmin, Bendahara)
+    Route::middleware('role:Owner|Superadmin|Bendahara')->group(function () {
         Route::get('/kas-keluar', KasKeluarIndex::class)->name('kas-keluar');
         Route::get('/saldo', SaldoIndex::class)->name('saldo.index');
     });
 
+    // Transaksi FULL (Owner & Superadmin Only)
     Route::middleware('role:Owner|Superadmin')->group(function () {
         Route::get('/transaksi/full', TransaksiFull::class)->name('transaksi.full');
     });
 
-    Route::middleware('role:Owner|Superadmin|Admin|Kasir')->group(function () {
+    Route::middleware('role:Owner|Superadmin|Bendahara|Kasir')->group(function () {
         Route::get('/modal-awal', ModalAwalIndex::class)->name('modal-awal');
         Route::get('/tutup-kas', TutupKasIndex::class)->name('tutup-kas');
         Route::get('/audit-laci', AuditLaciIndex::class)->name('audit-laci');
     });
 
-    Route::middleware('role:Owner|Admin|Kasir')->group(function () {
+    Route::middleware('role:Owner|Admin|Bendahara|Kasir')->group(function () {
         Route::get('/transaksi/harian', TransaksiHarian::class)->name('transaksi.harian');
     });
 
-    // Serial Number (Owner, Superadmin, Admin, Kasir)
-    Route::middleware('role:Owner|Superadmin|Admin|Kasir')->group(function () {
+    // Serial Number (Owner, Superadmin, Admin, Bendahara, Kasir)
+    Route::middleware('role:Owner|Superadmin|Admin|Bendahara|Kasir')->group(function () {
         Route::get('/serial-number', SerialNumberIndex::class)->name('serial-number');
     });
 
-    // Operasional Stok Cabang (Owner, Superadmin, Admin, Kasir)
-    Route::middleware('role:Owner|Superadmin|Admin|Kasir')->group(function () {
+    // Operasional Stok Cabang (Owner, Superadmin, Admin, Bendahara, Kasir)
+    Route::middleware('role:Owner|Superadmin|Admin|Bendahara|Kasir')->group(function () {
         Route::get('/cabang/stok', CabangStokIndex::class)->name('cabang.stok');
     });
 

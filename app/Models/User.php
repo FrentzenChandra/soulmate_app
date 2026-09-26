@@ -99,6 +99,11 @@ class User extends Authenticatable
         return $this->hasRole('Teknisi');
     }
 
+    public function isBendahara(): bool
+    {
+        return $this->hasRole('Bendahara');
+    }
+
     public function isAdmin(): bool
     {
         return $this->hasRole('Admin') || $this->hasRole('Kasir');

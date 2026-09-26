@@ -20,6 +20,7 @@ class RoleAndUserSeeder extends Seeder
         $ownerRole = Role::firstOrCreate(['name' => 'Owner']);
         $teknisiRole = Role::firstOrCreate(['name' => 'Teknisi']);
         $adminRole = Role::firstOrCreate(['name' => 'Admin']);
+        $bendaharaRole = Role::firstOrCreate(['name' => 'Bendahara']);
         $kasirRole = Role::firstOrCreate(['name' => 'Kasir']);
 
         $cabangPkp = Cabang::where('kode_cabang', 'CB-PKP')->first();
@@ -27,7 +28,7 @@ class RoleAndUserSeeder extends Seeder
         $cabangKba = Cabang::where('kode_cabang', 'CB-KBA')->first();
 
         // 2. Akun Owner & Dev (Akses Penuh Semua Cabang & Semua Menu)
-        $owner = User::updateOrCreate(
+        $owner = User::withTrashed()->updateOrCreate(
             ['email' => 'owner@soulmate.test'],
             [
                 'name' => 'Owner / Pemilik Bisnis',
@@ -36,11 +37,12 @@ class RoleAndUserSeeder extends Seeder
                 'cabang_id' => null, // null = Akses semua cabang tanpa batasan
                 'no_hp' => '081199887766',
                 'status' => 'aktif',
+                'deleted_at' => null,
             ]
         );
         $owner->syncRoles([$ownerRole]);
 
-        $dev = User::updateOrCreate(
+        $dev = User::withTrashed()->updateOrCreate(
             ['email' => 'dev@soulmate.test'],
             [
                 'name' => 'Developer Mode',
@@ -49,12 +51,13 @@ class RoleAndUserSeeder extends Seeder
                 'cabang_id' => null, // null = Akses semua cabang tanpa batasan
                 'no_hp' => '081200000000',
                 'status' => 'aktif',
+                'deleted_at' => null,
             ]
         );
         $dev->syncRoles([$ownerRole]);
 
         // 3. Akun Superadmin (Admin Cabang - Akses Semua Menu di 1 Cabang)
-        $superadminPkp = User::updateOrCreate(
+        $superadminPkp = User::withTrashed()->updateOrCreate(
             ['email' => 'superadmin@soulmate.test'],
             [
                 'name' => 'Superadmin Cabang PKP',
@@ -63,11 +66,12 @@ class RoleAndUserSeeder extends Seeder
                 'cabang_id' => $cabangPkp?->id, // Terikat ke Cabang Pangkalpinang
                 'no_hp' => '081234567890',
                 'status' => 'aktif',
+                'deleted_at' => null,
             ]
         );
         $superadminPkp->syncRoles([$superadminRole]);
 
-        $superadminSgl = User::updateOrCreate(
+        $superadminSgl = User::withTrashed()->updateOrCreate(
             ['email' => 'superadmin.sgl@soulmate.test'],
             [
                 'name' => 'Superadmin Cabang SGL',
@@ -76,6 +80,7 @@ class RoleAndUserSeeder extends Seeder
                 'cabang_id' => $cabangSgl?->id, // Terikat ke Cabang Sungailiat
                 'no_hp' => '081234567891',
                 'status' => 'aktif',
+                'deleted_at' => null,
             ]
         );
         $superadminSgl->syncRoles([$superadminRole]);
@@ -90,6 +95,7 @@ class RoleAndUserSeeder extends Seeder
                 'cabang_id' => $cabangPkp?->id,
                 'no_hp' => '08127111001',
                 'status' => 'aktif',
+                'deleted_at' => null,
             ],
             [
                 'name' => 'Andi Teknisi SGL',
@@ -99,6 +105,7 @@ class RoleAndUserSeeder extends Seeder
                 'cabang_id' => $cabangSgl?->id,
                 'no_hp' => '08127111002',
                 'status' => 'aktif',
+                'deleted_at' => null,
             ],
             [
                 'name' => 'Eko Teknisi KBA',
@@ -108,11 +115,12 @@ class RoleAndUserSeeder extends Seeder
                 'cabang_id' => $cabangKba?->id,
                 'no_hp' => '08127111003',
                 'status' => 'aktif',
+                'deleted_at' => null,
             ],
         ];
 
         foreach ($teknisiUsers as $data) {
-            $user = User::updateOrCreate(['email' => $data['email']], $data);
+            $user = User::withTrashed()->updateOrCreate(['email' => $data['email']], $data);
             $user->syncRoles([$teknisiRole]);
         }
 
@@ -126,6 +134,7 @@ class RoleAndUserSeeder extends Seeder
                 'cabang_id' => $cabangPkp?->id,
                 'no_hp' => '08127222001',
                 'status' => 'aktif',
+                'deleted_at' => null,
             ],
             [
                 'name' => 'Dewi Admin SGL',
@@ -135,6 +144,7 @@ class RoleAndUserSeeder extends Seeder
                 'cabang_id' => $cabangSgl?->id,
                 'no_hp' => '08127222002',
                 'status' => 'aktif',
+                'deleted_at' => null,
             ],
             [
                 'name' => 'Rina Admin KBA',
@@ -144,6 +154,7 @@ class RoleAndUserSeeder extends Seeder
                 'cabang_id' => $cabangKba?->id,
                 'no_hp' => '08127222003',
                 'status' => 'aktif',
+                'deleted_at' => null,
             ],
             // Alias akun lama kasir.pkp untuk kompatibilitas
             [
@@ -154,12 +165,52 @@ class RoleAndUserSeeder extends Seeder
                 'cabang_id' => $cabangPkp?->id,
                 'no_hp' => '08127222001',
                 'status' => 'aktif',
+                'deleted_at' => null,
             ],
         ];
 
         foreach ($adminUsers as $data) {
-            $user = User::updateOrCreate(['email' => $data['email']], $data);
+            $user = User::withTrashed()->updateOrCreate(['email' => $data['email']], $data);
             $user->syncRoles([$adminRole]);
+        }
+
+        // 6. Akun Bendahara per Cabang
+        $bendaharaUsers = [
+            [
+                'name' => 'Maya Bendahara PKP',
+                'email' => 'bendahara.pkp@soulmate.test',
+                'username' => 'bendahara_pkp',
+                'password' => Hash::make('password'),
+                'cabang_id' => $cabangPkp?->id,
+                'no_hp' => '08127333001',
+                'status' => 'aktif',
+                'deleted_at' => null,
+            ],
+            [
+                'name' => 'Lina Bendahara SGL',
+                'email' => 'bendahara.sgl@soulmate.test',
+                'username' => 'bendahara_sgl',
+                'password' => Hash::make('password'),
+                'cabang_id' => $cabangSgl?->id,
+                'no_hp' => '08127333002',
+                'status' => 'aktif',
+                'deleted_at' => null,
+            ],
+            [
+                'name' => 'Putri Bendahara KBA',
+                'email' => 'bendahara.kba@soulmate.test',
+                'username' => 'bendahara_kba',
+                'password' => Hash::make('password'),
+                'cabang_id' => $cabangKba?->id,
+                'no_hp' => '08127333003',
+                'status' => 'aktif',
+                'deleted_at' => null,
+            ],
+        ];
+
+        foreach ($bendaharaUsers as $data) {
+            $user = User::withTrashed()->updateOrCreate(['email' => $data['email']], $data);
+            $user->syncRoles([$bendaharaRole]);
         }
     }
 }

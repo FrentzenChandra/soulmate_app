@@ -232,8 +232,8 @@ class Index extends Component
     {
         $currentUser = Auth::user();
         $allowedRoles = $currentUser->isOwner()
-            ? ['Owner', 'Superadmin', 'Teknisi', 'Admin', 'Kasir']
-            : ['Superadmin', 'Teknisi', 'Admin', 'Kasir'];
+            ? ['Owner', 'Superadmin', 'Teknisi', 'Bendahara', 'Admin', 'Kasir']
+            : ['Superadmin', 'Teknisi', 'Bendahara', 'Admin', 'Kasir'];
 
         $rules = [
             'name' => 'required|string|max:255',
@@ -448,9 +448,9 @@ class Index extends Component
         $query = User::with(['cabang', 'roles'])
             ->whereHas('roles', function ($q) use ($isOwner) {
                 if (! $isOwner) {
-                    // Superadmin hanya mengelola Superadmin, Teknisi, Admin (dan Kasir untuk kompatibilitas) di cabangnya
+                    // Superadmin hanya mengelola Superadmin, Teknisi, Bendahara, Admin (dan Kasir untuk kompatibilitas) di cabangnya
                     if ($this->roleFilter === 'semua') {
-                        $q->whereIn('name', ['Superadmin', 'Teknisi', 'Admin', 'Kasir']);
+                        $q->whereIn('name', ['Superadmin', 'Teknisi', 'Bendahara', 'Admin', 'Kasir']);
                     } else {
                         if ($this->roleFilter === 'Admin') {
                             $q->whereIn('name', ['Admin', 'Kasir']);

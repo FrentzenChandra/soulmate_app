@@ -73,6 +73,7 @@
                         <option value="Owner">Owner</option>
                     @endif
                     <option value="Superadmin">Superadmin</option>
+                    <option value="Bendahara">Bendahara</option>
                     <option value="Teknisi">Teknisi</option>
                     <option value="Admin">Admin</option>
                 </select>
@@ -166,6 +167,10 @@
                                 @elseif($userRole === 'Superadmin')
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-extrabold text-[11px] border border-blue-200">
                                         <span>Superadmin</span>
+                                    </span>
+                                @elseif($userRole === 'Bendahara')
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 font-extrabold text-[11px] border border-amber-200">
+                                        <span>Bendahara</span>
                                     </span>
                                 @elseif($userRole === 'Teknisi')
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 font-extrabold text-[11px] border border-teal-200">
@@ -314,7 +319,7 @@
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                                     Pilih Peran Akun (Role) <span class="text-rose-500">*</span>
                                 </label>
-                                <div class="grid {{ $isOwner ? 'grid-cols-2 gap-2.5' : 'grid-cols-3 gap-2' }}">
+                                <div class="grid grid-cols-2 md:grid-cols-{{ $isOwner ? '3' : '2' }} lg:grid-cols-{{ $isOwner ? '5' : '4' }} gap-2.5">
                                     @if($isOwner)
                                         <!-- Role Owner Card -->
                                         <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Owner' ? 'border-[#5E17EB] bg-purple-50/50' : 'border-gray-200 hover:border-gray-300' }}">
@@ -339,6 +344,18 @@
                                             <span class="text-xs font-extrabold text-gray-900">Superadmin</span>
                                         </div>
                                         <span class="text-[9px] text-gray-500 mt-1 leading-tight">Admin operasional sistem</span>
+                                    </label>
+
+                                    <!-- Role Bendahara Card -->
+                                    <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Bendahara' ? 'border-amber-500 bg-amber-50/50' : 'border-gray-200 hover:border-gray-300' }}">
+                                        <input type="radio" wire:model.live="role_name" value="Bendahara" class="sr-only">
+                                        <div class="flex items-center space-x-1.5">
+                                            <span class="w-5 h-5 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            </span>
+                                            <span class="text-xs font-extrabold text-gray-900">Bendahara</span>
+                                        </div>
+                                        <span class="text-[9px] text-gray-500 mt-1 leading-tight">Kas, saldo & keuangan</span>
                                     </label>
 
                                     <!-- Role Teknisi Card -->
