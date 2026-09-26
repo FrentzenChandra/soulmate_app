@@ -29,7 +29,7 @@ class AuditLaciTest extends TestCase
         $this->get(route('audit-laci'))->assertRedirect(route('login'));
     }
 
-    public function test_authorized_roles_can_access_audit_laci()
+    public function test_only_owner_can_access_audit_laci()
     {
         $owner = User::where('email', 'owner@soulmate.test')->first();
         $this->actingAs($owner);
@@ -37,22 +37,22 @@ class AuditLaciTest extends TestCase
 
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
-        $this->get(route('audit-laci'))->assertStatus(200);
+        $this->get(route('audit-laci'))->assertStatus(403);
 
         $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
         $this->actingAs($admin);
-        $this->get(route('audit-laci'))->assertStatus(200);
+        $this->get(route('audit-laci'))->assertStatus(403);
     }
 
     public function test_can_perform_audit_and_save_breakdown_logs()
     {
-        $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
-        $this->actingAs($admin);
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $this->actingAs($owner);
 
         // 1. Setup Modal Awal
         ModalAwal::create([
-            'cabang_id' => $admin->cabang_id,
-            'user_id' => $admin->id,
+            'cabang_id' => $owner->cabang_id ?: 1,
+            'user_id' => $owner->id,
             'tanggal' => now()->toDateString(),
             'nominal' => 200000,
             'keterangan' => 'Modal pagi',
@@ -60,10 +60,11 @@ class AuditLaciTest extends TestCase
 
         // 2. Setup Penjualan Cash
         $produk = Produk::first();
+        $cabangId = $owner->cabang_id ?: 1;
         $pj = Penjualan::create([
             'no_transaksi' => 'INV-PJ-PKP-2609-00099',
-            'cabang_id' => $admin->cabang_id,
-            'kasir_id' => $admin->id,
+            'cabang_id' => $cabangId,
+            'kasir_id' => $owner->id,
             'tipe_transaksi' => 'penjualan_barang',
             'tanggal' => now(),
             'subtotal' => 100000,
@@ -98,8 +99,8 @@ class AuditLaciTest extends TestCase
             ->assertDispatched('swal:success');
 
         $this->assertDatabaseHas('cek_kas_logs', [
-            'cabang_id' => $admin->cabang_id,
-            'user_id' => $admin->id,
+            'cabang_id' => $cabangId,
+            'user_id' => $owner->id,
             'modal_awal' => 200000,
             'kas_sistem' => $kasSistem,
             'kas_fisik' => $kasFisik,
@@ -111,12 +112,13 @@ class AuditLaciTest extends TestCase
 
     public function test_period_and_status_filtering_works()
     {
-        $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
-        $this->actingAs($admin);
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $this->actingAs($owner);
+        $cabangId = $owner->cabang_id ?: 1;
 
         CekKasLog::create([
-            'cabang_id' => $admin->cabang_id,
-            'user_id' => $admin->id,
+            'cabang_id' => $cabangId,
+            'user_id' => $owner->id,
             'tanggal' => '2026-08-15',
             'waktu_cek' => '2026-08-15 12:00:00',
             'modal_awal' => 100000,
@@ -130,8 +132,8 @@ class AuditLaciTest extends TestCase
         ]);
 
         CekKasLog::create([
-            'cabang_id' => $admin->cabang_id,
-            'user_id' => $admin->id,
+            'cabang_id' => $cabangId,
+            'user_id' => $owner->id,
             'tanggal' => '2026-09-10',
             'waktu_cek' => '2026-09-10 17:00:00',
             'modal_awal' => 100000,

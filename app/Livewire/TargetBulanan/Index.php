@@ -43,8 +43,8 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user) {
-            abort(403, 'Akses dibatasi.');
+        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin'))) {
+            abort(403, 'Akses Target Bulanan dibatasi hanya untuk Owner dan Superadmin.');
         }
 
         $this->filterTahun = (int) now()->format('Y');

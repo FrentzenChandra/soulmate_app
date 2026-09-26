@@ -32,8 +32,8 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || ! ($user->isOwner() || $user->isSuperAdmin() || $user->isAdmin() || $user->isTeknisi() || $user->hasRole('Kasir'))) {
-            abort(403, 'Akses Histori Audit Laci dibatasi.');
+        if (! $user || ! $user->isOwner()) {
+            abort(403, 'Akses Audit Laci dibatasi hanya untuk Owner.');
         }
 
         $this->filterBulan = now()->format('m');

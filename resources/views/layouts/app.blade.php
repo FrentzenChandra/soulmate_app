@@ -276,9 +276,12 @@
                     </a>
 
                     <a href="{{ route('audit-laci') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('audit-laci*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('audit-laci*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                        Audit Laci
+                        class="group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('audit-laci*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-400 hover:bg-gray-800/80 hover:text-white' }}">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-3 {{ request()->routeIs('audit-laci*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                            <span>Audit Laci</span>
+                        </div>
+                        <span class="text-[9px] bg-gray-800 text-gray-400 border border-gray-700 px-1.5 py-0.5 rounded font-semibold">Nonaktif</span>
                     </a>
 
                     <a href="{{ route('kas-keluar') }}"
@@ -451,11 +454,13 @@
                     </a>
                     @endhasanyrole
 
+                    @hasanyrole('Owner|Superadmin')
                     <a href="{{ route('target.bulanan') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('target.bulanan*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('target.bulanan*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         Target Bulanan
                     </a>
+                    @endhasanyrole
 
                     @hasanyrole('Owner|Superadmin|Bendahara')
                     <a href="{{ route('kas-keluar') }}"
@@ -476,14 +481,6 @@
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('serial-number*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('serial-number*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
                         Serial Number
-                    </a>
-                    @endhasanyrole
-
-                    @hasanyrole('Owner|Superadmin|Bendahara|Kasir')
-                    <a href="{{ route('audit-laci') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('audit-laci*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('audit-laci*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                        Audit Laci
                     </a>
                     @endhasanyrole
                     @endhasanyrole

@@ -157,20 +157,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/saldo', SaldoIndex::class)->name('saldo.index');
     });
 
-    // Transaksi FULL (Owner & Superadmin Only)
+    // Transaksi FULL & Target Bulanan (Owner & Superadmin Only)
     Route::middleware('role:Owner|Superadmin')->group(function () {
         Route::get('/transaksi/full', TransaksiFull::class)->name('transaksi.full');
+        Route::get('/target-bulanan', TargetBulananIndex::class)->name('target.bulanan');
     });
 
-    // Target Bulanan (Performance Board)
-    Route::middleware('role:Owner|Superadmin|Admin|Bendahara|Kasir|Teknisi')->group(function () {
-        Route::get('/target-bulanan', TargetBulananIndex::class)->name('target.bulanan');
+    // Audit Laci (Owner Only)
+    Route::middleware('role:Owner')->group(function () {
+        Route::get('/audit-laci', AuditLaciIndex::class)->name('audit-laci');
     });
 
     Route::middleware('role:Owner|Superadmin|Bendahara|Kasir')->group(function () {
         Route::get('/modal-awal', ModalAwalIndex::class)->name('modal-awal');
         Route::get('/tutup-kas', TutupKasIndex::class)->name('tutup-kas');
-        Route::get('/audit-laci', AuditLaciIndex::class)->name('audit-laci');
     });
 
     Route::middleware('role:Owner|Admin|Bendahara|Kasir')->group(function () {

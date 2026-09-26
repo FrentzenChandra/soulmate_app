@@ -28,17 +28,30 @@ class TargetBulananTest extends TestCase
         $this->get(route('target.bulanan'))->assertRedirect(route('login'));
     }
 
-    public function test_authenticated_roles_can_view_target_bulanan()
+    public function test_owner_and_superadmin_can_access_target_bulanan()
     {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $this->actingAs($owner);
+        $this->get(route('target.bulanan'))->assertStatus(200);
+
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
-
         $this->get(route('target.bulanan'))->assertStatus(200);
+    }
 
+    public function test_unauthorized_roles_cannot_access_target_bulanan()
+    {
         $teknisi = User::role('Teknisi')->first();
         $this->actingAs($teknisi);
+        $this->get(route('target.bulanan'))->assertStatus(403);
 
-        $this->get(route('target.bulanan'))->assertStatus(200);
+        $admin = User::role('Admin')->first();
+        $this->actingAs($admin);
+        $this->get(route('target.bulanan'))->assertStatus(403);
+
+        $bendahara = User::role('Bendahara')->first();
+        $this->actingAs($bendahara);
+        $this->get(route('target.bulanan'))->assertStatus(403);
     }
 
     public function test_division_realization_matrix_calculated_from_transaksi_full()
