@@ -460,11 +460,12 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
   - Kolom Grid Tabulator:
     - Modal (HPP / Harga Beli Awal)
     - Harga Jual
-    - Status Pembayaran (Lunas / Bon)
+    - Status Pembayaran (Disederhanakan murni **Lunas** dan **BON** — opsi `Belum Lunas` dan `Batal` ditiadakan)
     - Transaksi (Penjualan / Servis auto-detect)
     - Pajak (PPN terhitung atau `-` jika servis)
     - Metode Pembayaran (Master Metode Pembayaran)
     - Teknisi (Daftar teknisi cabang terkait)
+  - Kategori Perangkat Transaksi Servis: Mendukung 4 kategori (`laptop`, `komputer`, `printer`, `lainnya`) saat `tipe_transaksi = 'servis'`.
   - **Modal Input Transaksi Baru Terstruktur**:
     - Input waktu transaksi fokus jam (`<input type="time">`) dengan badge tanggal aktif di header modal.
     - Seleksi tipe transaksi dinamis warna (Ungu untuk Penjualan, Kuning/Amber untuk Servis).
@@ -473,7 +474,7 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
     - Baris Pembayaran & Pegawai terpisah rapi dengan custom dropdown Pegawai interaktif dan Pajak PPN bersih (`Tanpa PPN` tanpa persentase `(0%)`).
 - **Transaksi Harian (`/transaksi/harian` - Admin & Superadmin)**:
   - Menampilkan transaksi khusus hari ini saja (*today only*): Penjualan produk real + Servis yang sudah diambil hari itu.
-  - Kolom Grid Tabulator: Modal, Harga Jual, Nett (Harga Jual - Modal), Pajak, Metode Pembayaran, Keterangan.
+  - Kolom Grid Tabulator: Modal, Harga Jual, Nett (Harga Jual - Modal), Pajak, Metode Pembayaran, Keterangan, Status Pembayaran (**Lunas** / **BON**).
 - **Modal Awal & Rekonsiliasi Saldo Kas Harian (`/modal-awal`)**:
   - Pencatatan modal awal kasir untuk memastikan kesesuaian fisik uang cash closing:
     $$\text{Total Saldo Cash Fisik} = \text{Modal Awal Cash} + \text{Penjualan Cash} + \text{Servis Cash} - \text{Kas Keluar Cash}$$
@@ -543,8 +544,33 @@ Modul pencatatan kas/rekening bank murni sebagai catatan pembukuan mandiri (tanp
 
 ---
 
-## 24. Navigasi Cerdas & Auto-Scroll Sidebar Menu Aktif
-
-- **Auto-Scroll Elemen Aktif**: Container navigasi sidebar desktop dan drawer mobile otomatis melakukan scroll vertikal halus (`scrollIntoView({ block: 'center', behavior: 'smooth' })`) ke menu item yang sedang aktif.
 - **Responsif & Multi-Platform**: Bekerja otomatis saat halaman dimuat (page refresh / load) maupun saat drawer menu dibuka pada perangkat mobile (`sidebarOpen`).
+
+---
+
+## 25. Modul Target Bulanan (Performance Board 12 Bulan — `/target-bulanan`)
+
+Modul monitoring target kinerja operasional dan omzet 12 bulan (Januari s/d Desember) untuk divisi teknis dan seluruh staf:
+- **Tabel 1 — Target & Realisasi Per Divisi**:
+  - 4 Divisi Standar: **Laptop**, **Printer**, **Komputer**, dan **Admin**.
+  - Realisasi ditarik otomatis dari `transaksi_fulls`:
+    - Divisi Laptop / Printer / Komputer: Transaksi dengan `tipe_transaksi = 'servis'` dan `kategori_perangkat = '<divisi>'`.
+    - Divisi Admin: Transaksi dengan `tipe_transaksi = 'penjualan'`.
+- **Tabel 2 — Target & Realisasi Per Staf**:
+  - Menampilkan seluruh staf yang bertugas di cabang terpilih (`users` cabang).
+  - Realisasi dihitung otomatis dari total `harga_jual` transaksi di `transaksi_fulls` di mana `created_by = <user_id>`.
+- **Pengaturan Target Tahunan**:
+  - Modal 1: **Target Divisi Tahunan** (input target tahunan untuk 4 divisi per cabang).
+  - Modal 2: **Target Staf Tahunan** (input target tahunan per user per cabang).
+  - Target tahunan dialokasikan otomatis secara merata 12 bulan sebagai acuan performa bulanan.
+  - Akses kelola target: Khusus **Owner** dan **Superadmin**.
+- **Indikator Status Pencapaian Interaktif**:
+  - **Over Target** (`≥ 150%`): Badge solid Tech Blue / Indigo dengan SVG icon trending-up roket.
+  - **Target Tercapai** (`100% - 149%`): Badge solid Emerald Hijau dengan SVG icon check-circle.
+  - **Belum Tercapai** (`< 100%`): Badge solid Rose Merah dengan SVG icon x-circle.
+  - **Bulan Mendatang**: Strip abu-abu netral (`-`) jika belum ada realisasi dan bulan belum berjalan.
+- **Slogan Motivasi & Single-Line Control Bar**:
+  - Menampilkan quote motivasi *"Target Bukan Untuk Ditakuti, Tapi Untuk Dikalahkan!"*.
+  - Header, filter tahun, switcher cabang (khusus Owner HQ), dan tombol aksi modal tersusun rapi dalam 1 baris terpadu.
+
 

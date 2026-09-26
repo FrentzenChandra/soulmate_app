@@ -84,10 +84,11 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
   - Registrasi & pelacakan unit/perangkat dengan kolom Nama, Merk Tipe Spek, Serial Number (SN), dan Distributor.
 
 ### F. Modul Transaksi Berbasis Tabulator.js (Transaksi FULL & Transaksi Harian)
-- **1. Transaksi FULL** (`/transaksi/full` - Superadmin):
+- **1. Transaksi FULL** (`/transaksi/full` - Superadmin & Owner):
   - Menggunakan library **Tabulator.js**.
   - Rekapitulasi: Penjualan Real (Cash) + Penjualan Servis Selesai/Diambil (Cash) - Kas Keluar (Cash).
-  - Kolom Data: Modal (HPP), Harga Jual, Status Pembayaran (Lunas, Bon), Transaksi (Penjualan / Servis auto-detect), Pajak (PPN atau `-`), Metode Pembayaran, Teknisi (pengguna role teknisi di cabang terkait).
+  - Kolom Data: Modal (HPP), Harga Jual, Status Pembayaran (hanya **Lunas** dan **BON**), Transaksi (Penjualan / Servis auto-detect), Pajak (PPN atau `-`), Metode Pembayaran, Teknisi (pengguna role teknisi di cabang terkait).
+  - Kategori Perangkat Servis: Mendukung 4 kategori (`laptop`, `komputer`, `printer`, `lainnya`) saat tipe transaksi adalah servis. Kategori ini tersimpan di backend dan dapat dilihat di modal detail transaksi.
   - **Modal Input Transaksi Baru Terstruktur**:
     - Input waktu transaksi fokus jam (`<input type="time">`) dengan badge tanggal aktif di header modal.
     - Seleksi tipe transaksi dinamis warna (Ungu untuk Penjualan, Kuning/Amber untuk Servis).
@@ -97,7 +98,7 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
 - **2. Transaksi Harian** (`/transaksi/harian` - Admin & Superadmin):
   - Menggunakan library **Tabulator.js**.
   - Histori transaksi real hari ini saja (*today only*): Penjualan produk & Servis diambil.
-  - Kolom Data: Modal, Harga Jual, Nett (Harga Jual - Modal), Pajak, Metode Pembayaran, Keterangan.
+  - Kolom Data: Modal, Harga Jual, Nett (Harga Jual - Modal), Pajak, Metode Pembayaran, Keterangan, Status Pembayaran (**Lunas** / **BON**).
 - **3. Modal Awal & Rekonsiliasi Saldo Kas Harian** (`/modal-awal`):
   - Pencatatan kas modal awal kasir untuk memastikan kesesuaian fisik uang cash:
     $$\text{Total Cash Sistem} = \text{Modal Awal (Cash)} + \text{Penjualan Cash} + \text{Servis Cash} - \text{Kas Keluar Cash}$$
@@ -113,12 +114,31 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
     5. Riwayat audit hari ini langsung tampil di bawah modal/halaman transaksi.
   - Kasir tetap dapat melanjutkan transaksi kasir seperti biasa.
 
-### F. Modul Saldo Rekening Standalone (`/saldo`)
+### G. Modul Saldo Rekening Standalone (`/saldo`)
 - Pencatatan saldo kas/rekening bank murni catatan mandiri (*pure record keeping*).
 - Model & Tabel: `sumber_saldos` (Master Kategori: *Pribadi*, *CV. SM PAMEN SEJAHTERA*, dsb.) & `saldo_rekenings` (Rekening Bank, Saldo, Atas Nama, No. Rekening).
 - UI 1 Tabel Terpadu dengan Dynamic Tabs filter per Sumber Saldo, Top Metric Card Total Saldo + dynamic breakdown pills, Quick Saldo update, dan Bottom summary card.
 
-### G. Metrik Pendapatan Topbar Superadmin
+### H. Modul Target Bulanan (`/target-bulanan`)
+- **Performance Board 12 Bulan (Januari - Desember)**:
+  - Tabel 1: **Target Per Divisi** (4 Divisi: Laptop, Printer, Komputer, Admin).
+  - Tabel 2: **Target Per Staf / User** (seluruh staf bertugas di cabang terpilih).
+- **Kalkulasi Realisasi Otomatis dari Transaksi FULL**:
+  - Divisi Laptop, Printer, Komputer: Realisasi ditarik dari `transaksi_fulls` di mana `tipe_transaksi = 'servis'` dan `kategori_perangkat = '<divisi>'`.
+  - Divisi Admin: Realisasi ditarik dari `transaksi_fulls` di mana `tipe_transaksi = 'penjualan'`.
+  - Per Individu / Staf: Realisasi ditarik dari `transaksi_fulls` di mana `created_by = <user_id>`.
+- **Pengelolaan Target Tahunan**:
+  - Input target pertahun per cabang melalui 2 modal terpisah (Modal Target Divisi & Modal Target Staf), otomatis dialokasikan bulanan.
+  - Hak akses set target: Khusus **Owner** dan **Superadmin**.
+- **Indikator Visual Pencapaian**:
+  - Over Target `≥ 150%`: Badge Tech Blue / Indigo dengan icon trending-up.
+  - Target Tercapai `100% - 149%`: Badge Emerald Hijau dengan icon check-circle.
+  - Belum Tercapai `< 100%`: Badge Rose Merah dengan icon x-circle.
+  - Bulan mendatang / belum berjalan: Tanda `-`.
+- **Slogan Motivasi**: *"Target Bukan Untuk Ditakuti, Tapi Untuk Dikalahkan!"*.
+- **Toolbar 1 Baris**: Menggabungkan judul, slogan, filter tahun, switcher cabang (Owner HQ), dan tombol kelola target tahunan.
+
+### I. Metrik Pendapatan Topbar Superadmin
 - Header navbar khusus Superadmin menampilkan ringkasan performa finansial cabang secara real-time:
   - Total Penjualan Produk, Total Servis, HPP (Total Modal Barang Terjual), dan Pendapatan Nett (Penjualan - HPP).
 

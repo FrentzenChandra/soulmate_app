@@ -28,8 +28,8 @@ class TransaksiFullSeeder extends Seeder
         $kba = Cabang::where('kode_cabang', 'CB-KBA')->first();
 
         $userPkp = User::where('cabang_id', $pkp?->id)->first() ?? User::first();
-        $userSgl = $sgl ? User::where('cabang_id', $sgl->id)->first() : $userPkp;
-        $userKba = $kba ? User::where('cabang_id', $kba->id)->first() : $userPkp;
+        $teknisiPkp = User::where('username', 'teknisi_pkp')->first() ?? $userPkp;
+        $adminPkp = User::where('username', 'admin_pkp')->first() ?? $userPkp;
 
         $customers = Customer::all();
         $custHendra = $customers->where('nama', 'Hendra Setiawan')->first();
@@ -98,15 +98,16 @@ class TransaksiFullSeeder extends Seeder
         // DAFTAR TRANSAKSI CONTOH CABANG PKP (HARI INI)
         // =========================================================================
         $sampleTrx = [
-            // 1. Penjualan Lunas - Upgrade SSD & RAM (Pelanggan Langganan Hendra)
+            // 1. Penjualan Lunas - Upgrade SSD & RAM
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $userPkp->id,
+                'user_id' => $adminPkp->id,
                 'customer_id' => $custHendra?->id,
                 'nama_pelanggan' => $custHendra?->nama ?? 'Hendra Setiawan',
                 'no_hp' => $custHendra?->no_hp ?? '081234567890',
                 'no_transaksi' => 'INV-PJ-CBPKP-' . $today . '-00001',
                 'tipe_transaksi' => 'penjualan',
+                'kategori_perangkat' => null,
                 'tanggal' => $now->copy()->setTime(9, 15),
                 'metode_pembayaran_id' => $metodeCash?->id,
                 'metode_pembayaran' => $metodeCash?->nama ?? 'Cash',
@@ -130,15 +131,16 @@ class TransaksiFullSeeder extends Seeder
                 ],
             ],
 
-            // 2. Servis Lunas - Servis Laptop Overheat & Ganti Pasta (Pelanggan Mega Lestari)
+            // 2. Servis Lunas - Servis Laptop Overheat & Ganti Pasta
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $userPkp->id,
+                'user_id' => $teknisiPkp->id,
                 'customer_id' => $custMega?->id,
                 'nama_pelanggan' => $custMega?->nama ?? 'Mega Lestari',
                 'no_hp' => $custMega?->no_hp ?? '082198765432',
                 'no_transaksi' => 'INV-SV-CBPKP-' . $today . '-00002',
                 'tipe_transaksi' => 'servis',
+                'kategori_perangkat' => 'laptop',
                 'tanggal' => $now->copy()->setTime(10, 45),
                 'metode_pembayaran_id' => $metodeQris?->id,
                 'metode_pembayaran' => $metodeQris?->nama ?? 'QRIS',
@@ -162,15 +164,16 @@ class TransaksiFullSeeder extends Seeder
                 ],
             ],
 
-            // 3. Penjualan BON / Belum Lunas - Pengadaan Kantor PT Bangka Media Utama
+            // 3. Penjualan BON - Pengadaan Kantor PT Bangka Media Utama
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $userPkp->id,
+                'user_id' => $adminPkp->id,
                 'customer_id' => $custFajar?->id,
                 'nama_pelanggan' => $custFajar?->nama ?? 'PT Bangka Media Utama (Bpk. Fajar)',
                 'no_hp' => $custFajar?->no_hp ?? '081377889900',
                 'no_transaksi' => 'INV-PJ-CBPKP-' . $today . '-00003',
                 'tipe_transaksi' => 'penjualan',
+                'kategori_perangkat' => null,
                 'tanggal' => $now->copy()->setTime(11, 30),
                 'metode_pembayaran_id' => $metodeTransfer?->id,
                 'metode_pembayaran' => $metodeTransfer?->nama ?? 'Transfer BCA',
@@ -194,19 +197,20 @@ class TransaksiFullSeeder extends Seeder
                 ],
             ],
 
-            // 4. Servis Belum Lunas - Servis Motherboard PC Kantor (Pelanggan Rizky)
+            // 4. Servis BON - Servis Motherboard Komputer (Pelanggan Rizky)
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $userPkp->id,
+                'user_id' => $teknisiPkp->id,
                 'customer_id' => $custRizky?->id,
                 'nama_pelanggan' => $custRizky?->nama ?? 'Rizky Pratama',
                 'no_hp' => $custRizky?->no_hp ?? '085266778899',
                 'no_transaksi' => 'INV-SV-CBPKP-' . $today . '-00004',
                 'tipe_transaksi' => 'servis',
+                'kategori_perangkat' => 'komputer',
                 'tanggal' => $now->copy()->setTime(13, 00),
                 'metode_pembayaran_id' => $metodeCash?->id,
                 'metode_pembayaran' => $metodeCash?->nama ?? 'Cash',
-                'status' => 'Belum Lunas',
+                'status' => 'BON',
                 'catatan' => 'Servis motherboard PC short jalur 12V Vcore CPU + reballing chipset.',
                 'items' => [
                     [
@@ -222,12 +226,13 @@ class TransaksiFullSeeder extends Seeder
             // 5. Penjualan Lunas - Pelanggan Umum Walk-In
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $userPkp->id,
+                'user_id' => $adminPkp->id,
                 'customer_id' => null,
                 'nama_pelanggan' => 'Pelanggan Umum (Bpk. Andre)',
                 'no_hp' => '087811223344',
                 'no_transaksi' => 'INV-PJ-CBPKP-' . $today . '-00005',
                 'tipe_transaksi' => 'penjualan',
+                'kategori_perangkat' => null,
                 'tanggal' => $now->copy()->setTime(14, 20),
                 'metode_pembayaran_id' => $metodeCash?->id,
                 'metode_pembayaran' => $metodeCash?->nama ?? 'Cash',
@@ -251,27 +256,28 @@ class TransaksiFullSeeder extends Seeder
                 ],
             ],
 
-            // 6. Servis Lunas - Install Ulang Windows 11 & Office (Pelanggan Umum)
+            // 6. Servis Lunas - Servis Printer Head Clean & Rol Paper
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $userPkp->id,
+                'user_id' => $teknisiPkp->id,
                 'customer_id' => null,
                 'nama_pelanggan' => 'Ibu Siti Khadijah',
                 'no_hp' => '081955667788',
                 'no_transaksi' => 'INV-SV-CBPKP-' . $today . '-00006',
                 'tipe_transaksi' => 'servis',
+                'kategori_perangkat' => 'printer',
                 'tanggal' => $now->copy()->setTime(15, 10),
                 'metode_pembayaran_id' => $metodeCash?->id,
                 'metode_pembayaran' => $metodeCash?->nama ?? 'Cash',
                 'status' => 'Lunas',
-                'catatan' => 'Install Ulang Windows 11 Pro 64-bit + Backup data dokumen 20GB',
+                'catatan' => 'Servis Printer Epson L3210 hasil cetak bergaris & roller aus',
                 'items' => [
                     [
                         'produk_id' => null,
-                        'nama_item' => 'Jasa Install Ulang OS Windows 11 Pro + Aplikasi Standar + Backup Data',
+                        'nama_item' => 'Jasa Deep Head Cleaning & Pergantian Roller Penarik Kertas Epson',
                         'qty' => 1,
-                        'harga_modal' => 0,
-                        'harga_jual' => 85000,
+                        'harga_modal' => 30000,
+                        'harga_jual' => 125000,
                     ],
                 ],
             ],
@@ -279,12 +285,13 @@ class TransaksiFullSeeder extends Seeder
             // 7. Penjualan BON Masa Lalu yang DILUNASI CASH HARI INI
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $userPkp->id,
+                'user_id' => $adminPkp->id,
                 'customer_id' => $custHendra?->id,
                 'nama_pelanggan' => $custHendra?->nama ?? 'Hendra Setiawan',
                 'no_hp' => $custHendra?->no_hp ?? '081234567890',
                 'no_transaksi' => 'INV-PJ-CBPKP-' . $now->copy()->subDays(10)->format('ymd') . '-00007',
                 'tipe_transaksi' => 'penjualan',
+                'kategori_perangkat' => null,
                 'tanggal' => $now->copy()->subDays(10)->setTime(11, 0),
                 'tanggal_lunas' => $now->copy()->setTime(11, 15),
                 'metode_pembayaran_id' => $metodeCash?->id,
@@ -302,15 +309,16 @@ class TransaksiFullSeeder extends Seeder
                 ],
             ],
 
-            // 8. Servis BON Masa Lalu yang MASIH BON (Belum Lunas)
+            // 8. Servis BON Masa Lalu
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $userPkp->id,
+                'user_id' => $teknisiPkp->id,
                 'customer_id' => $custFajar?->id,
                 'nama_pelanggan' => $custFajar?->nama ?? 'PT Bangka Media Utama (Bpk. Fajar)',
                 'no_hp' => $custFajar?->no_hp ?? '081377889900',
                 'no_transaksi' => 'INV-SV-CBPKP-' . $now->copy()->subDays(15)->format('ymd') . '-00008',
                 'tipe_transaksi' => 'servis',
+                'kategori_perangkat' => 'printer',
                 'tanggal' => $now->copy()->subDays(15)->setTime(16, 0),
                 'tanggal_lunas' => null,
                 'metode_pembayaran_id' => $metodeCash?->id,
@@ -328,6 +336,79 @@ class TransaksiFullSeeder extends Seeder
                 ],
             ],
         ];
+
+        // =========================================================================
+        // TAMBAHKAN DATA REALISTIS BULANAN UNTUK TARGET BULANAN (BULAN 1 s/d BULAN INI)
+        // =========================================================================
+        $currentMonth = (int) $now->format('n');
+        $currentYear = (int) $now->format('Y');
+
+        for ($m = 1; $m <= $currentMonth; $m++) {
+            // Setiap bulan tambahkan beberapa transaksi untuk Laptop, Printer, Komputer, dan Admin
+            $categories = ['laptop', 'printer', 'komputer'];
+            foreach ($categories as $cat) {
+                $qtyTrx = rand(10, 22);
+                for ($k = 1; $k <= $qtyTrx; $k++) {
+                    $day = rand(1, 28);
+                    $trxDate = Carbon::create($currentYear, $m, $day, rand(8, 17), rand(0, 59));
+                    $sampleTrx[] = [
+                        'cabang_id' => $pkp->id,
+                        'user_id' => $teknisiPkp->id,
+                        'customer_id' => $custHendra?->id,
+                        'nama_pelanggan' => 'Pelanggan Servis ' . ucfirst($cat) . " M{$m}-#{$k}",
+                        'no_hp' => '0812345678' . str_pad((string) $k, 2, '0', STR_PAD_LEFT),
+                        'no_transaksi' => 'INV-SV-CBPKP-' . $trxDate->format('ymd') . '-' . str_pad((string) rand(100, 999), 5, '0', STR_PAD_LEFT),
+                        'tipe_transaksi' => 'servis',
+                        'kategori_perangkat' => $cat,
+                        'tanggal' => $trxDate,
+                        'metode_pembayaran_id' => $metodeCash?->id,
+                        'metode_pembayaran' => 'Cash',
+                        'status' => 'Lunas',
+                        'catatan' => 'Pekerjaan servis ' . $cat . ' reguler bulan ' . $m,
+                        'items' => [
+                            [
+                                'produk_id' => null,
+                                'nama_item' => 'Jasa Perbaikan ' . ucfirst($cat),
+                                'qty' => 1,
+                                'harga_modal' => 30000,
+                                'harga_jual' => 150000,
+                            ],
+                        ],
+                    ];
+                }
+            }
+
+            // Admin Sales transaksi per bulan
+            $qtyAdmin = rand(18, 30);
+            for ($k = 1; $k <= $qtyAdmin; $k++) {
+                $day = rand(1, 28);
+                $trxDate = Carbon::create($currentYear, $m, $day, rand(8, 17), rand(0, 59));
+                $sampleTrx[] = [
+                    'cabang_id' => $pkp->id,
+                    'user_id' => $adminPkp->id,
+                    'customer_id' => null,
+                    'nama_pelanggan' => "Pembeli Retail M{$m}-#{$k}",
+                    'no_hp' => '0819876543' . str_pad((string) $k, 2, '0', STR_PAD_LEFT),
+                    'no_transaksi' => 'INV-PJ-CBPKP-' . $trxDate->format('ymd') . '-' . str_pad((string) rand(100, 999), 5, '0', STR_PAD_LEFT),
+                    'tipe_transaksi' => 'penjualan',
+                    'kategori_perangkat' => null,
+                    'tanggal' => $trxDate,
+                    'metode_pembayaran_id' => $metodeCash?->id,
+                    'metode_pembayaran' => 'Cash',
+                    'status' => 'Lunas',
+                    'catatan' => 'Penjualan produk aksesoris bulan ' . $m,
+                    'items' => [
+                        [
+                            'produk_id' => $mouse?->id,
+                            'nama_item' => 'Mouse Logitech Wireless Retail',
+                            'qty' => 1,
+                            'harga_modal' => 100000,
+                            'harga_jual' => 150000,
+                        ],
+                    ],
+                ];
+            }
+        }
 
         // =========================================================================
         // EKSEKUSI PEMBUATAN TRANSAKSI

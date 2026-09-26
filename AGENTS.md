@@ -124,3 +124,30 @@
 - **Integritas Relasi Historis:** Semua relasi `belongsTo(User::class)` pada model transaksi, servis, kas, dan audit log (`TransaksiFull`, `ServisMasuk`, `KasKeluar`, `ModalAwal`, `CekKasLog`, `TutupKas`, `ServisStatusLog`, `Penjualan`, `SerialNumber`) **WAJIB menggunakan `->withTrashed()`** agar riwayat dan nota masa lalu tetap menampilkan nama staf pembuat aslinya tanpa menghasilkan error null.
 - **Validasi Unik Email & Username:** Validasi unik pada form pengguna wajib mengabaikan akun yang telah di-soft-delete (`Rule::unique('users', 'email')->whereNull('deleted_at')`).
 
+## 18. Target Bulanan (Performance Board 12 Bulan) Standard
+- **Single Source of Truth Realisasi:** Realisasi kinerja bulanan dihitung otomatis dari tabel `transaksi_fulls` berdasarkan filter tahun dan cabang aktif.
+  * **Divisi Laptop, Printer, Komputer:** Filter `tipe_transaksi = 'servis'` dan `kategori_perangkat = '<divisi>'`.
+  * **Divisi Admin:** Filter `tipe_transaksi = 'penjualan'`.
+  * **Individu / Staf:** Filter `created_by = <user_id>`.
+- **Target Tahunan & Alokasi Bulanan:** Input target dilakukan per tahun per cabang (tabel `target_divisis` dan `target_users`), kemudian otomatis dibagi 12 bulan (atau per bulan) sebagai pembanding realisasi.
+- **Hak Akses Set Target:** Hanya role **Owner** dan **Superadmin** yang berwenang membuka modal dan menginput/mengubah target tahunan.
+- **Indikator Visual Pencapaian:**
+  * `≥ 150%`: Over Target (Badge Tech Blue `#0052FF` / Indigo + SVG icon trending-up).
+  * `100% - 149%`: Target Tercapai (Badge Emerald `#10B981` + SVG icon check-circle).
+  * `< 100%`: Belum Tercapai (Badge Rose `#F43F5E` + SVG icon x-circle).
+  * Bulan mendatang (belum ada data & bulan belum berjalan): Tanda strip netral (`-`).
+- **Slogan Motivasi:** Header menampilkan slogan penyemangat: *"Target Bukan Untuk Ditakuti, Tapi Untuk Dikalahkan!"*.
+
+## 19. Simplified Transaction Status Standard (Lunas & BON Only)
+- **Hanya 2 Status Valid:** Modul Transaksi (Transaksi FULL dan Transaksi Harian) HANYA mengenal 2 status pembayaran:
+  * **`Lunas`**
+  * **`BON`**
+- **Dilarang Status Lain:** Dilarang keras menambahkan atau menampilkan status `Belum Lunas` dan `Batal` pada form modal input transaksi, inline editing status Tabulator, filter status, maupun badge status transaksi.
+
+## 20. Single-Line Control Bar & Toolbar Standard
+- **Tata Letak 1 Baris Terpadu:** Toolbar atas pada modul analitik/dashboard (seperti Target Bulanan) WAJIB disusun rapi dalam 1 baris horizontal (`flex items-center justify-between`):
+  * **Sisi Kiri:** Judul modul dengan aksen brand + slogan motivasi.
+  * **Sisi Kanan:** Filter dropdown tahun, selector cabang (Owner HQ), dan tombol aksi modal.
+- Mencegah penumpukan vertikal yang memakan ruang layar kerja.
+
+

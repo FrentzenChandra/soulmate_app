@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             TransaksiFullSeeder::class,
             KasKeluarSeeder::class,
             SerialNumberSeeder::class,
+            TargetBulananSeeder::class,
         ]);
     }
 }

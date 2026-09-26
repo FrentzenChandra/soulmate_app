@@ -467,7 +467,7 @@ class Full extends Component
             'formTanggal' => 'required|date',
             'formNamaPelanggan' => 'required|string|max:150',
             'formMetodePembayaran' => 'required|string|max:50',
-            'formStatus' => 'required|in:Lunas,BON,Belum Lunas,Batal',
+            'formStatus' => 'required|in:Lunas,BON',
             'items' => 'required|array|min:1',
             'items.*.nama_item' => 'required|string|max:200',
             'items.*.qty' => 'required|integer|min:1',
@@ -592,7 +592,7 @@ class Full extends Component
 
     public function updateStatusDirect(int $id, string $newStatus): void
     {
-        $allowed = ['Lunas', 'BON', 'Belum Lunas', 'Batal'];
+        $allowed = ['Lunas', 'BON'];
         if (! in_array($newStatus, $allowed)) return;
 
         $transaksi = TransaksiFull::find($id);
@@ -792,13 +792,12 @@ class Full extends Component
         // Hitung 6 Ringkasan Finansial Utama
         $summaryBase = clone $query;
         $allCurrent = $summaryBase->get();
-        $nonBatal = $allCurrent->where('status', '!==', 'Batal');
 
-        $totalPendapatan = (float) $nonBatal->sum('grand_total');
-        $totalModal = (float) $nonBatal->sum('total_modal');
-        $totalLaba = (float) $nonBatal->sum('total_laba');
+        $totalPendapatan = (float) $allCurrent->sum('grand_total');
+        $totalModal = (float) $allCurrent->sum('total_modal');
+        $totalLaba = (float) $allCurrent->sum('total_laba');
         $totalLunas = (float) $allCurrent->where('status', 'Lunas')->sum('grand_total');
-        $totalBon = (float) $allCurrent->whereIn('status', ['BON', 'Belum Lunas'])->sum('grand_total');
+        $totalBon = (float) $allCurrent->where('status', 'BON')->sum('grand_total');
         $totalTransaksiCount = $allCurrent->count();
 
         // Hitung Uang Cash di Laci HARI INI (Terkunci Hari Ini / Realtime Kasir)

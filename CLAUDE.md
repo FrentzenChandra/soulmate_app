@@ -37,4 +37,13 @@
 - Model `User` menggunakan `SoftDeletes`.
 - Seluruh relasi `belongsTo(User::class)` pada model transaksi, kas, servis, audit (`TransaksiFull`, `ServisMasuk`, `KasKeluar`, `ModalAwal`, `CekKasLog`, `TutupKas`, `Penjualan`, `SerialNumber`, `ServisStatusLog`) WAJIB menggunakan `->withTrashed()` untuk menjaga keutuhan riwayat masa lalu.
 
+## 10. Simplified Transaction Status Standard
+- Modul Transaksi (Transaksi FULL dan Transaksi Harian) hanya memiliki 2 status valid: `Lunas` dan `BON`. Status `Belum Lunas` dan `Batal` ditiadakan.
+
+## 11. Target Bulanan (Performance Board)
+- Route: `/target-bulanan`.
+- Realisasi otomatis 12 bulan dari `transaksi_fulls` (Divisi: Laptop, Printer, Komputer, Admin; serta per Staf/User).
+- Input target tahunan per cabang hanya oleh Owner & Superadmin.
+
+
 

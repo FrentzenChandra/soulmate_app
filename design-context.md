@@ -148,3 +148,12 @@ GLOBAL SEARCH, FORM ERGONOMICS & LOADING ACTION:
 * Zero Placeholder Standard: Seluruh form input, modal, dan filter dilarang menggunakan atribut placeholder. Gunakan label form yang tegas.
 * Universal Loading Action Standard: Seluruh tombol aksi form (POST/PUT/DELETE/Submit) wajib menggunakan ikon SVG spinner Heroicons (`<svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>`), `wire:loading wire:target="..."`, dan teks transisi proses.
 
+TARGET BULANAN & SINGLE-LINE CONTROL BAR:
+* Unified Control Bar: Slogan motivasi dan seluruh filter/tombol aksi disusun dalam 1 baris horizontal yang rapi untuk memaksimalkan ruang kerja tabel performa.
+* High-Contrast Status Badges with SVG Icons:
+  - Over Target (`≥ 150%`): Tech Blue / Indigo (`bg-blue-50 text-blue-700 border-blue-200`) + Trending Up Rocket Icon.
+  - Target Tercapai (`100% - 149%`): Emerald Green (`bg-emerald-50 text-emerald-700 border-emerald-200`) + Check Circle Icon.
+  - Belum Tercapai (`< 100%`): Rose Red (`bg-rose-50 text-rose-700 border-rose-200`) + X Circle Icon.
+  - Bulan Mendatang: Muted Gray (`text-gray-300 font-medium`) dengan simbol strip `-`.
+
+

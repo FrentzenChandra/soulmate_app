@@ -385,7 +385,7 @@ class Harian extends Component
             'formTanggal' => 'required|date',
             'formNamaPelanggan' => 'required|string|max:150',
             'formMetodePembayaran' => 'required|string|max:50',
-            'formStatus' => 'required|in:Lunas,BON,Belum Lunas,Batal',
+            'formStatus' => 'required|in:Lunas,BON',
             'items' => 'required|array|min:1',
             'items.*.nama_item' => 'required|string|max:200',
             'items.*.qty' => 'required|integer|min:1',
@@ -501,7 +501,7 @@ class Harian extends Component
 
     public function updateStatusDirect(int $id, string $newStatus): void
     {
-        $allowed = ['Lunas', 'BON', 'Belum Lunas', 'Batal'];
+        $allowed = ['Lunas', 'BON'];
         if (! in_array($newStatus, $allowed)) return;
 
         $transaksi = TransaksiFull::find($id);

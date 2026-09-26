@@ -25,6 +25,7 @@ use App\Livewire\SerialNumber\Index as SerialNumberIndex;
 use App\Livewire\Transaksi\Full as TransaksiFull;
 use App\Livewire\Transaksi\Harian as TransaksiHarian;
 use App\Livewire\AuditLaci\Index as AuditLaciIndex;
+use App\Livewire\TargetBulanan\Index as TargetBulananIndex;
 use App\Livewire\TutupKas\Index as TutupKasIndex;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -159,6 +160,11 @@ Route::middleware('auth')->group(function () {
     // Transaksi FULL (Owner & Superadmin Only)
     Route::middleware('role:Owner|Superadmin')->group(function () {
         Route::get('/transaksi/full', TransaksiFull::class)->name('transaksi.full');
+    });
+
+    // Target Bulanan (Performance Board)
+    Route::middleware('role:Owner|Superadmin|Admin|Bendahara|Kasir|Teknisi')->group(function () {
+        Route::get('/target-bulanan', TargetBulananIndex::class)->name('target.bulanan');
     });
 
     Route::middleware('role:Owner|Superadmin|Bendahara|Kasir')->group(function () {

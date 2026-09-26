@@ -82,8 +82,6 @@
                     <option value="semua">Semua Status</option>
                     <option value="Lunas">Lunas</option>
                     <option value="BON">BON</option>
-                    <option value="Belum Lunas">Belum Lunas</option>
-                    <option value="Batal">Batal</option>
                 </select>
             </div>
 
@@ -525,8 +523,6 @@
                                                     class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-black text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all cursor-pointer">
                                                 <option value="Lunas">Lunas</option>
                                                 <option value="BON">BON</option>
-                                                <option value="Belum Lunas">Belum Lunas</option>
-                                                <option value="Batal">Batal</option>
                                             </select>
                                         </div>
 
@@ -1040,20 +1036,17 @@ window.tabulatorTransaksiHarianTable = function(config) {
                         width: 105,
                         hozAlign: "center",
                         headerFilter: "list",
-                        headerFilterParams: { values: ["Lunas", "BON", "Belum Lunas", "Batal"], clearable: true },
+                        headerFilterParams: { values: ["Lunas", "BON"], clearable: true },
                         headerFilterFunc: multiSelectFilterFunc,
                         formatter: (cell) => {
                             const val = cell.getValue();
                             const id = cell.getData().id;
                             return `
                                 <select class="py-0.5 px-1.5 rounded text-[9.5px] font-black border transition-all cursor-pointer focus:ring-1 focus:ring-blue-200 ${
-                                    val === 'Lunas' ? 'bg-emerald-50 text-emerald-800 border-emerald-400 font-black' :
-                                    (val === 'BON' || val === 'Belum Lunas' ? 'bg-amber-50 text-amber-900 border-amber-400 font-black' : 'bg-rose-50 text-rose-800 border-rose-400 font-black')
+                                    val === 'Lunas' ? 'bg-emerald-50 text-emerald-800 border-emerald-400 font-black' : 'bg-rose-50 text-rose-800 border-rose-400 font-black'
                                 }" onchange="window.updateStatusHarianDirect(${id}, this.value)">
                                     <option value="Lunas" ${val === 'Lunas' ? 'selected' : ''}>Lunas</option>
                                     <option value="BON" ${val === 'BON' ? 'selected' : ''}>BON</option>
-                                    <option value="Belum Lunas" ${val === 'Belum Lunas' ? 'selected' : ''}>Belum Lunas</option>
-                                    <option value="Batal" ${val === 'Batal' ? 'selected' : ''}>Batal</option>
                                 </select>
                             `;
                         }

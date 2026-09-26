@@ -1,66 +1,68 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Soulmate Komputer App
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem Manajemen Operasional & Finansial Multi-Cabang untuk Usaha Servis Elektronik (Laptop, Komputer, Printer), Kasir Point of Sale (POS), Manajemen Stok Terpadu, Rekonsiliasi Kas, dan Performance Board Target Bulanan.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Fitur Utama & Modul Sistem
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 1. Manajemen Servis Multi-Divisi
+- **Pemisahan 3 Alur Servis**: Servis Masuk (`/servis/masuk`), Servis Keluar / Selesai (`/servis/keluar`), dan Servis Batal (`/servis/batal`).
+- **4 Kategori Perangkat**: `Laptop`, `Printer`, `Komputer`, dan `Lainnya`.
+- **Master Servis Khusus**: Jasa perbaikan & suku cadang (`master_servis`) dengan alokasi stok cabang & threshold alert terpisah dari produk retail.
+- **Papan Display Antrean Smart TV**: Display antrean real-time WebSocket (`/display/{kode_cabang}`).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 2. Kasir POS & Transaksi Tabulator.js
+- **Kasir Produk POS (`/kasir/produk`)**: Penjualan produk retail biasa, barcode scanner live, diskon, PPN, opsi Penjualan Non-Real, dan cetak nota thermal (58mm / 80mm).
+- **Transaksi FULL (`/transaksi/full`)**: Rekapitulasi finansial multi-dimensi (Modal HPP, Harga Jual, Status Pembayaran, Metode Pembayaran, Pajak PPN, Pegawai/Teknisi) berbasis **Tabulator.js**.
+- **Status Transaksi Ringkas**: Hanya menggunakan 2 status pembayaran (**`Lunas`** dan **`BON`**).
+- **Transaksi Harian (`/transaksi/harian`)**: Audit transaksi real khusus hari ini (*today only*).
 
-## Learning Laravel
+### 3. Target Bulanan (Performance Board 12 Bulan — `/target-bulanan`)
+- Matriks evaluasi 12 bulan (Januari s/d Desember) untuk 4 Divisi (`Laptop`, `Printer`, `Komputer`, `Admin`) dan per Staf (`User`).
+- Realisasi otomatis terhubung ke `transaksi_fulls`.
+- Input target tahunan per cabang oleh **Owner** dan **Superadmin**.
+- Status visual interaktif: Over Target (`≥150%`), Target Tercapai (`100-149%`), Belum Tercapai (`<100%`).
+- Slogan motivasi: *"Target Bukan Untuk Ditakuti, Tapi Untuk Dikalahkan!"*.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 4. Manajemen Kas & Keuangan
+- **Modal Awal Kasir (`/modal-awal`)**: Pencatatan kas buka toko harian dengan proteksi duplikasi & alert notifikasi lonceng > 10:00.
+- **Cek Kas Cepat / Audit Laci**: Snapshot audit fisik laci kasir kapan saja tanpa mengunci transaksi.
+- **Kas Keluar (`/kas-keluar`)**: Pencatatan beban pengeluaran dengan Master Sumber Dana & Kategori Kas.
+- **Saldo Rekening Standalone (`/saldo`)**: Pencatatan rekening bank dan saldo mandiri.
+- **Serial Number Tracker (`/serial-number`)**: Pelacakan serial number perangkat & distributor.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 5. Multi-Cabang & Hak Akses Berjenjang
+- **Owner**: Akses global seluruh cabang & Kantor Pusat (HQ), kelola PPN, kelola master cabang, dan switcher multi-cabang.
+- **Superadmin**: Single-store experience toko mandiri untuk mengelola operasional cabang dan akun staf cabangnya.
+- **Teknisi & Admin**: Akses operasional harian sesuai jobdesk (servis & kasir POS).
+- **User Soft Deletes & Integrity**: Perlindungan data historis menggunakan `SoftDeletes` dan `->withTrashed()`.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🛠️ Tech Stack & Ekosistem
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Backend**: Laravel 12 (PHP 8.2+)
+- **Frontend / Fullstack**: Livewire 3, Alpine.js, Tailwind CSS v4
+- **Spreadsheet Data Grid**: Tabulator.js
+- **Database**: SQLite (Dev / Testing) / PostgreSQL / MySQL (Production)
+- **Container**: Docker Linux (`soulmate_apps`)
+- **Realtime**: Laravel Reverb
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## 🐳 Panduan Eksekusi Docker
 
-## Contributing
+Seluruh perintah framework dan pengujian **WAJIB** dijalankan di dalam Linux container:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+# Migrasi Database
+docker exec soulmate_apps php artisan migrate
 
-## Code of Conduct
+# Clear Cache & Optimize
+docker exec soulmate_apps php artisan optimize:clear
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Menjalankan Test Tertarget
+docker exec soulmate_apps php artisan test --filter TargetBulananTest
+docker exec soulmate_apps php artisan test --filter TransaksiFullTest
+```

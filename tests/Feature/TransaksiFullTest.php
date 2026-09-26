@@ -92,7 +92,7 @@ class TransaksiFullTest extends TestCase
             'total_jual' => 80000,
             'total_laba' => 30000,
             'grand_total' => 80000,
-            'status' => 'Belum Lunas',
+            'status' => 'BON',
         ]);
 
         Livewire::test(TransaksiFull::class)
