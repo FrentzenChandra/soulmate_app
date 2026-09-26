@@ -31,7 +31,15 @@ class Index extends Component
     public ?int $snId = null;
 
     // Form fields
-    public ?int $customer_id = null;
+    public string $customerType = 'langganan'; // 'langganan' | 'baru'
+
+    public ?int $selectedCustomerId = null;
+
+    public string $customerSearch = '';
+
+    public string $newCustomerNama = '';
+
+    public string $newCustomerNoHp = '';
 
     public string $merk = '';
 
@@ -57,13 +65,6 @@ class Index extends Component
     public string $filterBulan = '';
 
     public string $filterTahun = '';
-
-    // Quick Add Customer Form Modal
-    public bool $customerModalOpen = false;
-
-    public string $new_customer_nama = '';
-
-    public string $new_customer_hp = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -274,10 +275,23 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function selectCustomer(int $id, string $nama): void
+    {
+        $this->selectedCustomerId = $id;
+        $this->customerSearch = $nama;
+    }
+
+    public function resetCustomer(): void
+    {
+        $this->selectedCustomerId = null;
+        $this->customerSearch = '';
+    }
+
     public function openCreateModal(): void
     {
         $this->resetValidation();
-        $this->reset(['snId', 'nama', 'merk', 'custom_merk', 'tipe_spek', 'merk_tipe_spek', 'sn', 'distributor', 'customer_id']);
+        $this->reset(['snId', 'nama', 'merk', 'custom_merk', 'tipe_spek', 'merk_tipe_spek', 'sn', 'distributor', 'selectedCustomerId', 'customerSearch', 'newCustomerNama', 'newCustomerNoHp']);
+        $this->customerType = 'langganan';
         $this->isEditMode = false;
         $this->modalOpen = true;
     }
@@ -288,7 +302,11 @@ class Index extends Component
         $item = SerialNumber::findOrFail($id);
 
         $this->snId = $item->id;
-        $this->customer_id = $item->customer_id;
+        $this->customerType = 'langganan';
+        $this->selectedCustomerId = $item->customer_id;
+        $this->customerSearch = $item->customer ? $item->customer->nama : '';
+        $this->newCustomerNama = '';
+        $this->newCustomerNoHp = '';
         $this->merk = $item->merk ?: '';
         $this->custom_merk = '';
         $this->tipe_spek = $item->tipe_spek ?: $item->merk_tipe_spek ?: '';
@@ -306,50 +324,34 @@ class Index extends Component
         $this->resetValidation();
     }
 
-    public function openCustomerModal(): void
-    {
-        $this->resetValidation();
-        $this->new_customer_nama = '';
-        $this->new_customer_hp = '';
-        $this->customerModalOpen = true;
-    }
-
-    public function closeCustomerModal(): void
-    {
-        $this->customerModalOpen = false;
-        $this->resetValidation();
-    }
-
-    public function saveNewCustomer(): void
-    {
-        $this->validate([
-            'new_customer_nama' => 'required|string|max:150',
-            'new_customer_hp' => 'nullable|string|max:30',
-        ], [
-            'new_customer_nama.required' => 'Nama pelanggan wajib diisi.',
-        ]);
-
-        $cabang = $this->activeCabang;
-        $cabangId = $cabang?->id ?? Auth::user()?->cabang_id ?? Cabang::where('status', 'aktif')->value('id');
-
-        $customer = Customer::create([
-            'cabang_id' => $cabangId,
-            'nama' => trim($this->new_customer_nama),
-            'no_hp' => trim($this->new_customer_hp) ?: null,
-            'tipe' => 'langganan',
-        ]);
-
-        $this->customer_id = $customer->id;
-        $this->customerModalOpen = false;
-        $this->dispatch('swal:success', ['title' => 'Berhasil!', 'text' => "Pelanggan '{$customer->nama}' berhasil ditambahkan."]);
-    }
-
     public function save(): void
     {
         $cabang = $this->activeCabang;
 
+        if ($this->customerType === 'baru') {
+            $this->validate([
+                'newCustomerNama' => 'required|string|min:2|max:150',
+                'newCustomerNoHp' => 'nullable|string|max:30',
+            ], [
+                'newCustomerNama.required' => 'Nama pelanggan baru wajib diisi.',
+            ]);
+
+            $cabangId = $cabang?->id ?? Auth::user()?->cabang_id ?? Cabang::where('status', 'aktif')->value('id');
+
+            $cleanHp = preg_replace('/[^0-9]/', '', $this->newCustomerNoHp);
+            $customer = Customer::create([
+                'cabang_id' => $cabangId,
+                'nama' => trim($this->newCustomerNama),
+                'no_hp' => $cleanHp ?: null,
+                'tipe' => 'langganan',
+            ]);
+
+            $finalCustomerId = $customer->id;
+        } else {
+            $finalCustomerId = $this->selectedCustomerId ?: null;
+        }
+
         $this->validate([
-            'customer_id' => 'nullable|exists:customers,id',
             'merk' => 'required|string|max:100',
             'custom_merk' => 'required_if:merk,__custom__|nullable|string|max:100',
             'tipe_spek' => 'required|string|max:255',
@@ -367,7 +369,7 @@ class Index extends Component
         $finalNama = trim($finalMerk . ' ' . $finalTipeSpek);
 
         $data = [
-            'customer_id' => $this->customer_id,
+            'customer_id' => $finalCustomerId,
             'user_id' => Auth::id(),
             'nama' => $finalNama,
             'merk' => $finalMerk,
@@ -406,6 +408,27 @@ class Index extends Component
     public function render()
     {
         $cabang = $this->activeCabang;
+
+        // Customer suggestions for modal
+        $customerSuggestions = [];
+        if ($this->modalOpen && $this->customerType === 'langganan' && ! empty(trim($this->customerSearch)) && ! $this->selectedCustomerId) {
+            $custQuery = Customer::query();
+            if ($cabang && ! Auth::user()?->isOwner()) {
+                $custQuery->where('cabang_id', $cabang->id);
+            }
+            $cleanSearch = trim($this->customerSearch);
+            $words = array_filter(explode(' ', $cleanSearch));
+            $customerSuggestions = $custQuery->where(function ($q) use ($words) {
+                foreach ($words as $word) {
+                    $pattern = '%' . strtolower($word) . '%';
+                    $q->where(function ($sq) use ($pattern) {
+                        $sq->whereRaw('LOWER(nama) LIKE ?', [$pattern])
+                          ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$pattern]);
+                    });
+                }
+            })->take(5)->get();
+        }
+
         $query = SerialNumber::query()->with(['customer', 'cabang']);
 
         if ($cabang) {
@@ -442,7 +465,7 @@ class Index extends Component
 
         return view('livewire.serial-number.index', [
             'items' => $items,
-            'customers' => $this->customers,
+            'customerSuggestions' => $customerSuggestions,
             'merkList' => $this->merkList,
             'brandStats' => $this->brandStats,
         ]);

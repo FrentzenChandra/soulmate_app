@@ -76,14 +76,12 @@ class SerialNumberTest extends TestCase
             ->set('search', 'asus rog')
             ->assertSee('SN-ASUS-ROG-001');
 
-        // Quick Add New Customer & Custom Brand Create
+        // Add New Customer via customerType = 'baru' & Custom Brand Create
         Livewire::test(SerialNumberIndex::class)
             ->call('openCreateModal')
-            ->call('openCustomerModal')
-            ->set('new_customer_nama', 'Bpk. Ahmad Santoso')
-            ->set('new_customer_hp', '081234567899')
-            ->call('saveNewCustomer')
-            ->assertHasNoErrors()
+            ->set('customerType', 'baru')
+            ->set('newCustomerNama', 'Bpk. Ahmad Santoso')
+            ->set('newCustomerNoHp', '081234567899')
             ->set('merk', '__custom__')
             ->set('custom_merk', 'Lenovo Custom')
             ->set('tipe_spek', 'ThinkPad X1 Carbon Gen 10')
@@ -100,6 +98,24 @@ class SerialNumberTest extends TestCase
             'customer_id' => $newCustomer->id,
             'merk' => 'Lenovo Custom',
             'tipe_spek' => 'ThinkPad X1 Carbon Gen 10',
+        ]);
+
+        // Test Selecting Existing Customer via Autocomplete
+        Livewire::test(SerialNumberIndex::class)
+            ->call('openCreateModal')
+            ->set('customerType', 'langganan')
+            ->set('customerSearch', 'Ahmad')
+            ->call('selectCustomer', $newCustomer->id, $newCustomer->nama)
+            ->set('merk', 'Acer')
+            ->set('tipe_spek', 'Nitro 5 AN515')
+            ->set('sn', 'SN-ACER-NITRO-001')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('serial_numbers', [
+            'sn' => 'SN-ACER-NITRO-001',
+            'customer_id' => $newCustomer->id,
+            'merk' => 'Acer',
         ]);
 
         // Search by Customer Name & Single Character & Test Periode Mode Filters

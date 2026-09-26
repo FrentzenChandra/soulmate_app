@@ -265,25 +265,74 @@
                     <!-- Form Body -->
                     <form wire:submit.prevent="save">
                         <div class="p-6 space-y-4">
-                            <!-- 1. Nama Pembeli / Pelanggan -->
-                            <div>
-                                <div class="flex items-center justify-between mb-1.5">
-                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            <!-- 1. Data Pembeli / Pelanggan (Pola Servis Masuk) -->
+                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">
                                         Nama Pembeli
-                                    </label>
-                                    <button type="button" wire:click="openCustomerModal" class="text-[11px] font-bold text-[#5E17EB] hover:text-purple-700 flex items-center space-x-1 cursor-pointer">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                        <span>Tambah Pelanggan</span>
-                                    </button>
+                                    </span>
+                                    <div class="flex items-center space-x-1.5">
+                                        <button type="button"
+                                                wire:click="$set('customerType', 'langganan')"
+                                                class="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $customerType === 'langganan' ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                                            Pilih Terdaftar
+                                        </button>
+                                        <button type="button"
+                                                wire:click="$set('customerType', 'baru')"
+                                                class="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $customerType === 'baru' ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                                            + Pelanggan Baru
+                                        </button>
+                                    </div>
                                 </div>
-                                <select wire:model="customer_id"
-                                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] text-xs font-semibold bg-white cursor-pointer">
-                                    <option value="">Pelanggan Umum (Tanpa Pelanggan Khusus)</option>
-                                    @foreach($customers as $c)
-                                        <option value="{{ $c->id }}">{{ $c->nama }} ({{ $c->no_hp ?? 'No WhatsApp' }})</option>
-                                    @endforeach
-                                </select>
-                                @error('customer_id') <span class="text-rose-600 text-xs font-bold mt-1 block">{{ $message }}</span> @enderror
+
+                                @if($customerType === 'langganan')
+                                    <div class="space-y-2">
+                                        <div class="relative">
+                                            <input type="text"
+                                                   wire:model.live.debounce.250ms="customerSearch"
+                                                   class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] text-xs">
+                                            @if(!empty($customerSuggestions) && !$selectedCustomerId)
+                                                <div class="absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-48 overflow-y-auto">
+                                                    @foreach($customerSuggestions as $cs)
+                                                        <button type="button"
+                                                                wire:key="sugg-cust-{{ $cs->id }}"
+                                                                wire:click="selectCustomer({{ $cs->id }}, '{{ $cs->nama }}')"
+                                                                class="w-full px-3 py-2 text-left hover:bg-purple-50 flex items-center justify-between text-xs cursor-pointer">
+                                                            <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
+                                                            <span class="font-mono text-gray-500 text-[11px]">{{ $cs->no_hp ?? '-' }}</span>
+                                                        </button>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
+                                        @if($selectedCustomerId)
+                                            <div class="p-2 bg-purple-50 border border-purple-200 rounded-xl flex items-center justify-between text-[11px] text-purple-900 font-bold">
+                                                <span>Pelanggan Terpilih: <strong>{{ $customerSearch }}</strong></span>
+                                                <button type="button" wire:click="resetCustomer" class="text-rose-500 hover:underline cursor-pointer">Ganti</button>
+                                            </div>
+                                        @else
+                                            <p class="text-[10px] text-gray-400 font-medium">Kosongkan jika pelanggan umum (tanpa nama khusus).</p>
+                                        @endif
+                                        @error('selectedCustomerId') <span class="text-[11px] text-rose-500 font-semibold block">{{ $message }}</span> @enderror
+                                    </div>
+                                @else
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block font-bold text-gray-700 mb-1 text-xs">Nama Lengkap Pelanggan <span class="text-rose-500 font-black">*</span></label>
+                                            <input type="text"
+                                                   wire:model="newCustomerNama"
+                                                   class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] text-xs">
+                                            @error('newCustomerNama') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
+                                        </div>
+                                        <div>
+                                            <label class="block font-bold text-gray-700 mb-1 text-xs">WhatsApp</label>
+                                            <input type="text"
+                                                   wire:model="newCustomerNoHp"
+                                                   class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] text-xs font-mono">
+                                            @error('newCustomerNoHp') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
 
                             <!-- 2. Merk Laptop -->
@@ -360,84 +409,6 @@
                                     class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 font-bold text-white shadow-md shadow-purple-900/20 transition-all cursor-pointer text-xs flex items-center space-x-2">
                                 <svg wire:loading wire:target="save" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                                 <span>{{ $isEditMode ? 'Simpan Perubahan' : 'Simpan Serial Number' }}</span>
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <!-- ============================================== -->
-    <!-- MODAL TAMBAH PELANGGAN CEPAT                   -->
-    <!-- ============================================== -->
-    @if($customerModalOpen)
-        <div class="fixed inset-0 z-60 overflow-y-auto" role="dialog" aria-modal="true">
-            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="closeCustomerModal"></div>
-
-            <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-sm border border-gray-100">
-
-                    <!-- Header Modal -->
-                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
-                        <div class="flex items-center gap-3.5 min-w-0">
-                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
-                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                            </div>
-                            <div class="min-w-0">
-                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">
-                                    Tambah Pelanggan Baru
-                                </h3>
-                                <p class="text-xs text-purple-200 font-medium mt-0.5">Master Pelanggan Cepat</p>
-                            </div>
-                        </div>
-                        <button type="button" wire:click="closeCustomerModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-
-                    <!-- Form Body -->
-                    <form wire:submit.prevent="saveNewCustomer">
-                        <div class="p-5 space-y-3.5">
-                            <!-- Nama Pelanggan -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Nama Lengkap Pelanggan <span class="text-rose-500 font-black">*</span>
-                                </label>
-                                <input type="text"
-                                       wire:model="new_customer_nama"
-                                       class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900"
-                                       required>
-                                @error('new_customer_nama') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- WhatsApp -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    WhatsApp
-                                </label>
-                                <input type="text"
-                                       wire:model="new_customer_hp"
-                                       class="w-full text-xs font-mono font-semibold px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
-                                @error('new_customer_hp') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-                            </div>
-                        </div>
-
-                        <!-- Footer Modal -->
-                        <div class="bg-gray-50 px-5 py-3.5 flex items-center justify-end space-x-2 rounded-b-3xl">
-                            <button type="button"
-                                    wire:click="closeCustomerModal"
-                                    class="px-3 py-1.5 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
-                                Batal
-                            </button>
-                            <button type="submit"
-                                    wire:loading.attr="disabled"
-                                    wire:target="saveNewCustomer"
-                                    class="px-4 py-1.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-extrabold text-white shadow-md transition-all cursor-pointer flex items-center space-x-1.5">
-                                <svg wire:loading wire:target="saveNewCustomer" class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                                <span wire:loading.remove wire:target="saveNewCustomer">Simpan Pelanggan</span>
-                                <span wire:loading wire:target="saveNewCustomer">Menyimpan...</span>
                             </button>
                         </div>
                     </form>

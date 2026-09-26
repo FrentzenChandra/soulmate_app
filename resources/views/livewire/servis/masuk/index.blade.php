@@ -1136,10 +1136,10 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                            <div class="grid grid-cols-12 gap-3">
 
                                 <!-- Autocomplete Input (Zero Placeholder Standard) -->
-                                <div class="sm:col-span-6 relative">
+                                <div class="col-span-12 relative">
                                     <label class="block font-bold text-gray-700 mb-1">
                                         {{ $itemType === 'jasa' ? 'Cari Layanan Jasa (Master Servis)' : 'Cari Sparepart (Master Produk)' }}
                                     </label>
@@ -1200,7 +1200,7 @@
                                 </div>
 
                                 <!-- Nama Item Terpilih / Input Manual -->
-                                <div class="sm:col-span-6">
+                                <div class="col-span-12 sm:col-span-6">
                                     <label class="block font-bold text-gray-700 mb-1">Nama Item <span class="text-rose-500">*</span></label>
                                     <input type="text"
                                            wire:model="selectedMasterServisNama"
@@ -1208,7 +1208,7 @@
                                 </div>
 
                                 <!-- Qty -->
-                                <div class="sm:col-span-3">
+                                <div class="col-span-6 sm:col-span-3">
                                     <label class="block font-bold text-gray-700 mb-1">
                                         Qty
                                         @if($itemType === 'sparepart' && $selectedStokTersedia !== null)
@@ -1222,7 +1222,7 @@
                                 </div>
 
                                 <!-- Garansi (Hari) -->
-                                <div class="sm:col-span-3">
+                                <div class="col-span-6 sm:col-span-3">
                                     <label class="block font-bold text-gray-700 mb-1">Garansi (Hari)</label>
                                     <input type="number"
                                            min="0"
@@ -1231,17 +1231,17 @@
                                 </div>
 
                                 <!-- Harga Satuan -->
-                                <div class="sm:col-span-6">
+                                <div class="col-span-12 sm:col-span-6">
                                     <label class="block font-bold text-gray-700 mb-1">Harga Satuan <span class="text-rose-500">*</span></label>
                                     <x-input-rupiah wire:model="selectedMasterServisHarga" inputClass="!py-2 !text-xs !font-bold font-mono" />
                                 </div>
 
                                 <!-- Tombol Tambah -->
-                                <div class="sm:col-span-12 flex items-end justify-end pt-1">
+                                <div class="col-span-12 sm:col-span-6 flex items-end justify-end">
                                     <button type="button"
                                             wire:click="tambahItemTindakan"
                                             wire:loading.attr="disabled"
-                                            class="w-full sm:w-auto py-2.5 px-5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-purple-600/20 transition-all cursor-pointer inline-flex items-center justify-center space-x-2">
+                                            class="w-full py-2.5 px-5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-purple-600/20 transition-all cursor-pointer inline-flex items-center justify-center space-x-2">
                                         <svg wire:loading wire:target="tambahItemTindakan" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
