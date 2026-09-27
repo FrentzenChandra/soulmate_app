@@ -154,15 +154,15 @@
          :class="'table-size-' + tableSize"
          class="card-custom bg-white overflow-hidden border border-gray-200 shadow-sm rounded-2xl">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse table-fixed min-w-[1100px]">
+            <table class="w-full text-left border-collapse table-fixed min-w-[1180px]">
                 <colgroup>
                     <col style="width: 130px;">
-                    <col style="width: 90px;">
-                    <col style="width: 150px;">
-                    <col style="width: 210px;">
-                    <col style="width: 190px;">
-                    <col style="width: 130px;">
-                    <col style="width: 150px;">
+                    <col style="width: 85px;">
+                    <col style="width: 145px;">
+                    <col style="width: 200px;">
+                    <col style="width: 180px;">
+                    <col style="width: 125px;">
+                    <col style="width: 165px;">
                     <col style="width: 150px;">
                 </colgroup>
                 <thead>
@@ -277,17 +277,17 @@
                             <!-- Status & Waktu Ambil -->
                             <td class="py-2.5 px-3 text-center whitespace-nowrap">
                                 @if($item->status === 'selesai')
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">
-                                        &bull; Belum Diambil
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span>Belum Diambil
                                     </span>
-                                    <span class="text-[10px] text-gray-600 font-medium block mt-0.5">
-                                        Selesai: {{ $item->tanggal_selesai ? $item->tanggal_selesai->format('d/m/y H:i') : '-' }}
+                                    <span class="text-[10px] font-mono text-gray-600 block mt-0.5 whitespace-nowrap">
+                                        {{ $item->tanggal_selesai ? $item->tanggal_selesai->translatedFormat('d M Y, H:i') : '-' }}
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                        Sudah Diambil
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>Sudah Diambil
                                     </span>
-                                    <span class="text-[10px] font-mono text-gray-600 font-bold block mt-0.5">
+                                    <span class="text-[10px] font-mono text-gray-600 block mt-0.5 whitespace-nowrap">
                                         {{ $item->tanggal_ambil ? $item->tanggal_ambil->translatedFormat('d M Y, H:i') : '-' }}
                                     </span>
                                 @endif
@@ -581,8 +581,13 @@
                                     </select>
                                 </div>
                                 <div class="sm:col-span-1">
-                                    <label class="block font-bold text-gray-700 mb-1">Qty</label>
-                                    <input type="number" min="1" wire:model="itemQty" class="w-full px-2 py-2 rounded-xl border border-gray-300 bg-white font-bold text-center text-xs">
+                                    <label class="block font-bold text-gray-700 mb-1">
+                                        Qty
+                                        @if($selectedMasterServisJenis === 'sparepart' && $selectedStokTersedia !== null)
+                                            <span class="text-[10px] font-normal text-purple-700 font-mono">(Sisa {{ $selectedStokTersedia }})</span>
+                                        @endif
+                                    </label>
+                                    <input type="number" min="1" wire:model.live="itemQty" class="w-full px-2 py-2 rounded-xl border border-gray-300 bg-white font-bold text-center text-xs">
                                 </div>
                                 <div class="sm:col-span-2">
                                     <label class="block font-bold text-gray-700 mb-1">Garansi (Hari)</label>

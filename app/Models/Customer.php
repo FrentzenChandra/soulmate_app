@@ -39,4 +39,9 @@ class Customer extends Model
     {
         return $this->hasMany(Penjualan::class);
     }
+
+    public function getNoHpFormattedAttribute(): string
+    {
+        return format_phone($this->no_hp);
+    }
 }

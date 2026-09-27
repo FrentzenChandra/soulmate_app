@@ -153,7 +153,7 @@
                     <option value="semua">Semua Status Masuk</option>
                     <option value="pengecekan">Tahap Pengecekan</option>
                     <option value="perbaikan">Tahap Perbaikan</option>
-                    <option value="selesai">Tahap Selesai (Siap Diambil)</option>
+                    <option value="selesai">Tahap Selesai</option>
                 </select>
             </div>
 
@@ -1109,7 +1109,7 @@
                                         class="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white font-bold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <option value="pengecekan">Pengecekan</option>
                                     <option value="perbaikan">Perbaikan</option>
-                                    <option value="selesai">Selesai (Siap Diambil)</option>
+                                    <option value="selesai">Selesai</option>
                                     <option value="batal">Batal Servis</option>
                                 </select>
                             </div>
@@ -1280,7 +1280,7 @@
                                     </label>
                                     <input type="number"
                                            min="1"
-                                           wire:model="itemQty"
+                                           wire:model.live="itemQty"
                                            class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-800 text-center font-mono">
                                 </div>
 
@@ -1402,7 +1402,7 @@
 
                         <button type="button"
                                 wire:click="selesaikanServis"
-                                wire:confirm="Selesaikan pengerjaan unit servis ini? Status akan diperbarui menjadi Selesai (Siap Diambil)."
+                                wire:confirm="Selesaikan pengerjaan unit servis ini? Status akan diperbarui menjadi Selesai."
                                 wire:loading.attr="disabled"
                                 class="inline-flex items-center justify-center space-x-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md shadow-emerald-600/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                             <svg wire:loading.remove wire:target="selesaikanServis" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

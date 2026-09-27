@@ -56,4 +56,9 @@ class Cabang extends Model
     {
         return $this->hasMany(Penjualan::class);
     }
+
+    public function getNoWaFormattedAttribute(): string
+    {
+        return format_whatsapp($this->no_wa ?? '081995466255');
+    }
 }

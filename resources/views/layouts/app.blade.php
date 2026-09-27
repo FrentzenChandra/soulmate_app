@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-[#F8F9FA]">
+<html lang="id" class="h-full bg-[#F8F9FA] overflow-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -61,16 +61,39 @@
         }
     </style>
 </head>
-<body class="h-full text-[#1A1D20] antialiased bg-[#F8F9FA] selection:bg-[#5E17EB] selection:text-white" x-data="{ sidebarOpen: false }">
+<body class="h-full text-[#1A1D20] antialiased bg-[#F8F9FA] selection:bg-[#5E17EB] selection:text-white overflow-hidden"
+      x-data="{ sidebarOpen: false, sidebarCollapsed: localStorage.getItem('soulmate_sidebar_collapsed') === 'true' }"
+      @resize.window="if (window.innerWidth >= 768) { sidebarOpen = false; }">
 
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen w-full max-w-full overflow-hidden">
+
+        <!-- Mobile Backdrop Overlay -->
+        <div x-show="sidebarOpen"
+             x-cloak
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="sidebarOpen = false"
+             class="fixed inset-0 z-40 bg-gray-950/60 backdrop-blur-xs md:hidden"
+             style="display: none;"></div>
 
         <!-- Sidebar Desktop & Mobile -->
-        <aside class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0E1726] text-white flex flex-col transition-transform duration-300 ease-in-out md:static md:translate-x-0"
-               :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+        <aside class="fixed inset-y-0 left-0 z-50 bg-[#0E1726] text-white flex flex-col transition-all duration-300 ease-in-out md:static md:shrink-0 overflow-hidden"
+               :class="{
+                   'translate-x-0 shadow-2xl w-64 max-w-[80vw] sm:max-w-xs': sidebarOpen,
+                   '-translate-x-full w-64 max-w-[80vw] sm:max-w-xs': !sidebarOpen,
+                   'md:w-64 md:translate-x-0 md:opacity-100': !sidebarCollapsed,
+                   'md:w-0 md:opacity-0 md:pointer-events-none': sidebarCollapsed
+               }">
 
-            <!-- Brand Logo -->
-            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-800/80">
+            <!-- Inner Fixed Width Container to prevent content squash during transition -->
+            <div class="w-64 min-w-[16rem] h-full flex flex-col flex-1 min-h-0">
+
+                <!-- Brand Logo -->
+                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-800/80">
                 <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
                     <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo Soulmate" class="w-10 h-10 rounded-xl object-contain bg-white/5 p-1 border border-white/10 shadow-lg shadow-purple-950/50">
                     <div>
@@ -78,9 +101,21 @@
                         <span class="text-base font-extrabold tracking-tight block leading-tight text-white">KOMPUTER</span>
                     </div>
                 </a>
-                <button @click="sidebarOpen = false" class="md:hidden text-gray-400 hover:text-white">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
+                <div class="flex items-center space-x-1">
+                    <!-- Collapse Button Desktop -->
+                    <button @click="sidebarCollapsed = true; localStorage.setItem('soulmate_sidebar_collapsed', 'true')"
+                            title="Tutup Sidebar"
+                            type="button"
+                            class="hidden md:flex p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800/60 transition-colors cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <!-- Close Button Mobile -->
+                    <button @click="sidebarOpen = false" type="button" class="md:hidden text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-800/60 transition-colors" title="Tutup Menu">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
             </div>
 
             <!-- Role Badge / User Info Pill -->
@@ -115,6 +150,7 @@
                         };
                         scrollToActive();
                         $watch('sidebarOpen', val => { if (val) setTimeout(scrollToActive, 150); });
+                        $watch('sidebarCollapsed', val => { if (!val) setTimeout(scrollToActive, 150); });
                     })"
                     class="flex-1 px-3 py-1 space-y-1 overflow-y-auto no-scrollbar pb-8">
 
@@ -601,16 +637,28 @@
                     </button>
                 </form>
             </div>
+            </div>
         </aside>
 
         <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div class="flex-1 flex flex-col min-w-0 max-w-full overflow-hidden">
 
             <!-- Topbar Header -->
-            <header class="bg-white border-b border-gray-200/80 px-6 py-3.5 flex items-center justify-between relative z-30">
-                <div class="flex items-center space-x-4">
-                    <button @click="sidebarOpen = true" class="md:hidden text-gray-500 hover:text-gray-700">
+            <header class="bg-white border-b border-gray-200/80 px-4 sm:px-6 py-3.5 flex items-center justify-between relative z-30 shrink-0">
+                <div class="flex items-center space-x-3">
+                    <!-- Mobile Hamburger Button -->
+                    <button @click="sidebarOpen = true" type="button" class="md:hidden text-gray-500 hover:text-gray-700 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" title="Buka Menu">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+
+                    <!-- Desktop Sidebar Toggle Button -->
+                    <button @click="sidebarCollapsed = !sidebarCollapsed; localStorage.setItem('soulmate_sidebar_collapsed', sidebarCollapsed)"
+                            type="button"
+                            class="hidden md:flex items-center justify-center p-2 rounded-xl text-gray-500 hover:text-[#5E17EB] hover:bg-purple-50 border border-gray-200 transition-all cursor-pointer group"
+                            title="Toggle Sidebar">
+                        <svg class="w-5 h-5 transition-transform duration-200" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                        </svg>
                     </button>
 
                     <!-- Branch Switcher Component -->
@@ -703,7 +751,7 @@
             </header>
 
             <!-- Main Page Slot -->
-            <main class="flex-1 overflow-y-auto p-6 md:p-8">
+            <main class="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 md:p-8 min-w-0 max-w-full">
                 {{ $slot }}
             </main>
 

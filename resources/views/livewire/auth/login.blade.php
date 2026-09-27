@@ -39,7 +39,8 @@
         <div class="relative z-10 flex items-center space-x-3">
             <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo Soulmate" class="w-11 h-11 rounded-xl object-contain bg-white/10 backdrop-blur-md p-1 border border-white/20 shadow-md">
             <div>
-                <span class="text-lg font-extrabold text-white tracking-tight block leading-tight">SOULMATE</span>
+                <span class="text-lg font-extrabold text-white tracking-tight block leading-tight">SOULMATE </span>
+                <span class="text-lg font-extrabold text-white tracking-tight block leading-tight">KOMPUTER</span>
                 {{-- <span class="text-[11px] text-purple-300 font-semibold tracking-wider uppercase">Pusat Servis & Point of Sale</span> --}}
             </div>
         </div>

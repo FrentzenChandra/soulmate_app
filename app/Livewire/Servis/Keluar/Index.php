@@ -6,6 +6,7 @@ use App\Events\ServisStatusUpdated;
 use App\Livewire\Traits\WithSorting;
 use App\Models\Cabang;
 use App\Models\MasterServis;
+use App\Models\MasterServisStok;
 use App\Models\ServisDetail;
 use App\Models\ServisMasuk;
 use App\Models\ServisStatusLog;
@@ -54,6 +55,7 @@ class Index extends Component
     public $selectedMasterServisHarga = 0;
     public int $itemQty = 1;
     public int $itemGaransiHari = 0;
+    public ?int $selectedStokTersedia = null;
 
     // State Modal Centang Diambil / Pelunasan Kasir
     public bool $modalAmbilOpen = false;
@@ -142,6 +144,7 @@ class Index extends Component
         $this->selectedMasterServisHarga = 0;
         $this->itemQty = 1;
         $this->itemGaransiHari = 0;
+        $this->selectedStokTersedia = null;
         $this->modalEditNotaOpen = true;
     }
 
@@ -150,6 +153,7 @@ class Index extends Component
         $this->modalEditNotaOpen = false;
         $this->editNotaServisId = null;
         $this->editNotaServis = null;
+        $this->selectedStokTersedia = null;
     }
 
     public function selectMasterItem(int $id, string $nama, string $jenis, float $harga, int $garansiHari = 0): void
@@ -160,6 +164,37 @@ class Index extends Component
         $this->selectedMasterServisHarga = $harga;
         $this->itemGaransiHari = $garansiHari;
         $this->itemSearch = $nama;
+        $this->selectedStokTersedia = null;
+
+        if ($jenis === 'sparepart' && $this->editNotaServis) {
+            $cabangId = $this->editNotaServis->cabang_id;
+            $stk = MasterServisStok::where('master_servis_id', $id)
+                ->where('cabang_id', $cabangId)
+                ->first();
+            $this->selectedStokTersedia = $stk ? $stk->jumlah : 0;
+
+            if ($this->editNotaServis->is_real && $this->selectedStokTersedia <= 0) {
+                $this->dispatch('swal:warning', [
+                    'title' => 'Stok Habis!',
+                    'text' => "Stok sparepart '{$nama}' kosong.",
+                ]);
+            }
+        }
+    }
+
+    public function updatedItemQty($value): void
+    {
+        $qty = (int) $value;
+        if ($this->selectedMasterServisJenis === 'sparepart' && $this->selectedStokTersedia !== null) {
+            if ($this->editNotaServis && $this->editNotaServis->is_real) {
+                if ($qty > $this->selectedStokTersedia) {
+                    $this->dispatch('swal:warning', [
+                        'title' => 'Stok Melebihi Batas!',
+                        'text' => "Jumlah yang diinput ({$qty} unit) melebihi stok yang tersedia ({$this->selectedStokTersedia} unit).",
+                    ]);
+                }
+            }
+        }
     }
 
     public function tambahItemNota(): void
@@ -188,6 +223,23 @@ class Index extends Component
             'itemGaransiHari' => 'required|integer|min:0|max:3650',
         ]);
 
+        // Cek stok fisik jika sparepart dan servis REAL
+        if ($this->selectedMasterServisJenis === 'sparepart' && $this->selectedMasterServisId && $servis->is_real) {
+            $cabangId = $servis->cabang_id;
+            $stk = MasterServisStok::where('master_servis_id', $this->selectedMasterServisId)
+                ->where('cabang_id', $cabangId)
+                ->first();
+            $sisaStok = $stk ? $stk->jumlah : 0;
+            if ($sisaStok < (int) $this->itemQty) {
+                $this->dispatch('swal:warning', [
+                    'title' => 'Stok Tidak Cukup!',
+                    'text' => "Stok sparepart '{$this->selectedMasterServisNama}' tidak mencukupi (Tersedia: {$sisaStok} unit, Diminta: {$this->itemQty} unit).",
+                ]);
+                $this->addError('itemQty', "Stok sparepart tidak mencukupi (Tersedia: {$sisaStok} unit).");
+                return;
+            }
+        }
+
         $subtotal = (float) $this->selectedMasterServisHarga * (int) $this->itemQty;
 
         ServisDetail::create([
@@ -210,6 +262,7 @@ class Index extends Component
         $this->selectedMasterServisHarga = 0;
         $this->itemQty = 1;
         $this->itemGaransiHari = 0;
+        $this->selectedStokTersedia = null;
 
         $this->editNotaServis = ServisMasuk::with(['details.masterServis', 'customer', 'cabang'])->find($this->editNotaServisId);
     }

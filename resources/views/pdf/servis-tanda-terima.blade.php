@@ -96,9 +96,9 @@
 @php
     $cabang = $servis->cabang;
     $customerName = $servis->customer?->nama ?? 'Pelanggan Umum';
-    $customerPhone = $servis->customer?->no_hp ?? '-';
+    $customerPhone = format_phone($servis->customer?->no_hp);
     $address = $cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang';
-    $phone = $cabang?->no_wa ?? $cabang?->no_telp ?? '081995466255';
+    $phone = format_whatsapp($cabang?->no_wa ?? $cabang?->no_telp ?? '081995466255');
     $pembuatName = $servis->pembuat?->name ?? 'Soulmate Komputer';
 
     $logoPath = public_path('images/logo_bulat.png');

@@ -84,7 +84,7 @@
                         {{ $servis->cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang' }}
                     </p>
                     <p class="text-[10px] font-semibold text-gray-700 mt-0.5">
-                        WhatsApp: {{ $servis->cabang?->no_wa ?? '081995466255' }}
+                        WhatsApp: {{ format_whatsapp($servis->cabang?->no_wa ?? '081995466255') }}
                     </p>
                 </div>
             </div>
@@ -104,7 +104,7 @@
                             <span class="truncate block max-w-[170px]" title="{{ $servis->customer?->nama ?? 'Pelanggan Umum' }}">
                                 {{ $servis->customer?->nama ?? 'Pelanggan Umum' }}
                             </span>
-                            <span class="text-[10px] font-mono text-gray-600 block">{{ $servis->customer?->no_hp ?? '-' }}</span>
+                            <span class="text-[10px] font-mono text-gray-600 block">{{ format_phone($servis->customer?->no_hp) }}</span>
                         </td>
                     </tr>
                     <tr>
@@ -174,7 +174,7 @@
                         <td colspan="5" class="py-1 text-right uppercase">TOTAL TAGIHAN :</td>
                         <td class="py-1 text-right font-mono text-[#5E17EB]">Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}</td>
                     </tr>
-                    @if($servis->bayar > 0)
+                    {{-- @if($servis->bayar > 0)
                         <tr class="font-medium text-[10px] text-gray-600">
                             <td colspan="5" class="py-0.5 text-right">Bayar ({{ strtoupper($servis->metode_pembayaran ?: 'Tunai') }}) :</td>
                             <td class="py-0.5 text-right font-mono">Rp {{ number_format($servis->bayar, 0, ',', '.') }}</td>
@@ -183,7 +183,7 @@
                             <td colspan="5" class="py-0.5 text-right">Kembalian :</td>
                             <td class="py-0.5 text-right font-mono">Rp {{ number_format($servis->kembalian, 0, ',', '.') }}</td>
                         </tr>
-                    @endif
+                    @endif --}}
                 </tfoot>
             </table>
         </div>

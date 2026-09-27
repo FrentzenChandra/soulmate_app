@@ -47,7 +47,7 @@
     <!-- ============================================== -->
     <div class="card-custom bg-white p-5 space-y-4 border border-gray-100/90 shadow-sm">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3">
-            
+
             <!-- Pencarian Multi-Kata Longgar -->
             <div class="md:col-span-4 relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -518,7 +518,7 @@
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <!-- 1. Status Transaksi -->
                                         <div>
-                                            <label class="block font-bold text-gray-700 mb-1">Status Transaksi <span class="text-rose-500 font-bold">*</span></label>
+                                            <label class="block font-bold text-gray-700 mb-1">Status <span class="text-rose-500 font-bold">*</span></label>
                                             <select wire:model="formStatus"
                                                     class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-black text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all cursor-pointer">
                                                 <option value="Lunas">Lunas</option>
@@ -583,7 +583,7 @@
                                             }
                                         }" class="relative" @click.outside="open = false; search = ''">
                                             <label class="block font-bold text-gray-700 mb-1">Pegawai <span class="text-rose-500 font-bold">*</span></label>
-                                            
+
                                             <!-- Trigger Button -->
                                             <button type="button"
                                                     @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
@@ -613,7 +613,7 @@
                                                  x-transition:leave-end="transform opacity-0 scale-95"
                                                  class="absolute z-40 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-60 overflow-y-auto custom-scrollbar"
                                                  style="display: none;">
-                                                
+
                                                 <!-- Search Box (Zero Placeholder) -->
                                                 <div class="p-2 border-b border-gray-100 bg-gray-50/80 sticky top-0 z-10">
                                                     <div class="relative">
@@ -730,7 +730,7 @@
                     </div>
 
                     <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar text-xs">
-                        
+
                         <!-- Snapshot Ringkas -->
                         <div class="grid grid-cols-2 {{ $selectedTransaksi->tipe_transaksi === 'servis' && $selectedTransaksi->kategori_perangkat ? 'sm:grid-cols-5' : 'sm:grid-cols-4' }} gap-2.5">
                             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">

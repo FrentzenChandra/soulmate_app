@@ -155,7 +155,7 @@
                     Rp {{ number_format($totalUangCash, 0, ',', '.') }}
                 </span>
                 <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                    Cash Fisik Pada Hari ini 
+                    Cash Fisik Pada Hari ini
                 </span>
             </div>
         </div>
@@ -726,7 +726,7 @@
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <!-- 1. Status Transaksi -->
                                         <div>
-                                            <label class="block font-bold text-gray-700 mb-1">Status Transaksi <span class="text-rose-500 font-bold">*</span></label>
+                                            <label class="block font-bold text-gray-700 mb-1">Status  <span class="text-rose-500 font-bold">*</span></label>
                                             <select wire:model="formStatus"
                                                     class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
                                                 <option value="Lunas">Lunas</option>

@@ -80,7 +80,7 @@
                         {{ $servis->cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang' }}
                     </p>
                     <p class="text-[10px] font-semibold text-gray-700 mt-0.5">
-                        WhatsApp: {{ $servis->cabang?->no_wa ?? '081995466255' }}
+                        WhatsApp: {{ format_whatsapp($servis->cabang?->no_wa ?? '081995466255') }}
                     </p>
                 </div>
             </div>
@@ -96,7 +96,7 @@
                     <span class="font-bold text-gray-900 block truncate text-[10px] mt-0.5" title="{{ $servis->customer?->nama ?? 'Pelanggan Umum' }}">
                         {{ $servis->customer?->nama ?? 'Pelanggan Umum' }}
                     </span>
-                    <span class="text-[10px] font-mono text-gray-600 block">{{ $servis->customer?->no_hp ?? '-' }}</span>
+                    <span class="text-[10px] font-mono text-gray-600 block">{{ format_phone($servis->customer?->no_hp) }}</span>
                 </div>
                 <div class="col-span-2 pt-0.5 border-t border-gray-100 flex items-center justify-between">
                     <span class="text-[10px] font-bold text-gray-500 uppercase">Kode Servis:</span>

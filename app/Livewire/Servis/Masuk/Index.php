@@ -658,6 +658,28 @@ class Index extends Component
         $this->selectedStokTersedia = $stok;
         $this->itemGaransiHari = $garansiHari;
         $this->itemSearch = $nama;
+
+        if ($this->activeServis?->is_real && $stok <= 0) {
+            $this->dispatch('swal:warning', [
+                'title' => 'Stok Habis!',
+                'text' => "Stok sparepart '{$nama}' kosong.",
+            ]);
+        }
+    }
+
+    public function updatedItemQty($value): void
+    {
+        $qty = (int) $value;
+        if ($this->itemType === 'sparepart' && $this->selectedProdukId && $this->selectedStokTersedia !== null) {
+            if ($this->activeServis && $this->activeServis->is_real) {
+                if ($qty > $this->selectedStokTersedia) {
+                    $this->dispatch('swal:warning', [
+                        'title' => 'Stok Melebihi Batas!',
+                        'text' => "Jumlah yang diinput ({$qty} unit) melebihi stok yang tersedia ({$this->selectedStokTersedia} unit).",
+                    ]);
+                }
+            }
+        }
     }
 
     public function tambahItemTindakan(): void
@@ -684,7 +706,11 @@ class Index extends Component
 
             $sisaStok = $stok ? $stok->jumlah : 0;
             if ($sisaStok < (int) $this->itemQty) {
-                $this->addError('itemQty', "Stok sparepart di cabang ini tidak mencukupi (Tersedia: {$sisaStok} unit).");
+                $this->dispatch('swal:warning', [
+                    'title' => 'Stok Tidak Cukup!',
+                    'text' => "Stok sparepart '{$this->selectedMasterServisNama}' tidak mencukupi (Tersedia: {$sisaStok} unit, Diminta: {$this->itemQty} unit).",
+                ]);
+                $this->addError('itemQty', "Stok sparepart tidak mencukupi (Tersedia: {$sisaStok} unit).");
                 return;
             }
 
@@ -772,7 +798,7 @@ class Index extends Component
 
         $this->closeTindakanModal();
 
-        session()->flash('success', "Pengerjaan unit {$servis->no_servis_frontend} telah SELESAI (Siap Diambil)! Silakan cetak nota saat pelanggan mengambil unit untuk memindahkannya ke Servis Keluar.");
+        session()->flash('success', "Pengerjaan unit {$servis->no_servis_frontend} telah Selesai! Silakan cetak nota saat pelanggan mengambil unit untuk memindahkannya ke Servis Keluar.");
     }
 
     // =========================================================================

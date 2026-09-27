@@ -100,10 +100,10 @@
 @php
     $cabang = $penjualan->cabang;
     $customerName = $penjualan->customer?->nama ?? 'Pelanggan Umum';
-    $customerPhone = $penjualan->customer?->no_hp ?? '-';
+    $customerPhone = format_phone($penjualan->customer?->no_hp);
     $cashierName = $penjualan->kasir?->name ?? 'Kasir';
     $address = $cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang';
-    $phone = $cabang?->no_wa ?? $cabang?->no_telp ?? '081995466255';
+    $phone = format_whatsapp($cabang?->no_wa ?? $cabang?->no_telp ?? '081995466255');
     $metodeBayar = strtoupper($penjualan->metode_bayar ?? 'CASH');
 
     $logoPath = public_path('images/logo_bulat.png');
