@@ -597,29 +597,9 @@
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.users*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                         Master Pengguna
                     </a>
-                    @endhasanyrole
-                    @endhasanyrole
-
-                    <!-- 6. Layar Toko -->
-                    <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Layar Toko</p>
-
-                    <a href="#" target="_blank" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
-                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        Display Antrian TV
-                        <span class="ml-auto text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-bold">Live</span>
-                    </a>
-
-                    @if($isOwner)
-                    <a href="/pulse" target="_blank" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
-                        <svg class="w-5 h-5 mr-3 text-purple-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        <span>Server Metrics</span>
-                        <span class="ml-auto text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-bold">Pulse</span>
-                    </a>
-                    @endif
 
                     <!-- Dropdown Setting (Branch) -->
-                    @if(auth()->user()->hasAnyRole(['Owner', 'Superadmin']))
-                    <div x-data="{ open: {{ (request()->routeIs('master.kategori*') || request()->routeIs('master.metode-pembayaran*') || request()->routeIs('master.sumber-dana*') || request()->routeIs('master.kategori-kas*')) ? 'true' : 'false' }} }" class="space-y-1 pt-2 border-t border-gray-800/50">
+                    <div x-data="{ open: {{ (request()->routeIs('master.kategori*') || request()->routeIs('master.metode-pembayaran*') || request()->routeIs('master.sumber-dana*') || request()->routeIs('master.kategori-kas*')) ? 'true' : 'false' }} }" class="space-y-1">
                         <button @click="open = !open"
                             type="button"
                             class="w-full group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ (request()->routeIs('master.kategori*') || request()->routeIs('master.metode-pembayaran*') || request()->routeIs('master.sumber-dana*') || request()->routeIs('master.kategori-kas*')) ? 'bg-gray-800/80 text-white' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
@@ -668,7 +648,26 @@
                             @endhasanyrole
                         </div>
                     </div>
+                    @endhasanyrole
+                    @endhasanyrole
+
+                    <!-- 6. Layar Toko -->
+                    <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Layar Toko</p>
+
+                    <a href="#" target="_blank" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        Display Antrian TV
+                        <span class="ml-auto text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-bold">Live</span>
+                    </a>
+
+                    @if($isOwner)
+                    <a href="/pulse" target="_blank" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
+                        <svg class="w-5 h-5 mr-3 text-purple-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <span>Server Metrics</span>
+                        <span class="ml-auto text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-bold">Pulse</span>
+                    </a>
                     @endif
+
 
                     @if($isOwner)
                         <div class="pt-6 px-1">
