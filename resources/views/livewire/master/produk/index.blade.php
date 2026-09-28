@@ -398,7 +398,7 @@
                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('nama_produk') border-rose-500 @enderror">
                                 @error('nama_produk') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
 
-                                <!-- Interactive Suggestion Dropdown: Product Exists Search List -->
+                                {{-- Interactive Suggestion Dropdown: Product Exists Search List (Di-hide sementara)
                                 @if(!$isEditMode && !empty($duplicateMasterProducts) && count($duplicateMasterProducts) > 0)
                                     <div class="mt-2.5 p-3.5 rounded-2xl bg-purple-50/70 border-2 border-purple-200/80 shadow-md space-y-2.5">
                                         <div class="flex items-center justify-between">
@@ -461,6 +461,7 @@
                                         </div>
                                     </div>
                                 @endif
+                                --}}
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

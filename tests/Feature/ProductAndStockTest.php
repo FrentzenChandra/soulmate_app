@@ -461,21 +461,22 @@ class ProductAndStockTest extends TestCase
             'kategori_id' => $this->kategori->id,
             'harga_beli' => 250000,
             'harga_jual' => 375000,
+            'status' => 'aktif',
         ]);
 
-        // 2. Saat open create modal dan input barcode sama, sistem mendeteksi duplicate master
+        // 2. Saat open create modal, duplicate suggestions di-hide (null)
         Livewire::test(Index::class)
             ->call('openCreateModal')
             ->assertSet('duplicateMasterProduct', null)
             ->set('barcode', '899777888999')
-            ->assertSet('duplicateMasterProductId', $existing->id);
+            ->assertSet('duplicateMasterProductId', null);
 
-        // 3. Saat barcode dihapus dan input nama_produk sama
+        // 3. Saat barcode dihapus dan input nama_produk
         Livewire::test(Index::class)
             ->call('openCreateModal')
             ->set('barcode', '')
             ->set('nama_produk', 'keyboard mechanical rgb')
-            ->assertSet('duplicateMasterProductId', $existing->id);
+            ->assertSet('duplicateMasterProductId', null);
     }
 
     public function test_inactive_branch_products_are_not_shown_in_notification_bell()

@@ -170,6 +170,12 @@ class Index extends Component
 
     public function checkDuplicateMaster(): void
     {
+        // Fitur produk serupa di-hide sementara per instruksi
+        $this->duplicateMasterProduct = null;
+        $this->duplicateMasterProductId = null;
+        $this->duplicateMasterProducts = [];
+
+        /*
         if ($this->isEditMode) {
             $this->duplicateMasterProductId = null;
             $this->duplicateMasterProduct = null;
@@ -216,6 +222,7 @@ class Index extends Component
         $this->duplicateMasterProducts = $matches;
         $this->duplicateMasterProduct = $matches->first();
         $this->duplicateMasterProductId = $matches->first()?->id;
+        */
     }
 
     public function selectExistingProduct(int $id): void
