@@ -139,7 +139,7 @@
                     <tr>
                         <td class="text-muted">Pelanggan</td>
                         <td>:</td>
-                        <td class="font-bold">{{ $customerName }} <span class="text-muted font-mono" style="font-size: 7.5pt;">({{ $customerPhone }})</span></td>
+                        <td class="font-bold">{{ $customerName }}</td>
                     </tr>
                     <tr>
                         <td class="text-muted">Kode Servis</td>

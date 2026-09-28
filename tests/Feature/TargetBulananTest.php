@@ -121,13 +121,15 @@ class TargetBulananTest extends TestCase
             'created_at' => '2026-03-20 10:00:00',
         ]);
 
-        // Set target for divisions
+        // Set monthly targets and realization for divisions
         TargetDivisi::updateOrCreate([
             'cabang_id' => $superadmin->cabang_id,
             'divisi' => 'laptop',
             'tahun' => 2026,
         ], [
-            'target_bulanan' => 1,
+            'target_bulanan' => 10,
+            'monthly_targets' => ['1' => 10],
+            'monthly_realisasi' => ['1' => 10],
         ]);
 
         $test = Livewire::test(TargetBulananIndex::class)
@@ -135,10 +137,10 @@ class TargetBulananTest extends TestCase
 
         $test->assertViewHas('divisiMatrix', function ($matrix) {
             return isset($matrix['laptop'])
-                && $matrix['laptop']['months'][1]['count'] === 1
+                && $matrix['laptop']['months'][1]['count'] === 10
+                && $matrix['laptop']['months'][1]['target'] === 10
                 && $matrix['laptop']['months'][1]['percent'] === 100
-                && $matrix['printer']['months'][2]['count'] === 1
-                && $matrix['admin']['months'][3]['count'] === 1;
+                && $matrix['printer']['months'][2]['has_data'] === false;
         });
 
         $test->assertViewHas('userMatrix', function ($userMatrix) use ($superadmin) {
@@ -150,47 +152,76 @@ class TargetBulananTest extends TestCase
         });
     }
 
-    public function test_superadmin_can_save_target_divisi_and_user()
+
+    public function test_superadmin_can_edit_monthly_target_and_realisasi_divisi()
     {
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
 
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->call('openModalDivisi')
-            ->set('targetDivisiForm.laptop', 50)
-            ->set('targetDivisiForm.printer', 40)
-            ->set('targetDivisiForm.komputer', 30)
-            ->set('targetDivisiForm.admin', 60)
-            ->call('simpanTargetDivisi')
-            ->assertHasNoErrors();
+            ->call('openEditBulanDivisi', 5)
+            ->assertSet('editBulanDivisi', 5)
+            ->set('formTargetSyaratDivisi', 30)
+            ->set('formRealisasiLaptop', 45)
+            ->set('formRealisasiPrinter', 20)
+            ->set('formRealisasiKomputer', 15)
+            ->set('formRealisasiAdmin', 10)
+            ->call('simpanEditBulanDivisi')
+            ->assertHasNoErrors()
+            ->assertSet('modalEditBulanDivisiOpen', false);
 
-        $this->assertDatabaseHas('target_divisis', [
-            'cabang_id' => $superadmin->cabang_id ?: 1,
-            'divisi' => 'laptop',
-            'tahun' => 2026,
-            'target_bulanan' => 50,
-        ]);
+        $target = TargetDivisi::where('cabang_id', $superadmin->cabang_id ?: 1)
+            ->where('divisi', 'laptop')
+            ->where('tahun', 2026)
+            ->first();
 
-        $component = Livewire::test(TargetBulananIndex::class)
+        $this->assertNotNull($target);
+        $this->assertEquals(30, $target->monthly_targets['5']);
+        $this->assertEquals(45, $target->monthly_realisasi['5']);
+
+        // Test rendering reflection
+        Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->call('openModalUser');
+            ->assertViewHas('divisiMatrix', function ($matrix) {
+                return isset($matrix['laptop'])
+                    && $matrix['laptop']['months'][5]['target'] === 30
+                    && $matrix['laptop']['months'][5]['count'] === 45
+                    && $matrix['laptop']['months'][5]['percent'] === 150
+                    && $matrix['laptop']['months'][5]['status'] === 'over';
+            });
+    }
 
-        $userForm = $component->get('targetUserForm');
-        $this->assertNotEmpty($userForm);
+    public function test_superadmin_can_edit_monthly_target_user()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
 
-        // Update target for first user
-        $userForm[0]['target'] = 25;
+        Livewire::test(TargetBulananIndex::class)
+            ->set('filterTahun', 2026)
+            ->call('openEditBulanUser', 7)
+            ->assertSet('editBulanUser', 7)
+            ->set('formTargetSyaratUserGlobal', 20)
+            ->call('simpanEditBulanUser')
+            ->assertHasNoErrors()
+            ->assertSet('modalEditBulanUserOpen', false);
 
-        $component->set('targetUserForm', $userForm)
-            ->call('simpanTargetUser')
-            ->assertHasNoErrors();
+        $targetUser = TargetUser::where('cabang_id', $superadmin->cabang_id ?: 1)
+            ->where('user_id', $superadmin->id)
+            ->where('tahun', 2026)
+            ->first();
 
-        $this->assertDatabaseHas('target_users', [
-            'cabang_id' => $superadmin->cabang_id ?: 1,
-            'user_id' => $userForm[0]['user_id'],
-            'tahun' => 2026,
-            'target_bulanan' => 25,
-        ]);
+        $this->assertNotNull($targetUser);
+        $this->assertEquals(20, $targetUser->monthly_targets['7']);
+
+        // Test rendering reflection
+        Livewire::test(TargetBulananIndex::class)
+            ->set('filterTahun', 2026)
+            ->assertViewHas('userMatrix', function ($userMatrix) use ($superadmin) {
+                $userRow = collect($userMatrix)->firstWhere('user.id', $superadmin->id);
+                return $userRow !== null
+                    && $userRow['months'][7]['target'] === 20;
+            });
     }
 }
+

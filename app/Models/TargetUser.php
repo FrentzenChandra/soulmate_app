@@ -17,12 +17,14 @@ class TargetUser extends Model
         'user_id',
         'tahun',
         'target_bulanan',
+        'monthly_targets',
         'created_by',
     ];
 
     protected $casts = [
         'tahun' => 'integer',
         'target_bulanan' => 'integer',
+        'monthly_targets' => 'array',
     ];
 
     public function cabang(): BelongsTo

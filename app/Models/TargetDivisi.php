@@ -17,12 +17,16 @@ class TargetDivisi extends Model
         'tahun',
         'divisi',
         'target_bulanan',
+        'monthly_targets',
+        'monthly_realisasi',
         'created_by',
     ];
 
     protected $casts = [
         'tahun' => 'integer',
         'target_bulanan' => 'integer',
+        'monthly_targets' => 'array',
+        'monthly_realisasi' => 'array',
     ];
 
     public function cabang(): BelongsTo

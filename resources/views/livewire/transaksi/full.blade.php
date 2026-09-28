@@ -442,6 +442,7 @@
                                         @error('formJam') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
                                     </div>
 
+                                    {{-- [KATEGORI PERANGKAT HIDE]
                                     @if($formTipeTransaksi === 'servis')
                                         <div class="sm:col-span-2 pt-2 border-t border-amber-200/60">
                                             <label class="block font-bold text-gray-700 mb-1.5 text-xs">
@@ -485,6 +486,7 @@
                                             @enderror
                                         </div>
                                     @endif
+                                    --}}
                                 </div>
                             </div>
 
@@ -958,7 +960,7 @@
                     <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar text-xs">
 
                         <!-- Snapshot Ringkas -->
-                        <div class="grid grid-cols-2 {{ $selectedTransaksi->tipe_transaksi === 'servis' && $selectedTransaksi->kategori_perangkat ? 'sm:grid-cols-5' : 'sm:grid-cols-4' }} gap-2.5">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">No. Transaksi</span>
                                 <span class="font-mono font-black text-gray-900 block mt-0.5">{{ $selectedTransaksi->no_transaksi_frontend }}</span>
@@ -967,12 +969,14 @@
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">Tipe</span>
                                 <span class="font-bold text-[#5E17EB] uppercase block mt-0.5">{{ $selectedTransaksi->tipe_transaksi }}</span>
                             </div>
+                            {{-- [KATEGORI PERANGKAT HIDE]
                             @if($selectedTransaksi->tipe_transaksi === 'servis' && $selectedTransaksi->kategori_perangkat)
                                 <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
                                     <span class="text-[10px] font-bold text-amber-900 uppercase block">Perangkat</span>
                                     <span class="font-bold text-amber-900 block mt-0.5">{{ $selectedTransaksi->kategori_perangkat_label }}</span>
                                 </div>
                             @endif
+                            --}}
                             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">Waktu</span>
                                 <span class="font-bold text-gray-900 block mt-0.5">{{ $selectedTransaksi->tanggal ? $selectedTransaksi->tanggal->format('d/m/Y H:i') : '-' }}</span>

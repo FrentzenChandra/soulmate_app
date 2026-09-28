@@ -44,9 +44,6 @@
                         <span class="truncate block max-w-[170px]" title="{{ $customerName }}">
                             {{ $customerName }}
                         </span>
-                        @if($customerPhone && $customerPhone !== '-')
-                            <span class="text-[10px] font-mono text-gray-600 block">{{ format_phone($customerPhone) }}</span>
-                        @endif
                     </td>
                 </tr>
                 <tr>

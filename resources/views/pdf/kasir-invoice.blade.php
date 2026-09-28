@@ -142,7 +142,7 @@
                     <tr>
                         <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">Pelanggan</td>
                         <td>:</td>
-                        <td class="font-bold">{{ $customerName }} @if($customerPhone && $customerPhone !== '-') <span class="text-muted font-mono" style="font-size: 7.5pt; font-weight: normal;">({{ $customerPhone }})</span> @endif</td>
+                        <td class="font-bold">{{ $customerName }}</td>
                     </tr>
                     <tr>
                         <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">Pembayaran</td>

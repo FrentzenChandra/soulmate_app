@@ -163,7 +163,7 @@
                     <tr>
                         <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">Pelanggan</td>
                         <td>:</td>
-                        <td class="font-bold">{{ $customerName }} <span class="text-muted font-mono" style="font-size: 7.5pt; font-weight: normal;">({{ $customerPhone }})</span></td>
+                        <td class="font-bold">{{ $customerName }}</td>
                     </tr>
                     <tr>
                         <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">NO. FAKTUR SERVIS</td>

@@ -100,7 +100,7 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
 
             <!-- Pencarian Multi-Kata Longgar -->
-            <div class="{{ $isHQ ? 'md:col-span-4' : 'md:col-span-5' }} relative">
+            <div class="{{ $isHQ ? 'md:col-span-5' : 'md:col-span-5' }} relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
@@ -109,7 +109,7 @@
                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-semibold text-gray-800 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all">
             </div>
 
-            <!-- Filter Tipe Transaksi: Real vs Non-Real -->
+            {{-- [NON-REAL HIDE] Filter Tipe Transaksi: Real vs Non-Real
             <div class="md:col-span-2">
                 <select wire:model.live="tipeFilter"
                         class="w-full py-2.5 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all cursor-pointer">
@@ -118,9 +118,10 @@
                     <option value="non_real">Servis Non-Real</option>
                 </select>
             </div>
+            --}}
 
             <!-- Filter Status Pengambilan Fisik Unit -->
-            <div class="{{ $isHQ ? 'md:col-span-3' : 'md:col-span-5' }} flex items-center gap-2">
+            <div class="{{ $isHQ ? 'md:col-span-4' : 'md:col-span-7' }} flex items-center gap-2">
                 <select wire:model.live="statusPengambilan"
                         class="w-full py-2.5 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all cursor-pointer">
                     <option value="semua">Semua Status Fisik Unit</option>
@@ -157,7 +158,7 @@
             <table class="w-full text-left border-collapse table-fixed min-w-[1050px]">
                 <colgroup>
                     <col style="width: 130px;">
-                    <col style="width: 90px;">
+                    {{-- [NON-REAL HIDE] <col style="width: 90px;"> --}}
                     <col style="width: 150px;">
                     <col style="width: 230px;">
                     <col style="width: 170px;">
@@ -167,7 +168,7 @@
                 <thead>
                     <tr class="border-b border-gray-200 bg-gray-50/80 text-[10px] font-extrabold text-gray-500 uppercase tracking-wider">
                         <x-th-sort field="no_servis" :sortField="$sortField" :sortDirection="$sortDirection" class="py-2.5 px-3">Kode Servis</x-th-sort>
-                        <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500 text-center">Tipe</th>
+                        {{-- [NON-REAL HIDE] <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500 text-center">Tipe</th> --}}
                         <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500">Pelanggan</th>
                         <x-th-sort field="tipe_unit" :sortField="$sortField" :sortDirection="$sortDirection" class="py-2.5 px-3">Perangkat</x-th-sort>
                         <th class="py-2.5 px-3 font-extrabold text-[10px] tracking-wider uppercase text-gray-500">Kelengkapan</th>
@@ -184,7 +185,7 @@
                     @for($i = 0; $i < 6; $i++)
                         <tr class="animate-pulse">
                             <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-24"></div></td>
-                            <td class="py-2.5 px-3 text-center"><div class="h-4 bg-gray-200 rounded-full w-14 mx-auto"></div></td>
+                            {{-- [NON-REAL HIDE] <td class="py-2.5 px-3 text-center"><div class="h-4 bg-gray-200 rounded-full w-14 mx-auto"></div></td> --}}
                             <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-28"></div></td>
                             <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-44"></div></td>
                             <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-32"></div></td>
@@ -211,7 +212,7 @@
                                 </span>
                             </td>
 
-                            <!-- Tipe Transaksi -->
+                            {{-- [NON-REAL HIDE] Tipe Transaksi
                             <td class="py-2.5 px-3 text-center whitespace-nowrap">
                                 @if($item->is_real)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">Real</span>
@@ -219,6 +220,7 @@
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">Non-Real</span>
                                 @endif
                             </td>
+                            --}}
 
                             <!-- Pelanggan -->
                             <td class="py-2.5 px-3">
@@ -373,11 +375,13 @@
                                     <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/20 text-white border border-white/30">
                                         Servis Dibatalkan
                                     </span>
+                                    {{-- [NON-REAL HIDE]
                                     @if(! $selectedServis->is_real)
                                         <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-amber-400 text-amber-950">
                                             NON-REAL
                                         </span>
                                     @endif
+                                    --}}
                                 </div>
                                 <p class="text-xs text-purple-200 font-medium mt-0.5">
                                     Masuk: {{ $selectedServis->tanggal_masuk ? $selectedServis->tanggal_masuk->translatedFormat('d F Y - H:i') . ' WIB' : '-' }}

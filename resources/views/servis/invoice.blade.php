@@ -104,7 +104,6 @@
                             <span class="truncate block max-w-[170px]" title="{{ $servis->customer?->nama ?? 'Pelanggan Umum' }}">
                                 {{ $servis->customer?->nama ?? 'Pelanggan Umum' }}
                             </span>
-                            <span class="text-[10px] font-mono text-gray-600 block">{{ format_phone($servis->customer?->no_hp) }}</span>
                         </td>
                     </tr>
                     <tr>
