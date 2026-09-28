@@ -212,24 +212,6 @@
                         Master Tarif PPN
                     </a>
 
-                    <a href="{{ route('master.metode-pembayaran') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.metode-pembayaran*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.metode-pembayaran*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                        Metode Pembayaran
-                    </a>
-
-                    <a href="{{ route('master.sumber-dana') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.sumber-dana*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.sumber-dana*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        Sumber Dana
-                    </a>
-
-                    <a href="{{ route('master.kategori-kas') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.kategori-kas*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.kategori-kas*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                        Kategori Kas
-                    </a>
-
                     <a href="{{ route('master.users') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.users*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.users*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
@@ -259,17 +241,64 @@
                         @endif
                     </a>
 
-                    <a href="{{ route('master.kategori') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ (request()->routeIs('master.kategori') || request()->routeIs('master.kategori.*')) ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ (request()->routeIs('master.kategori') || request()->routeIs('master.kategori.*')) ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
-                        Master Kategori
-                    </a>
-
                     <a href="{{ route('master.customer') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.customer*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.customer*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                         Data Pelanggan
                     </a>
+
+                    <!-- Dropdown Pengaturan Master (HQ) -->
+                    @if(auth()->user()->hasAnyRole(['Owner', 'Superadmin']))
+                    <div x-data="{ open: {{ (request()->routeIs('master.kategori*') || request()->routeIs('master.metode-pembayaran*') || request()->routeIs('master.sumber-dana*') || request()->routeIs('master.kategori-kas*')) ? 'true' : 'false' }} }" class="space-y-1">
+                        <button @click="open = !open"
+                            type="button"
+                            class="w-full group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ (request()->routeIs('master.kategori*') || request()->routeIs('master.metode-pembayaran*') || request()->routeIs('master.sumber-dana*') || request()->routeIs('master.kategori-kas*')) ? 'bg-gray-800/80 text-white' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-3 {{ (request()->routeIs('master.kategori*') || request()->routeIs('master.metode-pembayaran*') || request()->routeIs('master.sumber-dana*') || request()->routeIs('master.kategori-kas*')) ? 'text-[#5E17EB]' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span>Pengaturan</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div x-show="open" x-cloak class="pl-8 pr-2 space-y-1 py-1">
+                            @hasanyrole('Owner|Superadmin')
+                            <a href="{{ route('master.kategori') }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ (request()->routeIs('master.kategori') || request()->routeIs('master.kategori.*')) ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ (request()->routeIs('master.kategori') || request()->routeIs('master.kategori.*')) ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
+                                <span>Master Kategori</span>
+                            </a>
+                            @endhasanyrole
+
+                            @hasanyrole('Owner|Superadmin')
+                            <a href="{{ route('master.metode-pembayaran') }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.metode-pembayaran*') ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.metode-pembayaran*') ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
+                                <span>Metode Pembayaran</span>
+                            </a>
+                            @endhasanyrole
+
+                            @hasanyrole('Owner|Superadmin')
+                            <a href="{{ route('master.sumber-dana') }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.sumber-dana*') ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.sumber-dana*') ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
+                                <span>Sumber Dana</span>
+                            </a>
+                            @endhasanyrole
+
+                            @hasanyrole('Owner|Superadmin')
+                            <a href="{{ route('master.kategori-kas') }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.kategori-kas*') ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.kategori-kas*') ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
+                                <span>Kategori Kas</span>
+                            </a>
+                            @endhasanyrole
+                        </div>
+                    </div>
+                    @endif
 
                     <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Layanan Servis</p>
 
@@ -552,31 +581,58 @@
                     </a>
                     @endhasanyrole
 
-                    @hasanyrole('Owner|Superadmin')
-                    <a href="{{ route('master.kategori') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ (request()->routeIs('master.kategori') || request()->routeIs('master.kategori.*')) ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ (request()->routeIs('master.kategori') || request()->routeIs('master.kategori.*')) ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
-                        Master Kategori
-                    </a>
+                    <!-- Dropdown Pengaturan Master (Branch) -->
+                    @if(auth()->user()->hasAnyRole(['Owner', 'Superadmin']))
+                    <div x-data="{ open: {{ (request()->routeIs('master.kategori*') || request()->routeIs('master.metode-pembayaran*') || request()->routeIs('master.sumber-dana*') || request()->routeIs('master.kategori-kas*')) ? 'true' : 'false' }} }" class="space-y-1">
+                        <button @click="open = !open"
+                            type="button"
+                            class="w-full group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ (request()->routeIs('master.kategori*') || request()->routeIs('master.metode-pembayaran*') || request()->routeIs('master.sumber-dana*') || request()->routeIs('master.kategori-kas*')) ? 'bg-gray-800/80 text-white' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-3 {{ (request()->routeIs('master.kategori*') || request()->routeIs('master.metode-pembayaran*') || request()->routeIs('master.sumber-dana*') || request()->routeIs('master.kategori-kas*')) ? 'text-[#0052FF]' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span>Pengaturan</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div x-show="open" x-cloak class="pl-8 pr-2 space-y-1 py-1">
+                            @hasanyrole('Owner|Superadmin')
+                            <a href="{{ route('master.kategori') }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ (request()->routeIs('master.kategori') || request()->routeIs('master.kategori.*')) ? 'bg-[#0052FF] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ (request()->routeIs('master.kategori') || request()->routeIs('master.kategori.*')) ? 'bg-white' : 'bg-blue-400' }} mr-2.5"></span>
+                                <span>Master Kategori</span>
+                            </a>
+                            @endhasanyrole
 
-                    <a href="{{ route('master.metode-pembayaran') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.metode-pembayaran*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.metode-pembayaran*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                        Metode Pembayaran
-                    </a>
+                            @hasanyrole('Owner|Superadmin')
+                            <a href="{{ route('master.metode-pembayaran') }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.metode-pembayaran*') ? 'bg-[#0052FF] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.metode-pembayaran*') ? 'bg-white' : 'bg-blue-400' }} mr-2.5"></span>
+                                <span>Metode Pembayaran</span>
+                            </a>
+                            @endhasanyrole
 
-                    <a href="{{ route('master.sumber-dana') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.sumber-dana*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.sumber-dana*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        Sumber Dana
-                    </a>
+                            @hasanyrole('Owner|Superadmin')
+                            <a href="{{ route('master.sumber-dana') }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.sumber-dana*') ? 'bg-[#0052FF] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.sumber-dana*') ? 'bg-white' : 'bg-blue-400' }} mr-2.5"></span>
+                                <span>Sumber Dana</span>
+                            </a>
+                            @endhasanyrole
 
-                    <a href="{{ route('master.kategori-kas') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.kategori-kas*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.kategori-kas*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                        Kategori Kas
-                    </a>
-                    @endhasanyrole
+                            @hasanyrole('Owner|Superadmin')
+                            <a href="{{ route('master.kategori-kas') }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.kategori-kas*') ? 'bg-[#0052FF] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.kategori-kas*') ? 'bg-white' : 'bg-blue-400' }} mr-2.5"></span>
+                                <span>Kategori Kas</span>
+                            </a>
+                            @endhasanyrole
+                        </div>
+                    </div>
+                    @endif
 
                     <a href="{{ route('master.customer') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.customer*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">

@@ -64,9 +64,9 @@
                 <span class="text-lg sm:text-xl font-mono font-black text-blue-700 tracking-tight block">
                     Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
                 </span>
-                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
                     Pendapatan Kotor
-                </span>
+                </span> --}}
             </div>
         </div>
 
@@ -82,9 +82,9 @@
                 <span class="text-lg sm:text-xl font-mono font-black text-amber-800 tracking-tight block">
                     Rp {{ number_format($totalModal, 0, ',', '.') }}
                 </span>
-                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
                     Modal Pokok
-                </span>
+                </span> --}}
             </div>
         </div>
 
@@ -100,9 +100,9 @@
                 <span class="text-lg sm:text-xl font-mono font-black {{ $totalLaba >= 0 ? 'text-[#5E17EB]' : 'text-rose-600' }} tracking-tight block">
                     Rp {{ number_format($totalLaba, 0, ',', '.') }}
                 </span>
-                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
                     margin
-                </span>
+                </span> --}}
             </div>
         </div>
 
@@ -118,9 +118,9 @@
                 <span class="text-lg sm:text-xl font-mono font-black text-emerald-600 tracking-tight block">
                     Rp {{ number_format($totalLunas, 0, ',', '.') }}
                 </span>
-                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
                     Transaksi berstatus lunas
-                </span>
+                </span> --}}
             </div>
         </div>
 
@@ -136,9 +136,9 @@
                 <span class="text-lg sm:text-xl font-mono font-black text-rose-600 tracking-tight block">
                     Rp {{ number_format($totalBon, 0, ',', '.') }}
                 </span>
-                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
                     Bon
-                </span>
+                </span> --}}
             </div>
         </div>
 
@@ -154,9 +154,9 @@
                 <span class="text-lg sm:text-xl font-mono font-black {{ $totalUangCash >= 0 ? 'text-teal-700' : 'text-rose-600' }} tracking-tight block">
                     Rp {{ number_format($totalUangCash, 0, ',', '.') }}
                 </span>
-                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
                     Cash Fisik Pada Hari ini
-                </span>
+                </span> --}}
             </div>
         </div>
 
@@ -304,7 +304,8 @@
     <!-- ============================================== -->
     <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs"
          x-data="tabulatorTransaksiFullTable({
-             tableData: @js($tableData)
+             tableData: @js($tableData),
+             metodeList: @js($metodeList->map(fn($m) => ['id' => $m->id, 'nama' => $m->nama]))
          })"
          x-init="initTable()"
          wire:ignore>
@@ -625,22 +626,22 @@
                                                     @endif
                                                 </div>
 
-                                                <!-- Baris 2: Kuantitas, Biaya, Modal (Urutan Baru) -->
+                                                <!-- Baris 2: Kuantitas, Biaya, Modal, Pajak (Sederet) -->
                                                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1 border-t border-gray-100">
                                                     <!-- 1. Kuantitas -->
-                                                    <div class="sm:col-span-3">
+                                                    <div class="sm:col-span-2">
                                                         <label class="block font-bold text-gray-700 mb-1 text-[10px]">Kuantitas <span class="text-rose-500 font-bold">*</span></label>
                                                         <input type="number"
                                                                min="1"
                                                                wire:model.live.debounce.250ms="items.{{ $idx }}.qty"
-                                                               class="w-full px-3 py-1.5 rounded-lg border border-gray-300 font-mono font-bold text-center text-gray-900 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                                               class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 font-mono font-bold text-center text-gray-900 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                                         @error("items.{$idx}.qty")
                                                             <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
                                                         @enderror
                                                     </div>
 
                                                     <!-- 2. Biaya (Harga Jual per Unit) -->
-                                                    <div class="sm:col-span-5"
+                                                    <div class="sm:col-span-4"
                                                          x-data="{
                                                              raw: @entangle('items.' . $idx . '.harga_jual').live,
                                                              get formatted() {
@@ -661,7 +662,7 @@
                                                                    inputmode="numeric"
                                                                    :value="formatted"
                                                                    @input="update($event)"
-                                                                   class="w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-purple-300 bg-purple-50/40 font-mono font-black text-[#5E17EB] text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                                                   class="w-full pl-8 pr-2 py-1.5 rounded-lg border border-purple-300 bg-purple-50/40 font-mono font-black text-[#5E17EB] text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                                         </div>
                                                         @error("items.{$idx}.harga_jual")
                                                             <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
@@ -669,7 +670,7 @@
                                                     </div>
 
                                                     <!-- 3. Modal (HPP per Unit) -->
-                                                    <div class="sm:col-span-4"
+                                                    <div class="sm:col-span-3"
                                                          x-data="{
                                                              raw: @entangle('items.' . $idx . '.harga_modal').live,
                                                              get formatted() {
@@ -690,11 +691,27 @@
                                                                    inputmode="numeric"
                                                                    :value="formatted"
                                                                    @input="update($event)"
-                                                                   class="w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50/40 font-mono font-bold text-amber-900 text-xs focus:ring-2 focus:ring-amber-200 focus:border-amber-500">
+                                                                   class="w-full pl-8 pr-2 py-1.5 rounded-lg border border-amber-300 bg-amber-50/40 font-mono font-bold text-amber-900 text-xs focus:ring-2 focus:ring-amber-200 focus:border-amber-500">
                                                         </div>
                                                         @error("items.{$idx}.harga_modal")
                                                             <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
                                                         @enderror
+                                                    </div>
+
+                                                    <!-- 4. Pajak -->
+                                                    <div class="sm:col-span-3">
+                                                        <label class="block font-bold text-gray-700 mb-1 text-[10px]">Pajak</label>
+                                                        <select wire:model.live="formPpnId"
+                                                                class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 bg-white font-bold text-gray-900 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
+                                                            @if(!$ppnList->contains(fn($p) => (float)$p->persen == 0))
+                                                                <option value="">Tanpa PPN</option>
+                                                            @endif
+                                                            @foreach($ppnList as $p)
+                                                                <option value="{{ $p->id }}">
+                                                                    {{ (float)$p->persen > 0 ? $p->nama . ' (' . $p->persen . '%)' : $p->nama }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -717,159 +734,162 @@
                                 </div>
                             </div>
 
-                            <!-- Section 4: Pembayaran, Pajak, Status & Pegawai -->
+                            <!-- Section 4: Pembayaran, Status & Pegawai -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3.5">
-                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">4. Pembayaran, Pajak, Status &amp; Pegawai</span>
+                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">4. Pembayaran, Status &amp; Pegawai</span>
 
-                                <div class="space-y-3">
-                                    <!-- Baris 1: Status Transaksi & Pajak PPN -->
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <!-- 1. Status Transaksi -->
-                                        <div>
-                                            <label class="block font-bold text-gray-700 mb-1">Status  <span class="text-rose-500 font-bold">*</span></label>
-                                            <select wire:model="formStatus"
-                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
-                                                <option value="Lunas">Lunas</option>
-                                                <option value="BON">BON</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- 2. Pajak Master PPN -->
-                                        <div>
-                                            <label class="block font-bold text-gray-700 mb-1">Pajak PPN</label>
-                                            <select wire:model.live="formPpnId"
-                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
-                                                @if(!$ppnList->contains(fn($p) => (float)$p->persen == 0))
-                                                    <option value="">Tanpa PPN</option>
-                                                @endif
-                                                @foreach($ppnList as $p)
-                                                    <option value="{{ $p->id }}">
-                                                        {{ (float)$p->persen > 0 ? $p->nama . ' (' . $p->persen . '%)' : $p->nama }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <!-- 1. Status Transaksi -->
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Status  <span class="text-rose-500 font-bold">*</span></label>
+                                        <select wire:model="formStatus"
+                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
+                                            <option value="Lunas">Lunas</option>
+                                            <option value="BON">BON</option>
+                                        </select>
                                     </div>
 
-                                    <!-- Baris 2: Metode Pembayaran & Pegawai (Baris Baru) -->
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-gray-200/60">
-                                        <!-- 3. Metode Pembayaran -->
-                                        <div>
-                                            <label class="block font-bold text-gray-700 mb-1">Metode Pembayaran <span class="text-rose-500 font-bold">*</span></label>
-                                            <select wire:model.live="formMetodePembayaranId"
-                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
-                                                <option value="">-- Pilih Metode --</option>
-                                                @foreach($metodeList as $m)
-                                                    <option value="{{ $m->id }}">{{ $m->nama }}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('formMetodePembayaran') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
-                                        </div>
+                                    <!-- 2. Metode Pembayaran -->
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Metode Pembayaran <span class="text-rose-500 font-bold">*</span></label>
+                                        <select wire:model.live="formMetodePembayaranId"
+                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
+                                            <option value="">-- Pilih Metode --</option>
+                                            @foreach($metodeList as $m)
+                                                <option value="{{ $m->id }}">{{ $m->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('formMetodePembayaran') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                    </div>
 
-                                        <!-- 4. Pegawai / Petugas (Custom Dropdown UI) -->
-                                        <div x-data="{
-                                            open: false,
-                                            search: '',
-                                            selectedId: @entangle('formUserId').live,
-                                            users: @js($pegawaiList->map(fn($u) => [
-                                                'id' => $u->id,
-                                                'name' => $u->name,
-                                                'role' => $u->roles->first()?->name ?? 'Staf'
-                                            ])),
-                                            get selectedUser() {
-                                                return this.users.find(u => u.id == this.selectedId) || this.users[0] || { name: 'Pilih Pegawai', role: '' };
-                                            },
-                                            get filteredUsers() {
-                                                if (!this.search.trim()) return this.users;
-                                                const q = this.search.toLowerCase();
-                                                return this.users.filter(u => u.name.toLowerCase().includes(q) || u.role.toLowerCase().includes(q));
-                                            },
-                                            select(id) {
-                                                this.selectedId = id;
-                                                this.open = false;
-                                                this.search = '';
-                                            }
-                                        }" class="relative" @click.outside="open = false; search = ''">
-                                            <label class="block font-bold text-gray-700 mb-1">Pegawai <span class="text-rose-500 font-bold">*</span></label>
+                                    <!-- 3. Pegawai / Petugas (Custom Dropdown UI) -->
+                                    <div x-data="{
+                                        open: false,
+                                        search: '',
+                                        selectedId: @entangle('formUserId').live,
+                                        users: @js($pegawaiList->map(fn($u) => [
+                                            'id' => $u->id,
+                                            'name' => $u->name,
+                                            'role' => $u->roles->first()?->name ?? 'Staf'
+                                        ])),
+                                        get selectedUser() {
+                                            return this.users.find(u => u.id == this.selectedId) || { id: null, name: 'Tanpa Pegawai', role: '-' };
+                                        },
+                                        get filteredUsers() {
+                                            if (!this.search.trim()) return this.users;
+                                            const q = this.search.toLowerCase();
+                                            return this.users.filter(u => u.name.toLowerCase().includes(q) || u.role.toLowerCase().includes(q));
+                                        },
+                                        select(id) {
+                                            this.selectedId = id;
+                                            this.open = false;
+                                            this.search = '';
+                                        }
+                                    }" class="relative" @click.outside="open = false; search = ''">
+                                        <label class="block font-bold text-gray-700 mb-1">Pegawai</label>
 
-                                            <!-- Trigger Button -->
-                                            <button type="button"
-                                                    @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
-                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-xs flex items-center justify-between gap-2 shadow-2xs hover:border-[#5E17EB] focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer text-left">
-                                                <div class="flex items-center gap-2 min-w-0">
-                                                    <div class="w-6 h-6 rounded-lg bg-purple-100 text-[#5E17EB] flex items-center justify-center font-black text-[10px] shrink-0">
-                                                        <span x-text="selectedUser.name ? selectedUser.name.charAt(0).toUpperCase() : 'P'"></span>
-                                                    </div>
-                                                    <div class="min-w-0 truncate">
-                                                        <span class="block truncate text-gray-900 text-xs font-bold" x-text="selectedUser.name"></span>
-                                                    </div>
+                                        <!-- Trigger Button -->
+                                        <button type="button"
+                                                @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
+                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-xs flex items-center justify-between gap-2 shadow-2xs hover:border-[#5E17EB] focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer text-left">
+                                            <div class="flex items-center gap-2 min-w-0">
+                                                <div class="w-6 h-6 rounded-lg flex items-center justify-center font-black text-[10px] shrink-0"
+                                                     :class="selectedUser.id ? 'bg-purple-100 text-[#5E17EB]' : 'bg-gray-100 text-gray-500'">
+                                                    <span x-text="selectedUser.id ? selectedUser.name.charAt(0).toUpperCase() : '-'"></span>
                                                 </div>
-                                                <div class="flex items-center gap-1.5 shrink-0">
-                                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-purple-50 text-[#5E17EB] border border-purple-100"
-                                                          x-text="selectedUser.role"></span>
-                                                    <svg class="w-4 h-4 text-gray-400 transition-transform" :class="open ? 'rotate-180 text-[#5E17EB]' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                <div class="min-w-0 truncate">
+                                                    <span class="block truncate text-xs font-bold" :class="selectedUser.id ? 'text-gray-900' : 'text-gray-500'" x-text="selectedUser.name"></span>
                                                 </div>
-                                            </button>
+                                            </div>
+                                            <div class="flex items-center gap-1.5 shrink-0">
+                                                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider"
+                                                      :class="selectedUser.id ? 'bg-purple-50 text-[#5E17EB] border border-purple-100' : 'bg-gray-100 text-gray-500 border border-gray-200'"
+                                                      x-text="selectedUser.role"></span>
+                                                <svg class="w-4 h-4 text-gray-400 transition-transform" :class="open ? 'rotate-180 text-[#5E17EB]' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                            </div>
+                                        </button>
 
-                                            <!-- Custom Dropdown Menu -->
-                                            <div x-show="open"
-                                                 x-transition:enter="transition ease-out duration-100"
-                                                 x-transition:enter-start="transform opacity-0 scale-95"
-                                                 x-transition:enter-end="transform opacity-100 scale-100"
-                                                 x-transition:leave="transition ease-in duration-75"
-                                                 x-transition:leave-start="transform opacity-100 scale-100"
-                                                 x-transition:leave-end="transform opacity-0 scale-95"
-                                                 class="absolute z-40 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-60 overflow-y-auto custom-scrollbar"
-                                                 style="display: none;">
+                                        <!-- Custom Dropdown Menu -->
+                                        <div x-show="open"
+                                             x-transition:enter="transition ease-out duration-100"
+                                             x-transition:enter-start="transform opacity-0 scale-95"
+                                             x-transition:enter-end="transform opacity-100 scale-100"
+                                             x-transition:leave="transition ease-in duration-75"
+                                             x-transition:leave-start="transform opacity-100 scale-100"
+                                             x-transition:leave-end="transform opacity-0 scale-95"
+                                             class="absolute z-40 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-60 overflow-y-auto custom-scrollbar"
+                                             style="display: none;">
 
-                                                <!-- Search Box (Zero Placeholder) -->
-                                                <div class="p-2 border-b border-gray-100 bg-gray-50/80 sticky top-0 z-10">
-                                                    <div class="relative">
-                                                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-gray-400">
-                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                                        </span>
-                                                        <input type="text"
-                                                               x-model="search"
-                                                               x-ref="searchInput"
-                                                               @keydown.escape="open = false; search = ''"
-                                                               class="w-full pl-8 pr-2.5 py-1 rounded-lg border border-gray-200 bg-white font-semibold text-gray-900 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"
-                                                               aria-label="Cari Pegawai">
-                                                    </div>
+                                            <!-- Search Box (Zero Placeholder) -->
+                                            <div class="p-2 border-b border-gray-100 bg-gray-50/80 sticky top-0 z-10">
+                                                <div class="relative">
+                                                    <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-gray-400">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                                    </span>
+                                                    <input type="text"
+                                                           x-model="search"
+                                                           x-ref="searchInput"
+                                                           @keydown.escape="open = false; search = ''"
+                                                           class="w-full pl-8 pr-2.5 py-1 rounded-lg border border-gray-200 bg-white font-semibold text-gray-900 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"
+                                                           aria-label="Cari Pegawai">
                                                 </div>
+                                            </div>
 
-                                                <!-- User List -->
-                                                <div class="divide-y divide-gray-100">
-                                                    <template x-for="user in filteredUsers" :key="user.id">
-                                                        <button type="button"
-                                                                @click="select(user.id)"
-                                                                class="w-full px-3 py-2.5 text-left flex items-center justify-between gap-2 hover:bg-purple-50/70 transition-colors cursor-pointer"
-                                                                :class="user.id == selectedId ? 'bg-purple-50 text-[#5E17EB]' : 'text-gray-800'">
-                                                            <div class="flex items-center gap-2.5 min-w-0">
-                                                                <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
-                                                                     :class="user.id == selectedId ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-100 text-gray-700'">
-                                                                    <span x-text="user.name.charAt(0).toUpperCase()"></span>
-                                                                </div>
-                                                                <div class="min-w-0">
-                                                                    <span class="block truncate font-bold text-xs" :class="user.id == selectedId ? 'text-[#5E17EB]' : 'text-gray-900'" x-text="user.name"></span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="flex items-center gap-1.5 shrink-0">
-                                                                <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
-                                                                      :class="user.id == selectedId ? 'bg-purple-200/80 text-purple-950 font-black' : 'bg-gray-100 text-gray-600'"
-                                                                      x-text="user.role"></span>
-                                                                <template x-if="user.id == selectedId">
-                                                                    <svg class="w-4 h-4 text-[#5E17EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                                                </template>
-                                                            </div>
-                                                        </button>
-                                                    </template>
-
-                                                    <template x-if="filteredUsers.length === 0">
-                                                        <div class="p-3 text-center text-xs text-gray-400 font-medium">
-                                                            Pegawai tidak ditemukan
+                                            <!-- User List -->
+                                            <div class="divide-y divide-gray-100">
+                                                <!-- Opsi Tanpa Pegawai / Kosong -->
+                                                <button type="button"
+                                                        @click="select(null)"
+                                                        class="w-full px-3 py-2.5 text-left flex items-center justify-between gap-2 hover:bg-purple-50/70 transition-colors cursor-pointer"
+                                                        :class="!selectedId ? 'bg-purple-50 text-[#5E17EB]' : 'text-gray-800'">
+                                                    <div class="flex items-center gap-2.5 min-w-0">
+                                                        <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
+                                                             :class="!selectedId ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-100 text-gray-500'">
+                                                            -
                                                         </div>
-                                                    </template>
-                                                </div>
+                                                        <div class="min-w-0">
+                                                            <span class="block truncate font-bold text-xs" :class="!selectedId ? 'text-[#5E17EB]' : 'text-gray-700'">Tanpa Pegawai</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center gap-1.5 shrink-0">
+                                                        <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
+                                                              :class="!selectedId ? 'bg-purple-200/80 text-purple-950 font-black' : 'bg-gray-100 text-gray-500'">-</span>
+                                                        <template x-if="!selectedId">
+                                                            <svg class="w-4 h-4 text-[#5E17EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                        </template>
+                                                    </div>
+                                                </button>
+
+                                                <template x-for="user in filteredUsers" :key="user.id">
+                                                    <button type="button"
+                                                            @click="select(user.id)"
+                                                            class="w-full px-3 py-2.5 text-left flex items-center justify-between gap-2 hover:bg-purple-50/70 transition-colors cursor-pointer"
+                                                            :class="user.id == selectedId ? 'bg-purple-50 text-[#5E17EB]' : 'text-gray-800'">
+                                                        <div class="flex items-center gap-2.5 min-w-0">
+                                                            <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
+                                                                 :class="user.id == selectedId ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-100 text-gray-700'">
+                                                                <span x-text="user.name.charAt(0).toUpperCase()"></span>
+                                                            </div>
+                                                            <div class="min-w-0">
+                                                                <span class="block truncate font-bold text-xs" :class="user.id == selectedId ? 'text-[#5E17EB]' : 'text-gray-900'" x-text="user.name"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center gap-1.5 shrink-0">
+                                                            <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
+                                                                  :class="user.id == selectedId ? 'bg-purple-200/80 text-purple-950 font-black' : 'bg-gray-100 text-gray-600'"
+                                                                  x-text="user.role"></span>
+                                                            <template x-if="user.id == selectedId">
+                                                                <svg class="w-4 h-4 text-[#5E17EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                            </template>
+                                                        </div>
+                                                    </button>
+                                                </template>
+
+                                                <template x-if="filteredUsers.length === 0">
+                                                    <div class="p-3 text-center text-xs text-gray-400 font-medium">
+                                                        Pegawai tidak ditemukan
+                                                    </div>
+                                                </template>
                                             </div>
                                         </div>
                                     </div>
@@ -960,8 +980,8 @@
                                 <span class="font-bold text-gray-900 block mt-0.5">{{ $selectedTransaksi->tanggal ? $selectedTransaksi->tanggal->format('d/m/Y H:i') : '-' }}</span>
                             </div>
                             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <span class="text-[10px] font-bold text-gray-900 uppercase block">Petugas</span>
-                                <span class="font-bold text-gray-900 block mt-0.5">{{ $selectedTransaksi->user?->name ?? 'Kasir' }}</span>
+                                <span class="text-[10px] font-bold text-gray-900 uppercase block">Pegawai</span>
+                                <span class="font-bold text-gray-900 block mt-0.5">{{ $selectedTransaksi->user?->name ?? '-' }}</span>
                             </div>
                         </div>
 
@@ -1175,38 +1195,33 @@ window.tabulatorTransaksiFullTable = function(config) {
                 columns: [
                     { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 30, minWidth: 30, maxWidth: 30, resizable: false },
                     {
-                        title: "No. Transaksi",
-                        field: "no_transaksi",
-                        width: 145,
-                        minWidth: 130,
+                        title: "Transaksi",
+                        field: "tipe_transaksi",
+                        width: 130,
+                        minWidth: 115,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
                         formatter: (cell) => {
                             const d = cell.getData();
                             const isServis = d.tipe_transaksi === 'servis';
+                            const badgeColor = isServis
+                                ? 'bg-amber-100 text-amber-800 border border-amber-200 font-black'
+                                : 'bg-purple-100 text-[#5E17EB] border border-purple-200 font-black';
                             return `
                                 <div class="leading-tight py-0.5">
-                                    <span class="font-mono font-black text-[#0052FF] block leading-tight text-[10.5px] truncate">${cell.getValue()}</span>
-                                    <div class="flex items-center gap-1 mt-0.5">
-                                        <span class="inline-block px-1.5 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider ${isServis ? 'bg-purple-100 text-[#5E17EB]' : 'bg-blue-100 text-[#0052FF]'}">
+                                    <div class="mb-1">
+                                        <span class="inline-block px-2 py-0.5 rounded text-[8.5px] uppercase tracking-wider ${badgeColor}">
                                             ${d.tipe_transaksi}
                                         </span>
-                                        {{-- Sembunyikan badge pegawai di tabel (tersedia di modal detail) --}}
-                                        {{-- <span class="inline-block px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">${d.petugas}</span> --}}
+                                    </div>
+                                    <div class="flex items-center gap-1.5 text-[9.5px] text-gray-500 font-semibold">
+                                        <span class="truncate font-bold text-gray-700">${d.petugas}</span>
+                                        <span class="text-gray-300 font-bold">&bull;</span>
+                                        <span class="font-mono text-gray-600 font-bold shrink-0">${d.jam}</span>
                                     </div>
                                 </div>
                             `;
                         }
-                    },
-                    {
-                        title: "Waktu",
-                        field: "waktu",
-                        width: 100,
-                        hozAlign: "center",
-                        sorter: "string",
-                        headerFilter: "input",
-                        headerFilterPlaceholder: "",
-                        formatter: (cell) => `<span class="font-bold text-slate-600 font-mono text-[10.5px]">${cell.getValue()}</span>`
                     },
                     {
                         title: "Pelanggan",
@@ -1215,18 +1230,10 @@ window.tabulatorTransaksiFullTable = function(config) {
                         minWidth: 110,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
-                        formatter: (cell) => {
-                            const d = cell.getData();
-                            return `
-                                <div class="leading-tight py-0.5">
-                                    <span class="font-black text-slate-900 block truncate text-[10.5px]" title="${cell.getValue()}">${cell.getValue()}</span>
-                                    <span class="text-[9.5px] font-mono text-emerald-700 font-bold block truncate mt-0.5">${d.no_hp}</span>
-                                </div>
-                            `;
-                        }
+                        formatter: (cell) => `<span class="font-bold text-gray-900 block truncate text-[11px]" title="${cell.getValue()}">${cell.getValue()}</span>`
                     },
                     {
-                        title: "Rincian Item",
+                        title: "Item",
                         field: "rincian_item",
                         widthGrow: 2,
                         minWidth: 140,
@@ -1246,29 +1253,22 @@ window.tabulatorTransaksiFullTable = function(config) {
                             } else {
                                 itemsHtml = `<span class="text-[10px] text-gray-400 italic">Tanpa item</span>`;
                             }
-                            return `
-                                <div class="py-1">
-                                    <div class="space-y-0.5">${itemsHtml}</div>
-                                    <div class="mt-1 pt-1 border-t border-gray-100 flex items-center justify-between">
-                                        <span class="text-[9px] text-purple-800 font-semibold">Metode: <strong class="text-purple-950 font-black">${d.metode_pembayaran}</strong></span>
-                                    </div>
-                                </div>
-                            `;
+                            return `<div class="py-0.5 space-y-0.5">${itemsHtml}</div>`;
                         }
                     },
                     {
-                        title: "Modal (HPP)",
-                        field: "total_modal",
-                        hozAlign: "right",
-                        width: 95,
-                        formatter: (cell) => `<span class="font-mono font-bold text-amber-800 text-[10.5px]">${this.formatRupiah(cell.getValue())}</span>`
-                    },
-                    {
-                        title: "Total Jual",
+                        title: "Biaya",
                         field: "grand_total",
                         hozAlign: "right",
                         width: 100,
-                        formatter: (cell) => `<span class="font-mono font-black text-slate-900 text-[10.5px]">${this.formatRupiah(cell.getValue())}</span>`
+                        formatter: (cell) => `<span class="font-mono font-black text-[#5E17EB] text-[11px]">${this.formatRupiah(cell.getValue())}</span>`
+                    },
+                    {
+                        title: "Modal",
+                        field: "total_modal",
+                        hozAlign: "right",
+                        width: 95,
+                        formatter: (cell) => `<span class="font-mono font-bold text-amber-600 text-[11px]">${this.formatRupiah(cell.getValue())}</span>`
                     },
                     {
                         title: "Laba",
@@ -1277,13 +1277,27 @@ window.tabulatorTransaksiFullTable = function(config) {
                         width: 100,
                         formatter: (cell) => {
                             const val = Number(cell.getValue() || 0);
-                            return `<span class="font-mono font-black text-[10.5px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
+                            return `<span class="font-mono font-black text-[11px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
+                        }
+                    },
+                    {
+                        title: "Pajak",
+                        field: "has_ppn",
+                        width: 85,
+                        hozAlign: "center",
+                        formatter: (cell) => {
+                            const d = cell.getData();
+                            if (d.has_ppn) {
+                                return `<span class="inline-block px-2 py-0.5 rounded text-[9px] font-black bg-blue-50 text-[#0052FF] border border-blue-200 uppercase tracking-wider">PPN</span>`;
+                            } else {
+                                return `<span class="inline-block px-2 py-0.5 rounded text-[9px] font-black bg-pink-50 text-pink-700 border border-pink-200 uppercase tracking-wider">Non PPN</span>`;
+                            }
                         }
                     },
                     {
                         title: "Status",
                         field: "status",
-                        width: 105,
+                        width: 100,
                         hozAlign: "center",
                         headerFilter: "list",
                         headerFilterParams: { values: ["Lunas", "BON"], clearable: true },
@@ -1301,18 +1315,39 @@ window.tabulatorTransaksiFullTable = function(config) {
                             `;
                         }
                     },
-                    /*
-                    // Kolom Keterangan di-hide (tersedia di modal detail)
                     {
-                        title: "Keterangan",
-                        field: "keterangan",
-                        widthGrow: 1,
-                        minWidth: 90,
-                        headerFilter: "input",
-                        headerFilterPlaceholder: "",
-                        formatter: (cell) => `<span class="text-slate-600 font-medium text-[10px] truncate block leading-tight" title="${cell.getValue()}">${cell.getValue()}</span>`
+                        title: "Metode",
+                        field: "metode_pembayaran",
+                        width: 115,
+                        hozAlign: "center",
+                        formatter: (cell) => {
+                            const d = cell.getData();
+                            const val = (d.metode_pembayaran || '').trim();
+                            const currentId = d.metode_pembayaran_id;
+                            const id = d.id;
+                            const isCash = val.toLowerCase().includes('cash') || val.toLowerCase().includes('tunai');
+                            const isEmpty = !val || val === '-' || val.toLowerCase() === 'tanpa metode';
+
+                            let colorStyle = 'bg-blue-50 text-[#0052FF] border-blue-300';
+                            if (isCash) {
+                                colorStyle = 'bg-pink-50 text-pink-700 border-pink-300';
+                            } else if (isEmpty) {
+                                colorStyle = 'bg-gray-100 text-gray-500 border-gray-300';
+                            }
+
+                            const options = (config.metodeList || []).map(m => {
+                                const selected = (currentId && m.id == currentId) || (m.nama.toLowerCase() === val.toLowerCase()) ? 'selected' : '';
+                                return `<option value="${m.id}" ${selected}>${m.nama}</option>`;
+                            }).join('');
+
+                            return `
+                                <select class="py-0.5 px-1.5 rounded text-[9.5px] font-bold border transition-all cursor-pointer focus:ring-1 focus:ring-purple-200 ${colorStyle}"
+                                        onchange="window.updateMetodeFullDirect(${id}, parseInt(this.value, 10))">
+                                    ${options}
+                                </select>
+                            `;
+                        }
                     },
-                    */
                     {
                         title: "Aksi",
                         field: "id",
@@ -1404,6 +1439,9 @@ window.deleteTransaksiFullConfirm = (id, noTrx) => {
 };
 window.updateStatusFullDirect = (id, status) => {
     if (window.activeTransaksiFullWire) window.activeTransaksiFullWire.updateStatusDirect(id, status);
+};
+window.updateMetodeFullDirect = (id, metodeId) => {
+    if (window.activeTransaksiFullWire) window.activeTransaksiFullWire.updateMetodeDirect(id, metodeId);
 };
 </script>
 @endpush

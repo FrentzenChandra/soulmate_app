@@ -282,4 +282,96 @@ class TransaksiFullTest extends TestCase
             'kategori_perangkat' => 'laptop',
         ]);
     }
+
+    public function test_can_create_and_edit_transaksi_with_null_pegawai()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        $metode = MetodePembayaran::first();
+
+        // 1. Create with formUserId = null
+        Livewire::test(TransaksiFull::class)
+            ->call('openCreateModal')
+            ->set('formNamaPelanggan', 'Pelanggan Tanpa Pegawai')
+            ->set('formUserId', null)
+            ->set('formTipeTransaksi', 'penjualan')
+            ->set('formStatus', 'Lunas')
+            ->set('formMetodePembayaranId', $metode->id)
+            ->set('formMetodePembayaran', $metode->nama)
+            ->set('items.0.nama_item', 'Mouse Wireless')
+            ->set('items.0.qty', 1)
+            ->set('items.0.harga_modal', 50000)
+            ->set('items.0.harga_jual', 75000)
+            ->call('recalculateRow', 0)
+            ->call('simpanTransaksi')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('transaksi_fulls', [
+            'nama_pelanggan' => 'Pelanggan Tanpa Pegawai',
+            'user_id' => null,
+        ]);
+
+        $trx = TransaksiFullModel::where('nama_pelanggan', 'Pelanggan Tanpa Pegawai')->first();
+        $this->assertNull($trx->user_id);
+
+        // 2. Open edit modal and ensure formUserId remains null
+        Livewire::test(TransaksiFull::class)
+            ->call('openEditModal', $trx->id)
+            ->assertSet('formUserId', null)
+            ->set('formNamaPelanggan', 'Pelanggan Tanpa Pegawai Updated')
+            ->call('simpanTransaksi')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('transaksi_fulls', [
+            'id' => $trx->id,
+            'nama_pelanggan' => 'Pelanggan Tanpa Pegawai Updated',
+            'user_id' => null,
+        ]);
+    }
+
+    public function test_inline_metode_pembayaran_direct_update()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        $metodeCash = MetodePembayaran::create([
+            'nama' => 'Cash Tunai',
+            'cabang_id' => $superadmin->cabang_id,
+            'is_aktif' => true,
+        ]);
+        $metodeTransfer = MetodePembayaran::create([
+            'nama' => 'Transfer BCA',
+            'cabang_id' => $superadmin->cabang_id,
+            'is_aktif' => true,
+        ]);
+
+        $transaksi = TransaksiFullModel::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'no_transaksi' => 'INV-PJ-DUMMY-001',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => now(),
+            'user_id' => $superadmin->id,
+            'nama_pelanggan' => 'Test Inline Metode',
+            'metode_pembayaran_id' => $metodeCash->id,
+            'metode_pembayaran' => $metodeCash->nama,
+            'grand_total' => 100000,
+            'total_modal' => 80000,
+            'total_laba' => 20000,
+            'status' => 'Lunas',
+        ]);
+
+        Livewire::test(TransaksiFull::class)
+            ->call('updateMetodeDirect', $transaksi->id, $metodeTransfer->id);
+
+        $this->assertEquals($metodeTransfer->id, $transaksi->fresh()->metode_pembayaran_id);
+        $this->assertEquals($metodeTransfer->nama, $transaksi->fresh()->metode_pembayaran);
+
+        // Nullify metode
+        Livewire::test(TransaksiFull::class)
+            ->call('updateMetodeDirect', $transaksi->id, null);
+
+        $this->assertNull($transaksi->fresh()->metode_pembayaran_id);
+        $this->assertEquals('-', $transaksi->fresh()->metode_pembayaran);
+    }
 }

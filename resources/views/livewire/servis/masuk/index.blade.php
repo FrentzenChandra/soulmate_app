@@ -4,8 +4,8 @@
             .listen('.ServisStatusUpdated', () => { $wire.$refresh(); })
             .listen('ServisStatusUpdated', () => { $wire.$refresh(); });
     }
-" x-on:open-print-receipt.window="window.open($event.detail.url, '_blank')"
-  x-on:open-print-invoice.window="window.open($event.detail.url, '_blank')"
+" x-on:open-print-receipt.window="window.location.href = $event.detail.url"
+  x-on:open-print-invoice.window="window.location.href = $event.detail.url"
   class="space-y-6">
 
     <!-- ============================================== -->
@@ -137,7 +137,7 @@
             </div>
 
             <!-- Filter Tipe Transaksi: Real vs Non-Real -->
-            <div class="md:col-span-2">
+            <div class="md:col-span-2 hidden">
                 <select wire:model.live="tipeFilter"
                         class="w-full py-2.5 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all cursor-pointer">
                     <option value="semua">Semua Tipe</option>
@@ -366,7 +366,6 @@
 
                                     <!-- Aksi 4: Cetak Tanda Terima Masuk -->
                                     <a href="{{ route('servis.tanda-terima', $item->id) }}"
-                                       target="_blank"
                                        class="p-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#5E17EB] transition-colors cursor-pointer"
                                        title="Cetak Tanda Terima Servis">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -681,7 +680,6 @@
 
                     <div class="pt-2 flex flex-col sm:flex-row gap-2">
                         <a href="{{ route('servis.tanda-terima', $lastCreatedServis->id) }}"
-                           target="_blank"
                            class="flex-1 py-3 px-4 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-bold text-xs text-center shadow-md shadow-purple-600/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                             <span>Cetak Tanda Terima</span>
@@ -837,7 +835,6 @@
                     <div class="bg-gray-50 px-6 py-4 flex flex-wrap items-center justify-between gap-2 rounded-b-3xl border-t border-gray-100">
                         <div class="flex items-center space-x-2">
                             <a href="{{ route('servis.tanda-terima', $selectedServis->id) }}"
-                               target="_blank"
                                class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-xs font-bold text-white transition-all cursor-pointer shadow-xs">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                 <span>Tanda Terima</span>

@@ -544,7 +544,6 @@
 
                                     <!-- Tombol Cetak Struk -->
                                     <a href="{{ route('kasir.produk.invoice', $pj->id) }}"
-                                       target="_blank"
                                        class="p-2 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
                                        title="Cetak Struk Thermal">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -771,7 +770,6 @@
                         </button>
 
                         <a href="{{ route('kasir.produk.invoice', $selectedPenjualan->id) }}"
-                           target="_blank"
                            class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#0052FF] hover:bg-blue-700 text-xs font-bold text-white transition-all shadow-md shadow-blue-600/20 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                             <span>Cetak Struk Thermal</span>

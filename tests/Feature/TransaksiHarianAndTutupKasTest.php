@@ -114,4 +114,36 @@ class TransaksiHarianAndTutupKasTest extends TestCase
             ->set('filterDate', '2026-09-01')
             ->assertSet('filterDate', '2026-09-01');
     }
+
+    public function test_admin_can_inline_update_metode_transaksi_harian()
+    {
+        $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
+        $this->actingAs($admin);
+
+        $metode = MetodePembayaran::create([
+            'nama' => 'QRIS BCA',
+            'cabang_id' => $admin->cabang_id,
+            'is_aktif' => true,
+        ]);
+
+        $transaksi = TransaksiFullModel::create([
+            'cabang_id' => $admin->cabang_id,
+            'user_id' => $admin->id,
+            'nama_pelanggan' => 'Client Harian Metode',
+            'no_transaksi' => 'INV-PJ-CBPKP-260922-00006',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => now()->toDateString(),
+            'total_modal' => 10000,
+            'total_jual' => 20000,
+            'total_laba' => 10000,
+            'grand_total' => 20000,
+            'status' => 'Lunas',
+        ]);
+
+        Livewire::test(TransaksiHarian::class)
+            ->call('updateMetodeDirect', $transaksi->id, $metode->id);
+
+        $this->assertEquals($metode->id, $transaksi->fresh()->metode_pembayaran_id);
+        $this->assertEquals('QRIS BCA', $transaksi->fresh()->metode_pembayaran);
+    }
 }

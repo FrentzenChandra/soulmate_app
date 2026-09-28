@@ -54,7 +54,7 @@ class Harian extends Component
     public string $formCustomerType = 'umum';
     public ?int $formCustomerId = null;
     public string $formCustomerSearch = '';
-    public string $formNamaPelanggan = 'KONSUMEN';
+    public string $formNamaPelanggan = 'Konsumen';
     public string $formNoHp = '';
     public ?int $formMetodePembayaranId = null;
     public string $formMetodePembayaran = 'Cash';
@@ -124,7 +124,7 @@ class Harian extends Component
         $this->formJam = now()->format('H:i');
         $this->formTipeTransaksi = 'penjualan';
         $this->formKategoriPerangkat = 'laptop';
-        $this->formNamaPelanggan = 'KONSUMEN';
+        $this->formNamaPelanggan = 'Konsumen';
         $this->formUserId = Auth::id();
         $this->generateDefaultNoTransaksi();
 
@@ -156,10 +156,10 @@ class Harian extends Component
         $this->formTanggal = $transaksi->tanggal ? $transaksi->tanggal->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i');
         $this->formTanggalOnly = $transaksi->tanggal ? $transaksi->tanggal->toDateString() : now()->toDateString();
         $this->formJam = $transaksi->tanggal ? $transaksi->tanggal->format('H:i') : now()->format('H:i');
-        $this->formUserId = $transaksi->user_id ?: Auth::id();
+        $this->formUserId = $transaksi->user_id;
         $this->formCustomerType = $transaksi->customer_id ? 'langganan' : 'umum';
         $this->formCustomerId = $transaksi->customer_id;
-        $this->formNamaPelanggan = $transaksi->nama_pelanggan ?: 'KONSUMEN';
+        $this->formNamaPelanggan = $transaksi->nama_pelanggan ?: 'Konsumen';
         $this->formNoHp = $transaksi->no_hp ?? '';
         $this->formMetodePembayaranId = $transaksi->metode_pembayaran_id;
         $this->formMetodePembayaran = $transaksi->metode_pembayaran;
@@ -209,7 +209,7 @@ class Harian extends Component
         $this->formCustomerType = 'umum';
         $this->formCustomerId = null;
         $this->formCustomerSearch = '';
-        $this->formNamaPelanggan = 'KONSUMEN';
+        $this->formNamaPelanggan = 'Konsumen';
         $this->formNoHp = '';
         $this->formMetodePembayaranId = null;
         $this->formMetodePembayaran = 'Cash';
@@ -383,6 +383,7 @@ class Harian extends Component
             'formTipeTransaksi' => 'required|in:penjualan,servis',
             'formKategoriPerangkat' => 'nullable|in:laptop,komputer,printer,lainnya',
             'formTanggal' => 'required|date',
+            'formUserId' => 'nullable|exists:users,id',
             'formNamaPelanggan' => 'required|string|max:150',
             'formMetodePembayaran' => 'required|string|max:50',
             'formStatus' => 'required|in:Lunas,BON',
@@ -439,11 +440,13 @@ class Harian extends Component
                 }
             }
 
+            $userId = $this->formUserId ? (int) $this->formUserId : null;
+
             $data = [
                 'cabang_id' => $cabangId,
-                'user_id' => $this->formUserId ?: Auth::id(),
+                'user_id' => $userId,
                 'customer_id' => $this->formCustomerType === 'langganan' ? $this->formCustomerId : null,
-                'nama_pelanggan' => trim($this->formNamaPelanggan) ?: 'KONSUMEN',
+                'nama_pelanggan' => trim($this->formNamaPelanggan) ?: 'Konsumen',
                 'no_hp' => trim($this->formNoHp) ?: null,
                 'no_transaksi' => trim($this->formNoTransaksi),
                 'tipe_transaksi' => $this->formTipeTransaksi,
@@ -514,6 +517,18 @@ class Harian extends Component
             }
             $transaksi->save();
             session()->flash('success', "Status transaksi {$transaksi->no_transaksi_frontend} diubah ke {$newStatus}.");
+        }
+    }
+
+    public function updateMetodeDirect(int $id, ?int $metodeId): void
+    {
+        $transaksi = TransaksiFull::find($id);
+        if ($transaksi) {
+            $metode = $metodeId ? MetodePembayaran::find($metodeId) : null;
+            $transaksi->metode_pembayaran_id = $metode?->id;
+            $transaksi->metode_pembayaran = $metode?->nama ?? '-';
+            $transaksi->save();
+            session()->flash('success', "Metode pembayaran transaksi {$transaksi->no_transaksi_frontend} berhasil diperbarui.");
         }
     }
 
@@ -697,8 +712,9 @@ class Harian extends Component
                 'no_transaksi' => $item->no_transaksi_frontend,
                 'tipe_transaksi' => $item->tipe_transaksi,
                 'waktu' => $item->tanggal ? $item->tanggal->format('d/m/Y H:i') : '-',
+                'jam' => $item->tanggal ? $item->tanggal->format('H:i') : '-',
                 'tanggal_group' => $item->tanggal ? $item->tanggal->translatedFormat('l, d F Y') : '-',
-                'petugas' => $item->user?->name ?? 'Kasir',
+                'petugas' => $item->user?->name ?? 'Tanpa Pegawai',
                 'pelanggan' => $item->nama_pelanggan,
                 'no_hp' => $item->no_hp ?: '-',
                 'items_list' => $item->details->map(fn($d) => [
@@ -706,10 +722,12 @@ class Harian extends Component
                     'nama' => $d->nama_item,
                 ])->values()->all(),
                 'rincian_item' => $item->details->map(fn($d) => $d->qty . 'x ' . $d->nama_item)->implode(', ') ?: 'Tanpa item',
-                'metode_pembayaran' => $item->metode_pembayaran,
+                'metode_pembayaran_id' => $item->metode_pembayaran_id,
+                'metode_pembayaran' => $item->metode_pembayaran ?: '-',
                 'total_modal' => (float) $item->total_modal,
                 'grand_total' => (float) $item->grand_total,
                 'total_laba' => (float) $item->total_laba,
+                'has_ppn' => ($item->ppn_persen > 0 || (float) $item->nominal_ppn > 0),
                 'status' => $item->status,
                 'keterangan' => $item->catatan ?: '-',
             ];

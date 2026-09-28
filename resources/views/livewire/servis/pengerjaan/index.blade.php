@@ -4,7 +4,7 @@
             .listen('.ServisStatusUpdated', () => { $wire.$refresh(); })
             .listen('ServisStatusUpdated', () => { $wire.$refresh(); });
     }
-" x-on:open-print-invoice.window="window.open($event.detail.url, '_blank')" class="space-y-6">
+" x-on:open-print-invoice.window="window.location.href = $event.detail.url" class="space-y-6">
 
     <!-- ============================================== -->
     <!-- HEADER HALAMAN & RINGKASAN                    -->
@@ -358,7 +358,6 @@
                                     @else
                                         <!-- Tombol Cetak Faktur Lunas -->
                                         <a href="{{ route('servis.invoice', $sv->id) }}"
-                                           target="_blank"
                                            title="Cetak Faktur Pelunasan"
                                            class="p-1 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition-all cursor-pointer">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>

@@ -469,7 +469,7 @@ Navigasi sistem dibagi menjadi **dua level konteks**:
   - **Modal Input Transaksi Baru Terstruktur**:
     - Input waktu transaksi fokus jam (`<input type="time">`) dengan badge tanggal aktif di header modal.
     - Seleksi tipe transaksi dinamis warna (Ungu untuk Penjualan, Kuning/Amber untuk Servis).
-    - Mode Pelanggan ringkas: Default `KONSUMEN`, input WhatsApp tersembunyi pada mode umum.
+    - Mode Pelanggan ringkas: Default `Konsumen`, input WhatsApp tersembunyi pada mode umum.
     - Baris Item penuh (Item full-width) dengan urutan kolom: Kuantitas, Biaya, Modal.
     - Baris Pembayaran & Pegawai terpisah rapi dengan custom dropdown Pegawai interaktif dan Pajak PPN bersih (`Tanpa PPN` tanpa persentase `(0%)`).
 - **Transaksi Harian (`/transaksi/harian` - Admin & Superadmin)**:
