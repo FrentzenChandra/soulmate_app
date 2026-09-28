@@ -479,7 +479,7 @@
                         <select wire:model.live="selectedPpnId"
                                 class="text-xs font-bold py-1 px-2.5 border border-gray-200 rounded-lg bg-white focus:ring-1 focus:ring-[#5E17EB]">
                             @foreach($masterPpns as $ppn)
-                                <option value="{{ $ppn->id }}">{{ $ppn->nama }} ({{ $ppn->persen }}%)</option>
+                                <option value="{{ $ppn->id }}">{{ $ppn->nama }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -817,7 +817,7 @@
                                     <select wire:model.live="selectedPpnId"
                                             class="text-xs font-bold py-1 px-2 border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-[#5E17EB]">
                                         @foreach($masterPpns as $ppn)
-                                            <option value="{{ $ppn->id }}">{{ $ppn->nama }} ({{ $ppn->persen }}%)</option>
+                                            <option value="{{ $ppn->id }}">{{ $ppn->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>

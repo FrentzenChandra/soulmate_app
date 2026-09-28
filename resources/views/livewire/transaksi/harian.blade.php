@@ -499,9 +499,7 @@
                                                                 <option value="">Tanpa PPN</option>
                                                             @endif
                                                             @foreach($ppnList as $p)
-                                                                <option value="{{ $p->id }}">
-                                                                    {{ (float)$p->persen > 0 ? $p->nama . ' (' . $p->persen . '%)' : $p->nama }}
-                                                                </option>
+                                                                <option value="{{ $p->id }}">{{ $p->nama }}</option>
                                                             @endforeach
                                                         </select>
                                                     </div>
