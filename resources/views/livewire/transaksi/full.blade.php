@@ -1267,17 +1267,11 @@ window.tabulatorTransaksiFullTable = function(config) {
                             if (items.length === 0) {
                                 return `<span class="font-mono font-black text-[#5E17EB] text-[11px]">${this.formatRupiah(d.grand_total)}</span>`;
                             }
-                            const isMulti = items.length > 1;
-                            let html = items.map(it => `
+                            const html = items.map(it => `
                                 <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold text-slate-800 font-mono">
                                     ${this.formatRupiah(it.subtotal_jual)}
                                 </div>
                             `).join('');
-                            if (isMulti) {
-                                html += `<div class="pt-1 border-t border-purple-100 text-[11px] font-black text-[#5E17EB] font-mono">${this.formatRupiah(d.grand_total)}</div>`;
-                            } else {
-                                html = `<div class="leading-tight py-0.5 text-[11px] font-black text-[#5E17EB] font-mono">${this.formatRupiah(d.grand_total)}</div>`;
-                            }
                             return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
                         }
                     },
@@ -1292,17 +1286,11 @@ window.tabulatorTransaksiFullTable = function(config) {
                             if (items.length === 0) {
                                 return `<span class="font-mono font-bold text-amber-600 text-[11px]">${this.formatRupiah(d.total_modal)}</span>`;
                             }
-                            const isMulti = items.length > 1;
-                            let html = items.map(it => `
+                            const html = items.map(it => `
                                 <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold text-amber-600 font-mono">
                                     ${this.formatRupiah(it.subtotal_modal)}
                                 </div>
                             `).join('');
-                            if (isMulti) {
-                                html += `<div class="pt-1 border-t border-amber-100 text-[11px] font-bold text-amber-700 font-mono">${this.formatRupiah(d.total_modal)}</div>`;
-                            } else {
-                                html = `<div class="leading-tight py-0.5 text-[11px] font-bold text-amber-600 font-mono">${this.formatRupiah(d.total_modal)}</div>`;
-                            }
                             return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
                         }
                     },
@@ -1318,18 +1306,11 @@ window.tabulatorTransaksiFullTable = function(config) {
                                 const val = Number(d.total_laba || 0);
                                 return `<span class="font-mono font-black text-[11px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
                             }
-                            const isMulti = items.length > 1;
-                            let html = items.map(it => `
+                            const html = items.map(it => `
                                 <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold font-mono ${it.laba >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
                                     ${this.formatRupiah(it.laba)}
                                 </div>
                             `).join('');
-                            const totalLabaVal = Number(d.total_laba || 0);
-                            if (isMulti) {
-                                html += `<div class="pt-1 border-t border-emerald-100 text-[11px] font-black font-mono ${totalLabaVal >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${this.formatRupiah(totalLabaVal)}</div>`;
-                            } else {
-                                html = `<div class="leading-tight py-0.5 text-[11px] font-black font-mono ${totalLabaVal >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(totalLabaVal)}</div>`;
-                            }
                             return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
                         }
                     },
