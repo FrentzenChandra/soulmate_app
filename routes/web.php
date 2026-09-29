@@ -151,8 +151,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/laporan/penjualan', LaporanPenjualanIndex::class)->name('laporan.penjualan');
     });
 
-    // Keuangan & Kas (Kas Keluar & Saldo: Owner, Superadmin, Bendahara)
-    Route::middleware('role:Owner|Superadmin|Bendahara')->group(function () {
+    // Keuangan & Kas (Kas Keluar & Saldo: Owner, Superadmin, Admin, Bendahara)
+    Route::middleware('role:Owner|Superadmin|Admin|Bendahara')->group(function () {
         Route::get('/kas-keluar', KasKeluarIndex::class)->name('kas-keluar');
         Route::get('/saldo', SaldoIndex::class)->name('saldo.index');
     });
@@ -168,7 +168,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/audit-laci', AuditLaciIndex::class)->name('audit-laci');
     });
 
-    Route::middleware('role:Owner|Superadmin|Bendahara|Kasir')->group(function () {
+    Route::middleware('role:Owner|Superadmin|Admin|Bendahara|Kasir')->group(function () {
         Route::get('/modal-awal', ModalAwalIndex::class)->name('modal-awal');
         Route::get('/tutup-kas', TutupKasIndex::class)->name('tutup-kas');
     });

@@ -176,7 +176,6 @@ class Index extends Component
     {
         $this->resetValidation();
         $this->reset(['kasKeluarId', 'keterangan', 'nominal']);
-        $this->tanggal = now()->format('Y-m-d\TH:i');
         $firstSumber = SumberDana::where('is_aktif', true)->first();
         $firstKategori = KategoriKasKeluar::where('is_aktif', true)->first();
         $this->sumber_dana_id = $firstSumber?->id;
@@ -191,7 +190,6 @@ class Index extends Component
         $kas = KasKeluar::findOrFail($id);
 
         $this->kasKeluarId = $kas->id;
-        $this->tanggal = $kas->tanggal ? $kas->tanggal->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i');
         $this->keterangan = $kas->keterangan;
         $this->nominal = (float) $kas->nominal;
         $this->sumber_dana_id = $kas->sumber_dana_id;
@@ -214,7 +212,6 @@ class Index extends Component
         }
 
         $this->validate([
-            'tanggal' => 'required|date',
             'keterangan' => 'required|string|max:255',
             'nominal' => 'required|numeric|min:1',
             'sumber_dana_id' => 'required|exists:sumber_danas,id',
@@ -231,7 +228,7 @@ class Index extends Component
         if ($this->isEditMode && $this->kasKeluarId) {
             $kas = KasKeluar::findOrFail($this->kasKeluarId);
             $kas->update([
-                'tanggal' => $this->tanggal,
+                'tanggal' => now(),
                 'keterangan' => trim($this->keterangan),
                 'nominal' => (float) $this->nominal,
                 'sumber_dana_id' => $this->sumber_dana_id,
@@ -243,7 +240,7 @@ class Index extends Component
             KasKeluar::create([
                 'cabang_id' => $cabang->id,
                 'user_id' => Auth::id(),
-                'tanggal' => $this->tanggal,
+                'tanggal' => now(),
                 'keterangan' => trim($this->keterangan),
                 'nominal' => (float) $this->nominal,
                 'sumber_dana_id' => $this->sumber_dana_id,
@@ -320,6 +317,7 @@ class Index extends Component
                 'tanggal_raw' => $item->tanggal ? $item->tanggal->format('Y-m-d H:i') : '',
                 'tanggal_group' => $item->tanggal ? $item->tanggal->translatedFormat('l, d F Y') : '-',
                 'waktu' => $item->tanggal ? $item->tanggal->format('d/m/Y H:i') : '-',
+                'jam' => $item->tanggal ? $item->tanggal->format('H:i') : '-',
                 'kategori' => $item->kategori?->nama ?? 'Umum',
                 'sumber_dana' => $item->sumberDana?->nama ?? 'Kasir',
                 'keterangan' => $item->keterangan ?: '-',

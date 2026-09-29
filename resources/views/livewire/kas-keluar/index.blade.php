@@ -15,7 +15,7 @@
         <button type="button"
                 wire:click="openCreateModal"
                 wire:loading.attr="disabled"
-                class="px-4 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-extrabold text-xs shadow-md shadow-purple-900/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+                class="px-4 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-extrabold text-xs shadow-md shadow-purple-900/20 transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             <span>Catat Kas Keluar</span>
         </button>
@@ -234,25 +234,20 @@
                                 <p class="text-xs text-purple-200 font-medium mt-0.5">Pencatatan pengeluaran operasional toko</p>
                             </div>
                         </div>
-                        <button type="button" wire:click="closeModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
+                        <div class="flex items-center gap-3 shrink-0">
+                            <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 border border-white/20 text-white text-xs font-bold font-mono shadow-2xs">
+                                <svg class="w-3.5 h-3.5 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <span>{{ now()->translatedFormat('l, d F Y') }}</span>
+                            </div>
+                            <button type="button" wire:click="closeModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Form Body -->
                     <form wire:submit.prevent="save">
                         <div class="p-6 space-y-4">
-                            <!-- Waktu / Tanggal -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Waktu Input <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="datetime-local"
-                                       wire:model="tanggal"
-                                       class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900">
-                                @error('tanggal') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-                            </div>
-
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <!-- Sumber Dana -->
                                 <div>
@@ -308,14 +303,16 @@
                         <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-2 rounded-b-3xl">
                             <button type="button"
                                     wire:click="closeModal"
-                                    class="px-4 py-2 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
+                                    wire:loading.attr="disabled"
+                                    class="px-4 py-2 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                                 Batal
                             </button>
                             <button type="submit"
                                     wire:loading.attr="disabled"
-                                    class="px-5 py-2 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-extrabold text-white shadow-md shadow-purple-900/20 transition-all cursor-pointer flex items-center space-x-1.5">
+                                    class="px-5 py-2 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-extrabold text-white shadow-md shadow-purple-900/20 transition-all cursor-pointer flex items-center space-x-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
                                 <svg wire:loading wire:target="save" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                                <span>{{ $isEditMode ? 'Simpan Perubahan' : 'Catat Kas Keluar' }}</span>
+                                <span wire:loading.remove wire:target="save">{{ $isEditMode ? 'Simpan Perubahan' : 'Catat Kas Keluar' }}</span>
+                                <span wire:loading wire:target="save">Menyimpan...</span>
                             </button>
                         </div>
                     </form>
@@ -396,17 +393,6 @@ window.tabulatorKasKeluarTable = function(config) {
                 columns: [
                     { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 30, minWidth: 30, maxWidth: 30, resizable: false },
                     {
-                        title: "Waktu Input",
-                        field: "waktu",
-                        width: 130,
-                        minWidth: 110,
-                        hozAlign: "center",
-                        sorter: "string",
-                        headerFilter: "input",
-                        headerFilterPlaceholder: "",
-                        formatter: (cell) => `<span class="font-mono font-bold text-gray-700 text-[11px]">${cell.getValue()}</span>`
-                    },
-                    {
                         title: "Kategori",
                         field: "kategori",
                         width: 140,
@@ -420,17 +406,24 @@ window.tabulatorKasKeluarTable = function(config) {
                         `
                     },
                     {
-                        title: "Sumber Dana",
-                        field: "sumber_dana",
+                        title: "Jam",
+                        field: "jam",
+                        width: 80,
+                        minWidth: 70,
+                        hozAlign: "center",
+                        sorter: "string",
+                        headerFilter: "input",
+                        headerFilterPlaceholder: "",
+                        formatter: (cell) => `<span class="font-mono font-bold text-gray-700 text-xs">${cell.getValue()}</span>`
+                    },
+                    {
+                        title: "Petugas",
+                        field: "petugas",
                         width: 130,
                         minWidth: 110,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
-                        formatter: (cell) => `
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-gray-100 text-gray-700 border border-gray-200 truncate">
-                                ${cell.getValue()}
-                            </span>
-                        `
+                        formatter: (cell) => `<span class="font-bold text-gray-900 text-xs truncate">${cell.getValue()}</span>`
                     },
                     {
                         title: "Keterangan",
@@ -439,15 +432,16 @@ window.tabulatorKasKeluarTable = function(config) {
                         minWidth: 160,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
-                        formatter: (cell) => {
-                            const d = cell.getData();
-                            return `
-                                <div class="leading-tight py-0.5">
-                                    <span class="font-bold text-gray-900 block truncate text-[11px]" title="${cell.getValue()}">${cell.getValue()}</span>
-                                    <span class="text-[9.5px] font-mono text-gray-500 font-semibold block truncate mt-0.5">Petugas: ${d.petugas}</span>
-                                </div>
-                            `;
-                        }
+                        formatter: (cell) => `<span class="font-medium text-gray-900 text-xs block py-0.5 truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
+                    },
+                    {
+                        title: "Sumber Dana",
+                        field: "sumber_dana",
+                        width: 130,
+                        minWidth: 110,
+                        headerFilter: "input",
+                        headerFilterPlaceholder: "",
+                        formatter: (cell) => `<span class="font-bold text-emerald-600 text-xs truncate">${cell.getValue()}</span>`
                     },
                     {
                         title: "Total Uang",
@@ -455,7 +449,7 @@ window.tabulatorKasKeluarTable = function(config) {
                         hozAlign: "right",
                         width: 140,
                         minWidth: 120,
-                        formatter: (cell) => `<span class="font-mono font-black text-rose-600 text-[11.5px]">${this.formatRupiah(cell.getValue())}</span>`
+                        formatter: (cell) => `<span class="font-mono font-black text-rose-600 text-xs">${this.formatRupiah(cell.getValue())}</span>`
                     },
                     {
                         title: "Aksi",
@@ -508,11 +502,11 @@ window.tabulatorKasKeluarTable = function(config) {
             }
 
             this.table.setFilter((data) => {
-                return (data.waktu && data.waktu.toLowerCase().includes(term)) ||
+                return (data.jam && data.jam.toLowerCase().includes(term)) ||
                        (data.kategori && data.kategori.toLowerCase().includes(term)) ||
-                       (data.sumber_dana && data.sumber_dana.toLowerCase().includes(term)) ||
-                       (data.keterangan && data.keterangan.toLowerCase().includes(term)) ||
                        (data.petugas && data.petugas.toLowerCase().includes(term)) ||
+                       (data.keterangan && data.keterangan.toLowerCase().includes(term)) ||
+                       (data.sumber_dana && data.sumber_dana.toLowerCase().includes(term)) ||
                        (data.nominal_formatted && data.nominal_formatted.toLowerCase().includes(term));
             });
         },
