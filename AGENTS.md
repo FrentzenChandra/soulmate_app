@@ -150,4 +150,14 @@
   * **Sisi Kanan:** Filter dropdown tahun, selector cabang (Owner HQ), dan tombol aksi modal.
 - Mencegah penumpukan vertikal yang memakan ruang layar kerja.
 
+## 21. Transaction Item Breakdown & Modal Sizing Standard
+- **Row-by-Row 1-to-1 Item Breakdown:**
+  * Pada modul Transaksi (Transaksi FULL dan Transaksi Harian), rincian kolom **Item**, **Biaya**, **Modal**, **Laba**, dan **Pajak** WAJIB dijabarkan baris per baris per item secara sejajar (1-to-1).
+  * **Kolom Pajak:** Tampilkan teks murni `PPN` atau `Non PPN` tanpa badge background, tanpa persen, dan tanpa nominal.
+  * **Anti-Duplikasi Total:** Dilarang menampilkan baris total tambahan di dalam sel tabel masing-masing kolom (total transaksi sudah tertera di card metrik atau kolom ringkasan).
+- **Transaction Modal Form Sizing:**
+  * Ukuran lebar modal input/edit transaksi (`$modalFormOpen`) di Transaksi FULL dan Transaksi Harian WAJIB menggunakan batas maksimal `sm:max-w-2xl` (bukan `sm:max-w-4xl`) agar proporsional, nyaman dilihat, dan ergonomis.
+
+
+
 

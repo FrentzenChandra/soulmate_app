@@ -158,7 +158,7 @@
             <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="closeFormModal"></div>
 
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-4xl border border-gray-100">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-gray-100">
 
                     <!-- Header Modal -->
                     <div class="bg-[#0052FF] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
@@ -1000,56 +1000,98 @@ window.tabulatorTransaksiHarianTable = function(config) {
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
-                            let itemsHtml = '';
-                            if (items.length > 0) {
-                                itemsHtml = items.map(it => `
-                                    <div class="flex items-start gap-1.5 leading-tight py-0.5">
-                                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#0052FF] shrink-0 mt-1"></span>
-                                        <span class="text-[10px] font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
-                                    </div>
-                                `).join('');
-                            } else {
-                                itemsHtml = `<span class="text-[10px] text-gray-400 italic">Tanpa item</span>`;
+                            if (items.length === 0) {
+                                return `<span class="text-[10px] text-gray-400 italic">Tanpa item</span>`;
                             }
-                            return `<div class="py-0.5 space-y-0.5">${itemsHtml}</div>`;
+                            const html = items.map(it => `
+                                <div class="flex items-start gap-1.5 leading-tight py-0.5 min-h-[18px]">
+                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#0052FF] shrink-0 mt-1"></span>
+                                    <span class="text-[10px] font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
+                                </div>
+                            `).join('');
+                            return `<div class="py-0.5 space-y-0.5">${html}</div>`;
                         }
                     },
                     {
                         title: "Biaya",
                         field: "grand_total",
                         hozAlign: "right",
-                        width: 100,
-                        formatter: (cell) => `<span class="font-mono font-black text-[#5E17EB] text-[11px]">${this.formatRupiah(cell.getValue())}</span>`
+                        width: 115,
+                        formatter: (cell) => {
+                            const d = cell.getData();
+                            const items = d.items_list || [];
+                            if (items.length === 0) {
+                                return `<span class="font-mono font-black text-[#5E17EB] text-[11px]">${this.formatRupiah(d.grand_total)}</span>`;
+                            }
+                            const html = items.map(it => `
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold text-slate-800 font-mono">
+                                    ${this.formatRupiah(it.subtotal_jual)}
+                                </div>
+                            `).join('');
+                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
+                        }
                     },
                     {
                         title: "Modal",
                         field: "total_modal",
                         hozAlign: "right",
-                        width: 95,
-                        formatter: (cell) => `<span class="font-mono font-bold text-amber-600 text-[11px]">${this.formatRupiah(cell.getValue())}</span>`
+                        width: 105,
+                        formatter: (cell) => {
+                            const d = cell.getData();
+                            const items = d.items_list || [];
+                            if (items.length === 0) {
+                                return `<span class="font-mono font-bold text-amber-600 text-[11px]">${this.formatRupiah(d.total_modal)}</span>`;
+                            }
+                            const html = items.map(it => `
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold text-amber-600 font-mono">
+                                    ${this.formatRupiah(it.subtotal_modal)}
+                                </div>
+                            `).join('');
+                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
+                        }
                     },
                     {
                         title: "Laba",
                         field: "total_laba",
                         hozAlign: "right",
-                        width: 100,
+                        width: 110,
                         formatter: (cell) => {
-                            const val = Number(cell.getValue() || 0);
-                            return `<span class="font-mono font-black text-[11px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
+                            const d = cell.getData();
+                            const items = d.items_list || [];
+                            if (items.length === 0) {
+                                const val = Number(d.total_laba || 0);
+                                return `<span class="font-mono font-black text-[11px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
+                            }
+                            const html = items.map(it => `
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold font-mono ${it.laba >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
+                                    ${this.formatRupiah(it.laba)}
+                                </div>
+                            `).join('');
+                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
                         }
                     },
                     {
                         title: "Pajak",
                         field: "has_ppn",
-                        width: 85,
+                        width: 90,
                         hozAlign: "center",
                         formatter: (cell) => {
                             const d = cell.getData();
-                            if (d.has_ppn) {
-                                return `<span class="inline-block px-2 py-0.5 rounded text-[9px] font-black bg-blue-50 text-[#0052FF] border border-blue-200 uppercase tracking-wider">PPN</span>`;
-                            } else {
-                                return `<span class="inline-block px-2 py-0.5 rounded text-[9px] font-black bg-pink-50 text-pink-700 border border-pink-200 uppercase tracking-wider">Non PPN</span>`;
+                            const items = d.items_list || [];
+                            const isMulti = items.length > 1;
+                            const taxLabel = d.has_ppn ? 'PPN' : 'Non PPN';
+                            const taxColor = d.has_ppn ? 'text-[#0052FF]' : 'text-pink-600';
+
+                            if (items.length === 0 || !isMulti) {
+                                return `<span class="text-[10px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</span>`;
                             }
+
+                            const html = items.map(() => `
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[10px] font-black ${taxColor} uppercase tracking-wider">
+                                    ${taxLabel}
+                                </div>
+                            `).join('');
+                            return `<div class="py-0.5 space-y-0.5 text-center">${html}</div>`;
                         }
                     },
                     {
