@@ -777,22 +777,24 @@
                     <!-- Body Modal -->
                     <form wire:submit.prevent="prosesPembayaran"
                           x-data="{
-                              raw: Number($wire.jumlahBayar || {{ (float) $this->grandTotal }} || 0),
+                              raw: Math.round(Number($wire.jumlahBayar || {{ (float) $this->grandTotal }} || 0)),
                               get grandTotal() {
                                   return Math.round(Number($wire.grandTotal || {{ (float) $this->grandTotal }} || 0));
                               },
                               get kembalian() {
                                   let pay = Math.round(Number(this.raw || 0));
-                                  let diff = pay - this.grandTotal;
-                                  return diff > 0 ? diff : 0;
+                                  let gt = this.grandTotal;
+                                  return pay > gt ? (pay - gt) : 0;
                               },
                               get isKurang() {
                                   let pay = Math.round(Number(this.raw || 0));
-                                  return pay > 0 && pay < this.grandTotal;
+                                  let gt = this.grandTotal;
+                                  return pay > 0 && pay < gt;
                               },
                               get isUangPas() {
                                   let pay = Math.round(Number(this.raw || 0));
-                                  return (pay > 0 && pay === this.grandTotal) || (pay === 0 && this.grandTotal === 0);
+                                  let gt = this.grandTotal;
+                                  return (pay > 0 && pay === gt) || (pay === 0 && gt === 0);
                               },
                               formatRupiah(val) {
                                   if (val === null || val === undefined || val === '' || isNaN(val)) return '0';
@@ -803,27 +805,22 @@
                                   let clean = e.target.value.toString().replace(/[^0-9]/g, '');
                                   let num = clean ? parseInt(clean, 10) : 0;
                                   this.raw = num;
-                                  $wire.set('jumlahBayar', num, false);
+                                  $wire.jumlahBayar = num;
                                   e.target.value = num ? num.toLocaleString('id-ID') : '';
                               },
                               setUangPas() {
                                   this.raw = this.grandTotal;
-                                  $wire.setUangPas();
+                                  $wire.jumlahBayar = this.grandTotal;
                               },
                               setQuickNominal(val) {
-                                  this.raw = val;
-                                  $wire.setQuickNominal(val);
+                                  this.raw = Math.round(Number(val));
+                                  $wire.jumlahBayar = this.raw;
                               },
                               init() {
                                   this.raw = Math.round(Number($wire.jumlahBayar || this.grandTotal || 0));
                                   this.$watch('$wire.jumlahBayar', (val) => {
                                       if (val !== undefined && val !== null) {
                                           this.raw = Math.round(Number(val));
-                                      }
-                                  });
-                                  this.$watch('$wire.grandTotal', (val) => {
-                                      if (this.isUangPas) {
-                                          this.raw = Math.round(Number(val || 0));
                                       }
                                   });
                               }
