@@ -241,7 +241,7 @@
                         </tr>
                     @endif
                     <tr class="grandtotal-row">
-                        <td class="text-left font-bold uppercase">Grandtotal</td>
+                        <td class="text-left font-bold">Grandtotal</td>
                         <td class="text-right font-mono font-bold" style="color: #000;">
                             Rp {{ number_format($penjualan->total, 0, ',', '.') }}
                         </td>

@@ -119,7 +119,7 @@
                     </tr>
                 @endif
                 <tr class="{{ ($penjualan->details->count() <= 1 && $penjualan->diskon <= 0 && $penjualan->ppn_nominal <= 0) ? 'border-t border-gray-800 ' : 'border-t border-gray-300 ' }}font-bold text-xs">
-                    <td colspan="4" class="py-1 text-right uppercase">Grandtotal :</td>
+                    <td colspan="4" class="py-1 text-right">Grandtotal :</td>
                     <td class="py-1 text-right font-mono text-[#5E17EB]">Rp {{ number_format($penjualan->total, 0, ',', '.') }}</td>
                 </tr>
             </tfoot>
