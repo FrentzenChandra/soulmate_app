@@ -273,69 +273,14 @@
                                     </span>
                                 </div>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
                                     <!-- Tipe Transaksi (Pewarnaan Ungu / Kuning) -->
-                                    <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Tipe Transaksi <span class="text-rose-500 font-bold">*</span></label>
-                                        <select wire:model.live="formTipeTransaksi"
-                                                class="w-full px-3.5 py-2 rounded-xl border font-bold text-xs transition-all cursor-pointer {{ $formTipeTransaksi === 'penjualan' ? 'bg-purple-50/80 border-purple-300 text-[#5E17EB] focus:ring-2 focus:ring-purple-200' : 'bg-amber-50/80 border-amber-300 text-amber-900 focus:ring-2 focus:ring-amber-200' }}">
-                                            <option value="penjualan">Penjualan Produk</option>
-                                            <option value="servis">Layanan Servis</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Jam Transaksi (Input Jam Saja) -->
-                                    <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Waktu Transaksi <span class="text-rose-500 font-bold">*</span></label>
-                                        <input type="time"
-                                               wire:model.live="formJam"
-                                               class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-mono font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                        @error('formJam') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
-                                    </div>
-
-                                    @if($formTipeTransaksi === 'servis')
-                                        <div class="sm:col-span-2 pt-2 border-t border-amber-200/60">
-                                            <label class="block font-bold text-gray-700 mb-1.5 text-xs">
-                                                Kategori Perangkat <span class="text-rose-500 font-bold">*</span>
-                                            </label>
-                                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                                <!-- Laptop -->
-                                                <button type="button"
-                                                        wire:click="$set('formKategoriPerangkat', 'laptop')"
-                                                        class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer {{ $formKategoriPerangkat === 'laptop' ? 'bg-[#5E17EB] text-white border-[#5E17EB] shadow-xs' : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300' }}">
-                                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                                    <span>Laptop</span>
-                                                </button>
-
-                                                <!-- Komputer -->
-                                                <button type="button"
-                                                        wire:click="$set('formKategoriPerangkat', 'komputer')"
-                                                        class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer {{ $formKategoriPerangkat === 'komputer' ? 'bg-[#5E17EB] text-white border-[#5E17EB] shadow-xs' : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300' }}">
-                                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                                    <span>Komputer</span>
-                                                </button>
-
-                                                <!-- Printer -->
-                                                <button type="button"
-                                                        wire:click="$set('formKategoriPerangkat', 'printer')"
-                                                        class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer {{ $formKategoriPerangkat === 'printer' ? 'bg-[#5E17EB] text-white border-[#5E17EB] shadow-xs' : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300' }}">
-                                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                                                    <span>Printer</span>
-                                                </button>
-
-                                                <!-- Lainnya -->
-                                                <button type="button"
-                                                        wire:click="$set('formKategoriPerangkat', 'lainnya')"
-                                                        class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer {{ $formKategoriPerangkat === 'lainnya' ? 'bg-[#5E17EB] text-white border-[#5E17EB] shadow-xs' : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300' }}">
-                                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                                                    <span>Lainnya</span>
-                                                </button>
-                                            </div>
-                                            @error('formKategoriPerangkat')
-                                                <span class="text-rose-500 font-bold block mt-1 text-[10px]">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                    @endif
+                                    <label class="block font-bold text-gray-700 mb-1">Tipe Transaksi <span class="text-rose-500 font-bold">*</span></label>
+                                    <select wire:model.live="formTipeTransaksi"
+                                            class="w-full px-3.5 py-2 rounded-xl border font-bold text-xs transition-all cursor-pointer {{ $formTipeTransaksi === 'penjualan' ? 'bg-purple-50/80 border-purple-300 text-[#5E17EB] focus:ring-2 focus:ring-purple-200' : 'bg-amber-50/80 border-amber-300 text-amber-900 focus:ring-2 focus:ring-amber-200' }}">
+                                        <option value="penjualan">Penjualan Produk</option>
+                                        <option value="servis">Layanan Servis</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -371,7 +316,6 @@
                                                                 wire:click="selectCustomer({{ $cs->id }}, '{{ $cs->nama }}', '{{ $cs->no_hp }}')"
                                                                 class="w-full px-3 py-2 text-left hover:bg-blue-50 flex items-center justify-between text-xs cursor-pointer">
                                                             <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
-                                                            <span class="font-mono text-gray-500">{{ $cs->no_hp }}</span>
                                                         </button>
                                                     @endforeach
                                                 </div>
@@ -386,23 +330,12 @@
                                     </div>
                                 @endif
 
-                                <div class="grid grid-cols-1 {{ $formCustomerType === 'langganan' ? 'sm:grid-cols-2' : '' }} gap-3">
-                                    <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Nama Lengkap Pelanggan <span class="text-rose-500 font-bold">*</span></label>
-                                        <input type="text"
-                                               wire:model="formNamaPelanggan"
-                                               class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                        @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
-                                    </div>
-
-                                    @if($formCustomerType === 'langganan')
-                                        <div>
-                                            <label class="block font-bold text-gray-700 mb-1">WhatsApp</label>
-                                            <input type="text"
-                                                   wire:model="formNoHp"
-                                                   class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-mono font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                        </div>
-                                    @endif
+                                <div>
+                                    <label class="block font-bold text-gray-700 mb-1">Nama Lengkap Pelanggan <span class="text-rose-500 font-bold">*</span></label>
+                                    <input type="text"
+                                           wire:model="formNamaPelanggan"
+                                           class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                    @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
                                 </div>
                             </div>
 
@@ -436,63 +369,66 @@
                                             </div>
 
                                             <div class="space-y-3">
-                                                <!-- Baris 1: Item (Full Width & Lapang) -->
-                                                <div class="relative w-full" x-data="{ openSuggest: false }" @click.outside="openSuggest = false">
-                                                    <label class="block font-bold text-gray-700 mb-1 text-[11px]">Item <span class="text-rose-500 font-bold">*</span></label>
-                                                    <input type="text"
-                                                           wire:model.live.debounce.200ms="items.{{ $idx }}.nama_item"
-                                                           @focus="openSuggest = true"
-                                                           @click="openSuggest = true"
-                                                           @input="openSuggest = true"
-                                                           @keydown.escape="openSuggest = false"
-                                                           class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 font-bold text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                                    @error("items.{$idx}.nama_item")
-                                                        <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
-                                                    @enderror
+                                                <!-- Baris 1: Item & Jumlah (Sebaris) -->
+                                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                                                    <!-- Item -->
+                                                    <div class="sm:col-span-9 relative" x-data="{ openSuggest: false }" @click.outside="openSuggest = false">
+                                                        <label class="block font-bold text-gray-700 mb-1 text-[11px]">Item <span class="text-rose-500 font-bold">*</span></label>
+                                                        <input type="text"
+                                                               wire:model.live.debounce.200ms="items.{{ $idx }}.nama_item"
+                                                               @focus="openSuggest = true"
+                                                               @click="openSuggest = true"
+                                                               @input="openSuggest = true"
+                                                               @keydown.escape="openSuggest = false"
+                                                               class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 font-bold text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                                        @error("items.{$idx}.nama_item")
+                                                            <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
+                                                        @enderror
 
-                                                    @if(!empty($productSuggestionsMap[$idx]) && count($productSuggestionsMap[$idx]) > 0)
-                                                        <div x-show="openSuggest" class="absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-60 overflow-y-auto">
-                                                            @foreach($productSuggestionsMap[$idx] as $sug)
-                                                                <button type="button"
-                                                                        wire:key="sugg-item-harian-{{ $idx }}-{{ $sug['type'] }}-{{ $loop->index }}"
-                                                                        @click="openSuggest = false"
-                                                                        wire:click="selectItemSuggestion({{ $idx }}, '{{ addslashes($sug['nama']) }}', {{ $sug['harga_modal'] }}, {{ $sug['harga_jual'] }}, {{ $sug['id'] ? $sug['id'] : 'null' }})"
-                                                                        class="w-full px-3.5 py-2.5 text-left hover:bg-blue-50/80 flex items-center justify-between text-xs cursor-pointer transition-colors">
-                                                                    <div class="min-w-0 pr-3">
-                                                                        <div class="flex items-center space-x-2">
-                                                                            <span class="font-bold text-gray-900 truncate">{{ $sug['nama'] }}</span>
-                                                                            <span class="text-[9px] font-black px-1.5 py-0.5 rounded {{ $sug['type'] === 'produk' ? 'bg-blue-100 text-[#0052FF]' : 'bg-purple-100 text-[#5E17EB]' }}">
-                                                                                {{ $sug['badge'] }}
-                                                                            </span>
+                                                        @if(!empty($productSuggestionsMap[$idx]) && count($productSuggestionsMap[$idx]) > 0)
+                                                            <div x-show="openSuggest" class="absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-60 overflow-y-auto">
+                                                                @foreach($productSuggestionsMap[$idx] as $sug)
+                                                                    <button type="button"
+                                                                            wire:key="sugg-item-harian-{{ $idx }}-{{ $sug['type'] }}-{{ $loop->index }}"
+                                                                            @click="openSuggest = false"
+                                                                            wire:click="selectItemSuggestion({{ $idx }}, '{{ addslashes($sug['nama']) }}', {{ $sug['harga_modal'] }}, {{ $sug['harga_jual'] }}, {{ $sug['id'] ? $sug['id'] : 'null' }})"
+                                                                            class="w-full px-3.5 py-2.5 text-left hover:bg-blue-50/80 flex items-center justify-between text-xs cursor-pointer transition-colors">
+                                                                        <div class="min-w-0 pr-3">
+                                                                            <div class="flex items-center space-x-2">
+                                                                                <span class="font-bold text-gray-900 truncate">{{ $sug['nama'] }}</span>
+                                                                                <span class="text-[9px] font-black px-1.5 py-0.5 rounded {{ $sug['type'] === 'produk' ? 'bg-blue-100 text-[#0052FF]' : 'bg-purple-100 text-[#5E17EB]' }}">
+                                                                                    {{ $sug['badge'] }}
+                                                                                </span>
+                                                                            </div>
+                                                                            <span class="text-[10px] text-gray-400 font-mono block mt-0.5">{{ $sug['kode'] }}</span>
                                                                         </div>
-                                                                        <span class="text-[10px] text-gray-400 font-mono block mt-0.5">{{ $sug['kode'] }}</span>
-                                                                    </div>
-                                                                    <div class="text-right shrink-0">
-                                                                        <span class="text-[10px] text-amber-700 font-bold block">Modal: Rp {{ number_format($sug['harga_modal'], 0, ',', '.') }}</span>
-                                                                        <span class="text-xs text-[#0052FF] font-black block">Biaya: Rp {{ number_format($sug['harga_jual'], 0, ',', '.') }}</span>
-                                                                    </div>
-                                                                </button>
-                                                            @endforeach
-                                                        </div>
-                                                    @endif
-                                                </div>
+                                                                        <div class="text-right shrink-0">
+                                                                            <span class="text-[10px] text-amber-700 font-bold block">Modal: Rp {{ number_format($sug['harga_modal'], 0, ',', '.') }}</span>
+                                                                            <span class="text-xs text-[#0052FF] font-black block">Biaya: Rp {{ number_format($sug['harga_jual'], 0, ',', '.') }}</span>
+                                                                        </div>
+                                                                    </button>
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
+                                                    </div>
 
-                                                <!-- Baris 2: Kuantitas, Biaya, Modal, Pajak (Sederet) -->
-                                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1 border-t border-gray-100">
-                                                    <!-- 1. Kuantitas -->
-                                                    <div class="sm:col-span-2">
-                                                        <label class="block font-bold text-gray-700 mb-1 text-[10px]">Kuantitas <span class="text-rose-500 font-bold">*</span></label>
+                                                    <!-- Jumlah -->
+                                                    <div class="sm:col-span-3">
+                                                        <label class="block font-bold text-gray-700 mb-1 text-[11px]">Jumlah <span class="text-rose-500 font-bold">*</span></label>
                                                         <input type="number"
                                                                min="1"
                                                                wire:model.live.debounce.250ms="items.{{ $idx }}.qty"
-                                                               class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 font-mono font-bold text-center text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                                               class="w-full px-3 py-2 rounded-xl border border-gray-300 font-mono font-bold text-center text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
                                                         @error("items.{$idx}.qty")
                                                             <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
                                                         @enderror
                                                     </div>
+                                                </div>
 
-                                                    <!-- 2. Biaya (Harga Jual per Unit) -->
-                                                    <div class="sm:col-span-4"
+                                                <!-- Baris 2: Biaya, Modal, Pajak (Sederet) -->
+                                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1 border-t border-gray-100">
+                                                    <!-- 1. Biaya (Harga Jual per Unit) -->
+                                                    <div class="sm:col-span-5"
                                                          x-data="{
                                                              raw: @entangle('items.' . $idx . '.harga_jual').live,
                                                              get formatted() {
@@ -520,8 +456,8 @@
                                                         @enderror
                                                     </div>
 
-                                                    <!-- 3. Modal (HPP per Unit) -->
-                                                    <div class="sm:col-span-3"
+                                                    <!-- 2. Modal (HPP per Unit) -->
+                                                    <div class="sm:col-span-4"
                                                          x-data="{
                                                              raw: @entangle('items.' . $idx . '.harga_modal').live,
                                                              get formatted() {
@@ -549,7 +485,7 @@
                                                         @enderror
                                                     </div>
 
-                                                    <!-- 4. Pajak -->
+                                                    <!-- 3. Pajak -->
                                                     <div class="sm:col-span-3">
                                                         <label class="block font-bold text-gray-700 mb-1 text-[10px]">Pajak</label>
                                                         <select wire:model.live="formPpnId"

@@ -464,7 +464,6 @@ class Full extends Component
             'formNoTransaksi' => 'required|string|max:100',
             'formTipeTransaksi' => 'required|in:penjualan,servis',
             'formKategoriPerangkat' => 'nullable|in:laptop,komputer,printer,lainnya',
-            'formTanggal' => 'required|date',
             'formUserId' => 'nullable|exists:users,id',
             'formNamaPelanggan' => 'required|string|max:150',
             'formMetodePembayaran' => 'required|string|max:50',
@@ -480,7 +479,7 @@ class Full extends Component
             'items.required' => 'Minimal 1 item transaksi wajib diinput.',
             'items.min' => 'Minimal 1 item transaksi wajib diinput.',
             'items.*.nama_item.required' => 'Nama barang/layanan wajib diisi.',
-            'items.*.qty.min' => 'Kuantiti minimal 1 unit.',
+            'items.*.qty.min' => 'Jumlah minimal 1 unit.',
             'items.*.harga_modal.required' => 'Biaya modal wajib diisi (minimal 0).',
             'items.*.harga_jual.required' => 'Harga jual wajib diisi (minimal 0).',
         ]);
@@ -509,9 +508,13 @@ class Full extends Component
             $ppnNominal = ($totalJual * (float) $this->formPpnPersen) / 100;
             $grandTotal = $totalJual + $ppnNominal;
 
-            $dateBase = ! empty($this->formTanggalOnly) ? $this->formTanggalOnly : now()->toDateString();
-            $timeBase = ! empty($this->formJam) ? $this->formJam : now()->format('H:i');
-            $tanggalParsed = Carbon::parse($dateBase . ' ' . $timeBase);
+            if ($this->transaksiId) {
+                $existingTrx = TransaksiFull::find($this->transaksiId);
+                $tanggalParsed = $existingTrx ? $existingTrx->tanggal : now();
+            } else {
+                $tanggalParsed = now();
+            }
+
             $tanggalLunas = null;
             $statusNormalized = strtolower($this->formStatus) === 'bon' ? 'Bon' : 'Lunas';
 
