@@ -786,6 +786,11 @@
                                   let gt = this.grandTotal;
                                   return pay > gt ? (pay - gt) : 0;
                               },
+                              get kekurangan() {
+                                  let pay = Math.round(Number(this.raw || 0));
+                                  let gt = this.grandTotal;
+                                  return pay > 0 && pay < gt ? (gt - pay) : 0;
+                              },
                               get isKurang() {
                                   let pay = Math.round(Number(this.raw || 0));
                                   let gt = this.grandTotal;
@@ -821,6 +826,15 @@
                                   this.$watch('$wire.jumlahBayar', (val) => {
                                       if (val !== undefined && val !== null) {
                                           this.raw = Math.round(Number(val));
+                                      }
+                                  });
+                                  this.$watch('$wire.grandTotal', (newGt) => {
+                                      if (newGt !== undefined && newGt !== null) {
+                                          let gtNum = Math.round(Number(newGt));
+                                          if (this.raw <= 0 || this.isUangPas || this.raw < gtNum) {
+                                              this.raw = gtNum;
+                                              $wire.jumlahBayar = gtNum;
+                                          }
                                       }
                                   });
                               }
@@ -926,8 +940,8 @@
 
                                         <div>
                                             <span class="text-[10px] font-black uppercase tracking-wider block"
-                                                  :class="kembalian > 0 ? 'text-emerald-800' : (isKurang ? 'text-rose-800' : 'text-gray-500')">
-                                                Uang Kembalian
+                                                  :class="kembalian > 0 ? 'text-emerald-800' : (isKurang ? 'text-rose-800' : 'text-gray-500')"
+                                                  x-text="kembalian > 0 ? 'Uang Kembalian' : (isKurang ? 'Kekurangan Uang' : 'Uang Kembalian')">
                                             </span>
                                             <span class="text-[11px] font-bold"
                                                   :class="kembalian > 0 ? 'text-emerald-700' : (isKurang ? 'text-rose-600' : 'text-gray-400')"
@@ -937,8 +951,8 @@
                                     </div>
                                     <div class="text-right">
                                         <span class="text-2xl font-black font-mono block"
-                                              :class="kembalian > 0 ? 'text-emerald-600' : (isKurang ? 'text-rose-600' : 'text-gray-400')"
-                                              x-text="'Rp ' + formatRupiah(kembalian)">
+                                              :class="kembalian > 0 ? 'text-emerald-600' : (isKurang ? 'text-rose-600' : 'text-gray-700')"
+                                              x-text="kembalian > 0 ? ('Rp ' + formatRupiah(kembalian)) : (isKurang ? ('- Rp ' + formatRupiah(kekurangan)) : 'Rp 0')">
                                         </span>
                                     </div>
                                 </div>
