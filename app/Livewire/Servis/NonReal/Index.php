@@ -3,6 +3,7 @@
 namespace App\Livewire\Servis\NonReal;
 
 use App\Events\ServisStatusUpdated;
+use App\Livewire\Traits\WithSorting;
 use App\Models\Cabang;
 use App\Models\Customer;
 use App\Models\MasterServis;
@@ -15,10 +16,10 @@ use App\Models\Stok;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -26,18 +27,23 @@ use Livewire\WithPagination;
 #[Title('Servis Non Real - Soulmate Komputer')]
 class Index extends Component
 {
-    use WithPagination;
+    use WithPagination, WithSorting;
 
-    // Filters & Search
+    #[Url(except: '')]
     public string $search = '';
+
+    #[Url(except: 'semua')]
     public string $statusFilter = 'semua';
+
+    #[Url(except: 'semua')]
     public string $kategoriFilter = 'semua';
+
+    #[Url(except: 'semua')]
     public string $cabangFilter = 'semua';
-    public string $sortField = 'tanggal_masuk';
-    public string $sortDirection = 'desc';
+
     public int $perPage = 15;
 
-    // State Modal Input Penerimaan Servis Non Real Baru
+    // State Modal Form Penerimaan Servis Non Real Baru
     public bool $modalCreateOpen = false;
     public string $customTanggalMasuk = '';
     public string $customerType = 'langganan'; // 'langganan' | 'baru'
@@ -45,6 +51,7 @@ class Index extends Component
     public string $customerSearch = '';
     public string $newCustomerNama = '';
     public string $newCustomerNoHp = '';
+
     public string $kategoriPerangkat = 'laptop';
     public string $tipeUnit = '';
     public array $kelengkapanChips = ['Unit'];
@@ -53,51 +60,53 @@ class Index extends Component
     public string $kondisiBarang = '';
     public string $catatan = '';
 
-    // State Modal Edit Data Unit Servis
+    // State Modal Form Edit Servis Non Real
     public bool $modalEditOpen = false;
     public ?int $editServisId = null;
-    public ?int $editCustomerId = null;
-    public string $editCustomerSearch = '';
-    public string $editKategoriPerangkat = 'laptop';
     public string $editTipeUnit = '';
+    public string $editKategoriPerangkat = 'laptop';
+    public string $editKeluhan = '';
     public array $editKelengkapanChips = [];
     public string $editCustomKelengkapan = '';
-    public string $editKeluhan = '';
     public string $editKondisiBarang = '';
     public string $editCatatan = '';
 
-    // State Modal Detail Unit & Riwayat Status
+    // State Modal Detail (Lihat)
     public bool $modalDetailOpen = false;
     public ?ServisMasuk $selectedServis = null;
 
-    // State Modal Kelola Rincian Tindakan (Sparepart & Jasa)
+    // State Modal Catatan Teknisi
+    public bool $modalCatatanTeknisiOpen = false;
+    public ?int $catatanServisId = null;
+    public string $catatanTeknisiText = '';
+
+    // State Modal Hapus Servis
+    public bool $modalDeleteOpen = false;
+    public ?int $deleteServisId = null;
+    public ?string $deleteServisKode = '';
+
+    // State Modal Update Status Cepat (Logo Kunci Inggris)
+    public bool $modalStatusOpen = false;
+    public ?ServisMasuk $servisToUpdate = null;
+    public string $updateStatus = 'perbaikan';
+    public string $updateCatatan = '';
+
+    // State Modal Kelola Tindakan & Komponen
     public bool $modalTindakanOpen = false;
+    public ?int $activeServisId = null;
     public ?ServisMasuk $activeServis = null;
-    public string $tindakanItemType = 'jasa'; // 'jasa' | 'produk'
+    public string $itemType = 'jasa'; // 'jasa' | 'sparepart'
+    public string $itemSearch = '';
     public ?int $selectedMasterServisId = null;
+    public ?int $selectedProdukId = null;
     public string $selectedMasterServisNama = '';
     public string $selectedMasterServisJenis = 'jasa';
     public $selectedMasterServisHarga = 0;
-    public ?int $selectedProdukId = null;
-    public string $selectedProdukNama = '';
-    public $selectedProdukHargaJual = 0;
     public int $itemQty = 1;
     public int $itemGaransiHari = 30;
     public ?int $selectedStokTersedia = null;
 
-    // State Modal Update Status
-    public bool $modalStatusOpen = false;
-    public ?ServisMasuk $servisToUpdate = null;
-    public string $updateStatus = '';
-    public string $updateCatatan = '';
-
-    // State Modal Hapus Data Servis
-    public bool $modalDeleteOpen = false;
-    public ?int $servisToDeleteId = null;
-    public string $deletePassword = '';
-    public string $deleteAlasan = '';
-
-    // State Modal Konfirmasi Sukses & Cetak Nota
+    // State Modal Konfirmasi Sukses & Cetak Tanda Terima
     public bool $modalSuccessOpen = false;
     public ?ServisMasuk $lastCreatedServis = null;
 
@@ -148,19 +157,10 @@ class Index extends Component
         $this->perPage += 15;
     }
 
-    public function sortBy(string $field): void
-    {
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortField = $field;
-            $this->sortDirection = 'asc';
-        }
-    }
+    // =========================================================================
+    // MODAL FORM PENERIMAAN SERVIS NON REAL BARU
+    // =========================================================================
 
-    // =========================================================================
-    // MODAL CREATE SERVIS NON REAL
-    // =========================================================================
     public function openCreateModal(): void
     {
         $this->resetCreateForm();
@@ -193,7 +193,7 @@ class Index extends Component
 
     private function resetCreateForm(): void
     {
-        $this->customTanggalMasuk = '';
+        $this->customTanggalMasuk = now()->format('Y-m-d\TH:i');
         $this->customerType = 'langganan';
         $this->selectedCustomerId = null;
         $this->customerSearch = '';
@@ -246,7 +246,7 @@ class Index extends Component
 
         if ($this->customerType === 'baru') {
             $rules['newCustomerNama'] = 'required|string|min:2|max:100';
-            $rules['newCustomerNoHp'] = 'nullable|string|max:25';
+            $rules['newCustomerNoHp'] = 'required|string|max:25';
         } else {
             $rules['selectedCustomerId'] = 'required|exists:customers,id';
         }
@@ -254,8 +254,9 @@ class Index extends Component
         $this->validate($rules, [
             'selectedCustomerId.required' => 'Wajib memilih pelanggan terdaftar atau buat pelanggan baru.',
             'newCustomerNama.required' => 'Nama pelanggan baru wajib diisi.',
-            'tipeUnit.required' => 'Nama / model perangkat servis wajib diisi.',
-            'keluhan.required' => 'Keluhan atau kerusakan wajib dijelaskan.',
+            'newCustomerNoHp.required' => 'Nomor WhatsApp / HP pelanggan wajib diisi.',
+            'tipeUnit.required' => 'Tipe / model perangkat servis wajib diisi.',
+            'keluhan.required' => 'Keluhan atau indikasi kerusakan wajib dijelaskan.',
         ]);
 
         try {
@@ -266,7 +267,7 @@ class Index extends Component
                 $customer = Customer::create([
                     'cabang_id' => $cabang->id,
                     'nama' => trim($this->newCustomerNama),
-                    'no_hp' => trim($this->newCustomerNoHp) ?: null,
+                    'no_hp' => trim($this->newCustomerNoHp),
                     'created_by' => Auth::id(),
                 ]);
                 $finalCustomerId = $customer->id;
@@ -274,7 +275,7 @@ class Index extends Component
                 $finalCustomerId = $this->selectedCustomerId;
             }
 
-            // Tanggal masuk
+            // Tanggal masuk (custom tanggal, hari, waktu & jam)
             $tanggalMasuk = ! empty($this->customTanggalMasuk)
                 ? Carbon::parse($this->customTanggalMasuk)
                 : Carbon::now();
@@ -343,120 +344,23 @@ class Index extends Component
             $this->lastCreatedServis = $servis;
             $this->modalSuccessOpen = true;
 
-            session()->flash('success', "Penerimaan servis non-real {$servis->no_servis_frontend} berhasil dicatat!");
+            $this->dispatch('open-print-receipt', url: route('servis.tanda-terima', $servis->id) . '?autoprint=1');
+
+            $this->resetCreateForm();
+            session()->flash('success', "Unit servis non real {$servis->no_servis_frontend} berhasil diterima!");
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->addError('general', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+            $this->addError('general', 'Gagal menyimpan data servis: ' . $e->getMessage());
         }
     }
 
     // =========================================================================
-    // MODAL EDIT DATA UNIT SERVIS
+    // SUB-ACTIONS DARI MODAL DETAIL (LIHAT)
     // =========================================================================
-    public function openEditModal(int $id): void
-    {
-        $servis = ServisMasuk::with('customer')->findOrFail($id);
-        $this->editServisId = $servis->id;
-        $this->editCustomerId = $servis->customer_id;
-        $this->editCustomerSearch = $servis->customer ? ($servis->customer->nama . ' - ' . ($servis->customer->no_hp ?? 'Tanpa No HP')) : '';
-        $this->editKategoriPerangkat = $servis->kategori_perangkat;
-        $this->editTipeUnit = $servis->tipe_unit;
-        $this->editKeluhan = $servis->keluhan;
-        $this->editKondisiBarang = $servis->kondisi_barang ?? '';
-        $this->editCatatan = $servis->catatan ?? '';
 
-        $chips = [];
-        if (! empty($servis->kelengkapan)) {
-            $rawChips = array_map('trim', explode(',', $servis->kelengkapan));
-            $predefined = ['Unit', 'Charger', 'Tas', 'Kabel Power', 'Dus / Box'];
-            $customArr = [];
-            foreach ($rawChips as $c) {
-                if (in_array($c, $predefined)) {
-                    $chips[] = $c;
-                } else {
-                    $customArr[] = $c;
-                }
-            }
-            $this->editCustomKelengkapan = implode(', ', $customArr);
-        } else {
-            $this->editCustomKelengkapan = '';
-        }
-        $this->editKelengkapanChips = $chips;
-
-        $this->modalEditOpen = true;
-    }
-
-    public function closeEditModal(): void
-    {
-        $this->modalEditOpen = false;
-        $this->editServisId = null;
-        $this->resetValidation();
-    }
-
-    public function selectEditCustomer(int $id, string $nama): void
-    {
-        $this->editCustomerId = $id;
-        $this->editCustomerSearch = $nama;
-    }
-
-    public function simpanEditServis(): void
-    {
-        if (! $this->editServisId) return;
-
-        $this->validate([
-            'editCustomerId' => 'required|exists:customers,id',
-            'editKategoriPerangkat' => 'required|in:laptop,printer,komputer,lainnya',
-            'editTipeUnit' => 'required|string|max:150',
-            'editKeluhan' => 'required|string|min:3',
-            'editKondisiBarang' => 'nullable|string|max:500',
-            'editCatatan' => 'nullable|string|max:1000',
-        ], [
-            'editCustomerId.required' => 'Pelanggan wajib dipilih.',
-            'editTipeUnit.required' => 'Nama / model perangkat wajib diisi.',
-            'editKeluhan.required' => 'Keluhan / kerusakan wajib diisi.',
-        ]);
-
-        try {
-            $servis = ServisMasuk::findOrFail($this->editServisId);
-
-            $allKelengkapan = $this->editKelengkapanChips;
-            if (! empty(trim($this->editCustomKelengkapan))) {
-                $allKelengkapan[] = trim($this->editCustomKelengkapan);
-            }
-            $kelengkapanString = ! empty($allKelengkapan) ? implode(', ', array_unique($allKelengkapan)) : 'Hanya Unit';
-
-            $servis->update([
-                'customer_id' => $this->editCustomerId,
-                'kategori_perangkat' => $this->editKategoriPerangkat,
-                'tipe_unit' => trim($this->editTipeUnit),
-                'kelengkapan' => $kelengkapanString,
-                'keluhan' => trim($this->editKeluhan),
-                'kondisi_barang' => trim((string) $this->editKondisiBarang) ?: null,
-                'catatan' => trim((string) $this->editCatatan) ?: null,
-            ]);
-
-            $this->closeEditModal();
-            session()->flash('success', "Data unit servis {$servis->no_servis_frontend} berhasil diperbarui!");
-        } catch (\Exception $e) {
-            $this->addError('editGeneral', 'Gagal memperbarui data servis: ' . $e->getMessage());
-        }
-    }
-
-    // =========================================================================
-    // MODAL DETAIL SERVIS & TIMELINE
-    // =========================================================================
     public function openDetailModal(int $id): void
     {
-        $this->selectedServis = ServisMasuk::with([
-            'customer',
-            'cabang',
-            'pembuat',
-            'teknisi',
-            'kasir',
-            'details.produk',
-            'statusLogs.user',
-        ])->findOrFail($id);
-
+        $this->selectedServis = ServisMasuk::with(['customer', 'cabang', 'pembuat', 'statusLogs.user', 'details.produk', 'details.masterServis'])->findOrFail($id);
         $this->modalDetailOpen = true;
     }
 
@@ -466,9 +370,142 @@ class Index extends Component
         $this->selectedServis = null;
     }
 
+    public function openEditModal(int $id): void
+    {
+        $servis = ServisMasuk::findOrFail($id);
+        $this->editServisId = $servis->id;
+        $this->editTipeUnit = $servis->tipe_unit;
+        $this->editKategoriPerangkat = $servis->kategori_perangkat ?: 'laptop';
+        $this->editKeluhan = $servis->keluhan;
+        $this->editKondisiBarang = $servis->kondisi_barang ?? '';
+        $this->editCatatan = $servis->catatan ?? '';
+
+        $chips = array_map('trim', explode(',', $servis->kelengkapan ?? ''));
+        $this->editKelengkapanChips = array_values(array_filter($chips));
+        $this->editCustomKelengkapan = '';
+
+        $this->modalDetailOpen = false;
+        $this->modalEditOpen = true;
+    }
+
+    public function closeEditModal(): void
+    {
+        $this->modalEditOpen = false;
+        $this->editServisId = null;
+    }
+
+    public function simpanEditServis(): void
+    {
+        if (! $this->editServisId) return;
+
+        $this->validate([
+            'editTipeUnit' => 'required|string|max:150',
+            'editKategoriPerangkat' => 'required|in:laptop,printer,komputer,lainnya',
+            'editKeluhan' => 'required|string|min:3',
+        ]);
+
+        $servis = ServisMasuk::findOrFail($this->editServisId);
+
+        $allKelengkapan = $this->editKelengkapanChips;
+        if (! empty(trim($this->editCustomKelengkapan))) {
+            $allKelengkapan[] = trim($this->editCustomKelengkapan);
+        }
+        $kelengkapanString = ! empty($allKelengkapan) ? implode(', ', array_unique($allKelengkapan)) : 'Hanya Unit';
+
+        $servis->update([
+            'tipe_unit' => trim($this->editTipeUnit),
+            'kategori_perangkat' => $this->editKategoriPerangkat,
+            'keluhan' => trim($this->editKeluhan),
+            'kelengkapan' => $kelengkapanString,
+            'kondisi_barang' => trim($this->editKondisiBarang) ?: null,
+            'catatan' => trim($this->editCatatan) ?: null,
+        ]);
+
+        $this->modalEditOpen = false;
+        $this->editServisId = null;
+        session()->flash('success', "Data unit servis {$servis->no_servis_frontend} berhasil diperbarui.");
+    }
+
+    public function openCatatanTeknisiModal(int $id): void
+    {
+        $servis = ServisMasuk::findOrFail($id);
+        $this->catatanServisId = $servis->id;
+        $this->catatanTeknisiText = $servis->catatan ?? '';
+        $this->modalDetailOpen = false;
+        $this->modalCatatanTeknisiOpen = true;
+    }
+
+    public function closeCatatanTeknisiModal(): void
+    {
+        $this->modalCatatanTeknisiOpen = false;
+        $this->catatanServisId = null;
+        $this->catatanTeknisiText = '';
+    }
+
+    public function simpanCatatanTeknisi(): void
+    {
+        if (! $this->catatanServisId) return;
+
+        $servis = ServisMasuk::findOrFail($this->catatanServisId);
+        $servis->update([
+            'catatan' => trim($this->catatanTeknisiText) ?: null,
+        ]);
+
+        $this->modalCatatanTeknisiOpen = false;
+        $this->catatanServisId = null;
+        $this->catatanTeknisiText = '';
+        session()->flash('success', "Catatan teknisi untuk tiket {$servis->no_servis_frontend} berhasil disimpan.");
+    }
+
+    public function openDeleteModal(int $id, string $kode = ''): void
+    {
+        $this->deleteServisId = $id;
+        $this->deleteServisKode = $kode;
+        $this->modalDetailOpen = false;
+        $this->modalDeleteOpen = true;
+    }
+
+    public function closeDeleteModal(): void
+    {
+        $this->modalDeleteOpen = false;
+        $this->deleteServisId = null;
+        $this->deleteServisKode = '';
+    }
+
+    public function konfirmasiHapusServis(): void
+    {
+        if (! $this->deleteServisId) return;
+
+        $user = Auth::user();
+        if (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin')) {
+            abort(403, 'Akses hapus tiket servis dibatasi.');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $servis = ServisMasuk::with('details')->findOrFail($this->deleteServisId);
+            $kode = $servis->no_servis_frontend;
+
+            $servis->details()->delete();
+            $servis->statusLogs()->delete();
+            $servis->delete();
+
+            DB::commit();
+
+            $this->modalDeleteOpen = false;
+            $this->deleteServisId = null;
+            session()->flash('success', "Tiket servis {$kode} berhasil dihapus dari sistem.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Gagal menghapus servis: ' . $e->getMessage());
+        }
+    }
+
     // =========================================================================
-    // MODAL UPDATE STATUS SERVIS
+    // MODAL UPDATE STATUS CEPAT (LOGO KUNCI INGGRIS)
     // =========================================================================
+
     public function openStatusModal(int $id): void
     {
         $this->servisToUpdate = ServisMasuk::findOrFail($id);
@@ -535,190 +572,141 @@ class Index extends Component
     }
 
     // =========================================================================
-    // MODAL TINDAKAN & KOMPONEN (RINCIAN SERVIS)
+    // MODAL TINDAKAN & KOMPONEN (DENGAN TOMBOL SELESAI)
     // =========================================================================
+
     public function openTindakanModal(int $id): void
     {
-        $this->activeServis = ServisMasuk::with(['details.produk', 'customer', 'cabang'])->findOrFail($id);
-        $this->tindakanItemType = 'jasa';
-        $this->resetTindakanForm();
+        $this->activeServisId = $id;
+        $this->activeServis = ServisMasuk::with(['details.masterServis', 'details.produk', 'customer', 'cabang'])->findOrFail($id);
+        $this->itemType = 'jasa';
+        $this->resetItemForm();
         $this->modalTindakanOpen = true;
     }
 
     public function closeTindakanModal(): void
     {
         $this->modalTindakanOpen = false;
+        $this->activeServisId = null;
         $this->activeServis = null;
-        $this->resetTindakanForm();
+        $this->resetItemForm();
     }
 
-    private function resetTindakanForm(): void
+    public function setItemType(string $type): void
     {
-        $this->selectedMasterServisId = null;
-        $this->selectedMasterServisNama = '';
-        $this->selectedMasterServisJenis = 'jasa';
-        $this->selectedMasterServisHarga = 0;
-        $this->selectedProdukId = null;
-        $this->selectedProdukNama = '';
-        $this->selectedProdukHargaJual = 0;
-        $this->itemQty = 1;
-        $this->itemGaransiHari = 30;
-        $this->selectedStokTersedia = null;
-        $this->resetValidation();
+        $this->itemType = in_array($type, ['jasa', 'sparepart']) ? $type : 'jasa';
+        $this->resetItemForm();
     }
 
-    public function selectMasterServis(int $id, string $nama, string $jenis, $biayaStandard): void
+    public function resetItemForm(): void
+    {
+        $this->itemSearch = '';
+        $this->selectedMasterServisId = null;
+        $this->selectedProdukId = null;
+        $this->selectedMasterServisNama = '';
+        $this->selectedMasterServisJenis = $this->itemType;
+        $this->selectedMasterServisHarga = 0;
+        $this->itemQty = 1;
+        $this->itemGaransiHari = $this->itemType === 'jasa' ? 30 : 0;
+        $this->selectedStokTersedia = null;
+    }
+
+    public function selectMasterItem(int $id, string $nama, string $jenis, float $harga, int $garansiHari = 0): void
     {
         $this->selectedMasterServisId = $id;
+        $this->selectedProdukId = null;
         $this->selectedMasterServisNama = $nama;
-        $this->selectedMasterServisJenis = $jenis;
-        $this->selectedMasterServisHarga = (float) $biayaStandard;
-        $this->itemGaransiHari = 30;
+        $this->selectedMasterServisJenis = 'jasa';
+        $this->selectedMasterServisHarga = $harga;
+        $this->itemGaransiHari = $garansiHari;
+        $this->itemSearch = $nama;
+        $this->selectedStokTersedia = null;
     }
 
-    public function selectProdukSparepart(int $id, string $nama, $hargaJual): void
+    public function selectProdukItem(int $id, string $nama, float $harga, int $stok = 0, int $garansiHari = 0): void
     {
         $this->selectedProdukId = $id;
-        $this->selectedProdukNama = $nama;
-        $this->selectedProdukHargaJual = (float) $hargaJual;
-        $this->itemGaransiHari = 30;
-
-        if ($this->activeServis) {
-            $stk = Stok::where('produk_id', $id)
-                ->where('cabang_id', $this->activeServis->cabang_id)
-                ->first();
-            $this->selectedStokTersedia = $stk ? $stk->jumlah : 0;
-        }
+        $this->selectedMasterServisId = null;
+        $this->selectedMasterServisNama = $nama;
+        $this->selectedMasterServisJenis = 'sparepart';
+        $this->selectedMasterServisHarga = $harga;
+        $this->selectedStokTersedia = $stok;
+        $this->itemGaransiHari = $garansiHari;
+        $this->itemSearch = $nama;
     }
 
     public function tambahItemTindakan(): void
     {
-        if (! $this->activeServis) return;
+        if (! $this->activeServisId) return;
 
-        if ($this->tindakanItemType === 'jasa') {
-            if (is_string($this->selectedMasterServisHarga)) {
-                $this->selectedMasterServisHarga = (float) preg_replace('/[^\d]/', '', $this->selectedMasterServisHarga);
-            }
-
-            $this->validate([
-                'selectedMasterServisNama' => 'required|string|max:150',
-                'selectedMasterServisHarga' => 'required|numeric|min:0',
-                'itemQty' => 'required|integer|min:1',
-                'itemGaransiHari' => 'required|integer|min:0|max:3650',
-            ], [
-                'selectedMasterServisNama.required' => 'Nama jasa servis wajib diisi.',
-                'selectedMasterServisHarga.required' => 'Biaya tindakan wajib diisi.',
-            ]);
-
-            $namaItem = $this->selectedMasterServisNama;
-            $harga = (float) $this->selectedMasterServisHarga;
-            $jenis = 'jasa';
-            $masterServisId = $this->selectedMasterServisId;
-            $produkId = null;
-        } else {
-            if (is_string($this->selectedProdukHargaJual)) {
-                $this->selectedProdukHargaJual = (float) preg_replace('/[^\d]/', '', $this->selectedProdukHargaJual);
-            }
-
-            $this->validate([
-                'selectedProdukNama' => 'required|string|max:150',
-                'selectedProdukHargaJual' => 'required|numeric|min:0',
-                'itemQty' => 'required|integer|min:1',
-                'itemGaransiHari' => 'required|integer|min:0|max:3650',
-            ], [
-                'selectedProdukNama.required' => 'Sparepart dari Master Produk wajib dipilih.',
-                'selectedProdukHargaJual.required' => 'Harga sparepart wajib diisi.',
-            ]);
-
-            $namaItem = $this->selectedProdukNama;
-            $harga = (float) $this->selectedProdukHargaJual;
-            $jenis = 'sparepart';
-            $masterServisId = null;
-            $produkId = $this->selectedProdukId;
+        if (is_string($this->selectedMasterServisHarga)) {
+            $this->selectedMasterServisHarga = (float) preg_replace('/[^\d]/', '', $this->selectedMasterServisHarga);
         }
 
-        try {
-            DB::beginTransaction();
+        $this->validate([
+            'selectedMasterServisNama' => 'required|string|max:150',
+            'selectedMasterServisHarga' => 'required|numeric|min:0',
+            'itemQty' => 'required|integer|min:1',
+            'itemGaransiHari' => 'required|integer|min:0|max:3650',
+        ]);
 
-            $subtotal = $harga * (int) $this->itemQty;
+        $subtotal = (float) $this->selectedMasterServisHarga * (int) $this->itemQty;
 
-            ServisDetail::create([
-                'servis_id' => $this->activeServis->id,
-                'master_servis_id' => $masterServisId,
-                'produk_id' => $produkId,
-                'nama_item' => $namaItem,
-                'jenis' => $jenis,
-                'qty' => $this->itemQty,
-                'harga_satuan' => $harga,
-                'subtotal' => $subtotal,
-                'garansi_hari' => $this->itemGaransiHari,
-            ]);
+        ServisDetail::create([
+            'servis_id' => $this->activeServisId,
+            'master_servis_id' => $this->selectedMasterServisId,
+            'produk_id' => $this->selectedProdukId,
+            'nama_item' => $this->selectedMasterServisNama,
+            'jenis' => $this->selectedMasterServisJenis ?: ($this->selectedProdukId ? 'sparepart' : 'jasa'),
+            'qty' => $this->itemQty,
+            'harga' => (float) $this->selectedMasterServisHarga,
+            'subtotal' => $subtotal,
+            'garansi_hari' => $this->itemGaransiHari,
+        ]);
 
-            // Hitung ulang total biaya pada ServisMasuk
-            $totalBiayaBaru = ServisDetail::where('servis_id', $this->activeServis->id)->sum('subtotal');
-            $this->activeServis->update(['total_biaya' => $totalBiayaBaru]);
+        $this->recalculateServisTotal($this->activeServisId);
 
-            DB::commit();
+        $this->resetItemForm();
 
-            $this->activeServis->load('details.produk');
-            $this->resetTindakanForm();
-            session()->flash('tindakanSuccess', "Item '{$namaItem}' berhasil ditambahkan ke rincian!");
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $this->addError('tindakanError', 'Gagal menambahkan item tindakan: ' . $e->getMessage());
-        }
+        $this->activeServis = ServisMasuk::with(['details.masterServis', 'details.produk', 'customer', 'cabang'])->find($this->activeServisId);
     }
 
     public function hapusItemTindakan(int $detailId): void
     {
-        if (! $this->activeServis) return;
-
-        try {
-            DB::beginTransaction();
-
-            $detail = ServisDetail::where('servis_id', $this->activeServis->id)->findOrFail($detailId);
-            $namaItem = $detail->nama_item;
-
+        $detail = ServisDetail::where('servis_id', $this->activeServisId)->find($detailId);
+        if ($detail) {
             $detail->delete();
-
-            // Hitung ulang total biaya
-            $totalBiayaBaru = ServisDetail::where('servis_id', $this->activeServis->id)->sum('subtotal');
-            $this->activeServis->update(['total_biaya' => $totalBiayaBaru]);
-
-            DB::commit();
-
-            $this->activeServis->load('details.produk');
-            session()->flash('tindakanSuccess', "Item '{$namaItem}' telah dihapus dari rincian.");
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $this->addError('tindakanError', 'Gagal menghapus item: ' . $e->getMessage());
+            $this->recalculateServisTotal($this->activeServisId);
+            $this->activeServis = ServisMasuk::with(['details.masterServis', 'details.produk', 'customer', 'cabang'])->find($this->activeServisId);
         }
     }
 
-    public function selesaikanServisDariTindakan(): void
+    private function recalculateServisTotal(int $servisId): void
+    {
+        $total = ServisDetail::where('servis_id', $servisId)->sum('subtotal');
+        ServisMasuk::where('id', $servisId)->update([
+            'total_biaya' => $total,
+        ]);
+    }
+
+    public function selesaikanServis(): void
     {
         if (! $this->activeServis) return;
-
-        if ($this->activeServis->details->isEmpty()) {
-            $this->addError('tindakanError', 'Rincian servis masih kosong. Tambahkan minimal 1 tindakan / jasa sebelum menyelesaikan servis.');
-            return;
-        }
 
         try {
             DB::beginTransaction();
 
             $now = Carbon::now();
-            $this->activeServis->update([
-                'status' => 'selesai',
-                'tanggal_selesai' => $now,
-            ]);
+            $this->activeServis->status = 'selesai';
+            $this->activeServis->tanggal_selesai = $now;
+            $this->activeServis->save();
 
             ServisStatusLog::create([
                 'servis_id' => $this->activeServis->id,
                 'user_id' => Auth::id(),
                 'status' => 'selesai',
                 'tanggal' => $now,
-                'catatan' => 'Pengerjaan servis dinyatakan Selesai melalui rincian tindakan. Unit siap diuji & diserahkan ke pelanggan.',
+                'catatan' => 'Unit servis telah selesai dikerjakan teknisi dan siap diambil oleh pelanggan.',
             ]);
 
             DB::commit();
@@ -726,79 +714,26 @@ class Index extends Component
             try {
                 broadcast(new ServisStatusUpdated($this->activeServis->id, 'selesai', $this->activeServis->no_servis_frontend, $this->activeServis->cabang_id));
             } catch (\Throwable $th) {
-                // Silently continue
+                // Ignore broadcast error
             }
 
-            $kode = $this->activeServis->no_servis_frontend;
+            $kodeFrontend = $this->activeServis->no_servis_frontend;
             $this->closeTindakanModal();
-            session()->flash('success', "Servis {$kode} berhasil diselesaikan!");
+            session()->flash('success', "Pengerjaan unit {$kodeFrontend} berhasil diselesaikan!");
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->addError('tindakanError', 'Gagal menyelesaikan servis: ' . $e->getMessage());
+            session()->flash('error', 'Gagal menyelesaikan servis: ' . $e->getMessage());
         }
     }
 
-    // =========================================================================
-    // MODAL HAPUS DATA SERVIS
-    // =========================================================================
-    public function openDeleteModal(int $id): void
+    public function cetakNota(int $id): void
     {
-        $this->servisToDeleteId = $id;
-        $this->deletePassword = '';
-        $this->deleteAlasan = '';
-        $this->modalDeleteOpen = true;
-    }
+        $servis = ServisMasuk::findOrFail($id);
+        $servis->is_cetak_nota = true;
+        $servis->save();
 
-    public function closeDeleteModal(): void
-    {
-        $this->modalDeleteOpen = false;
-        $this->servisToDeleteId = null;
-        $this->deletePassword = '';
-        $this->deleteAlasan = '';
-        $this->resetValidation();
-    }
-
-    public function prosesHapusServis(): void
-    {
-        if (! $this->servisToDeleteId) return;
-
-        $user = Auth::user();
-        if (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin')) {
-            $this->addError('deletePassword', 'Hanya Owner, Superadmin, atau Admin yang berhak menghapus data servis.');
-            return;
-        }
-
-        $this->validate([
-            'deletePassword' => 'required',
-            'deleteAlasan' => 'required|string|min:3|max:500',
-        ], [
-            'deletePassword.required' => 'Password verifikasi wajib diisi.',
-            'deleteAlasan.required' => 'Alasan penghapusan wajib diisi.',
-        ]);
-
-        if (! Hash::check($this->deletePassword, $user->password)) {
-            $this->addError('deletePassword', 'Password konfirmasi salah. Penghapusan dibatalkan.');
-            return;
-        }
-
-        try {
-            DB::beginTransaction();
-
-            $servis = ServisMasuk::with('details')->findOrFail($this->servisToDeleteId);
-            $kode = $servis->no_servis_frontend;
-
-            $servis->details()->delete();
-            $servis->statusLogs()->delete();
-            $servis->delete();
-
-            DB::commit();
-
-            $this->closeDeleteModal();
-            session()->flash('success', "Data servis non-real {$kode} telah berhasil dihapus dari sistem!");
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $this->addError('deleteGeneral', 'Gagal menghapus data: ' . $e->getMessage());
-        }
+        $this->dispatch('open-print-invoice', url: route('servis.invoice', $servis->id) . '?autoprint=1');
+        session()->flash('success', "Nota faktur {$servis->no_servis_frontend} berhasil dicetak.");
     }
 
     public function render()
@@ -829,26 +764,39 @@ class Index extends Component
                 ->get();
         }
 
-        // Master Servis Suggestions (Jasa)
+        // Suggestions for items in Tindakan modal
         $masterServisSuggestions = [];
-        if ($this->modalTindakanOpen && $this->tindakanItemType === 'jasa') {
-            $masterServisSuggestions = MasterServis::where('status', 'aktif')
-                ->where('jenis', 'jasa')
-                ->orderBy('nama_layanan')
-                ->get();
-        }
-
-        // Master Produk Suggestions (Sparepart)
         $produkSuggestions = [];
-        if ($this->modalTindakanOpen && $this->tindakanItemType === 'produk') {
-            $produkSuggestions = Produk::where('status', 'aktif')
-                ->orderBy('nama_produk')
-                ->limit(50)
-                ->get();
+        if ($this->modalTindakanOpen && ! empty($this->itemSearch) && ! $this->selectedMasterServisId && ! $this->selectedProdukId) {
+            $pattern = '%' . strtolower(trim($this->itemSearch)) . '%';
+            $targetCabangId = $this->activeServis?->cabang_id ?? ($user->isOwner() ? (int) $activeBranchSession : (int) $user->cabang_id);
+
+            if ($this->itemType === 'jasa') {
+                $masterServisSuggestions = MasterServis::where('jenis', 'jasa')
+                    ->where('is_aktif', true)
+                    ->where(function ($q) use ($pattern) {
+                        $q->whereRaw('LOWER(nama_item) LIKE ?', [$pattern])
+                          ->orWhereRaw('LOWER(COALESCE(kode_item, \'\')) LIKE ?', [$pattern]);
+                    })
+                    ->take(6)
+                    ->get();
+            } else {
+                $produkSuggestions = Produk::where(function ($q) use ($pattern) {
+                        $q->whereRaw('LOWER(nama_produk) LIKE ?', [$pattern])
+                          ->orWhereRaw('LOWER(COALESCE(barcode, \'\')) LIKE ?', [$pattern]);
+                    })
+                    ->with(['stoks' => function ($sq) use ($targetCabangId) {
+                        if ($targetCabangId) {
+                            $sq->where('cabang_id', $targetCabangId);
+                        }
+                    }])
+                    ->take(6)
+                    ->get();
+            }
         }
 
         // Query Utama Servis Non Real (is_real = false)
-        $query = ServisMasuk::with(['customer', 'cabang', 'pembuat', 'teknisi', 'kasir', 'details'])
+        $query = ServisMasuk::with(['customer', 'cabang', 'pembuat', 'statusLogs.user', 'details.produk', 'details.masterServis'])
             ->where('is_real', false);
 
         // Scoping Cabang
@@ -899,15 +847,14 @@ class Index extends Component
             });
         }
 
-        // Metrik Ringkasan Servis Non Real
+        // Metrik Ringkasan Antrean Non Real
         $metricsBase = clone $query;
         $allCurrent = $metricsBase->get();
 
-        $totalUnit = $allCurrent->count();
+        $totalUnitMasuk = $allCurrent->count();
         $totalPengecekan = $allCurrent->where('status', 'pengecekan')->count();
         $totalPengerjaan = $allCurrent->whereIn('status', ['perbaikan', 'pengerjaan'])->count();
-        $totalSelesai = $allCurrent->where('status', 'selesai')->count();
-        $totalSudahDiambil = $allCurrent->whereIn('status', ['sudah_diambil', 'sudah_dibayar'])->count();
+        $totalSiapDiambil = $allCurrent->where('status', 'selesai')->count();
 
         // Sorting
         $sortDir = strtolower($this->sortDirection) === 'asc' ? 'asc' : 'desc';
@@ -923,11 +870,10 @@ class Index extends Component
             'servisList' => $servisList,
             'totalItems' => $totalItems,
             'hasMore' => $hasMore,
-            'totalUnit' => $totalUnit,
+            'totalUnitMasuk' => $totalUnitMasuk,
             'totalPengecekan' => $totalPengecekan,
             'totalPengerjaan' => $totalPengerjaan,
-            'totalSelesai' => $totalSelesai,
-            'totalSudahDiambil' => $totalSudahDiambil,
+            'totalSiapDiambil' => $totalSiapDiambil,
             'cabangs' => $cabangs,
             'customerSuggestions' => $customerSuggestions,
             'masterServisSuggestions' => $masterServisSuggestions,

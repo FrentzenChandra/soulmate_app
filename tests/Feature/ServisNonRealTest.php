@@ -219,8 +219,8 @@ class ServisNonRealTest extends TestCase
 
         Livewire::test(ServisNonRealIndex::class)
             ->call('openTindakanModal', $servis->id)
-            ->set('tindakanItemType', 'produk')
-            ->call('selectProdukSparepart', $this->produk->id, $this->produk->nama_produk, 500000)
+            ->call('setItemType', 'sparepart')
+            ->call('selectProdukItem', $this->produk->id, $this->produk->nama_produk, 500000, 10, 30)
             ->set('itemQty', 3)
             ->call('tambahItemTindakan')
             ->assertHasNoErrors();
