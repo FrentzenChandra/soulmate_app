@@ -100,22 +100,28 @@
                 @endforeach
             </tbody>
             <tfoot>
-                <tr class="border-t border-gray-800 font-bold text-xs">
-                    <td colspan="4" class="py-1 text-right uppercase">GRANDTOTAL :</td>
-                    <td class="py-1 text-right font-mono text-[#5E17EB]">Rp {{ number_format($penjualan->total, 0, ',', '.') }}</td>
-                </tr>
+                @if($penjualan->details->count() > 1)
+                    <tr class="border-t border-gray-800 font-medium text-[10px] text-gray-700">
+                        <td colspan="4" class="py-1 text-right">Subtotal :</td>
+                        <td class="py-1 text-right font-mono font-bold text-gray-900">Rp {{ number_format($penjualan->subtotal, 0, ',', '.') }}</td>
+                    </tr>
+                @endif
                 @if($penjualan->diskon > 0)
-                    <tr class="font-medium text-[10px] text-gray-600">
+                    <tr class="{{ $penjualan->details->count() <= 1 ? 'border-t border-gray-800 ' : '' }}font-medium text-[10px] text-gray-600">
                         <td colspan="4" class="py-0.5 text-right">Potongan Diskon :</td>
                         <td class="py-0.5 text-right font-mono text-rose-600">- Rp {{ number_format($penjualan->diskon, 0, ',', '.') }}</td>
                     </tr>
                 @endif
                 @if($penjualan->ppn_nominal > 0)
-                    <tr class="font-medium text-[10px] text-gray-600">
-                        <td colspan="4" class="py-0.5 text-right">PPN ({{ (int)$penjualan->ppn_persen }}%) :</td>
+                    <tr class="{{ ($penjualan->details->count() <= 1 && $penjualan->diskon <= 0) ? 'border-t border-gray-800 ' : '' }}font-medium text-[10px] text-gray-600">
+                        <td colspan="4" class="py-0.5 text-right">PPN {{ (int)$penjualan->ppn_persen }}% :</td>
                         <td class="py-0.5 text-right font-mono">Rp {{ number_format($penjualan->ppn_nominal, 0, ',', '.') }}</td>
                     </tr>
                 @endif
+                <tr class="{{ ($penjualan->details->count() <= 1 && $penjualan->diskon <= 0 && $penjualan->ppn_nominal <= 0) ? 'border-t border-gray-800 ' : 'border-t border-gray-300 ' }}font-bold text-xs">
+                    <td colspan="4" class="py-1 text-right uppercase">Grandtotal :</td>
+                    <td class="py-1 text-right font-mono text-[#5E17EB]">Rp {{ number_format($penjualan->total, 0, ',', '.') }}</td>
+                </tr>
             </tfoot>
         </table>
     </div>

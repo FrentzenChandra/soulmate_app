@@ -222,10 +222,12 @@
             <!-- Totals Summary (44%) -->
             <td style="width: 44%; vertical-align: top; padding-left: 15px;">
                 <table class="w-full totals-table">
-                    <tr>
-                        <td class="text-left text-muted">Subtotal</td>
-                        <td class="text-right font-mono font-bold">Rp {{ number_format($penjualan->subtotal, 0, ',', '.') }}</td>
-                    </tr>
+                    @if($penjualan->details->count() > 1)
+                        <tr>
+                            <td class="text-left text-muted">Subtotal</td>
+                            <td class="text-right font-mono font-bold">Rp {{ number_format($penjualan->subtotal, 0, ',', '.') }}</td>
+                        </tr>
+                    @endif
                     @if($penjualan->diskon > 0)
                         <tr>
                             <td class="text-left text-muted">Potongan</td>
@@ -234,7 +236,7 @@
                     @endif
                     @if($penjualan->ppn_nominal > 0)
                         <tr>
-                            <td class="text-left text-muted">PPN ({{ (int)$penjualan->ppn_persen }}%)</td>
+                            <td class="text-left text-muted">PPN {{ (int)$penjualan->ppn_persen }}%</td>
                             <td class="text-right font-mono font-bold">Rp {{ number_format($penjualan->ppn_nominal, 0, ',', '.') }}</td>
                         </tr>
                     @endif
