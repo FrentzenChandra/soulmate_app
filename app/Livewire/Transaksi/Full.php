@@ -10,6 +10,7 @@ use App\Models\MasterPpn;
 use App\Models\MasterServis;
 use App\Models\MetodePembayaran;
 use App\Models\ModalAwal;
+use App\Models\Pegawai;
 use App\Models\Produk;
 use App\Models\TransaksiFull;
 use App\Models\TransaksiFullDetail;
@@ -63,7 +64,7 @@ class Full extends Component
     public string $formTanggal = '';
     public string $formTanggalOnly = '';
     public string $formJam = '';
-    public ?int $formUserId = null;
+    public ?int $formPegawaiId = null;
     public string $formCustomerType = 'umum'; // 'umum' | 'langganan'
     public ?int $formCustomerId = null;
     public string $formCustomerSearch = '';
@@ -201,7 +202,7 @@ class Full extends Component
         $this->formTipeTransaksi = 'penjualan';
         $this->formKategoriPerangkat = 'laptop';
         $this->formNamaPelanggan = 'Konsumen';
-        $this->formUserId = Auth::id();
+        $this->formPegawaiId = null;
         $this->generateDefaultNoTransaksi();
 
         // PPN Default jika ada yang aktif
@@ -236,7 +237,7 @@ class Full extends Component
         $this->formTanggalOnly = $transaksi->tanggal ? $transaksi->tanggal->toDateString() : now()->toDateString();
         $this->formJam = $transaksi->tanggal ? $transaksi->tanggal->format('H:i') : now()->format('H:i');
         $this->formTanggal = $transaksi->tanggal ? $transaksi->tanggal->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i');
-        $this->formUserId = $transaksi->user_id;
+        $this->formPegawaiId = $transaksi->pegawai_id;
         $this->formCustomerType = $transaksi->customer_id ? 'langganan' : 'umum';
         $this->formCustomerId = $transaksi->customer_id;
         $this->formNamaPelanggan = $transaksi->nama_pelanggan ?: 'Konsumen';
@@ -464,7 +465,7 @@ class Full extends Component
             'formNoTransaksi' => 'required|string|max:100',
             'formTipeTransaksi' => 'required|in:penjualan,servis',
             'formKategoriPerangkat' => 'nullable|in:laptop,komputer,printer,lainnya',
-            'formUserId' => 'nullable|exists:users,id',
+            'formPegawaiId' => 'nullable|exists:pegawais,id',
             'formNamaPelanggan' => 'required|string|max:150',
             'formMetodePembayaran' => 'required|string|max:50',
             'formStatus' => 'required|in:Lunas,Bon,BON',
@@ -529,11 +530,11 @@ class Full extends Component
                 }
             }
 
-            $userId = $this->formUserId ? (int) $this->formUserId : null;
+            $pegawaiId = $this->formPegawaiId ? (int) $this->formPegawaiId : null;
 
             $data = [
                 'cabang_id' => $cabangId,
-                'user_id' => $userId,
+                'pegawai_id' => $pegawaiId,
                 'customer_id' => $this->formCustomerType === 'langganan' ? $this->formCustomerId : null,
                 'nama_pelanggan' => trim($this->formNamaPelanggan) ?: 'Konsumen',
                 'no_hp' => trim($this->formNoHp) ?: null,
@@ -629,7 +630,7 @@ class Full extends Component
 
     public function openDetailModal(int $id): void
     {
-        $this->selectedTransaksi = TransaksiFull::with(['details.produk', 'customer', 'cabang', 'user', 'ppn'])->findOrFail($id);
+        $this->selectedTransaksi = TransaksiFull::with(['details.produk', 'customer', 'cabang', 'pegawai', 'ppn'])->findOrFail($id);
         $this->modalDetailOpen = true;
     }
 
@@ -672,12 +673,9 @@ class Full extends Component
         $cabangs = $isHQ ? Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get() : collect();
         $ppnList = MasterPpn::where('is_aktif', true)->orderBy('persen')->get();
         $metodeList = MetodePembayaran::where('is_aktif', true)->orderBy('urutan')->get();
-
-        $pegawaiList = \App\Models\User::query()
-            ->with('roles')
-            ->where('status', 'aktif')
+        $pegawaiList = Pegawai::where('is_aktif', true)
             ->when(! $isHQ && $user->cabang_id, fn($q) => $q->where('cabang_id', $user->cabang_id))
-            ->orderBy('name')
+            ->orderBy('nama')
             ->get();
 
         // Autocomplete Customer di Form Modal
@@ -743,7 +741,7 @@ class Full extends Component
         }
 
         // Query Utama Transaksi FULL
-        $query = TransaksiFull::with(['customer', 'cabang', 'user', 'details']);
+        $query = TransaksiFull::with(['customer', 'cabang', 'pegawai', 'details']);
 
         // Scoping Cabang
         if (! $isHQ) {
@@ -801,7 +799,7 @@ class Full extends Component
                         $sq->whereRaw('LOWER(no_transaksi) LIKE ?', [$pattern])
                            ->orWhereRaw('LOWER(nama_pelanggan) LIKE ?', [$pattern])
                            ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$pattern])
-                           ->orWhereHas('user', fn ($uq) => $uq->whereRaw('LOWER(name) LIKE ?', [$pattern]))
+                           ->orWhereHas('pegawai', fn ($pq) => $pq->whereRaw('LOWER(nama) LIKE ?', [$pattern]))
                            ->orWhereHas('details', fn ($dq) => $dq->whereRaw('LOWER(nama_item) LIKE ?', [$pattern]));
                     });
                 }
@@ -886,7 +884,7 @@ class Full extends Component
                 'waktu' => $item->tanggal ? $item->tanggal->format('d/m/Y H:i') : '-',
                 'jam' => $item->tanggal ? $item->tanggal->format('H:i') : '-',
                 'tanggal_group' => $item->tanggal ? $item->tanggal->translatedFormat('l, d F Y') : '-',
-                'petugas' => $item->user?->name ?? 'Tanpa Pegawai',
+                'petugas' => $item->pegawai?->nama ?? 'Tanpa Pegawai',
                 'pelanggan' => $item->nama_pelanggan,
                 'no_hp' => $item->no_hp ?: '-',
                 'items_list' => $item->details->map(fn($d) => [

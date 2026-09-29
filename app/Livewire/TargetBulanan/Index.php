@@ -3,10 +3,10 @@
 namespace App\Livewire\TargetBulanan;
 
 use App\Models\Cabang;
+use App\Models\Pegawai;
 use App\Models\TargetDivisi;
-use App\Models\TargetUser;
+use App\Models\TargetPegawai;
 use App\Models\TransaksiFull;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +33,7 @@ class Index extends Component
     public int $formTargetSyaratDivisi = 0;
     public int $formRealisasiDivisi = 0;
 
-    // State Modal Edit Target Per Cell Staf (User)
+    // State Modal Edit Target Per Cell Pegawai
     public bool $modalEditCellUserOpen = false;
     public ?int $editUserId = null;
     public string $editUserName = '';
@@ -155,40 +155,50 @@ class Index extends Component
     }
 
     // =========================================================================
-    // MODAL & ACTION: EDIT TARGET PER CELL (STAF / USER)
+    // MODAL & ACTION: EDIT TARGET PER CELL (PEGAWAI)
     // =========================================================================
 
-    public function openEditCellUser(int $userId, int $bulan): void
+    public function openEditCellPegawai(int $pegawaiId, int $bulan): void
     {
         if (! $this->canManageTarget) {
             abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
         }
 
-        $user = User::findOrFail($userId);
-        $this->editUserId = $user->id;
-        $this->editUserName = $user->name;
+        $pegawai = Pegawai::findOrFail($pegawaiId);
+        $this->editUserId = $pegawai->id;
+        $this->editUserName = $pegawai->nama;
         $this->editUserBulan = $bulan;
         $cabangId = $this->getTargetCabangId();
 
-        $targetUser = TargetUser::where('cabang_id', $cabangId)
+        $targetPegawai = TargetPegawai::where('cabang_id', $cabangId)
             ->where('tahun', $this->filterTahun)
-            ->where('user_id', $userId)
+            ->where('pegawai_id', $pegawaiId)
             ->first();
 
-        $monthlyTargets = $targetUser?->monthly_targets ?? [];
+        $monthlyTargets = $targetPegawai?->monthly_targets ?? [];
         $this->formTargetSyaratUser = (int) ($monthlyTargets[(string)$bulan] ?? 0);
 
         $this->modalEditCellUserOpen = true;
     }
 
+    public function openEditCellUser(int $userId, int $bulan): void
+    {
+        $this->openEditCellPegawai($userId, $bulan);
+    }
+
     public function simpanEditCellUser(): void
+    {
+        $this->simpanEditCellPegawai();
+    }
+
+    public function simpanEditCellPegawai(): void
     {
         if (! $this->canManageTarget) {
             abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
         }
 
         $this->validate([
-            'editUserId' => 'required|exists:users,id',
+            'editUserId' => 'required|exists:pegawais,id',
             'editUserBulan' => 'required|integer|min:1|max:12',
             'formTargetSyaratUser' => 'required|integer|min:0',
         ]);
@@ -196,11 +206,11 @@ class Index extends Component
         $cabangId = $this->getTargetCabangId();
         $creatorId = Auth::id();
 
-        $targetUser = TargetUser::firstOrCreate(
+        $targetPegawai = TargetPegawai::firstOrCreate(
             [
                 'cabang_id' => $cabangId,
                 'tahun' => $this->filterTahun,
-                'user_id' => $this->editUserId,
+                'pegawai_id' => $this->editUserId,
             ],
             [
                 'target_bulanan' => 0,
@@ -208,15 +218,15 @@ class Index extends Component
             ]
         );
 
-        $monthlyTargets = $targetUser->monthly_targets ?? [];
+        $monthlyTargets = $targetPegawai->monthly_targets ?? [];
         $monthlyTargets[(string)$this->editUserBulan] = (int) $this->formTargetSyaratUser;
-        $targetUser->update([
+        $targetPegawai->update([
             'monthly_targets' => $monthlyTargets,
         ]);
 
         $this->modalEditCellUserOpen = false;
         $namaBulan = Carbon::createFromDate($this->filterTahun, $this->editUserBulan, 1)->translatedFormat('F');
-        session()->flash('success', "Target Staf {$this->editUserName} bulan {$namaBulan} {$this->filterTahun} berhasil diperbarui!");
+        session()->flash('success', "Target Pegawai {$this->editUserName} bulan {$namaBulan} {$this->filterTahun} berhasil diperbarui!");
     }
 
     // =========================================================================
@@ -246,7 +256,7 @@ class Index extends Component
             $trxQuery->where('cabang_id', (int) $this->cabangFilter);
         }
 
-        $trxList = $trxQuery->get(['id', 'tipe_transaksi', 'kategori_perangkat', 'user_id', 'tanggal']);
+        $trxList = $trxQuery->get(['id', 'tipe_transaksi', 'kategori_perangkat', 'pegawai_id', 'tanggal']);
 
         // 2. Query Target Divisi Models
         $targetDivisiModels = TargetDivisi::where('tahun', $tahun)
@@ -374,16 +384,15 @@ class Index extends Component
             'ytd_percent' => $grandDivisiPercent,
         ];
 
-        // 4. Query & Bangun Matriks Data Individu (Staf - Realisasi Riil dari Transaksi FULL)
-        $users = User::query()
-            ->with('roles')
-            ->where('status', 'aktif')
+        // 4. Query & Bangun Matriks Data Individu (Pegawai - Realisasi Riil dari Transaksi FULL)
+        $pegawais = Pegawai::query()
+            ->where('is_aktif', true)
             ->when(! $isHQ && $user->cabang_id, fn ($q) => $q->where('cabang_id', $user->cabang_id))
             ->when($isHQ && $this->cabangFilter !== 'semua' && ! empty($this->cabangFilter), fn ($q) => $q->where('cabang_id', (int) $this->cabangFilter))
-            ->orderBy('name')
+            ->orderBy('nama')
             ->get();
 
-        $targetUserModels = TargetUser::where('tahun', $tahun)
+        $targetPegawaiModels = TargetPegawai::where('tahun', $tahun)
             ->when(! $isHQ || ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)), function ($q) use ($cabangId, $isHQ) {
                 $targetCab = (! $isHQ) ? $cabangId : (int) $this->cabangFilter;
                 $q->where('cabang_id', $targetCab);
@@ -391,9 +400,9 @@ class Index extends Component
             ->get();
 
         $userMatrix = [];
-        foreach ($users as $u) {
-            $targetUserRow = $targetUserModels->firstWhere('user_id', $u->id);
-            $monthlyTargets = $targetUserRow?->monthly_targets ?? [];
+        foreach ($pegawais as $p) {
+            $targetPegawaiRow = $targetPegawaiModels->firstWhere('pegawai_id', $p->id);
+            $monthlyTargets = $targetPegawaiRow?->monthly_targets ?? [];
 
             $monthlyData = [];
             $totalYtdRealisasi = 0;
@@ -401,8 +410,8 @@ class Index extends Component
 
             for ($m = 1; $m <= 12; $m++) {
                 // Realisasi TETAP OTOMATIS DARI TRANSAKSI FULL
-                $count = $trxList->filter(function ($t) use ($m, $u) {
-                    return (int) $t->tanggal->format('n') === $m && $t->user_id === $u->id;
+                $count = $trxList->filter(function ($t) use ($m, $p) {
+                    return (int) $t->tanggal->format('n') === $m && $t->pegawai_id === $p->id;
                 })->count();
 
                 $hasTarget = isset($monthlyTargets[(string)$m]);
@@ -437,7 +446,12 @@ class Index extends Component
             $ytdPercent = $totalYtdTarget > 0 ? (int) round(($totalYtdRealisasi / $totalYtdTarget) * 100) : 0;
 
             $userMatrix[] = [
-                'user' => $u,
+                'pegawai' => $p,
+                'user' => (object)[
+                    'id' => $p->id,
+                    'name' => $p->nama,
+                    'role' => $p->role,
+                ],
                 'target_bulanan' => 0,
                 'months' => $monthlyData,
                 'total_ytd' => $totalYtdRealisasi,

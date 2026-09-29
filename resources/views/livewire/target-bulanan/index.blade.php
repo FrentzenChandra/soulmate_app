@@ -255,8 +255,8 @@
                     <svg class="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 </div>
                 <div>
-                    <h2 class="text-sm font-black uppercase tracking-wider text-white">Target Per Individu</h2>
-                    <p class="text-[11px] text-purple-200 font-medium">Realisasi transaksi per staf/pegawai tahun {{ $filterTahun }}</p>
+                    <h2 class="text-sm font-black uppercase tracking-wider text-white">Target Per Pegawai</h2>
+                    <p class="text-[11px] text-purple-200 font-medium">Realisasi transaksi per pegawai tahun {{ $filterTahun }}</p>
                 </div>
             </div>
         </div>
@@ -286,11 +286,11 @@
                         <tr class="hover:bg-purple-50/20 transition-colors">
                             <!-- Nama Pegawai -->
                             <td class="py-3.5 px-3 text-left">
-                                <span class="font-bold text-gray-900 block truncate" title="{{ $u['user']->name }}">
-                                    {{ $u['user']->name }}
+                                <span class="font-bold text-gray-900 block truncate" title="{{ $u['pegawai']->nama ?? $u['user']->name }}">
+                                    {{ $u['pegawai']->nama ?? $u['user']->name }}
                                 </span>
                                 <span class="text-[10px] text-gray-500 font-medium block truncate">
-                                    {{ $u['user']->roles->first()?->name ?? 'Staf' }}
+                                    {{ $u['pegawai']->role ?? ($u['user']->role ?? 'Staf') }}
                                 </span>
                             </td>
 
@@ -298,7 +298,7 @@
                             @for($m = 1; $m <= 12; $m++)
                                 @php $cell = $u['months'][$m]; @endphp
                                 <td class="py-2.5 px-1 align-middle text-center {{ $canManageTarget ? 'cursor-pointer hover:bg-purple-100/60 transition-colors' : '' }}"
-                                    @if($canManageTarget) wire:click="openEditCellUser({{ $u['user']->id }}, {{ $m }})" title="Klik untuk edit target {{ $u['user']->name }} bulan {{ $bulanNames[$m] }}" @endif>
+                                    @if($canManageTarget) wire:click="openEditCellPegawai({{ $u['pegawai']->id ?? $u['user']->id }}, {{ $m }})" title="Klik untuk edit target {{ $u['pegawai']->nama ?? $u['user']->name }} bulan {{ $bulanNames[$m] }}" @endif>
                                     @if(! $cell['has_data'])
                                         <span class="font-mono font-bold {{ $cell['count'] > 0 ? 'text-gray-900' : 'text-gray-300' }} text-xs leading-none">{{ $cell['count'] > 0 ? $cell['count'] : '-' }}</span>
                                     @else
@@ -358,7 +358,7 @@
                     @empty
                         <tr>
                             <td colspan="14" class="py-8 text-center text-gray-400 font-medium">
-                                Tidak ada data staf aktif pada cabang ini.
+                                Tidak ada data pegawai aktif pada cabang ini.
                             </td>
                         </tr>
                     @endforelse
@@ -366,7 +366,7 @@
                 <tfoot class="bg-gray-100/90 border-t-2 border-gray-300 text-xs font-black">
                     <tr>
                         <td class="py-3 px-3 text-left font-black text-gray-900 uppercase tracking-wider">
-                            TOTAL STAF
+                            TOTAL PEGAWAI
                         </td>
                         @for($m = 1; $m <= 12; $m++)
                             @php $sumCell = $userSummary['months'][$m]; @endphp
@@ -571,10 +571,10 @@
                                 </p>
                             </div>
 
-                            <!-- Target Syarat Staf -->
+                            <!-- Target Syarat Pegawai -->
                             <div>
                                 <label class="block font-bold text-gray-700 mb-1">
-                                    Target Staf  <span class="text-rose-500 font-bold">*</span>
+                                    Target Pegawai <span class="text-rose-500 font-bold">*</span>
                                 </label>
                                 <input type="number"
                                        min="0"

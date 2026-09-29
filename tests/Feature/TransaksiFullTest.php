@@ -83,7 +83,7 @@ class TransaksiFullTest extends TestCase
 
         $transaksi = TransaksiFullModel::create([
             'cabang_id' => $superadmin->cabang_id,
-            'user_id' => $superadmin->id,
+            'pegawai_id' => null,
             'nama_pelanggan' => 'Andi Test',
             'no_transaksi' => 'INV-PJ-CBPKP-260922-00001',
             'tipe_transaksi' => 'penjualan',
@@ -108,7 +108,7 @@ class TransaksiFullTest extends TestCase
 
         $transaksi = TransaksiFullModel::create([
             'cabang_id' => $superadmin->cabang_id,
-            'user_id' => $superadmin->id,
+            'pegawai_id' => null,
             'nama_pelanggan' => 'Target Edit',
             'no_transaksi' => 'INV-PJ-CBPKP-260922-00002',
             'tipe_transaksi' => 'servis',
@@ -184,7 +184,7 @@ class TransaksiFullTest extends TestCase
         // 1. Transaksi dengan PPN
         TransaksiFullModel::create([
             'cabang_id' => $superadmin->cabang_id,
-            'user_id' => $superadmin->id,
+            'pegawai_id' => null,
             'nama_pelanggan' => 'Pelanggan PPN',
             'no_transaksi' => 'INV-PJ-CBPKP-260922-00010',
             'tipe_transaksi' => 'penjualan',
@@ -202,7 +202,7 @@ class TransaksiFullTest extends TestCase
         // 2. Transaksi Non-PPN
         TransaksiFullModel::create([
             'cabang_id' => $superadmin->cabang_id,
-            'user_id' => $superadmin->id,
+            'pegawai_id' => null,
             'nama_pelanggan' => 'Pelanggan Non PPN',
             'no_transaksi' => 'INV-PJ-CBPKP-260922-00011',
             'tipe_transaksi' => 'servis',
@@ -290,11 +290,11 @@ class TransaksiFullTest extends TestCase
 
         $metode = MetodePembayaran::first();
 
-        // 1. Create with formUserId = null
+        // 1. Create with formPegawaiId = null
         Livewire::test(TransaksiFull::class)
             ->call('openCreateModal')
             ->set('formNamaPelanggan', 'Pelanggan Tanpa Pegawai')
-            ->set('formUserId', null)
+            ->set('formPegawaiId', null)
             ->set('formTipeTransaksi', 'penjualan')
             ->set('formStatus', 'Lunas')
             ->set('formMetodePembayaranId', $metode->id)
@@ -309,16 +309,16 @@ class TransaksiFullTest extends TestCase
 
         $this->assertDatabaseHas('transaksi_fulls', [
             'nama_pelanggan' => 'Pelanggan Tanpa Pegawai',
-            'user_id' => null,
+            'pegawai_id' => null,
         ]);
 
         $trx = TransaksiFullModel::where('nama_pelanggan', 'Pelanggan Tanpa Pegawai')->first();
-        $this->assertNull($trx->user_id);
+        $this->assertNull($trx->pegawai_id);
 
-        // 2. Open edit modal and ensure formUserId remains null
+        // 2. Open edit modal and ensure formPegawaiId remains null
         Livewire::test(TransaksiFull::class)
             ->call('openEditModal', $trx->id)
-            ->assertSet('formUserId', null)
+            ->assertSet('formPegawaiId', null)
             ->set('formNamaPelanggan', 'Pelanggan Tanpa Pegawai Updated')
             ->call('simpanTransaksi')
             ->assertHasNoErrors();
@@ -326,7 +326,7 @@ class TransaksiFullTest extends TestCase
         $this->assertDatabaseHas('transaksi_fulls', [
             'id' => $trx->id,
             'nama_pelanggan' => 'Pelanggan Tanpa Pegawai Updated',
-            'user_id' => null,
+            'pegawai_id' => null,
         ]);
     }
 
@@ -351,7 +351,7 @@ class TransaksiFullTest extends TestCase
             'no_transaksi' => 'INV-PJ-DUMMY-001',
             'tipe_transaksi' => 'penjualan',
             'tanggal' => now(),
-            'user_id' => $superadmin->id,
+            'pegawai_id' => null,
             'nama_pelanggan' => 'Test Inline Metode',
             'metode_pembayaran_id' => $metodeCash->id,
             'metode_pembayaran' => $metodeCash->nama,

@@ -4,8 +4,9 @@ namespace Tests\Feature;
 
 use App\Livewire\TargetBulanan\Index as TargetBulananIndex;
 use App\Models\Cabang;
+use App\Models\Pegawai;
 use App\Models\TargetDivisi;
-use App\Models\TargetUser;
+use App\Models\TargetPegawai;
 use App\Models\TransaksiFull;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
@@ -61,69 +62,71 @@ class TargetBulananTest extends TestCase
 
         TransaksiFull::query()->delete();
         TargetDivisi::query()->delete();
-        TargetUser::query()->delete();
+        TargetPegawai::query()->delete();
 
         $tahun = 2026;
+
+        $pegawai = Pegawai::firstOrCreate(
+            ['cabang_id' => $superadmin->cabang_id ?: 1, 'nama' => 'Staf Uji'],
+            ['role' => 'Teknisi', 'is_aktif' => true]
+        );
 
         // Create TransaksiFull for Laptop in January 2026
         TransaksiFull::create([
             'no_transaksi' => 'INV-PJ-PKP-260110-00001',
-            'no_transaksi_frontend' => 'PJ-260110-00001',
-            'cabang_id' => $superadmin->cabang_id,
-            'user_id' => $superadmin->id,
+            'cabang_id' => $superadmin->cabang_id ?: 1,
+            'pegawai_id' => $pegawai->id,
             'nama_pelanggan' => 'Pelanggan Test 1',
             'no_hp' => '08123456789',
             'tipe_transaksi' => 'servis',
             'kategori_perangkat' => 'laptop',
-            'tipe_servis' => 'non_real',
-            'tanggal' => '2026-01-10',
-            'tanggal_kustom' => '2026-01-10',
-            'total' => 150000,
+            'tanggal' => '2026-01-10 10:00:00',
+            'total_modal' => 50000,
+            'total_jual' => 150000,
+            'total_laba' => 100000,
             'grand_total' => 150000,
-            'status' => 'Selesai',
-            'created_at' => '2026-01-10 10:00:00',
+            'status' => 'Lunas',
+            'metode_pembayaran' => 'Cash',
         ]);
 
         // Create TransaksiFull for Printer in February 2026
         TransaksiFull::create([
             'no_transaksi' => 'INV-PJ-PKP-260215-00002',
-            'no_transaksi_frontend' => 'PJ-260215-00002',
-            'cabang_id' => $superadmin->cabang_id,
-            'user_id' => $superadmin->id,
+            'cabang_id' => $superadmin->cabang_id ?: 1,
+            'pegawai_id' => $pegawai->id,
             'nama_pelanggan' => 'Pelanggan Test 2',
             'no_hp' => '08123456788',
             'tipe_transaksi' => 'servis',
             'kategori_perangkat' => 'printer',
-            'tipe_servis' => 'non_real',
-            'tanggal' => '2026-02-15',
-            'tanggal_kustom' => '2026-02-15',
-            'total' => 200000,
+            'tanggal' => '2026-02-15 10:00:00',
+            'total_modal' => 70000,
+            'total_jual' => 200000,
+            'total_laba' => 130000,
             'grand_total' => 200000,
-            'status' => 'Selesai',
-            'created_at' => '2026-02-15 10:00:00',
+            'status' => 'Lunas',
+            'metode_pembayaran' => 'Cash',
         ]);
 
-        // Create TransaksiFull for Penjualan (Admin division) in March 2026
+        // Create TransaksiFull for Penjualan in March 2026
         TransaksiFull::create([
             'no_transaksi' => 'INV-PJ-PKP-260320-00003',
-            'no_transaksi_frontend' => 'PJ-260320-00003',
-            'cabang_id' => $superadmin->cabang_id,
-            'user_id' => $superadmin->id,
+            'cabang_id' => $superadmin->cabang_id ?: 1,
+            'pegawai_id' => $pegawai->id,
             'nama_pelanggan' => 'Pelanggan Test 3',
             'no_hp' => '08123456787',
             'tipe_transaksi' => 'penjualan',
-            'tipe_servis' => 'non_real',
-            'tanggal' => '2026-03-20',
-            'tanggal_kustom' => '2026-03-20',
-            'total' => 500000,
+            'tanggal' => '2026-03-20 10:00:00',
+            'total_modal' => 200000,
+            'total_jual' => 500000,
+            'total_laba' => 300000,
             'grand_total' => 500000,
             'status' => 'Lunas',
-            'created_at' => '2026-03-20 10:00:00',
+            'metode_pembayaran' => 'Cash',
         ]);
 
         // Set monthly targets and realization for divisions
         TargetDivisi::updateOrCreate([
-            'cabang_id' => $superadmin->cabang_id,
+            'cabang_id' => $superadmin->cabang_id ?: 1,
             'divisi' => 'laptop',
             'tahun' => 2026,
         ], [
@@ -143,15 +146,14 @@ class TargetBulananTest extends TestCase
                 && $matrix['printer']['months'][2]['has_data'] === false;
         });
 
-        $test->assertViewHas('userMatrix', function ($userMatrix) use ($superadmin) {
-            $userRow = collect($userMatrix)->firstWhere('user.id', $superadmin->id);
-            return $userRow !== null
-                && $userRow['months'][1]['count'] === 1
-                && $userRow['months'][2]['count'] === 1
-                && $userRow['months'][3]['count'] === 1;
+        $test->assertViewHas('userMatrix', function ($userMatrix) use ($pegawai) {
+            $pegawaiRow = collect($userMatrix)->firstWhere('user.id', $pegawai->id);
+            return $pegawaiRow !== null
+                && $pegawaiRow['months'][1]['count'] === 1
+                && $pegawaiRow['months'][2]['count'] === 1
+                && $pegawaiRow['months'][3]['count'] === 1;
         });
     }
-
 
     public function test_superadmin_can_edit_monthly_target_and_realisasi_divisi()
     {
@@ -190,40 +192,44 @@ class TargetBulananTest extends TestCase
             });
     }
 
-    public function test_superadmin_can_edit_monthly_target_user()
+    public function test_superadmin_can_edit_monthly_target_pegawai()
     {
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
 
+        $pegawai = Pegawai::firstOrCreate(
+            ['cabang_id' => $superadmin->cabang_id ?: 1, 'nama' => 'Teknisi Test'],
+            ['role' => 'Teknisi', 'is_aktif' => true]
+        );
+
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->call('openEditCellUser', $superadmin->id, 7)
-            ->assertSet('editUserId', $superadmin->id)
+            ->call('openEditCellPegawai', $pegawai->id, 7)
+            ->assertSet('editUserId', $pegawai->id)
             ->assertSet('editUserBulan', 7)
             ->set('formTargetSyaratUser', 20)
-            ->call('simpanEditCellUser')
+            ->call('simpanEditCellPegawai')
             ->assertHasNoErrors()
             ->assertSet('modalEditCellUserOpen', false);
 
-        $targetUser = TargetUser::where('cabang_id', $superadmin->cabang_id ?: 1)
-            ->where('user_id', $superadmin->id)
+        $targetPegawai = TargetPegawai::where('cabang_id', $superadmin->cabang_id ?: 1)
+            ->where('pegawai_id', $pegawai->id)
             ->where('tahun', 2026)
             ->first();
 
-        $this->assertNotNull($targetUser);
-        $this->assertEquals(20, $targetUser->monthly_targets['7']);
+        $this->assertNotNull($targetPegawai);
+        $this->assertEquals(20, $targetPegawai->monthly_targets['7']);
 
         // Test rendering reflection
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->assertViewHas('userMatrix', function ($userMatrix) use ($superadmin) {
-                $userRow = collect($userMatrix)->firstWhere('user.id', $superadmin->id);
-                return $userRow !== null
-                    && $userRow['months'][7]['target'] === 20
-                    && $userRow['months'][7]['has_data'] === true
-                    && $userRow['months'][8]['has_data'] === false
-                    && $userRow['months'][8]['target'] === 0;
+            ->assertViewHas('userMatrix', function ($userMatrix) use ($pegawai) {
+                $pegawaiRow = collect($userMatrix)->firstWhere('user.id', $pegawai->id);
+                return $pegawaiRow !== null
+                    && $pegawaiRow['months'][7]['target'] === 20
+                    && $pegawaiRow['months'][7]['has_data'] === true
+                    && $pegawaiRow['months'][8]['has_data'] === false
+                    && $pegawaiRow['months'][8]['target'] === 0;
             });
     }
 }
-

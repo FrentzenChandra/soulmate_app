@@ -8,6 +8,7 @@ use App\Models\KasKeluar;
 use App\Models\KategoriKasKeluar;
 use App\Models\MasterPpn;
 use App\Models\MetodePembayaran;
+use App\Models\Pegawai;
 use App\Models\Produk;
 use App\Models\SumberDana;
 use App\Models\TransaksiFull;
@@ -30,6 +31,15 @@ class TransaksiFullSeeder extends Seeder
         $userPkp = User::where('cabang_id', $pkp?->id)->first() ?? User::first();
         $teknisiPkp = User::where('username', 'teknisi_pkp')->first() ?? $userPkp;
         $adminPkp = User::where('username', 'admin_pkp')->first() ?? $userPkp;
+
+        $pegawaiAdmin = Pegawai::firstOrCreate(
+            ['cabang_id' => $pkp?->id, 'nama' => 'Admin PKP'],
+            ['role' => 'Admin', 'is_aktif' => true]
+        );
+        $pegawaiTeknisi = Pegawai::firstOrCreate(
+            ['cabang_id' => $pkp?->id, 'nama' => 'Teknisi PKP'],
+            ['role' => 'Teknisi', 'is_aktif' => true]
+        );
 
         $customers = Customer::all();
         $custHendra = $customers->where('nama', 'Hendra Setiawan')->first();
@@ -101,7 +111,7 @@ class TransaksiFullSeeder extends Seeder
             // 1. Penjualan Lunas - Upgrade SSD & RAM
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $adminPkp->id,
+                'pegawai_id' => $pegawaiAdmin->id,
                 'customer_id' => $custHendra?->id,
                 'nama_pelanggan' => $custHendra?->nama ?? 'Hendra Setiawan',
                 'no_hp' => $custHendra?->no_hp ?? '081234567890',
@@ -134,7 +144,7 @@ class TransaksiFullSeeder extends Seeder
             // 2. Servis Lunas - Servis Laptop Overheat & Ganti Pasta
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $teknisiPkp->id,
+                'pegawai_id' => $pegawaiTeknisi->id,
                 'customer_id' => $custMega?->id,
                 'nama_pelanggan' => $custMega?->nama ?? 'Mega Lestari',
                 'no_hp' => $custMega?->no_hp ?? '082198765432',
@@ -167,7 +177,7 @@ class TransaksiFullSeeder extends Seeder
             // 3. Penjualan BON - Pengadaan Kantor PT Bangka Media Utama
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $adminPkp->id,
+                'pegawai_id' => $pegawaiAdmin->id,
                 'customer_id' => $custFajar?->id,
                 'nama_pelanggan' => $custFajar?->nama ?? 'PT Bangka Media Utama (Bpk. Fajar)',
                 'no_hp' => $custFajar?->no_hp ?? '081377889900',
@@ -200,7 +210,7 @@ class TransaksiFullSeeder extends Seeder
             // 4. Servis BON - Servis Motherboard Komputer (Pelanggan Rizky)
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $teknisiPkp->id,
+                'pegawai_id' => $pegawaiTeknisi->id,
                 'customer_id' => $custRizky?->id,
                 'nama_pelanggan' => $custRizky?->nama ?? 'Rizky Pratama',
                 'no_hp' => $custRizky?->no_hp ?? '085266778899',
@@ -226,7 +236,7 @@ class TransaksiFullSeeder extends Seeder
             // 5. Penjualan Lunas - Pelanggan Umum Walk-In
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $adminPkp->id,
+                'pegawai_id' => $pegawaiAdmin->id,
                 'customer_id' => null,
                 'nama_pelanggan' => 'Pelanggan Umum (Bpk. Andre)',
                 'no_hp' => '087811223344',
@@ -259,7 +269,7 @@ class TransaksiFullSeeder extends Seeder
             // 6. Servis Lunas - Servis Printer Head Clean & Rol Paper
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $teknisiPkp->id,
+                'pegawai_id' => $pegawaiTeknisi->id,
                 'customer_id' => null,
                 'nama_pelanggan' => 'Ibu Siti Khadijah',
                 'no_hp' => '081955667788',
@@ -285,7 +295,7 @@ class TransaksiFullSeeder extends Seeder
             // 7. Penjualan BON Masa Lalu yang DILUNASI CASH HARI INI
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $adminPkp->id,
+                'pegawai_id' => $pegawaiAdmin->id,
                 'customer_id' => $custHendra?->id,
                 'nama_pelanggan' => $custHendra?->nama ?? 'Hendra Setiawan',
                 'no_hp' => $custHendra?->no_hp ?? '081234567890',
@@ -312,7 +322,7 @@ class TransaksiFullSeeder extends Seeder
             // 8. Servis BON Masa Lalu
             [
                 'cabang_id' => $pkp->id,
-                'user_id' => $teknisiPkp->id,
+                'pegawai_id' => $pegawaiTeknisi->id,
                 'customer_id' => $custFajar?->id,
                 'nama_pelanggan' => $custFajar?->nama ?? 'PT Bangka Media Utama (Bpk. Fajar)',
                 'no_hp' => $custFajar?->no_hp ?? '081377889900',
@@ -353,7 +363,7 @@ class TransaksiFullSeeder extends Seeder
                     $trxDate = Carbon::create($currentYear, $m, $day, rand(8, 17), rand(0, 59));
                     $sampleTrx[] = [
                         'cabang_id' => $pkp->id,
-                        'user_id' => $teknisiPkp->id,
+                        'pegawai_id' => $pegawaiTeknisi->id,
                         'customer_id' => $custHendra?->id,
                         'nama_pelanggan' => 'Pelanggan Servis ' . ucfirst($cat) . " M{$m}-#{$k}",
                         'no_hp' => '0812345678' . str_pad((string) $k, 2, '0', STR_PAD_LEFT),
@@ -385,7 +395,7 @@ class TransaksiFullSeeder extends Seeder
                 $trxDate = Carbon::create($currentYear, $m, $day, rand(8, 17), rand(0, 59));
                 $sampleTrx[] = [
                     'cabang_id' => $pkp->id,
-                    'user_id' => $adminPkp->id,
+                    'pegawai_id' => $pegawaiAdmin->id,
                     'customer_id' => null,
                     'nama_pelanggan' => "Pembeli Retail M{$m}-#{$k}",
                     'no_hp' => '0819876543' . str_pad((string) $k, 2, '0', STR_PAD_LEFT),

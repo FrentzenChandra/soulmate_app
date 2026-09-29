@@ -16,7 +16,7 @@ class TransaksiFull extends Model
 
     protected $fillable = [
         'cabang_id',
-        'user_id',
+        'pegawai_id',
         'customer_id',
         'nama_pelanggan',
         'no_hp',
@@ -54,9 +54,9 @@ class TransaksiFull extends Model
         return $this->belongsTo(Cabang::class);
     }
 
-    public function user(): BelongsTo
+    public function pegawai(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id')->withTrashed();
+        return $this->belongsTo(Pegawai::class, 'pegawai_id');
     }
 
     public function customer(): BelongsTo

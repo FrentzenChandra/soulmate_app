@@ -701,11 +701,11 @@
                                     <div x-data="{
                                         open: false,
                                         search: '',
-                                        selectedId: @entangle('formUserId').live,
-                                        users: @js($pegawaiList->map(fn($u) => [
-                                            'id' => $u->id,
-                                            'name' => $u->name,
-                                            'role' => $u->roles->first()?->name ?? 'Staf'
+                                        selectedId: @entangle('formPegawaiId').live,
+                                        users: @js($pegawaiList->map(fn($p) => [
+                                            'id' => $p->id,
+                                            'name' => $p->nama,
+                                            'role' => $p->role
                                         ])),
                                         get selectedUser() {
                                             return this.users.find(u => u.id == this.selectedId) || { id: null, name: 'Tanpa Pegawai', role: '-' };
@@ -918,7 +918,7 @@
                             </div>
                             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">Pegawai</span>
-                                <span class="font-bold text-gray-900 block mt-0.5">{{ $selectedTransaksi->user?->name ?? '-' }}</span>
+                                <span class="font-bold text-gray-900 block mt-0.5">{{ $selectedTransaksi->pegawai?->nama ?? '-' }}</span>
                             </div>
                         </div>
 

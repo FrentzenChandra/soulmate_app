@@ -22,6 +22,7 @@ use App\Livewire\ModalAwal\Index as ModalAwalIndex;
 use App\Livewire\Saldo\Index as SaldoIndex;
 use App\Livewire\Master\SumberDana\Index as MasterSumberDanaIndex;
 use App\Livewire\Master\KategoriKas\Index as MasterKategoriKasIndex;
+use App\Livewire\Master\Pegawai\Index as MasterPegawaiIndex;
 use App\Livewire\SerialNumber\Index as SerialNumberIndex;
 use App\Livewire\Transaksi\Full as TransaksiFull;
 use App\Livewire\Transaksi\Harian as TransaksiHarian;
@@ -69,7 +70,11 @@ Route::middleware('auth')->group(function () {
             Route::get('/kategori-kas', MasterKategoriKasIndex::class)->name('kategori-kas');
         });
 
-        // Owner, Superadmin, Admin, Bendahara, & Teknisi (Produk & Servis)
+        // Owner, Superadmin, Admin, Bendahara, & Teknisi (Produk, Servis, & Pegawai)
+        Route::middleware('role:Owner|Superadmin|Admin')->group(function () {
+            Route::get('/pegawai', MasterPegawaiIndex::class)->name('pegawai');
+        });
+
         Route::middleware('role:Owner|Superadmin|Admin|Bendahara|Teknisi')->group(function () {
             Route::get('/produk', MasterProdukIndex::class)->name('produk');
             Route::get('/servis', MasterServisIndex::class)->name('servis');
