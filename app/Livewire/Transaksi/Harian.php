@@ -386,7 +386,7 @@ class Harian extends Component
             'formUserId' => 'nullable|exists:users,id',
             'formNamaPelanggan' => 'required|string|max:150',
             'formMetodePembayaran' => 'required|string|max:50',
-            'formStatus' => 'required|in:Lunas,BON',
+            'formStatus' => 'required|in:Lunas,Bon,BON',
             'items' => 'required|array|min:1',
             'items.*.nama_item' => 'required|string|max:200',
             'items.*.qty' => 'required|integer|min:1',
@@ -504,19 +504,17 @@ class Harian extends Component
 
     public function updateStatusDirect(int $id, string $newStatus): void
     {
-        $allowed = ['Lunas', 'BON'];
-        if (! in_array($newStatus, $allowed)) return;
-
+        $statusNormalized = strtolower($newStatus) === 'bon' ? 'Bon' : 'Lunas';
         $transaksi = TransaksiFull::find($id);
         if ($transaksi) {
-            $transaksi->status = $newStatus;
-            if ($newStatus === 'Lunas') {
+            $transaksi->status = $statusNormalized;
+            if ($statusNormalized === 'Lunas') {
                 $transaksi->tanggal_lunas = $transaksi->tanggal_lunas ?: now();
             } else {
                 $transaksi->tanggal_lunas = null;
             }
             $transaksi->save();
-            session()->flash('success', "Status transaksi {$transaksi->no_transaksi_frontend} diubah ke {$newStatus}.");
+            session()->flash('success', "Status transaksi {$transaksi->no_transaksi_frontend} diubah ke {$statusNormalized}.");
         }
     }
 

@@ -103,7 +103,7 @@ class TransaksiFull extends Model
     {
         return match (strtolower(str_replace(' ', '_', $this->status))) {
             'lunas' => 'Lunas',
-            'bon' => 'BON',
+            'bon' => 'Bon',
             'belum_lunas' => 'Belum Lunas',
             'batal' => 'Batal',
             default => ucfirst($this->status),

@@ -468,7 +468,7 @@ class Full extends Component
             'formUserId' => 'nullable|exists:users,id',
             'formNamaPelanggan' => 'required|string|max:150',
             'formMetodePembayaran' => 'required|string|max:50',
-            'formStatus' => 'required|in:Lunas,BON',
+            'formStatus' => 'required|in:Lunas,Bon,BON',
             'items' => 'required|array|min:1',
             'items.*.nama_item' => 'required|string|max:200',
             'items.*.qty' => 'required|integer|min:1',
@@ -513,8 +513,9 @@ class Full extends Component
             $timeBase = ! empty($this->formJam) ? $this->formJam : now()->format('H:i');
             $tanggalParsed = Carbon::parse($dateBase . ' ' . $timeBase);
             $tanggalLunas = null;
+            $statusNormalized = strtolower($this->formStatus) === 'bon' ? 'Bon' : 'Lunas';
 
-            if ($this->formStatus === 'Lunas') {
+            if ($statusNormalized === 'Lunas') {
                 if ($this->transaksiId) {
                     $existingTrx = TransaksiFull::find($this->transaksiId);
                     $tanggalLunas = ($existingTrx && $existingTrx->status === 'Lunas' && $existingTrx->tanggal_lunas)
@@ -547,7 +548,7 @@ class Full extends Component
                 'total_jual' => $totalJual,
                 'total_laba' => $totalLaba,
                 'grand_total' => $grandTotal,
-                'status' => $this->formStatus,
+                'status' => $statusNormalized,
                 'catatan' => trim($this->formCatatan) ?: null,
             ];
 
@@ -593,19 +594,17 @@ class Full extends Component
 
     public function updateStatusDirect(int $id, string $newStatus): void
     {
-        $allowed = ['Lunas', 'BON'];
-        if (! in_array($newStatus, $allowed)) return;
-
+        $statusNormalized = strtolower($newStatus) === 'bon' ? 'Bon' : 'Lunas';
         $transaksi = TransaksiFull::find($id);
         if ($transaksi) {
-            $transaksi->status = $newStatus;
-            if ($newStatus === 'Lunas') {
+            $transaksi->status = $statusNormalized;
+            if ($statusNormalized === 'Lunas') {
                 $transaksi->tanggal_lunas = $transaksi->tanggal_lunas ?: now();
             } else {
                 $transaksi->tanggal_lunas = null;
             }
             $transaksi->save();
-            session()->flash('success', "Status transaksi {$transaksi->no_transaksi_frontend} diubah ke {$newStatus}.");
+            session()->flash('success', "Status transaksi {$transaksi->no_transaksi_frontend} diubah ke {$statusNormalized}.");
         }
     }
 
@@ -767,7 +766,11 @@ class Full extends Component
 
         // Filter Status
         if ($this->statusFilter !== 'semua') {
-            $query->where('status', $this->statusFilter);
+            if (in_array(strtolower($this->statusFilter), ['bon'])) {
+                $query->whereIn('status', ['Bon', 'BON', 'bon']);
+            } else {
+                $query->where('status', $this->statusFilter);
+            }
         }
 
         // Filter Metode Pembayaran
@@ -810,7 +813,7 @@ class Full extends Component
         $totalModal = (float) $allCurrent->sum('total_modal');
         $totalLaba = (float) $allCurrent->sum('total_laba');
         $totalLunas = (float) $allCurrent->where('status', 'Lunas')->sum('grand_total');
-        $totalBon = (float) $allCurrent->where('status', 'BON')->sum('grand_total');
+        $totalBon = (float) $allCurrent->filter(fn($t) => in_array(strtolower($t->status), ['bon']))->sum('grand_total');
         $totalTransaksiCount = $allCurrent->count();
 
         // Hitung Uang Cash di Laci HARI INI (Terkunci Hari Ini / Realtime Kasir)
