@@ -32,8 +32,8 @@
     <div class="lg:col-span-6 relative hidden lg:flex flex-col justify-between p-8 bg-cover bg-center overflow-hidden"
          style="background-image: url('{{ asset('images/hero_display.jpeg') }}');">
 
-        <!-- Dark Gradient Overlay for Readability -->
-        <div class="absolute inset-0 bg-gradient-to-t from-[#0E1726] via-[#0E1726]/80 to-[#0E1726]/60"></div>
+        <!-- Subtle Gradient Overlay for Readability & Brighter Display -->
+        <div class="absolute inset-0 bg-gradient-to-t from-[#0E1726]/60 via-[#0E1726]/20 to-[#0E1726]/30"></div>
 
         <!-- Top Header inside Hero -->
         <div class="relative z-10 flex items-center space-x-3">
