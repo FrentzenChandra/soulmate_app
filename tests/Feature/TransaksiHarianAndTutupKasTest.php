@@ -104,15 +104,26 @@ class TransaksiHarianAndTutupKasTest extends TestCase
         $this->assertEquals('Lunas', $transaksi->fresh()->status);
     }
 
-    public function test_admin_can_filter_transaksi_harian_by_date()
+    public function test_admin_can_filter_transaksi_harian_by_date_and_periods()
     {
         $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
         $this->actingAs($admin);
 
         $component = Livewire::test(TransaksiHarian::class);
-        $component->assertSet('filterDate', now()->toDateString())
-            ->set('filterDate', '2026-09-01')
-            ->assertSet('filterDate', '2026-09-01');
+        $component->assertSet('startDate', now()->toDateString())
+            ->assertSet('endDate', now()->toDateString())
+            ->assertSet('periodeMode', 'hari_ini')
+            ->call('setPeriodeMode', 'range')
+            ->assertSet('periodeMode', 'range')
+            ->assertSet('startDate', now()->startOfMonth()->toDateString())
+            ->call('setPeriodeMode', 'bulanan')
+            ->assertSet('periodeMode', 'bulanan')
+            ->call('setPeriodeMode', 'tahunan')
+            ->assertSet('periodeMode', 'tahunan')
+            ->call('setPeriodeMode', 'semua')
+            ->assertSet('periodeMode', 'semua')
+            ->assertSet('startDate', '')
+            ->assertSet('endDate', '');
     }
 
     public function test_admin_can_inline_update_metode_transaksi_harian()

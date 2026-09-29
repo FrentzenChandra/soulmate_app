@@ -38,7 +38,11 @@ class Harian extends Component
     #[Url(except: 'semua')]
     public string $metodeFilter = 'semua';
 
-    public string $filterDate = '';
+    public string $periodeMode = 'hari_ini'; // 'hari_ini' | 'range' | 'bulanan' | 'tahunan' | 'semua'
+    public string $startDate = '';
+    public string $endDate = '';
+    public string $filterBulan = '';
+    public string $filterTahun = '';
     public int $perPage = 15;
 
     // State Modal Form (Create / Edit)
@@ -81,9 +85,68 @@ class Harian extends Component
             abort(403, 'Akses modul Transaksi Harian dibatasi.');
         }
 
-        $this->filterDate = now()->toDateString();
+        $this->startDate = now()->toDateString();
+        $this->endDate = now()->toDateString();
+        $this->filterBulan = now()->format('m');
+        $this->filterTahun = now()->format('Y');
+
         $this->sortField = 'tanggal';
         $this->sortDirection = 'desc';
+    }
+
+    public function setPeriodeMode(string $mode): void
+    {
+        $this->periodeMode = $mode;
+        if ($mode === 'semua') {
+            $this->startDate = '';
+            $this->endDate = '';
+        } elseif ($mode === 'hari_ini') {
+            $this->startDate = now()->toDateString();
+            $this->endDate = now()->toDateString();
+        } elseif ($mode === 'range') {
+            $this->startDate = now()->startOfMonth()->toDateString();
+            $this->endDate = now()->toDateString();
+        } elseif ($mode === 'bulanan') {
+            $this->applyBulanan();
+        } elseif ($mode === 'tahunan') {
+            $this->applyTahunan();
+        }
+        $this->resetPage();
+    }
+
+    public function updatedFilterBulan(): void
+    {
+        if ($this->periodeMode === 'bulanan') {
+            $this->applyBulanan();
+        }
+        $this->resetPage();
+    }
+
+    public function updatedFilterTahun(): void
+    {
+        if ($this->periodeMode === 'bulanan') {
+            $this->applyBulanan();
+        } elseif ($this->periodeMode === 'tahunan') {
+            $this->applyTahunan();
+        }
+        $this->resetPage();
+    }
+
+    private function applyBulanan(): void
+    {
+        $year = (int) ($this->filterTahun ?: now()->year);
+        $month = (int) ($this->filterBulan ?: now()->month);
+        $date = Carbon::createFromDate($year, $month, 1);
+        $this->startDate = $date->copy()->startOfMonth()->toDateString();
+        $this->endDate = $date->copy()->endOfMonth()->toDateString();
+    }
+
+    private function applyTahunan(): void
+    {
+        $year = (int) ($this->filterTahun ?: now()->year);
+        $date = Carbon::createFromDate($year, 1, 1);
+        $this->startDate = $date->copy()->startOfYear()->toDateString();
+        $this->endDate = $date->copy()->endOfYear()->toDateString();
     }
 
     public function updatingSearch(): void
@@ -106,7 +169,12 @@ class Harian extends Component
         $this->resetPage();
     }
 
-    public function updatingFilterDate(): void
+    public function updatingStartDate(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingEndDate(): void
     {
         $this->resetPage();
     }
@@ -655,9 +723,11 @@ class Harian extends Component
             }
         }
 
-        // Filter Tanggal Harian
-        if (! empty($this->filterDate)) {
-            $query->whereDate('tanggal', Carbon::parse($this->filterDate)->toDateString());
+        // Filter Rentang Tanggal
+        if (! empty($this->startDate)) {
+            $start = Carbon::parse($this->startDate)->startOfDay();
+            $end = Carbon::parse($this->endDate ?: $this->startDate)->endOfDay();
+            $query->whereBetween('tanggal', [$start, $end]);
         }
 
         // Filter Tipe

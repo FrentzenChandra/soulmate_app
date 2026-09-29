@@ -43,9 +43,75 @@
     @endif
 
     <!-- ============================================== -->
-    <!-- FILTER BAR, TANGGAL & PENCARIAN                -->
+    <!-- FILTER BAR, PERIODE & PENCARIAN                -->
     <!-- ============================================== -->
     <div class="card-custom bg-white p-5 space-y-4 border border-gray-100/90 shadow-sm">
+
+        <!-- Baris 1: Mode Periode Switcher -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-100">
+            <div class="flex items-center space-x-1.5 bg-gray-100 p-1 rounded-xl">
+                <button type="button"
+                        wire:click="setPeriodeMode('hari_ini')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'hari_ini' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                    Hari Ini
+                </button>
+                <button type="button"
+                        wire:click="setPeriodeMode('range')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'range' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                    Rentang Tanggal
+                </button>
+                <button type="button"
+                        wire:click="setPeriodeMode('bulanan')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'bulanan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                    Bulanan
+                </button>
+                <button type="button"
+                        wire:click="setPeriodeMode('tahunan')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'tahunan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                    Tahunan
+                </button>
+                <button type="button"
+                        wire:click="setPeriodeMode('semua')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'semua' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                    Semua
+                </button>
+            </div>
+
+            <!-- Input Tanggal Dinamis -->
+            <div class="flex items-center space-x-2 sm:ml-auto">
+                @if($periodeMode === 'range' || $periodeMode === 'hari_ini')
+                    <input type="date"
+                           wire:model.live="startDate"
+                           class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#0052FF]">
+                    <span class="text-xs font-bold text-gray-400">s/d</span>
+                    <input type="date"
+                           wire:model.live="endDate"
+                           class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#0052FF]">
+                @elseif($periodeMode === 'bulanan')
+                    <select wire:model.live="filterBulan"
+                            class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700">
+                        @foreach(range(1, 12) as $m)
+                            <option value="{{ sprintf('%02d', $m) }}">{{ Carbon\Carbon::create()->month($m)->translatedFormat('F') }}</option>
+                        @endforeach
+                    </select>
+                    <select wire:model.live="filterTahun"
+                            class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700">
+                        @foreach(range(now()->year - 3, now()->year + 1) as $y)
+                            <option value="{{ $y }}">{{ $y }}</option>
+                        @endforeach
+                    </select>
+                @elseif($periodeMode === 'tahunan')
+                    <select wire:model.live="filterTahun"
+                            class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700">
+                        @foreach(range(now()->year - 3, now()->year + 1) as $y)
+                            <option value="{{ $y }}">{{ $y }}</option>
+                        @endforeach
+                    </select>
+                @endif
+            </div>
+        </div>
+
+        <!-- Baris 2: Search & Filter Kategori/Status/Metode -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3">
 
             <!-- Pencarian Multi-Kata Longgar -->
@@ -56,13 +122,6 @@
                 <input type="text"
                        wire:model.live.debounce.300ms="search"
                        class="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-semibold text-gray-800 focus:bg-white focus:border-[#0052FF] focus:ring-2 focus:ring-blue-100 transition-all">
-            </div>
-
-            <!-- Filter Tanggal Harian -->
-            <div class="md:col-span-2">
-                <input type="date"
-                       wire:model.live="filterDate"
-                       class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#0052FF]">
             </div>
 
             <!-- Filter Tipe Transaksi -->
@@ -86,7 +145,7 @@
             </div>
 
             <!-- Filter Metode & Size Selector -->
-            <div class="md:col-span-2 flex items-center gap-2">
+            <div class="md:col-span-4 flex items-center gap-2">
                 <select wire:model.live="metodeFilter"
                         class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#0052FF] cursor-pointer">
                     <option value="semua">Semua Metode</option>
@@ -1045,26 +1104,6 @@ window.tabulatorTransaksiHarianTable = function(config) {
                             const html = items.map(it => `
                                 <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold text-amber-600 font-mono">
                                     ${this.formatRupiah(it.subtotal_modal)}
-                                </div>
-                            `).join('');
-                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
-                        }
-                    },
-                    {
-                        title: "Laba",
-                        field: "total_laba",
-                        hozAlign: "right",
-                        width: 110,
-                        formatter: (cell) => {
-                            const d = cell.getData();
-                            const items = d.items_list || [];
-                            if (items.length === 0) {
-                                const val = Number(d.total_laba || 0);
-                                return `<span class="font-mono font-black text-[11px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
-                            }
-                            const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold font-mono ${it.laba >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
-                                    ${this.formatRupiah(it.laba)}
                                 </div>
                             `).join('');
                             return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
