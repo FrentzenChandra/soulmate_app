@@ -779,28 +779,28 @@
                           x-data="{
                               raw: Number($wire.jumlahBayar || {{ (float) $this->grandTotal }} || 0),
                               get grandTotal() {
-                                  return Number($wire.grandTotal || {{ (float) $this->grandTotal }} || 0);
+                                  return Math.round(Number($wire.grandTotal || {{ (float) $this->grandTotal }} || 0));
                               },
                               get kembalian() {
-                                  let pay = parseFloat(this.raw) || 0;
+                                  let pay = Math.round(Number(this.raw || 0));
                                   let diff = pay - this.grandTotal;
                                   return diff > 0 ? diff : 0;
                               },
                               get isKurang() {
-                                  let pay = parseFloat(this.raw) || 0;
+                                  let pay = Math.round(Number(this.raw || 0));
                                   return pay > 0 && pay < this.grandTotal;
                               },
                               get isUangPas() {
-                                  let pay = parseFloat(this.raw) || 0;
+                                  let pay = Math.round(Number(this.raw || 0));
                                   return (pay > 0 && pay === this.grandTotal) || (pay === 0 && this.grandTotal === 0);
                               },
                               formatRupiah(val) {
-                                  if (val === null || val === undefined || val === '' || isNaN(val)) return '';
-                                  let num = parseInt(val.toString().replace(/[^0-9]/g, ''), 10);
-                                  return isNaN(num) || num === 0 ? '' : num.toLocaleString('id-ID');
+                                  if (val === null || val === undefined || val === '' || isNaN(val)) return '0';
+                                  let num = Math.round(Number(val));
+                                  return isNaN(num) ? '0' : num.toLocaleString('id-ID');
                               },
                               formatInput(e) {
-                                  let clean = e.target.value.replace(/[^0-9]/g, '');
+                                  let clean = e.target.value.toString().replace(/[^0-9]/g, '');
                                   let num = clean ? parseInt(clean, 10) : 0;
                                   this.raw = num;
                                   $wire.set('jumlahBayar', num, false);
@@ -815,15 +815,15 @@
                                   $wire.setQuickNominal(val);
                               },
                               init() {
-                                  this.raw = Number($wire.jumlahBayar || this.grandTotal || 0);
+                                  this.raw = Math.round(Number($wire.jumlahBayar || this.grandTotal || 0));
                                   this.$watch('$wire.jumlahBayar', (val) => {
                                       if (val !== undefined && val !== null) {
-                                          this.raw = Number(val);
+                                          this.raw = Math.round(Number(val));
                                       }
                                   });
                                   this.$watch('$wire.grandTotal', (val) => {
                                       if (this.isUangPas) {
-                                          this.raw = Number(val || 0);
+                                          this.raw = Math.round(Number(val || 0));
                                       }
                                   });
                               }
@@ -898,7 +898,7 @@
                                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-sm font-bold text-gray-400 select-none pointer-events-none">Rp</span>
                                     <input type="text"
                                            inputmode="numeric"
-                                           :value="formatRupiah(raw)"
+                                           :value="raw ? Math.round(Number(raw)).toLocaleString('id-ID') : ''"
                                            @input="formatInput($event)"
                                            class="w-full pl-11 pr-4 py-3 text-lg font-black text-gray-900 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] bg-white">
                                 </div>
@@ -918,22 +918,15 @@
                             <div class="p-4 rounded-2xl border transition-all"
                                  :class="kembalian > 0 ? 'bg-emerald-50/90 border-emerald-200 shadow-2xs' : (isKurang ? 'bg-rose-50 border-rose-200' : 'bg-gray-50 border-gray-200')">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center space-x-2">
-                                        <template x-if="kembalian > 0">
-                                            <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                            </div>
-                                        </template>
-                                        <template x-if="isKurang">
-                                            <div class="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                            </div>
-                                        </template>
-                                        <template x-if="!kembalian && !isKurang">
-                                            <div class="w-8 h-8 rounded-xl bg-gray-200 text-gray-600 flex items-center justify-center shrink-0">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                            </div>
-                                        </template>
+                                    <div class="flex items-center space-x-3">
+                                        <!-- Single Icon Element (No duplication with template x-if) -->
+                                        <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-2xs transition-colors"
+                                             :class="kembalian > 0 ? 'bg-emerald-500 text-white' : (isKurang ? 'bg-rose-500 text-white' : 'bg-gray-200 text-gray-600')">
+                                            <svg x-show="kembalian > 0" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                            <svg x-show="isKurang" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                            <svg x-show="!kembalian && !isKurang" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                        </div>
+
                                         <div>
                                             <span class="text-[10px] font-black uppercase tracking-wider block"
                                                   :class="kembalian > 0 ? 'text-emerald-800' : (isKurang ? 'text-rose-800' : 'text-gray-500')">
