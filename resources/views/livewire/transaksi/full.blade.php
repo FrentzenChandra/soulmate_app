@@ -1244,56 +1244,122 @@ window.tabulatorTransaksiFullTable = function(config) {
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
-                            let itemsHtml = '';
-                            if (items.length > 0) {
-                                itemsHtml = items.map(it => `
-                                    <div class="flex items-start gap-1.5 leading-tight py-0.5">
-                                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#5E17EB] shrink-0 mt-1"></span>
-                                        <span class="text-[10px] font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
-                                    </div>
-                                `).join('');
-                            } else {
-                                itemsHtml = `<span class="text-[10px] text-gray-400 italic">Tanpa item</span>`;
+                            if (items.length === 0) {
+                                return `<span class="text-[10px] text-gray-400 italic">Tanpa item</span>`;
                             }
-                            return `<div class="py-0.5 space-y-0.5">${itemsHtml}</div>`;
+                            const isMulti = items.length > 1;
+                            let html = items.map(it => `
+                                <div class="flex items-start gap-1.5 leading-tight py-0.5 min-h-[18px]">
+                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#5E17EB] shrink-0 mt-1"></span>
+                                    <span class="text-[10px] font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
+                                </div>
+                            `).join('');
+                            if (isMulti) {
+                                html += `<div class="pt-1 border-t border-gray-100 text-[10px] font-black text-gray-500 uppercase tracking-wider">Total (${items.length} Item)</div>`;
+                            }
+                            return `<div class="py-0.5 space-y-0.5">${html}</div>`;
                         }
                     },
                     {
                         title: "Biaya",
                         field: "grand_total",
                         hozAlign: "right",
-                        width: 100,
-                        formatter: (cell) => `<span class="font-mono font-black text-[#5E17EB] text-[11px]">${this.formatRupiah(cell.getValue())}</span>`
+                        width: 115,
+                        formatter: (cell) => {
+                            const d = cell.getData();
+                            const items = d.items_list || [];
+                            if (items.length === 0) {
+                                return `<span class="font-mono font-black text-[#5E17EB] text-[11px]">${this.formatRupiah(d.grand_total)}</span>`;
+                            }
+                            const isMulti = items.length > 1;
+                            let html = items.map(it => `
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold text-slate-800 font-mono">
+                                    ${this.formatRupiah(it.subtotal_jual)}
+                                </div>
+                            `).join('');
+                            if (isMulti) {
+                                html += `<div class="pt-1 border-t border-purple-100 text-[11px] font-black text-[#5E17EB] font-mono">${this.formatRupiah(d.grand_total)}</div>`;
+                            } else {
+                                html = `<div class="leading-tight py-0.5 text-[11px] font-black text-[#5E17EB] font-mono">${this.formatRupiah(d.grand_total)}</div>`;
+                            }
+                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
+                        }
                     },
                     {
                         title: "Modal",
                         field: "total_modal",
                         hozAlign: "right",
-                        width: 95,
-                        formatter: (cell) => `<span class="font-mono font-bold text-amber-600 text-[11px]">${this.formatRupiah(cell.getValue())}</span>`
+                        width: 105,
+                        formatter: (cell) => {
+                            const d = cell.getData();
+                            const items = d.items_list || [];
+                            if (items.length === 0) {
+                                return `<span class="font-mono font-bold text-amber-600 text-[11px]">${this.formatRupiah(d.total_modal)}</span>`;
+                            }
+                            const isMulti = items.length > 1;
+                            let html = items.map(it => `
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold text-amber-600 font-mono">
+                                    ${this.formatRupiah(it.subtotal_modal)}
+                                </div>
+                            `).join('');
+                            if (isMulti) {
+                                html += `<div class="pt-1 border-t border-amber-100 text-[11px] font-bold text-amber-700 font-mono">${this.formatRupiah(d.total_modal)}</div>`;
+                            } else {
+                                html = `<div class="leading-tight py-0.5 text-[11px] font-bold text-amber-600 font-mono">${this.formatRupiah(d.total_modal)}</div>`;
+                            }
+                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
+                        }
                     },
                     {
                         title: "Laba",
                         field: "total_laba",
                         hozAlign: "right",
-                        width: 100,
+                        width: 110,
                         formatter: (cell) => {
-                            const val = Number(cell.getValue() || 0);
-                            return `<span class="font-mono font-black text-[11px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
+                            const d = cell.getData();
+                            const items = d.items_list || [];
+                            if (items.length === 0) {
+                                const val = Number(d.total_laba || 0);
+                                return `<span class="font-mono font-black text-[11px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
+                            }
+                            const isMulti = items.length > 1;
+                            let html = items.map(it => `
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold font-mono ${it.laba >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
+                                    ${this.formatRupiah(it.laba)}
+                                </div>
+                            `).join('');
+                            const totalLabaVal = Number(d.total_laba || 0);
+                            if (isMulti) {
+                                html += `<div class="pt-1 border-t border-emerald-100 text-[11px] font-black font-mono ${totalLabaVal >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${this.formatRupiah(totalLabaVal)}</div>`;
+                            } else {
+                                html = `<div class="leading-tight py-0.5 text-[11px] font-black font-mono ${totalLabaVal >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(totalLabaVal)}</div>`;
+                            }
+                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
                         }
                     },
                     {
                         title: "Pajak",
                         field: "has_ppn",
-                        width: 85,
+                        width: 90,
                         hozAlign: "center",
                         formatter: (cell) => {
                             const d = cell.getData();
-                            if (d.has_ppn) {
-                                return `<span class="inline-block px-2 py-0.5 rounded text-[9px] font-black bg-blue-50 text-[#0052FF] border border-blue-200 uppercase tracking-wider">PPN</span>`;
-                            } else {
-                                return `<span class="inline-block px-2 py-0.5 rounded text-[9px] font-black bg-pink-50 text-pink-700 border border-pink-200 uppercase tracking-wider">Non PPN</span>`;
+                            const items = d.items_list || [];
+                            const isMulti = items.length > 1;
+                            const taxLabel = d.has_ppn ? 'PPN' : 'Non PPN';
+                            const taxColor = d.has_ppn ? 'text-[#0052FF]' : 'text-pink-600';
+
+                            if (items.length === 0 || !isMulti) {
+                                return `<span class="text-[10px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</span>`;
                             }
+
+                            let html = items.map(() => `
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[10px] font-black ${taxColor} uppercase tracking-wider">
+                                    ${taxLabel}
+                                </div>
+                            `).join('');
+                            html += `<div class="pt-1 border-t border-transparent text-[10px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</div>`;
+                            return `<div class="py-0.5 space-y-0.5 text-center">${html}</div>`;
                         }
                     },
                     {
