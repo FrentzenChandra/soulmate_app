@@ -777,9 +777,9 @@
                     <!-- Body Modal -->
                     <form wire:submit.prevent="prosesPembayaran"
                           x-data="{
-                              raw: Number($wire.jumlahBayar || 0),
+                              raw: Number($wire.jumlahBayar || {{ (float) $this->grandTotal }} || 0),
                               get grandTotal() {
-                                  return Number($wire.grandTotal || 0);
+                                  return Number($wire.grandTotal || {{ (float) $this->grandTotal }} || 0);
                               },
                               get kembalian() {
                                   let pay = parseFloat(this.raw) || 0;
@@ -795,9 +795,9 @@
                                   return (pay > 0 && pay === this.grandTotal) || (pay === 0 && this.grandTotal === 0);
                               },
                               formatRupiah(val) {
-                                  if (val === null || val === undefined || val === '' || isNaN(val)) return '0';
+                                  if (val === null || val === undefined || val === '' || isNaN(val)) return '';
                                   let num = parseInt(val.toString().replace(/[^0-9]/g, ''), 10);
-                                  return isNaN(num) ? '0' : num.toLocaleString('id-ID');
+                                  return isNaN(num) || num === 0 ? '' : num.toLocaleString('id-ID');
                               },
                               formatInput(e) {
                                   let clean = e.target.value.replace(/[^0-9]/g, '');
@@ -808,17 +808,22 @@
                               },
                               setUangPas() {
                                   this.raw = this.grandTotal;
-                                  $wire.set('jumlahBayar', this.grandTotal, false);
+                                  $wire.setUangPas();
                               },
                               setQuickNominal(val) {
                                   this.raw = val;
-                                  $wire.set('jumlahBayar', val, false);
+                                  $wire.setQuickNominal(val);
                               },
                               init() {
                                   this.raw = Number($wire.jumlahBayar || this.grandTotal || 0);
                                   this.$watch('$wire.jumlahBayar', (val) => {
                                       if (val !== undefined && val !== null) {
                                           this.raw = Number(val);
+                                      }
+                                  });
+                                  this.$watch('$wire.grandTotal', (val) => {
+                                      if (this.isUangPas) {
+                                          this.raw = Number(val || 0);
                                       }
                                   });
                               }
@@ -893,7 +898,7 @@
                                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-sm font-bold text-gray-400 select-none pointer-events-none">Rp</span>
                                     <input type="text"
                                            inputmode="numeric"
-                                           :value="formatRupiah(raw) === '0' ? '' : formatRupiah(raw)"
+                                           :value="formatRupiah(raw)"
                                            @input="formatInput($event)"
                                            class="w-full pl-11 pr-4 py-3 text-lg font-black text-gray-900 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5E17EB] bg-white">
                                 </div>

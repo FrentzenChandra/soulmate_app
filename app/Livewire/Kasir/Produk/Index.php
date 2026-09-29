@@ -63,6 +63,16 @@ class Index extends Component
 
     public ?int $selectedPpnId = null;
 
+    public float $subtotal = 0;
+
+    public float $ppnNominal = 0;
+
+    public float $ppnPersen = 0;
+
+    public float $grandTotal = 0;
+
+    public float $kembalian = 0;
+
     // Mode Transaksi (Real vs Non-Real / Cetak Bon Formalitas Saja)
     public bool $isReal = true;
 
@@ -92,6 +102,25 @@ class Index extends Component
         $defaultPpn = MasterPpn::where('is_aktif', true)->where('persen', 0)->first()
                    ?? MasterPpn::where('is_aktif', true)->orderBy('persen', 'asc')->first();
         $this->selectedPpnId = $defaultPpn?->id;
+        $this->recalculateTotals();
+    }
+
+    public function recalculateTotals(): void
+    {
+        $this->subtotal = (float) collect($this->cart)->sum('subtotal');
+
+        $ppn = $this->selectedPpnId ? MasterPpn::find($this->selectedPpnId) : null;
+        $this->ppnPersen = $ppn ? (float) $ppn->persen : 0;
+
+        $afterDiskon = max(0, $this->subtotal - (float) $this->diskon);
+        $this->ppnNominal = ($afterDiskon * $this->ppnPersen) / 100;
+        $this->grandTotal = $afterDiskon + $this->ppnNominal;
+
+        if ($this->isTunai()) {
+            $this->kembalian = max(0, (float) $this->jumlahBayar - (float) $this->grandTotal);
+        } else {
+            $this->kembalian = 0;
+        }
     }
 
     public function loadMore(): void
@@ -122,15 +151,19 @@ class Index extends Component
 
     public function updatedDiskon(): void
     {
+        $this->recalculateTotals();
         if ($this->modalBayarOpen && $this->isTunai() && ($this->jumlahBayar <= 0 || $this->jumlahBayar < $this->grandTotal)) {
             $this->jumlahBayar = $this->grandTotal;
+            $this->recalculateTotals();
         }
     }
 
     public function updatedSelectedPpnId(): void
     {
+        $this->recalculateTotals();
         if ($this->modalBayarOpen && $this->isTunai() && ($this->jumlahBayar <= 0 || $this->jumlahBayar < $this->grandTotal)) {
             $this->jumlahBayar = $this->grandTotal;
+            $this->recalculateTotals();
         }
     }
 
@@ -493,7 +526,9 @@ class Index extends Component
 
         $defaultMetode = MetodePembayaran::aktif()->first();
         $this->metodeBayar = $this->metodeBayar ?: ($defaultMetode?->nama ?? 'Tunai');
+        $this->recalculateTotals();
         $this->jumlahBayar = $this->grandTotal;
+        $this->recalculateTotals();
         $this->catatan = '';
         $this->modalBayarOpen = true;
     }
@@ -504,16 +539,20 @@ class Index extends Component
         if (! $this->isTunai()) {
             $this->jumlahBayar = $this->grandTotal;
         }
+        $this->recalculateTotals();
     }
 
     public function setUangPas(): void
     {
+        $this->recalculateTotals();
         $this->jumlahBayar = $this->grandTotal;
+        $this->recalculateTotals();
     }
 
     public function setQuickNominal(float $nominal): void
     {
         $this->jumlahBayar = $nominal;
+        $this->recalculateTotals();
     }
 
     public function prosesPembayaran(): void
@@ -755,6 +794,7 @@ class Index extends Component
 
     public function render()
     {
+        $this->recalculateTotals();
         $cabang = $this->activeCabang;
         $kategoris = KategoriProduk::getAllCached();
         $masterPpns = MasterPpn::getAllAktifCached();
