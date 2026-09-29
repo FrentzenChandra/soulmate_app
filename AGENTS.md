@@ -156,7 +156,7 @@
   * **Kolom Pajak:** Tampilkan teks murni `PPN` atau `Non PPN` tanpa badge background, tanpa persen, dan tanpa nominal.
   * **Anti-Duplikasi Total:** Dilarang menampilkan baris total tambahan di dalam sel tabel masing-masing kolom (total transaksi sudah tertera di card metrik atau kolom ringkasan).
 - **Transaction Modal Form Sizing:**
-  * Ukuran lebar modal input/edit transaksi (`$modalFormOpen`) di Transaksi FULL dan Transaksi Harian WAJIB menggunakan batas maksimal `sm:max-w-2xl` (bukan `sm:max-w-4xl`) agar proporsional, nyaman dilihat, dan ergonomis.
+  * Ukuran lebar modal input/edit transaksi (`$modalFormOpen`) di Transaksi FULL dan Transaksi Harian WAJIB menggunakan batas maksimal `sm:max-w-3xl` (bukan `sm:max-w-4xl`) agar proporsional, nyaman dilihat, dan ergonomis.
 
 
 
