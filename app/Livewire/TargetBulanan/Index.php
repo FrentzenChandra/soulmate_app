@@ -329,6 +329,7 @@ class Index extends Component
                 'months' => $monthlyData,
                 'total_ytd' => $totalYtdRealisasi,
                 'total_target_ytd' => $totalYtdTarget,
+                'total_target_year' => $totalYtdTarget,
                 'ytd_percent' => $ytdPercent,
             ];
         }
@@ -381,6 +382,7 @@ class Index extends Component
             'months' => $totalDivisiMonths,
             'total_ytd' => $grandTotalDivisiCount,
             'total_target_ytd' => $grandTotalDivisiTarget,
+            'total_target_year' => $grandTotalDivisiTarget,
             'ytd_percent' => $grandDivisiPercent,
         ];
 
@@ -456,6 +458,7 @@ class Index extends Component
                 'months' => $monthlyData,
                 'total_ytd' => $totalYtdRealisasi,
                 'total_target_ytd' => $totalYtdTarget,
+                'total_target_year' => $totalYtdTarget,
                 'ytd_percent' => $ytdPercent,
             ];
         }
@@ -508,6 +511,7 @@ class Index extends Component
             'months' => $totalUserMonths,
             'total_ytd' => $grandTotalUserCount,
             'total_target_ytd' => $grandTotalUserTarget,
+            'total_target_year' => $grandTotalUserTarget,
             'ytd_percent' => $grandUserPercent,
         ];
 

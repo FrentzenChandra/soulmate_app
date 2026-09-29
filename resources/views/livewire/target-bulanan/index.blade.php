@@ -84,17 +84,19 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-center border-collapse table-fixed min-w-[1050px]">
+            <table class="w-full text-center border-collapse table-fixed min-w-[1140px]">
                 <colgroup>
                     <col style="width: 150px;">
+                    <col style="width: 90px;">
                     @for($m = 1; $m <= 12; $m++)
-                        <col style="width: 76px;">
+                        <col style="width: 74px;">
                     @endfor
                     <col style="width: 95px;">
                 </colgroup>
                 <thead>
                     <tr class="border-b border-gray-200 bg-gray-50/90 text-[10px] font-black text-gray-500 uppercase tracking-wider">
                         <th class="py-3 px-3 text-left">Divisi</th>
+                        <th class="py-3 px-2 text-center bg-gray-100/70 text-gray-900">Persyaratan</th>
                         @php
                             $bulanNames = [
                                 1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun',
@@ -128,6 +130,13 @@
                                     </div>
                                     <span class="font-black text-gray-900 tracking-tight">{{ $d['name'] }}</span>
                                 </div>
+                            </td>
+
+                            <!-- Total Persyaratan Setahun -->
+                            <td class="py-3.5 px-2 text-center bg-gray-50/50">
+                                <span class="font-mono font-black text-gray-900 text-xs">
+                                    {{ number_format($d['total_target_year'], 0, ',', '.') }}
+                                </span>
                             </td>
 
                             <!-- 12 Bulan -->
@@ -198,6 +207,9 @@
                         <td class="py-3 px-3 text-left font-black text-gray-900 uppercase tracking-wider">
                             TOTAL DIVISI
                         </td>
+                        <td class="py-3 px-2 text-center bg-gray-200/60 font-mono font-black text-gray-900 text-xs">
+                            {{ number_format($divisiSummary['total_target_year'], 0, ',', '.') }}
+                        </td>
                         @for($m = 1; $m <= 12; $m++)
                             @php $sumCell = $divisiSummary['months'][$m]; @endphp
                             <td class="py-2.5 px-1 align-middle text-center bg-gray-50/50">
@@ -246,7 +258,7 @@
     </div>
 
     <!-- ============================================== -->
-    <!-- TABEL 2: TARGET PER INDIVIDU (STAF)             -->
+    <!-- TABEL 2: TARGET PER PEGAWAI                     -->
     <!-- ============================================== -->
     <div class="card-custom bg-white overflow-hidden border border-gray-200 shadow-sm rounded-2xl">
         <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-900 to-indigo-950 text-white rounded-t-2xl">
@@ -262,17 +274,19 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-center border-collapse table-fixed min-w-[1050px]">
+            <table class="w-full text-center border-collapse table-fixed min-w-[1140px]">
                 <colgroup>
                     <col style="width: 150px;">
+                    <col style="width: 90px;">
                     @for($m = 1; $m <= 12; $m++)
-                        <col style="width: 76px;">
+                        <col style="width: 74px;">
                     @endfor
                     <col style="width: 95px;">
                 </colgroup>
                 <thead>
                     <tr class="border-b border-gray-200 bg-gray-50/90 text-[10px] font-black text-gray-500 uppercase tracking-wider">
                         <th class="py-3 px-3 text-left">Pegawai</th>
+                        <th class="py-3 px-2 text-center bg-gray-100/70 text-gray-900">Persyaratan</th>
                         @foreach($bulanNames as $mNum => $mLabel)
                             <th class="py-3 px-1 text-center">
                                 <span>{{ $mLabel }}</span>
@@ -291,6 +305,13 @@
                                 </span>
                                 <span class="text-[10px] text-gray-500 font-medium block truncate">
                                     {{ $u['pegawai']->role ?? ($u['user']->role ?? 'Staf') }}
+                                </span>
+                            </td>
+
+                            <!-- Total Persyaratan Setahun -->
+                            <td class="py-3.5 px-2 text-center bg-gray-50/50">
+                                <span class="font-mono font-black text-gray-900 text-xs">
+                                    {{ number_format($u['total_target_year'], 0, ',', '.') }}
                                 </span>
                             </td>
 
@@ -357,7 +378,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="14" class="py-8 text-center text-gray-400 font-medium">
+                            <td colspan="15" class="py-8 text-center text-gray-400 font-medium">
                                 Tidak ada data pegawai aktif pada cabang ini.
                             </td>
                         </tr>
@@ -367,6 +388,9 @@
                     <tr>
                         <td class="py-3 px-3 text-left font-black text-gray-900 uppercase tracking-wider">
                             TOTAL PEGAWAI
+                        </td>
+                        <td class="py-3 px-2 text-center bg-gray-200/60 font-mono font-black text-gray-900 text-xs">
+                            {{ number_format($userSummary['total_target_year'], 0, ',', '.') }}
                         </td>
                         @for($m = 1; $m <= 12; $m++)
                             @php $sumCell = $userSummary['months'][$m]; @endphp
