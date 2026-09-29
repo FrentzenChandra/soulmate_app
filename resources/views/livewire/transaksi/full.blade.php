@@ -1247,16 +1247,12 @@ window.tabulatorTransaksiFullTable = function(config) {
                             if (items.length === 0) {
                                 return `<span class="text-[10px] text-gray-400 italic">Tanpa item</span>`;
                             }
-                            const isMulti = items.length > 1;
-                            let html = items.map(it => `
+                            const html = items.map(it => `
                                 <div class="flex items-start gap-1.5 leading-tight py-0.5 min-h-[18px]">
                                     <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#5E17EB] shrink-0 mt-1"></span>
                                     <span class="text-[10px] font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
                                 </div>
                             `).join('');
-                            if (isMulti) {
-                                html += `<div class="pt-1 border-t border-gray-100 text-[10px] font-black text-gray-500 uppercase tracking-wider">Total (${items.length} Item)</div>`;
-                            }
                             return `<div class="py-0.5 space-y-0.5">${html}</div>`;
                         }
                     },
@@ -1353,12 +1349,11 @@ window.tabulatorTransaksiFullTable = function(config) {
                                 return `<span class="text-[10px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</span>`;
                             }
 
-                            let html = items.map(() => `
+                            const html = items.map(() => `
                                 <div class="leading-tight py-0.5 min-h-[18px] text-[10px] font-black ${taxColor} uppercase tracking-wider">
                                     ${taxLabel}
                                 </div>
                             `).join('');
-                            html += `<div class="pt-1 border-t border-transparent text-[10px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</div>`;
                             return `<div class="py-0.5 space-y-0.5 text-center">${html}</div>`;
                         }
                     },
