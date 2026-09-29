@@ -407,12 +407,8 @@ class Index extends Component
             $query->where('cabang_id', (int) $this->cabangFilter);
         }
 
-        // Filter Tipe Transaksi (Real vs Non-Real)
-        if ($this->tipeFilter === 'real') {
-            $query->where('is_real', true);
-        } elseif ($this->tipeFilter === 'non_real') {
-            $query->where('is_real', false);
-        }
+        // Tipe Transaksi Real Only
+        $query->where('is_real', true);
 
         // Filter Status di Servis Keluar
         if ($this->statusFilter === 'selesai') {

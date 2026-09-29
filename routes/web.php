@@ -16,6 +16,7 @@ use App\Livewire\Master\User\Index as MasterUserIndex;
 use App\Livewire\Servis\Masuk\Index as ServisMasukIndex;
 use App\Livewire\Servis\Keluar\Index as ServisKeluarIndex;
 use App\Livewire\Servis\Batal\Index as ServisBatalIndex;
+use App\Livewire\Servis\NonReal\Index as ServisNonRealIndex;
 use App\Livewire\KasKeluar\Index as KasKeluarIndex;
 use App\Livewire\ModalAwal\Index as ModalAwalIndex;
 use App\Livewire\Saldo\Index as SaldoIndex;
@@ -85,6 +86,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/servis/masuk', ServisMasukIndex::class)->name('servis.masuk');
         Route::get('/servis/keluar', ServisKeluarIndex::class)->name('servis.keluar');
         Route::get('/servis/batal', ServisBatalIndex::class)->name('servis.batal');
+        Route::get('/servis/non-real', ServisNonRealIndex::class)->name('servis.non-real');
         Route::get('/servis/pengerjaan', fn () => redirect()->route('servis.keluar'))->name('servis.pengerjaan');
         Route::get('/servis/{servis}/tanda-terima', function (\App\Models\ServisMasuk $servis) {
             $user = Auth::user();

@@ -320,7 +320,7 @@ class Index extends Component
                 'keluhan' => trim($this->keluhan),
                 'kondisi_barang' => trim((string) $this->kondisiBarang) ?: null,
                 'status' => 'pengecekan',
-                'is_real' => $this->isReal,
+                'is_real' => true,
                 'tanggal_masuk' => $tanggalMasuk,
                 'estimasi_biaya' => 0,
                 'total_biaya' => 0,
@@ -901,12 +901,8 @@ class Index extends Component
             $query->where('cabang_id', (int) $this->cabangFilter);
         }
 
-        // Filter Tipe Transaksi (Real vs Non-Real)
-        if ($this->tipeFilter === 'real') {
-            $query->where('is_real', true);
-        } elseif ($this->tipeFilter === 'non_real') {
-            $query->where('is_real', false);
-        }
+        // Tipe Transaksi Real Only
+        $query->where('is_real', true);
 
         // Filter Status di Servis Masuk
         if ($this->statusFilter === 'pengecekan') {
