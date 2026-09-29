@@ -160,16 +160,14 @@ class TargetBulananTest extends TestCase
 
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->call('openEditBulanDivisi', 5)
-            ->assertSet('editBulanDivisi', 5)
+            ->call('openEditCellDivisi', 'laptop', 5)
+            ->assertSet('editDivisiKey', 'laptop')
+            ->assertSet('editDivisiBulan', 5)
             ->set('formTargetSyaratDivisi', 30)
-            ->set('formRealisasiLaptop', 45)
-            ->set('formRealisasiPrinter', 20)
-            ->set('formRealisasiKomputer', 15)
-            ->set('formRealisasiAdmin', 10)
-            ->call('simpanEditBulanDivisi')
+            ->set('formRealisasiDivisi', 45)
+            ->call('simpanEditCellDivisi')
             ->assertHasNoErrors()
-            ->assertSet('modalEditBulanDivisiOpen', false);
+            ->assertSet('modalEditCellDivisiOpen', false);
 
         $target = TargetDivisi::where('cabang_id', $superadmin->cabang_id ?: 1)
             ->where('divisi', 'laptop')
@@ -199,12 +197,13 @@ class TargetBulananTest extends TestCase
 
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->call('openEditBulanUser', 7)
-            ->assertSet('editBulanUser', 7)
-            ->set('formTargetSyaratUserGlobal', 20)
-            ->call('simpanEditBulanUser')
+            ->call('openEditCellUser', $superadmin->id, 7)
+            ->assertSet('editUserId', $superadmin->id)
+            ->assertSet('editUserBulan', 7)
+            ->set('formTargetSyaratUser', 20)
+            ->call('simpanEditCellUser')
             ->assertHasNoErrors()
-            ->assertSet('modalEditBulanUserOpen', false);
+            ->assertSet('modalEditCellUserOpen', false);
 
         $targetUser = TargetUser::where('cabang_id', $superadmin->cabang_id ?: 1)
             ->where('user_id', $superadmin->id)
@@ -220,7 +219,10 @@ class TargetBulananTest extends TestCase
             ->assertViewHas('userMatrix', function ($userMatrix) use ($superadmin) {
                 $userRow = collect($userMatrix)->firstWhere('user.id', $superadmin->id);
                 return $userRow !== null
-                    && $userRow['months'][7]['target'] === 20;
+                    && $userRow['months'][7]['target'] === 20
+                    && $userRow['months'][7]['has_data'] === true
+                    && $userRow['months'][8]['has_data'] === false
+                    && $userRow['months'][8]['target'] === 0;
             });
     }
 }

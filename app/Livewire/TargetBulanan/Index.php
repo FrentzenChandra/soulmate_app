@@ -25,29 +25,20 @@ class Index extends Component
     #[Url(except: 'semua')]
     public string $cabangFilter = 'semua';
 
-    // State Modal Input Target Divisi
-    public bool $modalDivisiOpen = false;
-    public int $formTahunDivisi;
-    public array $targetDivisiForm = [
-        'laptop' => 0,
-        'printer' => 0,
-        'komputer' => 0,
-        'admin' => 0,
-    ];
-
-    // State Modal Edit Target & Realisasi Per Bulan (Divisi dari Header Bulan)
-    public bool $modalEditBulanDivisiOpen = false;
-    public int $editBulanDivisi = 1;
+    // State Modal Edit Target & Realisasi Per Cell Divisi
+    public bool $modalEditCellDivisiOpen = false;
+    public string $editDivisiKey = 'laptop';
+    public string $editDivisiName = 'Laptop';
+    public int $editDivisiBulan = 1;
     public int $formTargetSyaratDivisi = 0;
-    public int $formRealisasiLaptop = 0;
-    public int $formRealisasiPrinter = 0;
-    public int $formRealisasiKomputer = 0;
-    public int $formRealisasiAdmin = 0;
+    public int $formRealisasiDivisi = 0;
 
-    // State Modal Edit Target Staf Per Bulan (Staf dari Header Bulan)
-    public bool $modalEditBulanUserOpen = false;
-    public int $editBulanUser = 1;
-    public int $formTargetSyaratUserGlobal = 0;
+    // State Modal Edit Target Per Cell Staf (User)
+    public bool $modalEditCellUserOpen = false;
+    public ?int $editUserId = null;
+    public string $editUserName = '';
+    public int $editUserBulan = 1;
+    public int $formTargetSyaratUser = 0;
 
     public function mount(): void
     {
@@ -85,159 +76,147 @@ class Index extends Component
     }
 
     // =========================================================================
-    // MODAL & ACTION: EDIT TARGET & REALISASI PER BULAN (DIVISI - 5 INPUT)
+    // MODAL & ACTION: EDIT TARGET & REALISASI PER CELL (DIVISI)
     // =========================================================================
 
-    public function openEditBulanDivisi(int $bulan): void
+    public function openEditCellDivisi(string $divisiKey, int $bulan): void
     {
         if (! $this->canManageTarget) {
             abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
         }
 
-        $this->editBulanDivisi = $bulan;
+        $this->editDivisiKey = $divisiKey;
+        $this->editDivisiName = match (strtolower($divisiKey)) {
+            'laptop' => 'Laptop',
+            'printer' => 'Printer',
+            'komputer' => 'Komputer',
+            'admin' => 'Admin',
+            default => ucfirst($divisiKey),
+        };
+        $this->editDivisiBulan = $bulan;
         $cabangId = $this->getTargetCabangId();
 
-        $divisis = TargetDivisi::where('cabang_id', $cabangId)
+        $targetDivisi = TargetDivisi::where('cabang_id', $cabangId)
             ->where('tahun', $this->filterTahun)
-            ->get()
-            ->keyBy('divisi');
+            ->where('divisi', $divisiKey)
+            ->first();
 
-        $laptop = $divisis->get('laptop');
-        $printer = $divisis->get('printer');
-        $komputer = $divisis->get('komputer');
-        $admin = $divisis->get('admin');
+        $monthlyTargets = $targetDivisi?->monthly_targets ?? [];
+        $monthlyRealisasi = $targetDivisi?->monthly_realisasi ?? [];
 
-        $this->formTargetSyaratDivisi = (int) ($laptop?->monthly_targets[(string)$bulan] ?? $laptop?->target_bulanan ?? 0);
-        $this->formRealisasiLaptop = (int) ($laptop?->monthly_realisasi[(string)$bulan] ?? 0);
-        $this->formRealisasiPrinter = (int) ($printer?->monthly_realisasi[(string)$bulan] ?? 0);
-        $this->formRealisasiKomputer = (int) ($komputer?->monthly_realisasi[(string)$bulan] ?? 0);
-        $this->formRealisasiAdmin = (int) ($admin?->monthly_realisasi[(string)$bulan] ?? 0);
+        $this->formTargetSyaratDivisi = (int) ($monthlyTargets[(string)$bulan] ?? 0);
+        $this->formRealisasiDivisi = (int) ($monthlyRealisasi[(string)$bulan] ?? 0);
 
-        $this->modalEditBulanDivisiOpen = true;
+        $this->modalEditCellDivisiOpen = true;
     }
 
-    public function simpanEditBulanDivisi(): void
+    public function simpanEditCellDivisi(): void
     {
         if (! $this->canManageTarget) {
             abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
         }
 
         $this->validate([
-            'editBulanDivisi' => 'required|integer|min:1|max:12',
+            'editDivisiKey' => 'required|string|in:laptop,printer,komputer,admin',
+            'editDivisiBulan' => 'required|integer|min:1|max:12',
             'formTargetSyaratDivisi' => 'required|integer|min:0',
-            'formRealisasiLaptop' => 'required|integer|min:0',
-            'formRealisasiPrinter' => 'required|integer|min:0',
-            'formRealisasiKomputer' => 'required|integer|min:0',
-            'formRealisasiAdmin' => 'required|integer|min:0',
+            'formRealisasiDivisi' => 'required|integer|min:0',
         ]);
 
         $cabangId = $this->getTargetCabangId();
         $userId = Auth::id();
 
-        $realisasiMap = [
-            'laptop' => (int) $this->formRealisasiLaptop,
-            'printer' => (int) $this->formRealisasiPrinter,
-            'komputer' => (int) $this->formRealisasiKomputer,
-            'admin' => (int) $this->formRealisasiAdmin,
-        ];
+        $targetDivisi = TargetDivisi::firstOrCreate(
+            [
+                'cabang_id' => $cabangId,
+                'tahun' => $this->filterTahun,
+                'divisi' => $this->editDivisiKey,
+            ],
+            [
+                'target_bulanan' => 0,
+                'created_by' => $userId,
+            ]
+        );
 
-        foreach ($realisasiMap as $divKey => $realisasiVal) {
-            $targetDivisi = TargetDivisi::firstOrCreate(
-                [
-                    'cabang_id' => $cabangId,
-                    'tahun' => $this->filterTahun,
-                    'divisi' => $divKey,
-                ],
-                [
-                    'target_bulanan' => (int) $this->formTargetSyaratDivisi,
-                    'created_by' => $userId,
-                ]
-            );
+        $monthlyTargets = $targetDivisi->monthly_targets ?? [];
+        $monthlyRealisasi = $targetDivisi->monthly_realisasi ?? [];
 
-            $monthlyTargets = $targetDivisi->monthly_targets ?? [];
-            $monthlyRealisasi = $targetDivisi->monthly_realisasi ?? [];
+        $monthlyTargets[(string)$this->editDivisiBulan] = (int) $this->formTargetSyaratDivisi;
+        $monthlyRealisasi[(string)$this->editDivisiBulan] = (int) $this->formRealisasiDivisi;
 
-            $monthlyTargets[(string)$this->editBulanDivisi] = (int) $this->formTargetSyaratDivisi;
-            $monthlyRealisasi[(string)$this->editBulanDivisi] = $realisasiVal;
+        $targetDivisi->update([
+            'monthly_targets' => $monthlyTargets,
+            'monthly_realisasi' => $monthlyRealisasi,
+        ]);
 
-            $targetDivisi->update([
-                'monthly_targets' => $monthlyTargets,
-                'monthly_realisasi' => $monthlyRealisasi,
-            ]);
-        }
-
-        $this->modalEditBulanDivisiOpen = false;
-        $namaBulan = Carbon::createFromDate($this->filterTahun, $this->editBulanDivisi, 1)->translatedFormat('F');
-        session()->flash('success', "Target & Realisasi Divisi bulan {$namaBulan} {$this->filterTahun} berhasil diperbarui!");
+        $this->modalEditCellDivisiOpen = false;
+        $namaBulan = Carbon::createFromDate($this->filterTahun, $this->editDivisiBulan, 1)->translatedFormat('F');
+        session()->flash('success', "Target & Realisasi Divisi {$this->editDivisiName} bulan {$namaBulan} {$this->filterTahun} berhasil diperbarui!");
     }
 
     // =========================================================================
-    // MODAL & ACTION: EDIT TARGET STAF PER BULAN (1 INPUT TARGET SYARAT SERAGAM)
+    // MODAL & ACTION: EDIT TARGET PER CELL (STAF / USER)
     // =========================================================================
 
-    public function openEditBulanUser(int $bulan): void
+    public function openEditCellUser(int $userId, int $bulan): void
     {
         if (! $this->canManageTarget) {
             abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
         }
 
-        $this->editBulanUser = $bulan;
+        $user = User::findOrFail($userId);
+        $this->editUserId = $user->id;
+        $this->editUserName = $user->name;
+        $this->editUserBulan = $bulan;
         $cabangId = $this->getTargetCabangId();
 
         $targetUser = TargetUser::where('cabang_id', $cabangId)
             ->where('tahun', $this->filterTahun)
+            ->where('user_id', $userId)
             ->first();
 
         $monthlyTargets = $targetUser?->monthly_targets ?? [];
-        $this->formTargetSyaratUserGlobal = isset($monthlyTargets[(string)$bulan])
-            ? (int) $monthlyTargets[(string)$bulan]
-            : (int) ($targetUser?->target_bulanan ?? 0);
+        $this->formTargetSyaratUser = (int) ($monthlyTargets[(string)$bulan] ?? 0);
 
-        $this->modalEditBulanUserOpen = true;
+        $this->modalEditCellUserOpen = true;
     }
 
-    public function simpanEditBulanUser(): void
+    public function simpanEditCellUser(): void
     {
         if (! $this->canManageTarget) {
             abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
         }
 
         $this->validate([
-            'editBulanUser' => 'required|integer|min:1|max:12',
-            'formTargetSyaratUserGlobal' => 'required|integer|min:0',
+            'editUserId' => 'required|exists:users,id',
+            'editUserBulan' => 'required|integer|min:1|max:12',
+            'formTargetSyaratUser' => 'required|integer|min:0',
         ]);
 
         $cabangId = $this->getTargetCabangId();
         $creatorId = Auth::id();
 
-        $users = User::query()
-            ->where('status', 'aktif')
-            ->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId))
-            ->get();
+        $targetUser = TargetUser::firstOrCreate(
+            [
+                'cabang_id' => $cabangId,
+                'tahun' => $this->filterTahun,
+                'user_id' => $this->editUserId,
+            ],
+            [
+                'target_bulanan' => 0,
+                'created_by' => $creatorId,
+            ]
+        );
 
-        foreach ($users as $u) {
-            $targetUser = TargetUser::firstOrCreate(
-                [
-                    'cabang_id' => $cabangId,
-                    'tahun' => $this->filterTahun,
-                    'user_id' => $u->id,
-                ],
-                [
-                    'target_bulanan' => (int) $this->formTargetSyaratUserGlobal,
-                    'created_by' => $creatorId,
-                ]
-            );
+        $monthlyTargets = $targetUser->monthly_targets ?? [];
+        $monthlyTargets[(string)$this->editUserBulan] = (int) $this->formTargetSyaratUser;
+        $targetUser->update([
+            'monthly_targets' => $monthlyTargets,
+        ]);
 
-            $monthlyTargets = $targetUser->monthly_targets ?? [];
-            $monthlyTargets[(string)$this->editBulanUser] = (int) $this->formTargetSyaratUserGlobal;
-            $targetUser->update([
-                'monthly_targets' => $monthlyTargets,
-            ]);
-        }
-
-        $this->modalEditBulanUserOpen = false;
-        $namaBulan = Carbon::createFromDate($this->filterTahun, $this->editBulanUser, 1)->translatedFormat('F');
-        session()->flash('success', "Target Syarat Staf bulan {$namaBulan} {$this->filterTahun} berhasil diperbarui!");
+        $this->modalEditCellUserOpen = false;
+        $namaBulan = Carbon::createFromDate($this->filterTahun, $this->editUserBulan, 1)->translatedFormat('F');
+        session()->flash('success', "Target Staf {$this->editUserName} bulan {$namaBulan} {$this->filterTahun} berhasil diperbarui!");
     }
 
     // =========================================================================
@@ -411,13 +390,9 @@ class Index extends Component
             })
             ->get();
 
-        $masterTargetUser = $targetUserModels->firstWhere('user_id', null);
-        $masterMonthlyTargets = $masterTargetUser?->monthly_targets ?? [];
-
         $userMatrix = [];
         foreach ($users as $u) {
             $targetUserRow = $targetUserModels->firstWhere('user_id', $u->id);
-            $defaultTarget = (int) ($targetUserRow?->target_bulanan ?? $masterTargetUser?->target_bulanan ?? 0);
             $monthlyTargets = $targetUserRow?->monthly_targets ?? [];
 
             $monthlyData = [];
@@ -430,20 +405,8 @@ class Index extends Component
                     return (int) $t->tanggal->format('n') === $m && $t->user_id === $u->id;
                 })->count();
 
-                $targetSyarat = 0;
-                $hasTarget = false;
-
-                if (isset($masterMonthlyTargets[(string)$m])) {
-                    $targetSyarat = (int) $masterMonthlyTargets[(string)$m];
-                    $hasTarget = true;
-                } elseif (isset($monthlyTargets[(string)$m])) {
-                    $targetSyarat = (int) $monthlyTargets[(string)$m];
-                    $hasTarget = true;
-                } elseif ($defaultTarget > 0) {
-                    $targetSyarat = $defaultTarget;
-                    $hasTarget = true;
-                }
-
+                $hasTarget = isset($monthlyTargets[(string)$m]);
+                $targetSyarat = $hasTarget ? (int) $monthlyTargets[(string)$m] : 0;
                 $hasData = $hasTarget;
                 $percent = ($hasTarget && $targetSyarat > 0) ? (int) round(($count / $targetSyarat) * 100) : 0;
 
@@ -475,7 +438,7 @@ class Index extends Component
 
             $userMatrix[] = [
                 'user' => $u,
-                'target_bulanan' => $defaultTarget,
+                'target_bulanan' => 0,
                 'months' => $monthlyData,
                 'total_ytd' => $totalYtdRealisasi,
                 'total_target_ytd' => $totalYtdTarget,

@@ -125,17 +125,15 @@
 - **Validasi Unik Email & Username:** Validasi unik pada form pengguna wajib mengabaikan akun yang telah di-soft-delete (`Rule::unique('users', 'email')->whereNull('deleted_at')`).
 
 ## 18. Target Bulanan (Performance Board 12 Bulan) Standard
-- **Single Source of Truth Realisasi:** Realisasi kinerja bulanan dihitung otomatis dari tabel `transaksi_fulls` berdasarkan filter tahun dan cabang aktif.
-  * **Divisi Laptop, Printer, Komputer:** Filter `tipe_transaksi = 'servis'` dan `kategori_perangkat = '<divisi>'`.
-  * **Divisi Admin:** Filter `tipe_transaksi = 'penjualan'`.
-  * **Individu / Staf:** Filter `created_by = <user_id>`.
-- **Target Tahunan & Alokasi Bulanan:** Input target dilakukan per tahun per cabang (tabel `target_divisis` dan `target_users`), kemudian otomatis dibagi 12 bulan (atau per bulan) sebagai pembanding realisasi.
-- **Hak Akses Set Target:** Hanya role **Owner** dan **Superadmin** yang berwenang membuka modal dan menginput/mengubah target tahunan.
+- **Sistem Pengelolaan Per Cell Mandiri:** Target dan realisasi dikelola langsung per sel `(Divisi, Bulan)` dan `(User, Bulan)` secara independen.
+  * **Tabel Divisi (Laptop, Printer, Komputer, Admin):** Setiap sel bulan dapat diatur target syarat dan realisasi spesifiknya masing-masing via modal edit sel.
+  * **Tabel Staf (Individu):** Setiap sel bulan dapat diatur target syarat spesifik per staf, sementara realisasi terhitung otomatis dari `transaksi_fulls`.
+- **Hak Akses Set Target:** Hanya role **Owner** dan **Superadmin** yang berwenang mengklik sel tabel dan membuka modal edit target/realisasi.
 - **Indikator Visual Pencapaian:**
   * `≥ 150%`: Over Target (Badge Tech Blue `#0052FF` / Indigo + SVG icon trending-up).
   * `100% - 149%`: Target Tercapai (Badge Emerald `#10B981` + SVG icon check-circle).
   * `< 100%`: Belum Tercapai (Badge Rose `#F43F5E` + SVG icon x-circle).
-  * Bulan mendatang (belum ada data & bulan belum berjalan): Tanda strip netral (`-`).
+  * Bulan mendatang (belum ada data & belum diset): Tanda strip netral (`-`).
 - **Slogan Motivasi:** Header menampilkan slogan penyemangat: *"Target Bukan Untuk Ditakuti, Tapi Untuk Dikalahkan!"*.
 
 ## 19. Simplified Transaction Status Standard (Lunas & BON Only)
