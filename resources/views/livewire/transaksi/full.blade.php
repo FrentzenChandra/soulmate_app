@@ -518,10 +518,10 @@
                                             </div>
 
                                             <div class="space-y-3">
-                                                <!-- Baris 1: Item & Jumlah (Sebaris) -->
-                                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-                                                    <!-- Item -->
-                                                    <div class="sm:col-span-9 relative" x-data="{ openSuggest: false }" @click.outside="openSuggest = false">
+                                                <!-- Baris 1: Item & Jumlah (Sebaris: Item Luas, Jumlah Kompak) -->
+                                                <div class="flex items-start gap-2.5">
+                                                    <!-- Item (Luas) -->
+                                                    <div class="flex-1 min-w-0 relative" x-data="{ openSuggest: false }" @click.outside="openSuggest = false">
                                                         <label class="block font-bold text-gray-700 mb-1 text-[11px]">Item <span class="text-rose-500 font-bold">*</span></label>
                                                         <input type="text"
                                                                wire:model.live.debounce.200ms="items.{{ $idx }}.nama_item"
@@ -561,15 +561,15 @@
                                                         @endif
                                                     </div>
 
-                                                    <!-- Jumlah -->
-                                                    <div class="sm:col-span-3">
-                                                        <label class="block font-bold text-gray-700 mb-1 text-[11px]">Jumlah <span class="text-rose-500 font-bold">*</span></label>
+                                                    <!-- Jumlah (Kecil / Kompak) -->
+                                                    <div class="w-20 sm:w-24 shrink-0">
+                                                        <label class="block font-bold text-gray-700 mb-1 text-[11px] text-center">Jumlah <span class="text-rose-500 font-bold">*</span></label>
                                                         <input type="number"
                                                                min="1"
                                                                wire:model.live.debounce.250ms="items.{{ $idx }}.qty"
-                                                               class="w-full px-3 py-2 rounded-xl border border-gray-300 font-mono font-bold text-center text-gray-900 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                                               class="w-full px-2 py-2 rounded-xl border border-gray-300 font-mono font-black text-center text-gray-900 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                                         @error("items.{$idx}.qty")
-                                                            <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span>
+                                                            <span class="text-rose-500 font-bold text-[10px] block mt-0.5 text-center">{{ $message }}</span>
                                                         @enderror
                                                     </div>
                                                 </div>
