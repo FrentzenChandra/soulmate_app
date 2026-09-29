@@ -777,27 +777,31 @@
                     <!-- Body Modal -->
                     <form wire:submit.prevent="prosesPembayaran"
                           x-data="{
-                              raw: Math.round(Number($wire.jumlahBayar || {{ (float) $this->grandTotal }} || 0)),
+                              raw: @entangle('jumlahBayar').live,
+                              gt: @entangle('grandTotal').live,
                               get grandTotal() {
-                                  return Math.round(Number($wire.grandTotal || {{ (float) $this->grandTotal }} || 0));
+                                  return Math.round(Number(this.gt || {{ (float) $this->grandTotal }} || 0));
+                              },
+                              get bayar() {
+                                  return Math.round(Number(this.raw || 0));
                               },
                               get kembalian() {
-                                  let pay = Math.round(Number(this.raw || 0));
+                                  let pay = this.bayar;
                                   let gt = this.grandTotal;
                                   return pay > gt ? (pay - gt) : 0;
                               },
                               get kekurangan() {
-                                  let pay = Math.round(Number(this.raw || 0));
+                                  let pay = this.bayar;
                                   let gt = this.grandTotal;
                                   return pay > 0 && pay < gt ? (gt - pay) : 0;
                               },
                               get isKurang() {
-                                  let pay = Math.round(Number(this.raw || 0));
+                                  let pay = this.bayar;
                                   let gt = this.grandTotal;
                                   return pay > 0 && pay < gt;
                               },
                               get isUangPas() {
-                                  let pay = Math.round(Number(this.raw || 0));
+                                  let pay = this.bayar;
                                   let gt = this.grandTotal;
                                   return (pay > 0 && pay === gt) || (pay === 0 && gt === 0);
                               },
@@ -810,31 +814,20 @@
                                   let clean = e.target.value.toString().replace(/[^0-9]/g, '');
                                   let num = clean ? parseInt(clean, 10) : 0;
                                   this.raw = num;
-                                  $wire.jumlahBayar = num;
                                   e.target.value = num ? num.toLocaleString('id-ID') : '';
                               },
                               setUangPas() {
                                   this.raw = this.grandTotal;
-                                  $wire.jumlahBayar = this.grandTotal;
                               },
                               setQuickNominal(val) {
                                   this.raw = Math.round(Number(val));
-                                  $wire.jumlahBayar = this.raw;
                               },
                               init() {
-                                  this.raw = Math.round(Number($wire.jumlahBayar || this.grandTotal || 0));
-                                  this.$watch('$wire.jumlahBayar', (val) => {
-                                      if (val !== undefined && val !== null) {
-                                          this.raw = Math.round(Number(val));
-                                      }
-                                  });
-                                  this.$watch('$wire.grandTotal', (newGt) => {
-                                      if (newGt !== undefined && newGt !== null) {
-                                          let gtNum = Math.round(Number(newGt));
-                                          if (this.raw <= 0 || this.isUangPas || this.raw < gtNum) {
-                                              this.raw = gtNum;
-                                              $wire.jumlahBayar = gtNum;
-                                          }
+                                  this.$watch('gt', (newGt) => {
+                                      let gtNum = Math.round(Number(newGt || 0));
+                                      let rawNum = Math.round(Number(this.raw || 0));
+                                      if (rawNum <= 0 || rawNum < gtNum) {
+                                          this.raw = gtNum;
                                       }
                                   });
                               }
