@@ -777,12 +777,22 @@
                     <!-- Body Modal -->
                     <form wire:submit.prevent="prosesPembayaran"
                           x-data="{
-                              raw: @entangle('jumlahBayar').live,
-                              grandTotal: {{ (float) $this->grandTotal }},
+                              raw: Number($wire.jumlahBayar || 0),
+                              get grandTotal() {
+                                  return Number($wire.grandTotal || 0);
+                              },
                               get kembalian() {
                                   let pay = parseFloat(this.raw) || 0;
                                   let diff = pay - this.grandTotal;
                                   return diff > 0 ? diff : 0;
+                              },
+                              get isKurang() {
+                                  let pay = parseFloat(this.raw) || 0;
+                                  return pay > 0 && pay < this.grandTotal;
+                              },
+                              get isUangPas() {
+                                  let pay = parseFloat(this.raw) || 0;
+                                  return (pay > 0 && pay === this.grandTotal) || (pay === 0 && this.grandTotal === 0);
                               },
                               formatRupiah(val) {
                                   if (val === null || val === undefined || val === '' || isNaN(val)) return '0';
@@ -793,7 +803,24 @@
                                   let clean = e.target.value.replace(/[^0-9]/g, '');
                                   let num = clean ? parseInt(clean, 10) : 0;
                                   this.raw = num;
+                                  $wire.set('jumlahBayar', num, false);
                                   e.target.value = num ? num.toLocaleString('id-ID') : '';
+                              },
+                              setUangPas() {
+                                  this.raw = this.grandTotal;
+                                  $wire.set('jumlahBayar', this.grandTotal, false);
+                              },
+                              setQuickNominal(val) {
+                                  this.raw = val;
+                                  $wire.set('jumlahBayar', val, false);
+                              },
+                              init() {
+                                  this.raw = Number($wire.jumlahBayar || this.grandTotal || 0);
+                                  this.$watch('$wire.jumlahBayar', (val) => {
+                                      if (val !== undefined && val !== null) {
+                                          this.raw = Number(val);
+                                      }
+                                  });
                               }
                           }">
                         <div class="p-6 space-y-4">
@@ -856,7 +883,7 @@
                                         Nominal Uang Diterima
                                     </label>
                                     <button type="button"
-                                            wire:click="setUangPas"
+                                            @click="setUangPas()"
                                             class="text-[11px] font-bold text-[#5E17EB] hover:underline cursor-pointer">
                                         Pakai Uang Pas
                                     </button>
@@ -874,17 +901,17 @@
 
                                 <!-- Quick Money Pills -->
                                 <div class="flex flex-wrap items-center gap-1.5 mt-2">
-                                    <button type="button" wire:click="setUangPas" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">Uang Pas</button>
-                                    <button type="button" wire:click="setQuickNominal(50000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">50.000</button>
-                                    <button type="button" wire:click="setQuickNominal(100000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">100.000</button>
-                                    <button type="button" wire:click="setQuickNominal(200000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">200.000</button>
-                                    <button type="button" wire:click="setQuickNominal(500000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">500.000</button>
+                                    <button type="button" @click="setUangPas()" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">Uang Pas</button>
+                                    <button type="button" @click="setQuickNominal(50000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">50.000</button>
+                                    <button type="button" @click="setQuickNominal(100000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">100.000</button>
+                                    <button type="button" @click="setQuickNominal(200000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">200.000</button>
+                                    <button type="button" @click="setQuickNominal(500000)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">500.000</button>
                                 </div>
                             </div>
 
                             <!-- Perhitungan Kembalian Kasir (Live Calculation Card) -->
                             <div class="p-4 rounded-2xl border transition-all"
-                                 :class="kembalian > 0 ? 'bg-emerald-50/90 border-emerald-200 shadow-2xs' : (raw < grandTotal && raw > 0 ? 'bg-rose-50 border-rose-200' : 'bg-gray-50 border-gray-200')">
+                                 :class="kembalian > 0 ? 'bg-emerald-50/90 border-emerald-200 shadow-2xs' : (isKurang ? 'bg-rose-50 border-rose-200' : 'bg-gray-50 border-gray-200')">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-2">
                                         <template x-if="kembalian > 0">
@@ -892,30 +919,30 @@
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                                             </div>
                                         </template>
-                                        <template x-if="raw < grandTotal && raw > 0">
+                                        <template x-if="isKurang">
                                             <div class="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                             </div>
                                         </template>
-                                        <template x-if="kembalian === 0 && (raw >= grandTotal || raw === 0)">
+                                        <template x-if="!kembalian && !isKurang">
                                             <div class="w-8 h-8 rounded-xl bg-gray-200 text-gray-600 flex items-center justify-center shrink-0">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                             </div>
                                         </template>
                                         <div>
                                             <span class="text-[10px] font-black uppercase tracking-wider block"
-                                                  :class="kembalian > 0 ? 'text-emerald-800' : (raw < grandTotal && raw > 0 ? 'text-rose-800' : 'text-gray-500')">
+                                                  :class="kembalian > 0 ? 'text-emerald-800' : (isKurang ? 'text-rose-800' : 'text-gray-500')">
                                                 Uang Kembalian
                                             </span>
                                             <span class="text-[11px] font-bold"
-                                                  :class="kembalian > 0 ? 'text-emerald-700' : (raw < grandTotal && raw > 0 ? 'text-rose-600' : 'text-gray-400')"
-                                                  x-text="kembalian > 0 ? 'Wajib diberikan ke pelanggan' : (raw < grandTotal && raw > 0 ? 'Uang diterima masih kurang' : 'Uang pas / belum diisi')">
+                                                  :class="kembalian > 0 ? 'text-emerald-700' : (isKurang ? 'text-rose-600' : 'text-gray-400')"
+                                                  x-text="kembalian > 0 ? 'Wajib diberikan ke pelanggan' : (isKurang ? 'Uang diterima masih kurang' : (isUangPas ? 'Uang pas' : 'Uang pas / belum diisi'))">
                                             </span>
                                         </div>
                                     </div>
                                     <div class="text-right">
                                         <span class="text-2xl font-black font-mono block"
-                                              :class="kembalian > 0 ? 'text-emerald-600' : (raw < grandTotal && raw > 0 ? 'text-rose-600' : 'text-gray-400')"
+                                              :class="kembalian > 0 ? 'text-emerald-600' : (isKurang ? 'text-rose-600' : 'text-gray-400')"
                                               x-text="'Rp ' + formatRupiah(kembalian)">
                                         </span>
                                     </div>

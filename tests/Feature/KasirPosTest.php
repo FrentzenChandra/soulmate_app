@@ -504,4 +504,56 @@ class KasirPosTest extends TestCase
             'jumlah' => 9,
         ]);
     }
+
+    public function test_kembalian_calculation_with_default_tunai_and_discount_update(): void
+    {
+        $this->actingAs($this->kasir);
+
+        // Subtotal = 175.000
+        Livewire::test(Index::class)
+            ->call('addToCart', $this->produk1->id)
+            ->call('openPaymentModal')
+            ->assertSet('metodeBayar', 'Tunai')
+            ->assertSet('grandTotal', 175000)
+            ->set('jumlahBayar', 200000)
+            ->assertSet('kembalian', 25000)
+            // Kasir menambahkan diskon 25.000 saat modal pembayaran terbuka
+            ->set('diskon', 25000)
+            ->assertSet('grandTotal', 150000)
+            ->set('jumlahBayar', 200000)
+            ->assertSet('kembalian', 50000)
+            ->call('prosesPembayaran')
+            ->assertSet('modalSuccessOpen', true);
+
+        $this->assertDatabaseHas('penjualans', [
+            'cabang_id' => $this->cabangPkp->id,
+            'subtotal' => 175000,
+            'diskon' => 25000,
+            'total' => 150000,
+            'jumlah_bayar' => 200000,
+            'kembalian' => 50000,
+            'metode_bayar' => 'Tunai',
+        ]);
+    }
+
+    public function test_kembalian_is_zero_for_non_cash_methods(): void
+    {
+        $this->actingAs($this->kasir);
+
+        Livewire::test(Index::class)
+            ->call('addToCart', $this->produk1->id)
+            ->call('openPaymentModal')
+            ->call('selectMetodeBayar', 'QRIS')
+            ->assertSet('metodeBayar', 'QRIS')
+            ->assertSet('kembalian', 0)
+            ->call('prosesPembayaran')
+            ->assertSet('modalSuccessOpen', true);
+
+        $this->assertDatabaseHas('penjualans', [
+            'cabang_id' => $this->cabangPkp->id,
+            'total' => 175000,
+            'kembalian' => 0,
+            'metode_bayar' => 'QRIS',
+        ]);
+    }
 }

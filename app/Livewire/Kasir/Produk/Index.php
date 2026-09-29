@@ -111,16 +111,25 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function isTunai(): bool
+    {
+        if (! $this->metodeBayar) {
+            return true;
+        }
+
+        return in_array(strtolower($this->metodeBayar), ['tunai', 'cash']);
+    }
+
     public function updatedDiskon(): void
     {
-        if ($this->modalBayarOpen && $this->metodeBayar === 'cash') {
+        if ($this->modalBayarOpen && $this->isTunai() && ($this->jumlahBayar <= 0 || $this->jumlahBayar < $this->grandTotal)) {
             $this->jumlahBayar = $this->grandTotal;
         }
     }
 
     public function updatedSelectedPpnId(): void
     {
-        if ($this->modalBayarOpen && $this->metodeBayar === 'cash') {
+        if ($this->modalBayarOpen && $this->isTunai() && ($this->jumlahBayar <= 0 || $this->jumlahBayar < $this->grandTotal)) {
             $this->jumlahBayar = $this->grandTotal;
         }
     }
@@ -416,7 +425,7 @@ class Index extends Component
 
     public function getKembalianProperty(): float
     {
-        if ($this->metodeBayar && $this->metodeBayar !== 'cash') {
+        if (! $this->isTunai()) {
             return 0;
         }
 
@@ -492,8 +501,7 @@ class Index extends Component
     public function selectMetodeBayar(string $namaMetode): void
     {
         $this->metodeBayar = $namaMetode;
-        $metode = MetodePembayaran::where('nama', $namaMetode)->first();
-        if ($metode && $metode->kategori !== 'tunai') {
+        if (! $this->isTunai()) {
             $this->jumlahBayar = $this->grandTotal;
         }
     }
