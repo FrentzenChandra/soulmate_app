@@ -249,4 +249,40 @@ class ServisNonRealTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Servis Non Real');
     }
+
+    public function test_servis_non_real_table_has_both_print_links_without_target_blank_and_no_auto_redirect(): void
+    {
+        $this->actingAs($this->user);
+
+        $servis = ServisMasuk::create([
+            'no_servis' => 'INV-SV-CBPKP-260926-00009',
+            'cabang_id' => $this->cabang->id,
+            'customer_id' => $this->customer->id,
+            'created_by' => $this->user->id,
+            'kategori_perangkat' => 'laptop',
+            'tipe_unit' => 'Asus Vivobook Non Real',
+            'keluhan' => 'Layar Mati',
+            'status' => 'pengecekan',
+            'is_real' => false,
+            'tanggal_masuk' => now(),
+        ]);
+
+        $tandaTerimaUrl = route('servis.tanda-terima', $servis->id);
+        $invoiceUrl = route('servis.invoice', $servis->id);
+
+        $test = Livewire::test(ServisNonRealIndex::class)
+            ->assertSeeHtml($tandaTerimaUrl)
+            ->assertSeeHtml($invoiceUrl)
+            ->assertDontSeeHtml('target="_blank"')
+            ->assertDontSeeHtml('target=\'_blank\'');
+
+        // Simpan servis baru tidak mendispatch open-print-receipt
+        $test->set('customerType', 'langganan')
+            ->set('selectedCustomerId', $this->customer->id)
+            ->set('kategoriPerangkat', 'laptop')
+            ->set('tipeUnit', 'Acer Aspire Non Real')
+            ->set('keluhan', 'Ganti Kipas')
+            ->call('simpanServisMasuk')
+            ->assertNotDispatched('open-print-receipt');
+    }
 }

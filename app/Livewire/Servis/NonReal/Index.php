@@ -344,8 +344,6 @@ class Index extends Component
             $this->lastCreatedServis = $servis;
             $this->modalSuccessOpen = true;
 
-            $this->dispatch('open-print-receipt', url: route('servis.tanda-terima', $servis->id) . '?autoprint=1');
-
             $this->resetCreateForm();
             session()->flash('success', "Unit servis non real {$servis->no_servis_frontend} berhasil diterima!");
         } catch (\Exception $e) {
@@ -732,8 +730,7 @@ class Index extends Component
         $servis->is_cetak_nota = true;
         $servis->save();
 
-        $this->dispatch('open-print-invoice', url: route('servis.invoice', $servis->id) . '?autoprint=1');
-        session()->flash('success', "Nota faktur {$servis->no_servis_frontend} berhasil dicetak.");
+        session()->flash('success', "Status cetak faktur {$servis->no_servis_frontend} berhasil diperbarui.");
     }
 
     public function render()
