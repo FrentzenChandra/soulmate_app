@@ -52,20 +52,26 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
   - Tidak pernah ditampilkan di katalog publik/marketplace.
   - Form modal terstruktur: Tipe (Jasa vs Sparepart), Identitas, Harga Modal & Jual (format rupiah), Alokasi Stok Cabang (khusus sparepart), Garansi Default (preset 0-90 hari), Catatan Teknis, dan Checklist Status Aktif di bawah Catatan.
 
-### B. Alur & Pemisahan 3 Menu Servis (`/servis/masuk`, `/servis/keluar`, `/servis/batal`)
+### B. Alur & Pemisahan Menu Servis (`/servis/masuk`, `/servis/keluar`, `/servis/batal`, `/servis/non-real`)
 - **1. Servis Masuk** (`/servis/masuk`):
   - Khusus unit dalam tahap pengerjaan (status: `pengecekan` dan `perbaikan`).
   - Fitur tambah item/komponen jasa & sparepart dari Master Servis, rincian masa garansi per item, dan tombol "Selesai" untuk mengubah status menjadi `selesai` serta mencetak nota tanda terima / faktur.
+  - Sub-caption pada kolom No. Servis menampilkan nama staf/user penginput tiket dengan font tegas (`text-gray-600 font-semibold`).
 - **2. Servis Keluar** (`/servis/keluar`):
   - Khusus unit yang telah tuntas (status: `selesai` dan `sudah_diambil`).
   - Default sorting memprioritaskan unit yang belum diambil (`selesai` muncul di atas, `sudah_diambil` di bawah).
+  - Sub-caption pada kolom No. Servis menampilkan nama user penginput tiket.
   - Validasi penyerahan unit & pelunasan. Unit yang berstatus `sudah_diambil` terkunci otomatis dan tidak dapat diedit lagi.
 - **3. Servis Batal** (`/servis/batal`):
   - Khusus unit dengan status `batal`.
+  - Sub-caption pada kolom No. Servis menampilkan nama user penginput tiket dengan font tegas (`text-gray-600 font-semibold`).
   - Dilengkapi fitur penyerahan unit batal tanpa tagihan biaya (Rp 0) serta cetak tanda terima pembatalan.
+- **4. Servis Non Real** (`/servis/non-real`):
+  - Modal tambah & edit terpadu tanpa status & rincian tindakan/komponen terintegrasi dalam 1 section rincian.
+  - Single customer autocomplete dan waktu selesai tersinkronisasi otomatis dengan waktu faktur.
 
-### C. Kasir POS, Invoice & Standardisasi Cetak
-- **Kasir POS Produk** (`/kasir/produk`): Penjualan produk retail biasa dengan keranjang belanja, diskon, PPN, opsi Penjualan Non-Real, dan cetak invoice.
+### C. Kasir POS, Invoice & Standardisasi Pelanggan
+- **Kasir POS Produk** (`/kasir/produk`): Penjualan produk retail biasa dengan keranjang belanja, diskon, PPN, opsi Penjualan Non-Real, cetak invoice, dan Single-Input Customer Autocomplete tanpa tab switcher.
 - **Nomor Transaksi Atomik Harian**:
   - Backend Penjualan: `INV-PJ-[KODE_CABANG]-[YYMMDD]-[00001]` -> Frontend: `PJ-[YYMMDD]-[00001]`
 ### D. Manajemen Pengguna (Master User & Soft Delete)
@@ -92,7 +98,7 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
   - **Modal Input Transaksi Baru Terstruktur**:
     - Input waktu transaksi fokus jam (`<input type="time">`) dengan badge tanggal aktif di header modal.
     - Seleksi tipe transaksi dinamis warna (Ungu untuk Penjualan, Kuning/Amber untuk Servis).
-    - Mode Pelanggan ringkas: Default `Konsumen`, input WhatsApp tersembunyi pada mode umum.
+    - Mode Pelanggan: Single-input autocomplete dengan default `Konsumen` (tanpa input WhatsApp & dropdown murni menampilkan nama pelanggan).
     - Baris Item penuh (Item full-width) dengan urutan kolom: Kuantitas, Biaya, Modal.
     - Baris Pembayaran & Pegawai terpisah rapi dengan custom dropdown Pegawai interaktif dan Pajak PPN bersih (`Tanpa PPN` tanpa persentase `(0%)`).
 - **2. Transaksi Harian** (`/transaksi/harian` - Admin & Superadmin):
@@ -123,12 +129,13 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
 - **Performance Board 12 Bulan (Januari - Desember)**:
   - Tabel 1: **Target Per Divisi** (4 Divisi: Laptop, Printer, Komputer, Admin).
   - Tabel 2: **Target Per Staf / User** (seluruh staf bertugas di cabang terpilih).
+  - **Kolom Total Persyaratan 1 Tahun**: Akumulasi total persyaratan tahunan di sisi kanan tabel untuk pemantauan pencapaian menyeluruh.
 - **Kalkulasi Realisasi Otomatis dari Transaksi FULL**:
   - Divisi Laptop, Printer, Komputer: Realisasi ditarik dari `transaksi_fulls` di mana `tipe_transaksi = 'servis'` dan `kategori_perangkat = '<divisi>'`.
   - Divisi Admin: Realisasi ditarik dari `transaksi_fulls` di mana `tipe_transaksi = 'penjualan'`.
   - Per Individu / Staf: Realisasi ditarik dari `transaksi_fulls` di mana `created_by = <user_id>`.
-- **Pengelolaan Target Tahunan**:
-  - Input target pertahun per cabang melalui 2 modal terpisah (Modal Target Divisi & Modal Target Staf), otomatis dialokasikan bulanan.
+- **Pengelolaan Target Tahunan & Per-Sel**:
+  - Target dan realisasi dapat dikelola mandiri per sel `(Divisi, Bulan)` dan `(User, Bulan)` maupun via modal target tahunan.
   - Hak akses set target: Khusus **Owner** dan **Superadmin**.
 - **Indikator Visual Pencapaian**:
   - Over Target `≥ 150%`: Badge Tech Blue / Indigo dengan icon trending-up.

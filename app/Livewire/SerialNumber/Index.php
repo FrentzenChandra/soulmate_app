@@ -31,13 +31,9 @@ class Index extends Component
     public ?int $snId = null;
 
     // Form fields
-    public string $customerType = 'langganan'; // 'langganan' | 'baru'
-
     public ?int $selectedCustomerId = null;
 
-    public string $customerSearch = '';
-
-    public string $newCustomerNama = '';
+    public string $customerSearch = 'Konsumen';
 
     public string $newCustomerNoHp = '';
 
@@ -275,23 +271,27 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function selectCustomer(int $id, string $nama): void
+    public function selectCustomer(int $id, string $nama, ?string $noHp = null): void
     {
         $this->selectedCustomerId = $id;
         $this->customerSearch = $nama;
+        if ($noHp) {
+            $this->newCustomerNoHp = $noHp;
+        }
     }
 
     public function resetCustomer(): void
     {
         $this->selectedCustomerId = null;
-        $this->customerSearch = '';
+        $this->customerSearch = 'Konsumen';
+        $this->newCustomerNoHp = '';
     }
 
     public function openCreateModal(): void
     {
         $this->resetValidation();
-        $this->reset(['snId', 'nama', 'merk', 'custom_merk', 'tipe_spek', 'merk_tipe_spek', 'sn', 'distributor', 'selectedCustomerId', 'customerSearch', 'newCustomerNama', 'newCustomerNoHp']);
-        $this->customerType = 'langganan';
+        $this->reset(['snId', 'nama', 'merk', 'custom_merk', 'tipe_spek', 'merk_tipe_spek', 'sn', 'distributor', 'selectedCustomerId', 'newCustomerNoHp']);
+        $this->customerSearch = 'Konsumen';
         $this->isEditMode = false;
         $this->modalOpen = true;
     }
@@ -302,11 +302,9 @@ class Index extends Component
         $item = SerialNumber::findOrFail($id);
 
         $this->snId = $item->id;
-        $this->customerType = 'langganan';
         $this->selectedCustomerId = $item->customer_id;
         $this->customerSearch = $item->customer ? $item->customer->nama : '';
-        $this->newCustomerNama = '';
-        $this->newCustomerNoHp = '';
+        $this->newCustomerNoHp = $item->customer ? ($item->customer->no_hp ?? '') : '';
         $this->merk = $item->merk ?: '';
         $this->custom_merk = '';
         $this->tipe_spek = $item->tipe_spek ?: $item->merk_tipe_spek ?: '';
@@ -327,28 +325,34 @@ class Index extends Component
     public function save(): void
     {
         $cabang = $this->activeCabang;
+        $finalCustomerId = null;
 
-        if ($this->customerType === 'baru') {
-            $this->validate([
-                'newCustomerNama' => 'required|string|min:2|max:150',
-                'newCustomerNoHp' => 'nullable|string|max:30',
-            ], [
-                'newCustomerNama.required' => 'Nama pelanggan baru wajib diisi.',
-            ]);
-
+        if ($this->selectedCustomerId) {
+            $finalCustomerId = $this->selectedCustomerId;
+            if (! empty($this->newCustomerNoHp)) {
+                $cleanHp = preg_replace('/[^0-9]/', '', $this->newCustomerNoHp);
+                $cust = Customer::find($this->selectedCustomerId);
+                if ($cust && empty($cust->no_hp) && $cleanHp) {
+                    $cust->update(['no_hp' => $cleanHp]);
+                }
+            }
+        } elseif (! empty(trim($this->customerSearch))) {
             $cabangId = $cabang?->id ?? Auth::user()?->cabang_id ?? Cabang::where('status', 'aktif')->value('id');
-
             $cleanHp = preg_replace('/[^0-9]/', '', $this->newCustomerNoHp);
-            $customer = Customer::create([
-                'cabang_id' => $cabangId,
-                'nama' => trim($this->newCustomerNama),
-                'no_hp' => $cleanHp ?: null,
-                'tipe' => 'langganan',
-            ]);
-
+            $customer = Customer::firstOrCreate(
+                [
+                    'cabang_id' => $cabangId,
+                    'nama' => trim($this->customerSearch),
+                ],
+                [
+                    'no_hp' => $cleanHp ?: null,
+                    'tipe' => 'langganan',
+                ]
+            );
+            if ($cleanHp && empty($customer->no_hp)) {
+                $customer->update(['no_hp' => $cleanHp]);
+            }
             $finalCustomerId = $customer->id;
-        } else {
-            $finalCustomerId = $this->selectedCustomerId ?: null;
         }
 
         $this->validate([
@@ -411,7 +415,7 @@ class Index extends Component
 
         // Customer suggestions for modal
         $customerSuggestions = [];
-        if ($this->modalOpen && $this->customerType === 'langganan' && ! empty(trim($this->customerSearch)) && ! $this->selectedCustomerId) {
+        if ($this->modalOpen && ! empty(trim($this->customerSearch)) && ! $this->selectedCustomerId) {
             $custQuery = Customer::query();
             if ($cabang && ! Auth::user()?->isOwner()) {
                 $custQuery->where('cabang_id', $cabang->id);

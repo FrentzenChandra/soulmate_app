@@ -76,12 +76,10 @@ class SerialNumberTest extends TestCase
             ->set('search', 'asus rog')
             ->assertSee('SN-ASUS-ROG-001');
 
-        // Add New Customer via customerType = 'baru' & Custom Brand Create
+        // Add New Customer via customerSearch & Custom Brand Create
         Livewire::test(SerialNumberIndex::class)
             ->call('openCreateModal')
-            ->set('customerType', 'baru')
-            ->set('newCustomerNama', 'Bpk. Ahmad Santoso')
-            ->set('newCustomerNoHp', '081234567899')
+            ->set('customerSearch', 'Bpk. Ahmad Santoso')
             ->set('merk', '__custom__')
             ->set('custom_merk', 'Lenovo Custom')
             ->set('tipe_spek', 'ThinkPad X1 Carbon Gen 10')
@@ -103,9 +101,8 @@ class SerialNumberTest extends TestCase
         // Test Selecting Existing Customer via Autocomplete
         Livewire::test(SerialNumberIndex::class)
             ->call('openCreateModal')
-            ->set('customerType', 'langganan')
             ->set('customerSearch', 'Ahmad')
-            ->call('selectCustomer', $newCustomer->id, $newCustomer->nama)
+            ->call('selectCustomer', $newCustomer->id, $newCustomer->nama, $newCustomer->no_hp)
             ->set('merk', 'Acer')
             ->set('tipe_spek', 'Nitro 5 AN515')
             ->set('sn', 'SN-ACER-NITRO-001')

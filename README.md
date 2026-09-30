@@ -7,21 +7,23 @@ Sistem Manajemen Operasional & Finansial Multi-Cabang untuk Usaha Servis Elektro
 ## 🚀 Fitur Utama & Modul Sistem
 
 ### 1. Manajemen Servis Multi-Divisi
-- **Pemisahan 3 Alur Servis**: Servis Masuk (`/servis/masuk`), Servis Keluar / Selesai (`/servis/keluar`), dan Servis Batal (`/servis/batal`).
+- **Pemisahan Alur Servis**: Servis Masuk (`/servis/masuk`), Servis Keluar / Selesai (`/servis/keluar`), Servis Batal (`/servis/batal`), dan Servis Non Real (`/servis/non-real`).
+- **Sub-Caption No. Servis Penginput**: Sub-caption No. Servis menampilkan nama user/staf yang menginput tiket pengerjaan.
 - **4 Kategori Perangkat**: `Laptop`, `Printer`, `Komputer`, dan `Lainnya`.
 - **Master Servis Khusus**: Jasa perbaikan & suku cadang (`master_servis`) dengan alokasi stok cabang & threshold alert terpisah dari produk retail.
 - **Papan Display Antrean Smart TV**: Display antrean real-time WebSocket (`/display/{kode_cabang}`).
 
 ### 2. Kasir POS & Transaksi Tabulator.js
-- **Kasir Produk POS (`/kasir/produk`)**: Penjualan produk retail biasa, barcode scanner live, diskon, PPN, opsi Penjualan Non-Real, dan cetak nota thermal (58mm / 80mm).
+- **Kasir Produk POS (`/kasir/produk`)**: Penjualan produk retail biasa, barcode scanner live, diskon, PPN, opsi Penjualan Non-Real, cetak nota thermal (58mm / 80mm), dan **Single-Input Customer Autocomplete**.
 - **Transaksi FULL (`/transaksi/full`)**: Rekapitulasi finansial multi-dimensi (Modal HPP, Harga Jual, Status Pembayaran, Metode Pembayaran, Pajak PPN, Pegawai/Teknisi) berbasis **Tabulator.js**.
 - **Status Transaksi Ringkas**: Hanya menggunakan 2 status pembayaran (**`Lunas`** dan **`BON`**).
 - **Transaksi Harian (`/transaksi/harian`)**: Audit transaksi real khusus hari ini (*today only*).
 
 ### 3. Target Bulanan (Performance Board 12 Bulan — `/target-bulanan`)
 - Matriks evaluasi 12 bulan (Januari s/d Desember) untuk 4 Divisi (`Laptop`, `Printer`, `Komputer`, `Admin`) dan per Staf (`User`).
-- Realisasi otomatis terhubung ke `transaksi_fulls`.
-- Input target tahunan per cabang oleh **Owner** dan **Superadmin**.
+- Realisasi otomatis terhubung ke `transaksi_fulls` dan pengelolaan per sel mandiri.
+- **Kolom Total Persyaratan 1 Tahun**: Akumulasi total persyaratan tahunan di sisi kanan tabel.
+- Input target & realisasi oleh **Owner** dan **Superadmin**.
 - Status visual interaktif: Over Target (`≥150%`), Target Tercapai (`100-149%`), Belum Tercapai (`<100%`).
 - Slogan motivasi: *"Target Bukan Untuk Ditakuti, Tapi Untuk Dikalahkan!"*.
 
@@ -31,6 +33,7 @@ Sistem Manajemen Operasional & Finansial Multi-Cabang untuk Usaha Servis Elektro
 - **Kas Keluar (`/kas-keluar`)**: Pencatatan beban pengeluaran dengan Master Sumber Dana & Kategori Kas.
 - **Saldo Rekening Standalone (`/saldo`)**: Pencatatan rekening bank dan saldo mandiri.
 - **Serial Number Tracker (`/serial-number`)**: Pelacakan serial number perangkat & distributor.
+- **Modular Menu Daily Logging**: Log terstruktur per modul di `storage/logs/{menu}/menu-{menu}-YYYY-MM-DD.log`.
 
 ### 5. Multi-Cabang & Hak Akses Berjenjang
 - **Owner**: Akses global seluruh cabang & Kantor Pusat (HQ), kelola PPN, kelola master cabang, dan switcher multi-cabang.

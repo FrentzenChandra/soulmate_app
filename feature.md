@@ -34,22 +34,23 @@ Sistem digunakan oleh banyak cabang sekaligus, jadi ada **data master Cabang**. 
 
 ## 3. Fitur Servis Masuk
 
-- Form input servis baru: pilih **Customer** — bisa pilih dari data lama (sudah pernah servis sebelumnya) atau input Customer Baru.
+- Form input servis baru: **Single Customer Autocomplete** — ketik nama untuk mencari pelanggan terdaftar atau ketik langsung sebagai pelanggan umum tanpa perlu ganti tab.
 - **Kategori Perangkat (Urutan Standar)**: `Laptop`, `Printer` (tanpa "/Scanner"), `Komputer` (tanpa "PC Komputer"), `Lainnya`.
-- **Penyederhanaan Kolom**:
+- **Penyederhanaan Kolom & Sub-Caption**:
   - Kolom *Nomor Seri / Serial Number* dan *Kondisi Fisik / Bodi Awal* **dihapus**.
   - Pilihan Kelengkapan: `Charger`, `Box`, `Flashdisk`, `Harddisk` (dipisah), opsi `Mouse` dihapus.
+  - Sub-caption pada kolom No. Servis menampilkan nama user/staf penginput tiket (`$item->user?->name ?? $item->teknisi?->name`) dengan warna font tegas (`text-gray-600 font-semibold`).
   - Kolom *Catatan Servis* diposisikan di sisi kiri dengan ukuran lebih besar untuk kenyamanan teknisi mencatat riwayat keluhan.
 - Setelah input, bisa **cetak Tanda Terima Servis** untuk diberikan ke customer (pakai printer thermal/dot matrix, ukuran struk — referensi printer Epson LX-310).
 - Servis punya **status** yang bisa diubah: `pengecekan` -> `pengerjaan` -> `selesai` (atau `batal`).
 - Setiap perubahan status **dicatat sebagai log** (siapa yang ubah, kapan, status apa) — untuk histori/audit trail, bukan cuma overwrite status terakhir.
 - Servis menggunakan detail jasa & suku cadang dari **Master Servis** (`MASTER_SERVIS` & `MASTER_SERVIS_STOK`), terpisah dari Master Produk retail kasir.
 
-## 4. Fitur Servis Keluar
+## 4. Fitur Servis Keluar & Servis Batal
 
-- Bukan tabel terpisah — ini adalah **filter/list dari data Servis Masuk** yang statusnya sudah `selesai` (siap diambil/dibayar).
-- Ada tombol **Batal** — kalau dipencet, status servis jadi `batal` dan **total biaya dikosongkan** (di-reset ke 0 / null).
-- Begitu servis sudah ditagihkan lewat kasir (lihat poin 5), servis tersebut **otomatis terkunci** — tidak bisa ditagih dobel oleh kasir lain/shift lain. Kalau dicari lagi di kasir, sistem harus tolak dengan pesan semacam "servis ini sudah dibayar".
+- **Servis Keluar** (`/servis/keluar`): Filter/list dari Servis Masuk yang statusnya sudah `selesai` (siap diambil/dibayar). Sub-caption No. Servis menampilkan nama user penginput tiket.
+- **Servis Batal** (`/servis/batal`): Unit yang dibatalkan dengan biaya Rp 0, sub-caption No. Servis menampilkan nama user penginput tiket dengan teks kontras tinggi.
+- **Servis Non Real** (`/servis/non-real`): Layanan servis pencatatan cepat tanpa status flow, 1 modal terpadu tambah & edit, rincian tindakan/komponen terintegrasi, dan sinkronisasi waktu selesai otomatis.
 
 ---
 
@@ -58,7 +59,7 @@ Sistem digunakan oleh banyak cabang sekaligus, jadi ada **data master Cabang**. 
 > **Update keputusan:** sebelumnya sempat direncanakan 1 menu Kasir gabungan dengan search bar pintar. Sekarang diputuskan **dipisah** jadi 2 titik masuk yang beda, karena servis dan penjualan produk butuh alur & konteks yang beda:
 
 ### A. Kasir Produk (menu tersendiri)
-- Kasir cari barang -> masuk keranjang -> bayar (diskon + PPN) -> cetak nota.
+- Kasir cari barang -> masuk keranjang -> pilih customer via hybrid autocomplete -> bayar (diskon + PPN) -> cetak nota.
 - Ini murni transaksi jual-beli barang retail biasa, tidak ada kaitan dengan servis.
 - Mendukung **Penjualan Non-Real (Nota Formalitas)**: mode cetak struk tanpa memotong stok dan tanpa masuk ke pembukuan finansial / dashboard.
 
@@ -556,12 +557,13 @@ Modul monitoring target kinerja operasional dan omzet 12 bulan (Januari s/d Dese
   - Realisasi ditarik otomatis dari `transaksi_fulls`:
     - Divisi Laptop / Printer / Komputer: Transaksi dengan `tipe_transaksi = 'servis'` dan `kategori_perangkat = '<divisi>'`.
     - Divisi Admin: Transaksi dengan `tipe_transaksi = 'penjualan'`.
+  - **Kolom Total Persyaratan 1 Tahun**: Akumulasi total syarat 12 bulan di sisi kanan tabel.
 - **Tabel 2 — Target & Realisasi Per Staf**:
   - Menampilkan seluruh staf yang bertugas di cabang terpilih (`users` cabang).
   - Realisasi dihitung otomatis dari total `harga_jual` transaksi di `transaksi_fulls` di mana `created_by = <user_id>`.
-- **Pengaturan Target Tahunan**:
-  - Modal 1: **Target Divisi Tahunan** (input target tahunan untuk 4 divisi per cabang).
-  - Modal 2: **Target Staf Tahunan** (input target tahunan per user per cabang).
+  - **Kolom Total Persyaratan 1 Tahun**: Akumulasi target tahunan per staf.
+- **Pengaturan Target & Realisasi Mandiri**:
+  - Pengelolaan mandiri per sel `(Divisi, Bulan)` dan `(User, Bulan)` via modal edit sel serta modal target tahunan.
   - Target tahunan dialokasikan otomatis secara merata 12 bulan sebagai acuan performa bulanan.
   - Akses kelola target: Khusus **Owner** dan **Superadmin**.
 - **Indikator Status Pencapaian Interaktif**:
@@ -572,5 +574,14 @@ Modul monitoring target kinerja operasional dan omzet 12 bulan (Januari s/d Dese
 - **Slogan Motivasi & Single-Line Control Bar**:
   - Menampilkan quote motivasi *"Target Bukan Untuk Ditakuti, Tapi Untuk Dikalahkan!"*.
   - Header, filter tahun, switcher cabang (khusus Owner HQ), dan tombol aksi modal tersusun rapi dalam 1 baris terpadu.
+
+---
+
+## 26. Modular Menu Daily Logging
+
+- **Arsitektur Subfolder Modular**: Log harian API & menu diorganisir per folder menu (`storage/logs/{menu}/menu-{menu}-YYYY-MM-DD.log`).
+- **Pembersihan Log Otomatis**: Driver daily dengan retensi terkontrol `LOG_MENU_DAYS` (default 5 hari).
+- **Keamanan**: Masking otomatis recursive terhadap field sensitif (password, token, pin, key).
+
 
 

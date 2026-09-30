@@ -106,8 +106,7 @@ class ServisMasukTest extends TestCase
         $this->actingAs($this->admin);
 
         Livewire::test(ServisMasukIndex::class)
-            ->set('customerType', 'baru')
-            ->set('newCustomerNama', 'Andi Pratama')
+            ->set('customerSearch', 'Andi Pratama')
             ->set('newCustomerNoHp', '081299887766')
             ->set('kategoriPerangkat', 'laptop')
             ->set('tipeUnit', 'Asus TUF Gaming FX505')
@@ -153,7 +152,7 @@ class ServisMasukTest extends TestCase
         ]);
 
         Livewire::test(ServisMasukIndex::class)
-            ->set('customerType', 'langganan')
+            ->set('customerSearch', 'PT Timah Utama')
             ->set('selectedCustomerId', $customer->id)
             ->set('kategoriPerangkat', 'printer')
             ->set('tipeUnit', 'Epson L3110')

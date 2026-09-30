@@ -12,8 +12,9 @@
 - Non-owner roles (Superadmin, Admin, Teknisi) melihat aplikasi sebagai 1 toko mandiri ("Soulmate Komputer").
 - Sembunyikan label cabang, switcher, dan badge cabang di navbar, header, notifikasi untuk non-owner. Hanya Owner yang punya akses multi-cabang / HQ.
 
-## 4. Simplified Customer Data & POS Specs
-- Data pelanggan: Murni Nama (`nama`) dan No. WhatsApp/HP (`no_hp`).
+## 4. Simplified Customer Data & Single-Input Autocomplete
+- Data pelanggan form transaksi/servis/kasir: Murni 1 input Nama Pelanggan (`nama`) saja, tanpa input WhatsApp / No HP.
+- Single-Input Hybrid Autocomplete: 1 input nama pelanggan untuk autocomplete terdaftar maupun custom fallback tanpa tombol tab switcher.
 - Invoice number harian: Backend `INV-PJ-[KODE_CABANG]-[YYMMDD]-[00001]`, frontend `PJ-[YYMMDD]-[00001]`.
 - Cetakan nota: Format kuantiti berspasi (`1 UNIT`).
 
@@ -43,7 +44,12 @@
 ## 11. Target Bulanan (Performance Board)
 - Route: `/target-bulanan`.
 - Realisasi otomatis 12 bulan dari `transaksi_fulls` (Divisi: Laptop, Printer, Komputer, Admin; serta per Staf/User).
-- Input target tahunan per cabang hanya oleh Owner & Superadmin.
+- Kolom Total Persyaratan 1 Tahun di sisi kanan tabel.
+- Input target & realisasi mandiri per sel `(Divisi, Bulan)` dan `(User, Bulan)` hanya oleh Owner & Superadmin.
+
+## 12. Service Ticket Sub-Caption & Modular Logging
+- Sub-caption No. Servis di tabel servis menampilkan nama user/staf penginput tiket (`text-gray-600 font-semibold`).
+- Log harian API & menu modular tersimpan di subfolder per modul (`storage/logs/{menu}/menu-{menu}-YYYY-MM-DD.log`).
 
 
 

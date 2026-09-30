@@ -197,23 +197,21 @@ class KasirPosTest extends TestCase
             ->assertSet('grandTotal', 333000);
     }
 
-    public function test_can_create_new_customer_and_attach_to_sale()
+    public function test_can_select_customer_and_attach_to_sale()
     {
         $this->actingAs($this->kasir);
 
-        Livewire::test(Index::class)
-            ->call('openNewCustomerModal')
-            ->set('newCustomerNama', 'Hendra Wijaya')
-            ->set('newCustomerHp', '081234567890')
-            ->call('saveNewCustomer')
-            ->assertSet('customerType', 'langganan');
-
-        $this->assertDatabaseHas('customers', [
+        $customer = \App\Models\Customer::create([
             'cabang_id' => $this->cabangPkp->id,
             'nama' => 'Hendra Wijaya',
             'no_hp' => '081234567890',
             'tipe' => 'langganan',
         ]);
+
+        Livewire::test(Index::class)
+            ->call('selectCustomer', $customer->id, $customer->nama, $customer->no_hp)
+            ->assertSet('selectedCustomerId', $customer->id)
+            ->assertSet('customerSearch', 'Hendra Wijaya');
     }
 
     public function test_successful_cash_checkout_decrements_stock_and_creates_invoice()
@@ -364,24 +362,25 @@ class KasirPosTest extends TestCase
             ->assertSet('modalScanOpen', false);
     }
 
-    public function test_can_register_new_customer()
+    public function test_can_select_registered_customer()
     {
         $this->actingAs($this->kasir);
 
-        Livewire::test(Index::class)
-            ->call('openNewCustomerModal')
-            ->set('newCustomerNama', 'Budi Santoso Langganan')
-            ->set('newCustomerHp', '081999888777')
-            ->call('saveNewCustomer')
-            ->assertSet('customerType', 'langganan')
-            ->assertHasNoErrors();
-
-        $this->assertDatabaseHas('customers', [
+        $customer = \App\Models\Customer::create([
             'cabang_id' => $this->cabangPkp->id,
             'nama' => 'Budi Santoso Langganan',
             'no_hp' => '081999888777',
             'tipe' => 'langganan',
         ]);
+
+        Livewire::test(Index::class)
+            ->set('customerSearch', 'Budi')
+            ->call('selectCustomer', $customer->id, $customer->nama, $customer->no_hp)
+            ->assertSet('selectedCustomerId', $customer->id)
+            ->assertSet('customerSearch', 'Budi Santoso Langganan')
+            ->call('resetCustomer')
+            ->assertSet('selectedCustomerId', null)
+            ->assertSet('customerSearch', 'Konsumen');
     }
 
     public function test_non_real_transaction_does_not_decrement_stock_and_sets_is_real_false()
@@ -463,7 +462,7 @@ class KasirPosTest extends TestCase
 
         Livewire::test(Index::class)
             ->call('addToCart', $this->produk1->id)
-            ->set('customerType', 'umum')
+            ->set('selectedCustomerId', null)
             ->call('simpanSebagaiBon')
             ->assertDispatched('swal:warning')
             ->assertSet('modalSuccessOpen', false);
@@ -481,7 +480,7 @@ class KasirPosTest extends TestCase
 
         Livewire::test(Index::class)
             ->call('addToCart', $this->produk1->id)
-            ->call('selectCustomer', $customer->id)
+            ->call('selectCustomer', $customer->id, $customer->nama, $customer->no_hp)
             ->call('simpanSebagaiBon')
             ->assertSet('modalSuccessOpen', true)
             ->assertSet('cart', []);
