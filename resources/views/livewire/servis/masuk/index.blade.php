@@ -505,7 +505,7 @@
                                                                 wire:click="selectCustomer({{ $cs->id }}, '{{ addslashes($cs->nama) }}')"
                                                                 class="w-full px-3.5 py-2 text-left hover:bg-purple-50 flex items-center justify-between text-xs cursor-pointer">
                                                             <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
-                                                            <span class="text-[10px] text-purple-600 font-semibold">Pilih</span>
+                                                            <span class="font-mono text-gray-500 text-[11px]">{{ $cs->no_hp ?: '-' }}</span>
                                                         </button>
                                                     @endforeach
                                                 </div>
