@@ -42,7 +42,7 @@
   * **Single Customer Name Input:** Cukup 1 kolom input nama pelanggan (`customerSearch` / `formNamaPelanggan`) dilengkapi dropdown saran instan (*tokenized multi-word matching*).
   * **Auto-Link:** Memilih item saran dari dropdown otomatis mengaitkan ID pelanggan terpilih.
   * **Custom / Fallback Instan:** Jika nama diketik bebas tanpa memilih saran, sistem otomatis memperlakukannya sebagai custom/pelanggan baru atau umum tanpa perlu berpindah tab.
-  * **Default Konsumen & Info Kontak Dropdown:** Input nama pelanggan pada form baru/reset default otomatis bernilai "Konsumen". Dropdown saran pada modul teknis (Servis Masuk, Servis Non Real, Serial Number) menampilkan info nomor telepon terdaftar sebagai referensi, sedangkan Kasir POS & Transaksi Harian/FULL murni nama saja (seluruh modul tetap tanpa input field WhatsApp/no HP).
+  * **Default Konsumen & Dropdown Murni Nama:** Dropdown saran murni hanya menampilkan nama pelanggan (tanpa menampilkan nomor HP/WhatsApp), dan input nama pelanggan pada form baru/reset default otomatis bernilai "Konsumen".
   * **Tombol Ganti / Reset:** Tampilkan info pelanggan terpilih dengan tombol `Ganti` untuk mereset pilihan.
   * **Standar Tombol Loading:** Animasi SVG Heroicons spinner, transisi teks status (`Simpan` &rarr; `Menyimpan...`), dan proteksi `wire:loading.attr="disabled"`.
   * **Zero Placeholder Standard:** Seluruh input form pelanggan tanpa atribut `placeholder`.
