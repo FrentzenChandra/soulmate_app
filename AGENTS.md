@@ -35,15 +35,13 @@
 - Dilarang menampilkan label cabang, switcher cabang, tag nama cabang, atau breadcrumb cabang pada navbar, header, notifikasi, dan katalog bagi non-owner.
 - Hanya role **Owner** yang memiliki akses ke switcher cabang, konteks Kantor Pusat (HQ), dan visibilitas multi-cabang.
 
-## 5. Simplified Customer Data & Single-Input Hybrid Autocomplete Standard
-- **Field Ringkas & Murni Nama Pelanggan Saja:** Form input transaksi, kasir POS, servis masuk, servis non real, dan serial number **TIDAK MEMILIKI input WhatsApp / No HP sama sekali**. Murni hanya 1 kolom input **Nama Pelanggan** (`nama`).
-- **Standar Alur Input Pelanggan (Single-Input Hybrid Autocomplete):**
-  * **Tanpa Tab Switcher & Tanpa Input No HP:** Dilarang menggunakan tombol toggle tab (`[Pilih Terdaftar]` vs `[+ Pelanggan Baru]`) dan dilarang menampilkan kolom input WhatsApp / no HP di form transaksi/servis.
-  * **Single Customer Name Input:** Cukup 1 kolom input nama pelanggan (`customerSearch` / `formNamaPelanggan`) dilengkapi dropdown saran instan (*tokenized multi-word matching*).
-  * **Auto-Link:** Memilih item saran dari dropdown otomatis mengaitkan ID pelanggan terpilih.
-  * **Custom / Fallback Instan:** Jika nama diketik bebas tanpa memilih saran, sistem otomatis memperlakukannya sebagai custom/pelanggan baru atau umum tanpa perlu berpindah tab.
-  * **Default Konsumen & Dropdown Murni Nama:** Dropdown saran murni hanya menampilkan nama pelanggan (tanpa menampilkan nomor HP/WhatsApp), dan input nama pelanggan pada form baru/reset default otomatis bernilai "Konsumen".
-  * **Tombol Ganti / Reset:** Tampilkan info pelanggan terpilih dengan tombol `Ganti` untuk mereset pilihan.
+## 5. Simplified Customer Data & Selection Standard
+- **Field Ringkas & Fokus Operasional:** Data pelanggan operasional harian disederhanakan murni menjadi **Nama Pelanggan** (`nama`) dan **Nomor WhatsApp / HP** (`no_hp`). Hilangkan kolom foto, alamat rumit, dan tipe keanggotaan/badge di alur cepat kasir, transaksi, & master pelanggan harian.
+- **Standar Alur Input & Pemilihan Pelanggan (Pola Servis Masuk):**
+  * **Toggle Switcher:** Dua mode jelas &rarr; `Pilih Terdaftar` vs `+ Pelanggan Baru`.
+  * **Autocomplete Terdaftar:** Pencarian multi-kata tokenized substring matching dengan dropdown saran instan.
+  * **Kartu Pelanggan Terpilih:** Menampilkan nama & nomor kontak pelanggan yang dipilih dengan tombol aksi `Ganti` / reset.
+  * **Registrasi Pelanggan Cepat:** Input `Nama Lengkap Pelanggan` & `WhatsApp`, otomatis tersimpan dengan `cabang_id` aktif dan langsung terpilih pada transaksi/tiket yang sedang dibuka.
   * **Standar Tombol Loading:** Animasi SVG Heroicons spinner, transisi teks status (`Simpan` &rarr; `Menyimpan...`), dan proteksi `wire:loading.attr="disabled"`.
   * **Zero Placeholder Standard:** Seluruh input form pelanggan tanpa atribut `placeholder`.
 
@@ -130,7 +128,6 @@
 - **Sistem Pengelolaan Per Cell Mandiri:** Target dan realisasi dikelola langsung per sel `(Divisi, Bulan)` dan `(User, Bulan)` secara independen.
   * **Tabel Divisi (Laptop, Printer, Komputer, Admin):** Setiap sel bulan dapat diatur target syarat dan realisasi spesifiknya masing-masing via modal edit sel.
   * **Tabel Staf (Individu):** Setiap sel bulan dapat diatur target syarat spesifik per staf, sementara realisasi terhitung otomatis dari `transaksi_fulls`.
-  * **Kolom Total Persyaratan 1 Tahun:** Kedua tabel (Target Divisi & Target Pegawai) menampilkan kolom akumulasi total syarat 1 tahun penuh di sisi kanan tabel untuk pemantauan target tahunan secara komprehensif.
 - **Hak Akses Set Target:** Hanya role **Owner** dan **Superadmin** yang berwenang mengklik sel tabel dan membuka modal edit target/realisasi.
 - **Indikator Visual Pencapaian:**
   * `≥ 150%`: Over Target (Badge Tech Blue `#0052FF` / Indigo + SVG icon trending-up).
@@ -158,11 +155,6 @@
   * **Anti-Duplikasi Total:** Dilarang menampilkan baris total tambahan di dalam sel tabel masing-masing kolom (total transaksi sudah tertera di card metrik atau kolom ringkasan).
 - **Transaction Modal Form Sizing:**
   * Ukuran lebar modal input/edit transaksi (`$modalFormOpen`) di Transaksi FULL dan Transaksi Harian WAJIB menggunakan batas maksimal `sm:max-w-2xl` (bukan `sm:max-w-4xl`) agar proporsional, nyaman dilihat, dan ergonomis.
-
-## 22. Service Ticket Sub-Caption Standard (User Penginput)
-- **Sub-Caption No. Servis Menampilkan Penginput:** Pada tabel modul Servis (`/servis/masuk`, `/servis/keluar`, `/servis/batal`), baris kedua (sub-caption) di bawah No. Servis **WAJIB** menampilkan nama user/staf yang menginput tiket servis (`$item->user?->name ?? $item->teknisi?->name`), bukan nama cabang.
-- **Tipografi Kontras Tinggi:** Teks nama user penginput ditampilkan dengan warna font lebih tegas dan jelas (`text-gray-600 font-semibold`) agar mudah terbaca.
-
 
 
 

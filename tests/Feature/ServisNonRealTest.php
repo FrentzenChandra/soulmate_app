@@ -9,7 +9,6 @@ use App\Livewire\Servis\NonReal\Index as ServisNonRealIndex;
 use App\Models\Cabang;
 use App\Models\Customer;
 use App\Models\KategoriProduk;
-use App\Models\MasterServis;
 use App\Models\Produk;
 use App\Models\ServisDetail;
 use App\Models\ServisMasuk;
@@ -29,7 +28,6 @@ class ServisNonRealTest extends TestCase
     protected Customer $customer;
     protected Produk $produk;
     protected Stok $stok;
-    protected MasterServis $masterJasa;
 
     protected function setUp(): void
     {
@@ -86,17 +84,6 @@ class ServisNonRealTest extends TestCase
             'jumlah' => 10,
             'is_aktif' => true,
         ]);
-
-        $this->masterJasa = MasterServis::create([
-            'kode_item' => 'JS-INST-01',
-            'nama_item' => 'Install Ulang OS + Software',
-            'jenis' => 'jasa',
-            'kategori_perangkat' => 'laptop',
-            'harga_modal' => 0,
-            'harga_jual' => 100000,
-            'garansi_default_hari' => 30,
-            'is_aktif' => true,
-        ]);
     }
 
     public function test_real_servis_pages_only_show_real_servis(): void
@@ -125,7 +112,7 @@ class ServisNonRealTest extends TestCase
             'kategori_perangkat' => 'laptop',
             'tipe_unit' => 'Non-Real Unit Masuk',
             'keluhan' => 'Keluhan Non-Real',
-            'status' => 'selesai',
+            'status' => 'pengecekan',
             'is_real' => false,
             'tanggal_masuk' => now(),
         ]);
@@ -204,63 +191,52 @@ class ServisNonRealTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $initialStock = $this->stok->jumlah;
-
-        // Test creation with unified modal on ServisNonRealIndex
-        $test = Livewire::test(ServisNonRealIndex::class)
-            ->call('openCreateModal')
-            ->set('customTanggalMasuk', now()->format('Y-m-d\TH:i'))
-            ->set('customerSearch', 'Budi Santoso')
+        // Test creation on ServisNonRealIndex
+        Livewire::test(ServisNonRealIndex::class)
+            ->set('customerType', 'langganan')
             ->set('selectedCustomerId', $this->customer->id)
+            ->set('kategoriPerangkat', 'laptop')
             ->set('tipeUnit', 'Lenovo ThinkPad Non Real')
-            ->call('setItemType', 'jasa')
-            ->call('selectMasterItem', $this->masterJasa->id, $this->masterJasa->nama_item, $this->masterJasa->harga_jual, 30)
-            ->call('addItemToCreate')
-            ->call('setItemType', 'sparepart')
-            ->call('selectProdukItem', $this->produk->id, $this->produk->nama_produk, 500000, 30)
-            ->set('itemQty', 2)
-            ->call('addItemToCreate')
+            ->set('keluhan', 'Ganti Keyboard & Thermal Paste')
             ->call('simpanServisMasuk')
             ->assertHasNoErrors();
 
         $servis = ServisMasuk::latest('id')->first();
         $this->assertNotNull($servis);
         $this->assertFalse($servis->is_real);
-        $this->assertEquals('selesai', $servis->status);
-        $this->assertEquals('laptop', $servis->kategori_perangkat);
         $this->assertEquals('Lenovo ThinkPad Non Real', $servis->tipe_unit);
-        $this->assertEquals(1100000, (float) $servis->total_biaya);
-        $this->assertCount(2, $servis->details);
 
-        // Stok fisik TIDAK BOLEH berkurang pada servis non real
-        $this->stok->refresh();
-        $this->assertEquals($initialStock, $this->stok->jumlah);
-
-        // Check visible on ServisNonRealIndex
+        // Check it is visible on ServisNonRealIndex
         Livewire::test(ServisNonRealIndex::class)
-            ->assertSee('Lenovo ThinkPad Non Real')
-            ->assertSee('Rp 1.100.000');
+            ->assertSee('Lenovo ThinkPad Non Real');
 
-        // Check NOT visible on ServisMasukIndex
+        // Check it is NOT visible on ServisMasukIndex
         Livewire::test(ServisMasukIndex::class)
             ->assertDontSee('Lenovo ThinkPad Non Real');
 
-        // Test Edit Modal
+        // Tambah sparepart ke servis non-real -> stok fisik TIDAK BOLEH berkurang
+        $initialStock = $this->stok->jumlah;
+
         Livewire::test(ServisNonRealIndex::class)
-            ->call('openEditModal', $servis->id)
-            ->set('editCustomerSearch', 'Budi Santoso')
-            ->set('editCustomerId', $this->customer->id)
-            ->set('editTipeUnit', 'Lenovo ThinkPad X280 Updated')
-            ->call('removeItemFromEdit', 1) // Hapus sparepart (index 1), sisa jasa 100k
-            ->call('simpanEditServis')
+            ->call('openTindakanModal', $servis->id)
+            ->call('setItemType', 'sparepart')
+            ->call('selectProdukItem', $this->produk->id, $this->produk->nama_produk, 500000, 10, 30)
+            ->set('itemQty', 3)
+            ->call('tambahItemTindakan')
             ->assertHasNoErrors();
 
-        $servis->refresh();
-        $this->assertEquals('Lenovo ThinkPad X280 Updated', $servis->tipe_unit);
-        $this->assertEquals(100000, (float) $servis->total_biaya);
-        $this->assertCount(1, $servis->details);
+        $this->stok->refresh();
+        $this->assertEquals($initialStock, $this->stok->jumlah);
 
-        // Stok fisik tetap tidak berubah
+        // Hapus item tindakan pada servis non-real -> stok TIDAK bertambah
+        $detail = ServisDetail::where('servis_id', $servis->id)->first();
+        $this->assertNotNull($detail);
+
+        Livewire::test(ServisNonRealIndex::class)
+            ->call('openTindakanModal', $servis->id)
+            ->call('hapusItemTindakan', $detail->id)
+            ->assertHasNoErrors();
+
         $this->stok->refresh();
         $this->assertEquals($initialStock, $this->stok->jumlah);
     }
@@ -274,7 +250,7 @@ class ServisNonRealTest extends TestCase
         $response->assertSee('Servis Non Real');
     }
 
-    public function test_servis_non_real_table_has_invoice_link_without_target_blank(): void
+    public function test_servis_non_real_table_has_both_print_links_without_target_blank_and_no_auto_redirect(): void
     {
         $this->actingAs($this->user);
 
@@ -285,19 +261,28 @@ class ServisNonRealTest extends TestCase
             'created_by' => $this->user->id,
             'kategori_perangkat' => 'laptop',
             'tipe_unit' => 'Asus Vivobook Non Real',
-            'keluhan' => 'Servis Non Real',
-            'status' => 'selesai',
+            'keluhan' => 'Layar Mati',
+            'status' => 'pengecekan',
             'is_real' => false,
             'tanggal_masuk' => now(),
-            'tanggal_selesai' => now(),
-            'total_biaya' => 250000,
         ]);
 
+        $tandaTerimaUrl = route('servis.tanda-terima', $servis->id);
         $invoiceUrl = route('servis.invoice', $servis->id);
 
-        Livewire::test(ServisNonRealIndex::class)
+        $test = Livewire::test(ServisNonRealIndex::class)
+            ->assertSeeHtml($tandaTerimaUrl)
             ->assertSeeHtml($invoiceUrl)
             ->assertDontSeeHtml('target="_blank"')
             ->assertDontSeeHtml('target=\'_blank\'');
+
+        // Simpan servis baru tidak mendispatch open-print-receipt
+        $test->set('customerType', 'langganan')
+            ->set('selectedCustomerId', $this->customer->id)
+            ->set('kategoriPerangkat', 'laptop')
+            ->set('tipeUnit', 'Acer Aspire Non Real')
+            ->set('keluhan', 'Ganti Kipas')
+            ->call('simpanServisMasuk')
+            ->assertNotDispatched('open-print-receipt');
     }
 }

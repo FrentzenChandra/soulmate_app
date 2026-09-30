@@ -257,60 +257,89 @@
                         <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         <span>Pelanggan</span>
                     </span>
-                    @if($selectedCustomer)
-                        <button type="button"
-                                wire:click="resetCustomer"
-                                class="text-[11px] font-bold text-rose-500 hover:underline cursor-pointer">
-                            Reset (Umum)
-                        </button>
-                    @endif
-                </div>
 
-                @if($selectedCustomer)
-                    <div class="p-2.5 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-between">
-                        <div class="flex items-center space-x-2.5 truncate">
-                            <div class="w-8 h-8 rounded-full bg-purple-200 text-[#5E17EB] font-black flex items-center justify-center text-xs shrink-0">
-                                {{ strtoupper(substr($selectedCustomer->nama, 0, 1)) }}
-                            </div>
-                            <div class="truncate">
-                                <h4 class="text-xs font-extrabold text-[#5E17EB] truncate">{{ $selectedCustomer->nama }}</h4>
-                            </div>
-                        </div>
+                    <!-- Toggle Pelanggan Umum vs Langganan -->
+                    <div class="flex items-center space-x-1 bg-gray-100 p-0.5 rounded-lg text-xs font-bold">
                         <button type="button"
-                                wire:click="resetCustomer"
-                                class="p-1 text-gray-400 hover:text-rose-600 transition-colors cursor-pointer"
-                                title="Ganti Pelanggan">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                wire:click="setCustomerUmum"
+                                class="px-2.5 py-1 rounded-md transition-all cursor-pointer {{ $customerType === 'umum' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
+                            Umum
+                        </button>
+                        <button type="button"
+                                wire:click="$set('customerType', 'langganan')"
+                                class="px-2.5 py-1 rounded-md transition-all cursor-pointer {{ $customerType === 'langganan' ? 'bg-white text-[#5E17EB] shadow-xs' : 'text-gray-500 hover:text-gray-900' }}">
+                            Langganan
                         </button>
                     </div>
-                @else
-                    <div class="relative">
-                        <input type="text"
-                               wire:model.live.debounce.250ms="customerSearch"
-                               class="w-full text-xs font-semibold pl-8 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#5E17EB] focus:border-transparent transition-all">
-                        <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
 
-                        @if($customers->count() > 0)
-                            <div class="absolute z-20 left-0 right-0 mt-1 bg-white rounded-xl border border-gray-200 shadow-xl divide-y divide-gray-100 max-h-48 overflow-y-auto custom-scrollbar">
-                                @foreach($customers as $c)
-                                    <button type="button"
-                                            wire:key="kasir-cust-{{ $c->id }}"
-                                            wire:click="selectCustomer({{ $c->id }})"
-                                            class="w-full p-2.5 text-left hover:bg-purple-50 transition-colors flex items-center justify-between gap-2.5 cursor-pointer group">
-                                        <div class="flex items-center space-x-2.5 min-w-0">
-                                            <div class="w-8 h-8 rounded-xl bg-purple-100 text-[#5E17EB] font-bold text-xs flex items-center justify-center shrink-0 border border-purple-200">
-                                                {{ strtoupper(substr($c->nama, 0, 1)) }}
-                                            </div>
-                                            <div class="min-w-0">
-                                                <span class="text-xs font-bold text-gray-900 group-hover:text-[#5E17EB] transition-colors block truncate">{{ $c->nama }}</span>
-                                            </div>
+                @if($customerType === 'langganan')
+                    <div class="space-y-2 pt-1 border-t border-gray-100">
+                        @if($selectedCustomer)
+                            <div class="p-2.5 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-between">
+                                <div class="flex items-center space-x-2.5 truncate">
+                                    @if($selectedCustomer->foto_url && file_exists(public_path($selectedCustomer->foto_url)))
+                                        <img src="{{ asset($selectedCustomer->foto_url) }}" alt="{{ $selectedCustomer->nama }}" class="w-8 h-8 rounded-full object-cover border border-purple-200 shrink-0">
+                                    @else
+                                        <div class="w-8 h-8 rounded-full bg-purple-200 text-[#5E17EB] font-black flex items-center justify-center text-xs shrink-0">
+                                            {{ strtoupper(substr($selectedCustomer->nama, 0, 1)) }}
                                         </div>
-                                        <span class="px-2 py-0.5 rounded-md bg-purple-50 group-hover:bg-[#5E17EB] group-hover:text-white text-[#5E17EB] text-[10px] font-bold transition-all shrink-0">
-                                            Pilih
-                                        </span>
-                                    </button>
-                                @endforeach
+                                    @endif
+                                    <div class="truncate">
+                                        <h4 class="text-xs font-extrabold text-[#5E17EB] truncate">{{ $selectedCustomer->nama }}</h4>
+                                        {{-- <p class="text-[11px] text-gray-500">{{ $selectedCustomer->no_hp ?: 'Tanpa No HP' }}</p> --}}
+                                    </div>
+                                </div>
+                                <button type="button"
+                                        wire:click="setCustomerUmum"
+                                        class="p-1 text-gray-400 hover:text-rose-600 transition-colors cursor-pointer"
+                                        title="Ganti Pelanggan">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
                             </div>
+                        @else
+                            <div class="relative">
+                                <input type="text"
+                                       wire:model.live.debounce.300ms="customerSearch"
+                                       class="w-full text-xs font-medium pl-8 pr-20 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-1 focus:ring-[#5E17EB]">
+                                <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                <button type="button"
+                                        wire:click="openNewCustomerModal"
+                                        class="absolute right-1.5 top-1.5 px-2 py-1 bg-[#5E17EB] text-white text-[10px] font-bold rounded-lg hover:bg-purple-700 cursor-pointer">
+                                    + Baru
+                                </button>
+                            </div>
+
+                            @if($customers->count() > 0)
+                                <div class="bg-white rounded-xl border border-gray-200 shadow-lg divide-y divide-gray-100 max-h-40 overflow-y-auto custom-scrollbar mt-1">
+                                    @foreach($customers as $c)
+                                        <button type="button"
+                                                wire:click="selectCustomer({{ $c->id }})"
+                                                class="w-full p-2.5 text-left hover:bg-purple-50 transition-colors flex items-center justify-between gap-2.5 cursor-pointer group">
+                                            <div class="flex items-center space-x-2.5 min-w-0">
+                                                <div class="w-9 h-9 rounded-xl overflow-hidden bg-purple-100 text-[#5E17EB] font-bold text-xs flex items-center justify-center shrink-0 border border-purple-200 shadow-2xs">
+                                                    @if($c->foto_url)
+                                                        <img src="{{ asset($c->foto_url) }}"
+                                                             alt="{{ $c->nama }}"
+                                                             class="w-full h-full object-cover"
+                                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                        <span style="display:none;" class="w-full h-full items-center justify-center bg-purple-100 text-[#5E17EB] font-bold text-xs">{{ strtoupper(substr($c->nama, 0, 1)) }}</span>
+                                                    @else
+                                                        <span>{{ strtoupper(substr($c->nama, 0, 1)) }}</span>
+                                                    @endif
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <span class="text-xs font-bold text-gray-900 group-hover:text-[#5E17EB] transition-colors block truncate">{{ $c->nama }}</span>
+                                                    {{-- <span class="text-[10px] text-gray-500 block truncate">{{ $c->no_hp ?: 'Tanpa No HP' }}</span> --}}
+                                                </div>
+                                            </div>
+                                            <span class="px-2 py-0.5 rounded-md bg-purple-50 group-hover:bg-[#5E17EB] group-hover:text-white text-[#5E17EB] text-[10px] font-bold transition-all shrink-0">
+                                                Pilih
+                                            </span>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
                         @endif
                     </div>
                 @endif
@@ -1013,6 +1042,76 @@
                             </button>
                         </div>
                     </div>
+
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- ============================================== -->
+    <!-- MODAL TAMBAH PELANGGAN BARU                   -->
+    <!-- ============================================== -->
+    @if($modalNewCustomerOpen)
+        <div class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-950/70 backdrop-blur-xs transition-opacity" wire:click="$set('modalNewCustomerOpen', false)"></div>
+
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
+
+                    <!-- Header Modal -->
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Tambah Pelanggan Baru</h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Registrasi pelanggan cepat saat transaksi kasir</p>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="$set('modalNewCustomerOpen', false)" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <form wire:submit.prevent="saveNewCustomer">
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                    Nama Lengkap Pelanggan <span class="text-rose-500">*</span>
+                                </label>
+                                <input type="text"
+                                       wire:model="newCustomerNama"
+                                       class="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] @error('newCustomerNama') border-rose-500 @enderror">
+                                @error('newCustomerNama') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                    WhatsApp
+                                </label>
+                                <input type="text"
+                                       wire:model="newCustomerHp"
+                                       class="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB]">
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-3 rounded-b-3xl">
+                            <button type="button"
+                                    wire:click="$set('modalNewCustomerOpen', false)"
+                                    class="px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                    wire:loading.attr="disabled"
+                                    wire:target="saveNewCustomer"
+                                    class="px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-extrabold text-white shadow-md shadow-purple-900/20 transition-all cursor-pointer flex items-center space-x-2">
+                                <svg wire:loading wire:target="saveNewCustomer" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                <span wire:loading.remove wire:target="saveNewCustomer">Simpan &amp; Pilih</span>
+                                <span wire:loading wire:target="saveNewCustomer">Menyimpan...</span>
+                            </button>
+                        </div>
+                    </form>
 
                 </div>
             </div>

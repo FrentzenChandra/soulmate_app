@@ -486,44 +486,68 @@
 
                             <!-- Data Pelanggan -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
-                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">1. Data Pelanggan</span>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">1. Data Pelanggan</span>
+                                    <div class="flex items-center space-x-2">
+                                        <button type="button"
+                                                wire:click="$set('customerType', 'langganan')"
+                                                class="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $customerType === 'langganan' ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
+                                            Pilih Terdaftar
+                                        </button>
+                                        <button type="button"
+                                                wire:click="$set('customerType', 'baru')"
+                                                class="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $customerType === 'baru' ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
+                                            + Pelanggan Baru
+                                        </button>
+                                    </div>
+                                </div>
 
-                                <div class="space-y-3">
-                                    <div>
-                                        <label class="block font-bold text-gray-700 mb-1">
-                                            Nama Pelanggan <span class="text-rose-500 font-bold">*</span>
-                                        </label>
+                                @if($customerType === 'langganan')
+                                    <div class="space-y-2">
                                         <div class="relative">
                                             <input type="text"
                                                    wire:model.live.debounce.250ms="customerSearch"
                                                    class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                             @if(!empty($customerSuggestions) && !$selectedCustomerId)
-                                                <div class="absolute z-20 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-48 overflow-y-auto">
+                                                <div class="absolute z-10 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
                                                     @foreach($customerSuggestions as $cs)
                                                         <button type="button"
                                                                 wire:key="sugg-cust-{{ $cs->id }}"
-                                                                wire:click="selectCustomer({{ $cs->id }}, '{{ addslashes($cs->nama) }}')"
-                                                                class="w-full px-3.5 py-2 text-left hover:bg-purple-50 flex items-center justify-between text-xs cursor-pointer">
+                                                                wire:click="selectCustomer({{ $cs->id }}, '{{ $cs->nama }}')"
+                                                                class="w-full px-3 py-2 text-left hover:bg-purple-50 flex items-center justify-between text-xs cursor-pointer">
                                                             <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
-                                                            <span class="text-[10px] text-purple-600 font-semibold">Pilih</span>
+                                                            <span class="font-mono text-gray-500">{{ $cs->no_hp }}</span>
                                                         </button>
                                                     @endforeach
                                                 </div>
                                             @endif
                                         </div>
-
                                         @if($selectedCustomerId)
-                                            <div class="mt-2 p-2 bg-purple-50 border border-purple-200 rounded-xl flex items-center justify-between text-[11px] text-purple-900 font-bold">
-                                                <span class="flex items-center gap-1.5">
-                                                    <svg class="w-3.5 h-3.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                                    {{ $customerSearch }} (Terdaftar)
-                                                </span>
-                                                <button type="button" wire:click="resetCustomer" class="text-rose-500 hover:underline cursor-pointer font-bold">Ganti</button>
+                                            <div class="p-2 bg-purple-50 border border-purple-200 rounded-xl flex items-center justify-between text-[11px] text-purple-900 font-bold">
+                                                <span>Pelanggan Terpilih: <strong>{{ $customerSearch }}</strong></span>
+                                                <button type="button" wire:click="$set('selectedCustomerId', null)" class="text-rose-500 hover:underline">Ganti</button>
                                             </div>
                                         @endif
-                                        @error('customerSearch') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
+                                        @error('selectedCustomerId') <span class="text-[11px] text-rose-500 font-semibold block">{{ $message }}</span> @enderror
                                     </div>
-                                </div>
+                                @else
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block font-bold text-gray-700 mb-1">Nama Lengkap Pelanggan <span class="text-rose-500">*</span></label>
+                                            <input type="text"
+                                                   wire:model="newCustomerNama"
+                                                   class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                            @error('newCustomerNama') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
+                                        </div>
+                                        <div>
+                                            <label class="block font-bold text-gray-700 mb-1">WhatsApp <span class="text-rose-500">*</span></label>
+                                            <input type="text"
+                                                   wire:model="newCustomerNoHp"
+                                                   class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                            @error('newCustomerNoHp') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
 
                             <!-- Detail Perangkat -->

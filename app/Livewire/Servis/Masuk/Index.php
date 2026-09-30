@@ -50,8 +50,10 @@ class Index extends Component
     public bool $modalCreateOpen = false;
     public bool $isReal = true;
     public string $customTanggalMasuk = '';
+    public string $customerType = 'langganan'; // 'langganan' | 'baru'
     public ?int $selectedCustomerId = null;
-    public string $customerSearch = 'Konsumen';
+    public string $customerSearch = '';
+    public string $newCustomerNama = '';
     public string $newCustomerNoHp = '';
 
     public string $kategoriPerangkat = 'laptop';
@@ -194,8 +196,10 @@ class Index extends Component
     {
         $this->isReal = true;
         $this->customTanggalMasuk = '';
+        $this->customerType = 'langganan';
         $this->selectedCustomerId = null;
-        $this->customerSearch = 'Konsumen';
+        $this->customerSearch = '';
+        $this->newCustomerNama = '';
         $this->newCustomerNoHp = '';
         $this->kategoriPerangkat = 'laptop';
         $this->tipeUnit = '';
@@ -207,18 +211,10 @@ class Index extends Component
         $this->resetValidation();
     }
 
-    public function selectCustomer(int $id, string $nama, string $noHp = ''): void
+    public function selectCustomer(int $id, string $nama): void
     {
         $this->selectedCustomerId = $id;
         $this->customerSearch = $nama;
-        $this->newCustomerNoHp = $noHp;
-    }
-
-    public function resetCustomer(): void
-    {
-        $this->selectedCustomerId = null;
-        $this->customerSearch = 'Konsumen';
-        $this->newCustomerNoHp = '';
     }
 
     public function simpanServisMasuk(): void
@@ -242,7 +238,6 @@ class Index extends Component
             'kategoriPerangkat' => 'required|in:laptop,printer,komputer,lainnya',
             'tipeUnit' => 'required|string|max:150',
             'keluhan' => 'required|string|min:3',
-            'customerSearch' => 'required|string|min:2|max:100',
             'kondisiBarang' => 'nullable|string|max:500',
             'catatan' => 'nullable|string|max:1000',
         ];
@@ -251,11 +246,19 @@ class Index extends Component
             $rules['customTanggalMasuk'] = 'required|date';
         }
 
+        if ($this->customerType === 'baru') {
+            $rules['newCustomerNama'] = 'required|string|min:2|max:100';
+            $rules['newCustomerNoHp'] = 'required|string|min:8|max:20';
+        } elseif ($this->customerType === 'langganan') {
+            $rules['selectedCustomerId'] = 'required|exists:customers,id';
+        }
+
         $this->validate($rules, [
             'tipeUnit.required' => 'Nama / tipe barang unit wajib diisi.',
             'keluhan.required' => 'Permasalahan atau keluhan unit wajib diisi.',
-            'customerSearch.required' => 'Nama pelanggan wajib diisi.',
-            'customerSearch.min' => 'Nama pelanggan minimal 2 karakter.',
+            'newCustomerNama.required' => 'Nama pelanggan baru wajib diisi.',
+            'newCustomerNoHp.required' => 'Nomor WhatsApp / HP pelanggan wajib diisi.',
+            'selectedCustomerId.required' => 'Silakan pilih data pelanggan terdaftar.',
             'customTanggalMasuk.required' => 'Tanggal masuk servis wajib diisi.',
         ]);
 
@@ -263,29 +266,16 @@ class Index extends Component
             DB::beginTransaction();
 
             $finalCustomerId = null;
-            if ($this->selectedCustomerId) {
-                $finalCustomerId = $this->selectedCustomerId;
-            } else {
-                $customerName = trim($this->customerSearch);
+            if ($this->customerType === 'baru') {
                 $cleanHp = preg_replace('/[^0-9]/', '', $this->newCustomerNoHp);
-                $existing = Customer::where('cabang_id', $cabang->id)
-                    ->whereRaw('LOWER(nama) = ?', [strtolower($customerName)])
-                    ->first();
-
-                if ($existing) {
-                    $finalCustomerId = $existing->id;
-                    if ($cleanHp && empty($existing->no_hp)) {
-                        $existing->update(['no_hp' => $cleanHp]);
-                    }
-                } else {
-                    $customer = Customer::create([
-                        'cabang_id' => $cabang->id,
-                        'nama' => $customerName,
-                        'no_hp' => $cleanHp ?: '-',
-                        'created_by' => Auth::id(),
-                    ]);
-                    $finalCustomerId = $customer->id;
-                }
+                $customer = Customer::create([
+                    'cabang_id' => $cabang->id,
+                    'nama' => trim($this->newCustomerNama),
+                    'no_hp' => $cleanHp,
+                ]);
+                $finalCustomerId = $customer->id;
+            } elseif ($this->customerType === 'langganan') {
+                $finalCustomerId = $this->selectedCustomerId;
             }
 
             // Tanggal masuk (custom jika non-real, now jika real)
@@ -854,22 +844,16 @@ class Index extends Component
 
         // Autocomplete Customer untuk modal create
         $customerSuggestions = [];
-        if (! empty(trim($this->customerSearch)) && ! $this->selectedCustomerId) {
+        if (! empty($this->customerSearch) && $this->customerType === 'langganan' && ! $this->selectedCustomerId) {
             $custQuery = Customer::query();
             if (! $isHQ) {
                 $targetCabang = $isOwner ? (int) $activeBranchSession : (int) $user->cabang_id;
                 if ($targetCabang) $custQuery->where('cabang_id', $targetCabang);
             }
-            $cSearch = trim($this->customerSearch);
-            $cWords = array_filter(explode(' ', $cSearch));
-            $customerSuggestions = $custQuery->where(function ($q) use ($cWords) {
-                foreach ($cWords as $w) {
-                    $p = '%' . strtolower($w) . '%';
-                    $q->where(function ($sq) use ($p) {
-                        $sq->whereRaw('LOWER(nama) LIKE ?', [$p])
-                           ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$p]);
-                    });
-                }
+            $customerSuggestions = $custQuery->where(function ($q) {
+                $pattern = '%' . strtolower($this->customerSearch) . '%';
+                $q->whereRaw('LOWER(nama) LIKE ?', [$pattern])
+                  ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$pattern]);
             })->take(5)->get();
         }
 

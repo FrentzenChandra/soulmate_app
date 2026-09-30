@@ -45,10 +45,18 @@ class Index extends Component
     // Keranjang Belanja (Cart)
     public array $cart = [];
 
-    // Customer Selection (Hybrid Smart Input)
+    // Customer Selection (umum / langganan)
+    public string $customerType = 'umum';
+
     public ?int $selectedCustomerId = null;
 
-    public string $customerSearch = 'Konsumen';
+    public string $customerSearch = '';
+
+    public bool $modalNewCustomerOpen = false;
+
+    public string $newCustomerNama = '';
+
+    public string $newCustomerHp = '';
 
     // Diskon & PPN
     public float $diskon = 0;
@@ -463,22 +471,48 @@ class Index extends Component
     public function selectCustomer(int $customerId): void
     {
         $this->selectedCustomerId = $customerId;
-        $cust = Customer::find($customerId);
-        if ($cust) {
-            $this->customerSearch = $cust->nama;
-        }
-    }
-
-    public function resetCustomer(): void
-    {
-        $this->selectedCustomerId = null;
-        $this->customerSearch = 'Konsumen';
+        $this->customerType = 'langganan';
+        $this->customerSearch = '';
     }
 
     public function setCustomerUmum(): void
     {
+        $this->customerType = 'umum';
         $this->selectedCustomerId = null;
-        $this->customerSearch = 'Konsumen';
+        $this->customerSearch = '';
+    }
+
+    public function openNewCustomerModal(): void
+    {
+        $this->reset(['newCustomerNama', 'newCustomerHp']);
+        $this->modalNewCustomerOpen = true;
+    }
+
+    public function saveNewCustomer(): void
+    {
+        $this->validate([
+            'newCustomerNama' => 'required|string|max:100',
+            'newCustomerHp' => 'nullable|string|max:20',
+        ], [
+            'newCustomerNama.required' => 'Nama pelanggan wajib diisi.',
+        ]);
+
+        $cabang = $this->activeCabang;
+        if (! $cabang) {
+            return;
+        }
+
+        $customer = Customer::create([
+            'cabang_id' => $cabang->id,
+            'nama' => trim($this->newCustomerNama),
+            'no_hp' => trim($this->newCustomerHp) ?: null,
+            'tipe' => 'langganan',
+        ]);
+
+        $this->selectedCustomerId = $customer->id;
+        $this->customerType = 'langganan';
+        $this->modalNewCustomerOpen = false;
+        $this->dispatch('swal:success', ['title' => 'Sukses', 'text' => "Pelanggan '{$customer->nama}' berhasil ditambahkan."]);
     }
 
     // Checkout
@@ -574,7 +608,7 @@ class Index extends Component
                 'no_transaksi' => $noTransaksi,
                 'cabang_id' => $cabang->id,
                 'kasir_id' => Auth::id(),
-                'customer_id' => $this->selectedCustomerId,
+                'customer_id' => $this->customerType === 'langganan' ? $this->selectedCustomerId : null,
                 'servis_id' => null,
                 'tipe_transaksi' => 'penjualan_barang',
                 'tanggal' => $now,
@@ -653,10 +687,10 @@ class Index extends Component
             return;
         }
 
-        if (! $this->selectedCustomerId) {
+        if ($this->customerType !== 'langganan' || ! $this->selectedCustomerId) {
             $this->dispatch('swal:warning', [
                 'title' => 'Pelanggan Wajib Dipilih',
-                'text' => 'Transaksi Bon (Belum Lunas) wajib memilih data Pelanggan (Nama & No. WhatsApp). Silakan pilih pelanggan terlebih dahulu.',
+                'text' => 'Transaksi Bon (Belum Lunas) wajib memilih data Pelanggan (Nama & No. WhatsApp). Silakan pilih atau tambah pelanggan terlebih dahulu.',
             ]);
 
             return;
@@ -766,7 +800,7 @@ class Index extends Component
         $masterPpns = MasterPpn::getAllAktifCached();
 
         $customers = collect();
-        if (! empty(trim($this->customerSearch)) && ! $this->selectedCustomerId && $cabang) {
+        if ($this->customerType === 'langganan' && ! empty($this->customerSearch) && $cabang) {
             $cleanCustomerSearch = trim($this->customerSearch);
             $words = array_filter(explode(' ', $cleanCustomerSearch));
             $customers = Customer::where('cabang_id', $cabang->id)

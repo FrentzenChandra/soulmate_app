@@ -286,43 +286,56 @@
 
                             <!-- Section 2: Data Pelanggan -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
-                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">2. Data Pelanggan</span>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">2. Data Pelanggan</span>
+                                    <div class="flex items-center space-x-2">
+                                        <button type="button"
+                                                wire:click="$set('formCustomerType', 'umum')"
+                                                class="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'umum' ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
+                                            Pelanggan Umum
+                                        </button>
+                                        <button type="button"
+                                                wire:click="$set('formCustomerType', 'langganan')"
+                                                class="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'langganan' ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
+                                            Pilih Master Pelanggan
+                                        </button>
+                                    </div>
+                                </div>
 
-                                <div class="space-y-3">
-                                    <div>
-                                        <label class="block font-bold text-gray-700 mb-1">
-                                            Nama Pelanggan <span class="text-rose-500 font-bold">*</span>
-                                        </label>
+                                @if($formCustomerType === 'langganan')
+                                    <div class="space-y-2">
                                         <div class="relative">
                                             <input type="text"
-                                                   wire:model.live.debounce.250ms="formNamaPelanggan"
-                                                   class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                                   wire:model.live.debounce.250ms="formCustomerSearch"
+                                                   class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
                                             @if(!empty($customerSuggestions) && !$formCustomerId)
-                                                <div class="absolute z-20 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-48 overflow-y-auto">
+                                                <div class="absolute z-10 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
                                                     @foreach($customerSuggestions as $cs)
                                                         <button type="button"
                                                                 wire:key="sugg-cust-harian-{{ $cs->id }}"
-                                                                wire:click="selectCustomer({{ $cs->id }}, '{{ addslashes($cs->nama) }}')"
-                                                                class="w-full px-3.5 py-2 text-left hover:bg-blue-50 flex items-center justify-between text-xs cursor-pointer">
+                                                                wire:click="selectCustomer({{ $cs->id }}, '{{ $cs->nama }}', '{{ $cs->no_hp }}')"
+                                                                class="w-full px-3 py-2 text-left hover:bg-blue-50 flex items-center justify-between text-xs cursor-pointer">
                                                             <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
-                                                            <span class="text-[10px] text-blue-600 font-semibold">Pilih</span>
                                                         </button>
                                                     @endforeach
                                                 </div>
                                             @endif
                                         </div>
-
                                         @if($formCustomerId)
-                                            <div class="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between text-[11px] text-blue-900 font-bold">
-                                                <span class="flex items-center gap-1.5">
-                                                    <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                                    {{ $formNamaPelanggan }} (Terdaftar)
-                                                </span>
-                                                <button type="button" wire:click="resetCustomer" class="text-rose-500 hover:underline cursor-pointer font-bold">Ganti</button>
+                                            <div class="p-2 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between text-[11px] text-blue-900 font-bold">
+                                                <span>Pelanggan Terpilih: <strong>{{ $formNamaPelanggan }}</strong></span>
+                                                <button type="button" wire:click="$set('formCustomerId', null)" class="text-rose-500 hover:underline cursor-pointer">Ganti</button>
                                             </div>
                                         @endif
-                                        @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
                                     </div>
+                                @endif
+
+                                <div>
+                                    <label class="block font-bold text-gray-700 mb-1">Nama Lengkap Pelanggan <span class="text-rose-500 font-bold">*</span></label>
+                                    <input type="text"
+                                           wire:model="formNamaPelanggan"
+                                           class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                    @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
                                 </div>
                             </div>
 

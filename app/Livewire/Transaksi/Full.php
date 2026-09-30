@@ -65,7 +65,9 @@ class Full extends Component
     public string $formTanggalOnly = '';
     public string $formJam = '';
     public ?int $formPegawaiId = null;
+    public string $formCustomerType = 'umum'; // 'umum' | 'langganan'
     public ?int $formCustomerId = null;
+    public string $formCustomerSearch = '';
     public string $formNamaPelanggan = 'Konsumen';
     public string $formNoHp = '';
     public ?int $formMetodePembayaranId = null;
@@ -236,6 +238,7 @@ class Full extends Component
         $this->formJam = $transaksi->tanggal ? $transaksi->tanggal->format('H:i') : now()->format('H:i');
         $this->formTanggal = $transaksi->tanggal ? $transaksi->tanggal->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i');
         $this->formPegawaiId = $transaksi->pegawai_id;
+        $this->formCustomerType = $transaksi->customer_id ? 'langganan' : 'umum';
         $this->formCustomerId = $transaksi->customer_id;
         $this->formNamaPelanggan = $transaksi->nama_pelanggan ?: 'Konsumen';
         $this->formNoHp = $transaksi->no_hp ?? '';
@@ -281,8 +284,10 @@ class Full extends Component
         $this->formTipeTransaksi = 'penjualan';
         $this->formKategoriPerangkat = 'laptop';
         $this->formTanggal = '';
+        $this->formCustomerType = 'umum';
         $this->formCustomerId = null;
-        $this->formNamaPelanggan = 'Konsumen';
+        $this->formCustomerSearch = '';
+        $this->formNamaPelanggan = 'Pelanggan Umum';
         $this->formNoHp = '';
         $this->formMetodePembayaranId = null;
         $this->formMetodePembayaran = 'Cash';
@@ -335,18 +340,12 @@ class Full extends Component
         $this->formNoTransaksi = "{$prefix}-{$yymmdd}-{$sequence}";
     }
 
-    public function selectCustomer(int $id, string $nama, ?string $noHp = null): void
+    public function selectCustomer(int $id, string $nama, ?string $noHp): void
     {
         $this->formCustomerId = $id;
         $this->formNamaPelanggan = $nama;
         $this->formNoHp = $noHp ?? '';
-    }
-
-    public function resetCustomer(): void
-    {
-        $this->formCustomerId = null;
-        $this->formNamaPelanggan = 'Konsumen';
-        $this->formNoHp = '';
+        $this->formCustomerSearch = $nama;
     }
 
     public function updatedFormPpnId($value): void
@@ -536,7 +535,7 @@ class Full extends Component
             $data = [
                 'cabang_id' => $cabangId,
                 'pegawai_id' => $pegawaiId,
-                'customer_id' => $this->formCustomerId,
+                'customer_id' => $this->formCustomerType === 'langganan' ? $this->formCustomerId : null,
                 'nama_pelanggan' => trim($this->formNamaPelanggan) ?: 'Konsumen',
                 'no_hp' => trim($this->formNoHp) ?: null,
                 'no_transaksi' => trim($this->formNoTransaksi),
@@ -681,22 +680,16 @@ class Full extends Component
 
         // Autocomplete Customer di Form Modal
         $customerSuggestions = [];
-        if ($this->modalFormOpen && ! empty(trim($this->formNamaPelanggan)) && ! $this->formCustomerId && trim($this->formNamaPelanggan) !== 'Konsumen') {
+        if ($this->modalFormOpen && ! empty($this->formCustomerSearch) && $this->formCustomerType === 'langganan' && ! $this->formCustomerId) {
             $custQ = Customer::query();
             if (! $isHQ) {
                 $targetCabang = $isOwner ? (int) $activeBranchSession : (int) $user->cabang_id;
                 if ($targetCabang) $custQ->where('cabang_id', $targetCabang);
             }
-            $cSearch = trim($this->formNamaPelanggan);
-            $cWords = array_filter(explode(' ', $cSearch));
-            $customerSuggestions = $custQ->where(function ($q) use ($cWords) {
-                foreach ($cWords as $w) {
-                    $p = '%' . strtolower($w) . '%';
-                    $q->where(function ($sq) use ($p) {
-                        $sq->whereRaw('LOWER(nama) LIKE ?', [$p])
-                           ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$p]);
-                    });
-                }
+            $pattern = '%' . strtolower($this->formCustomerSearch) . '%';
+            $customerSuggestions = $custQ->where(function ($q) use ($pattern) {
+                $q->whereRaw('LOWER(nama) LIKE ?', [$pattern])
+                  ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$pattern]);
             })->take(5)->get();
         }
 
