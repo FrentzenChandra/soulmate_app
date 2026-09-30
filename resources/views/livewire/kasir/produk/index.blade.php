@@ -287,7 +287,7 @@
                                     @endif
                                     <div class="truncate">
                                         <h4 class="text-xs font-extrabold text-[#5E17EB] truncate">{{ $selectedCustomer->nama }}</h4>
-                                        <p class="text-[11px] text-gray-500">{{ $selectedCustomer->no_hp ?: 'Tanpa No HP' }}</p>
+                                        {{-- <p class="text-[11px] text-gray-500">{{ $selectedCustomer->no_hp ?: 'Tanpa No HP' }}</p> --}}
                                     </div>
                                 </div>
                                 <button type="button"
@@ -330,7 +330,7 @@
                                                 </div>
                                                 <div class="min-w-0">
                                                     <span class="text-xs font-bold text-gray-900 group-hover:text-[#5E17EB] transition-colors block truncate">{{ $c->nama }}</span>
-                                                    <span class="text-[10px] text-gray-500 block truncate">{{ $c->no_hp ?: 'Tanpa No HP' }}</span>
+                                                    {{-- <span class="text-[10px] text-gray-500 block truncate">{{ $c->no_hp ?: 'Tanpa No HP' }}</span> --}}
                                                 </div>
                                             </div>
                                             <span class="px-2 py-0.5 rounded-md bg-purple-50 group-hover:bg-[#5E17EB] group-hover:text-white text-[#5E17EB] text-[10px] font-bold transition-all shrink-0">
