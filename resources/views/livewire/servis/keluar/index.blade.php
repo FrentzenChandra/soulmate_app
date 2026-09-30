@@ -42,7 +42,7 @@
     <!-- METRIC CARDS: RINGKASAN SERVIS KELUAR          -->
     <!-- ============================================== -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        
+
         <!-- Card 1: Siap Diambil / Belum Diambil -->
         <div class="card-custom bg-white p-5 flex items-center justify-between border border-gray-100/90 shadow-sm">
             <div>
@@ -98,7 +98,7 @@
     <!-- ============================================== -->
     <div class="card-custom bg-white p-5 space-y-4 border border-gray-100/90 shadow-sm">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
-            
+
             <!-- Pencarian Multi-Kata Longgar -->
             <div class="{{ $isHQ ? 'md:col-span-5' : 'md:col-span-5' }} relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -181,8 +181,8 @@
 
                 <!-- Skeleton Loader saat Query/Filter/Search/Sort/Pagination -->
                 <tbody wire:key="servis-keluar-skeleton-body"
-                       wire:loading.delay 
-                       wire:target="search, statusFilter, tipeFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore" 
+                       wire:loading.delay
+                       wire:target="search, statusFilter, tipeFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
                        class="divide-y divide-gray-100 bg-white">
                     @for($i = 0; $i < 6; $i++)
                         <tr class="animate-pulse">
@@ -204,14 +204,14 @@
                        class="divide-y divide-gray-100 text-xs">
                     @forelse($servisList as $item)
                         <tr wire:key="servis-keluar-row-{{ $item->id }}" class="hover:bg-purple-50/30 transition-colors group {{ $item->status === 'selesai' ? 'bg-amber-50/20' : '' }}">
-                            
+
                             <!-- No Tiket Servis -->
                             <td class="py-2.5 px-3 whitespace-nowrap {{ $item->status === 'selesai' ? 'border-l-4 border-amber-500' : 'border-l-4 border-emerald-500' }}">
                                 <span class="font-mono font-black text-gray-900 block group-hover:text-[#5E17EB] transition-colors leading-tight truncate">
                                     {{ $item->no_servis_frontend }}
                                 </span>
                                 <span class="text-[10px] font-medium text-gray-600 block leading-tight mt-0.5 truncate">
-                                    {{ $item->cabang?->nama_cabang ?? 'Pusat' }}
+                                    {{ $item->pembuat?->name ?? '-' }}
                                 </span>
                             </td>
 
@@ -298,7 +298,7 @@
                             <!-- 4 TOMBOL AKSI LENGKAP -->
                             <td class="py-2.5 px-3 text-center whitespace-nowrap">
                                 <div class="flex items-center justify-center space-x-1">
-                                    
+
                                     <!-- Aksi 1: Lihat Detail Modal -->
                                     <button type="button"
                                             wire:click="openDetailModal({{ $item->id }})"
@@ -327,7 +327,7 @@
                                     @endif
 
                                     <!-- Aksi 3: Cetak Faktur Nota -->
-                                    <a href="{{ route('servis.invoice', $item->id) }}" 
+                                    <a href="{{ route('servis.invoice', $item->id) }}"
                                        class="p-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#5E17EB] transition-colors cursor-pointer"
                                        title="Cetak Faktur Nota">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -372,12 +372,12 @@
 
         <!-- Infinite Scroll Sentinel -->
         <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
-            <x-infinite-scroll-sentinel 
-                :has-more="$hasMore" 
-                target="loadMore" 
-                label="unit servis keluar" 
-                :current="$servisList->count()" 
-                :total="$totalItems" 
+            <x-infinite-scroll-sentinel
+                :has-more="$hasMore"
+                target="loadMore"
+                label="unit servis keluar"
+                :current="$servisList->count()"
+                :total="$totalItems"
                 color="purple" />
         </div>
     </div>
@@ -391,7 +391,7 @@
 
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-gray-100">
-                    
+
                     <!-- Header Modal -->
                     <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
                         <div class="flex items-center gap-3.5 min-w-0">
@@ -426,7 +426,7 @@
                     </div>
 
                     <div class="p-6 space-y-4 max-h-[65vh] overflow-y-auto custom-scrollbar text-xs">
-                        
+
                         <!-- Snapshot Status & Tanggal Ambil -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="p-3 bg-gray-50 rounded-2xl border border-gray-100">
@@ -531,7 +531,7 @@
 
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl border border-gray-100">
-                    
+
                     <!-- Header Modal -->
                     <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
                         <div class="flex items-center gap-3.5 min-w-0">
@@ -549,7 +549,7 @@
                     </div>
 
                     <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar text-xs">
-                        
+
                         <!-- Tambah Item Baru -->
                         <div class="p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-3">
                             <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">+ Tambah Item Nota</span>
@@ -698,7 +698,7 @@
 
             <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 text-xs">
-                    
+
                     <!-- Header Modal -->
                     <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
                         <div class="flex items-center gap-3.5 min-w-0">
@@ -717,7 +717,7 @@
 
                     <form wire:submit.prevent="prosesPenyerahanUnit">
                         <div class="p-6 space-y-4">
-                            
+
                             <!-- Snapshot Unit & Tagihan -->
                             <div class="p-3.5 bg-purple-50 rounded-2xl border border-purple-100 flex items-center justify-between">
                                 <div>
