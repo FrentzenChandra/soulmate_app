@@ -96,29 +96,29 @@ class ApiMenuLogger
             default => 'info',
         };
 
-        // File format: storage/logs/menu-{menu}-YYYY-MM-DD.log
+        // File format: storage/logs/{menu}/menu-{menu}-YYYY-MM-DD.log
+        $menuDir = storage_path("logs/{$menu}");
         $logFilename = "menu-{$menu}.log";
-        $logDir = storage_path('logs');
 
         try {
-            if (!is_dir($logDir)) {
-                @mkdir($logDir, 0777, true);
+            if (!is_dir($menuDir)) {
+                @mkdir($menuDir, 0777, true);
             }
 
             $retentionDays = (int) env('LOG_MENU_DAYS', 5);
 
             Log::build([
                 'driver' => 'daily',
-                'path' => "{$logDir}/{$logFilename}",
+                'path' => "{$menuDir}/{$logFilename}",
                 'days' => $retentionDays,
                 'permission' => 0666,
             ])->$level($logLine);
 
-            // Also if route is API, write to api-{menu}.log for backward compatibility
+            // Also if route is API, write to subfolder for backward compatibility
             if (str_starts_with($path, 'api/')) {
                 Log::build([
                     'driver' => 'daily',
-                    'path' => "{$logDir}/api-{$menu}.log",
+                    'path' => "{$menuDir}/api-{$menu}.log",
                     'days' => $retentionDays,
                     'permission' => 0666,
                 ])->$level($logLine);

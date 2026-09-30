@@ -61,7 +61,7 @@
 
 ## 10. Modular Menu Daily Logging Standard
 - **Global Logging Middleware:** Terpasang global via `bootstrap/app.php` (`App\Http\Middleware\ApiMenuLogger`).
-- **File Format:** Terpisah per menu/modul per hari (`storage/logs/menu-{menu}-YYYY-MM-DD.log`).
+- **File Format:** Terorganisir di dalam subfolder per nama menu/modul per hari (`storage/logs/{menu}/menu-{menu}-YYYY-MM-DD.log`). Auto-create direktori jika belum tersedia.
 - **Pembersihan Log Otomatis:** Driver `daily` dengan retensi otomatis `LOG_MENU_DAYS` (default 5 hari) dan permission `0666` untuk mencegah disk membengkak.
 - **Log Format:** Single-line string tokenized `STATUS | METHOD /path | User: ID (Name) | IP: ... | DURATIONms | Payload: {...} | Error: ...`.
 - **Sensitivitas Keamanan:** Masking otomatis recursive untuk password, token, key, dan pin.

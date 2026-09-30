@@ -45,7 +45,7 @@ class ApiMenuLoggerTest extends TestCase
     public function test_api_menu_logger_creates_daily_log_file_per_menu(): void
     {
         $date = now()->format('Y-m-d');
-        $kasirLogPath = storage_path("logs/menu-kasir-test-{$date}.log");
+        $kasirLogPath = storage_path("logs/kasir-test/menu-kasir-test-{$date}.log");
 
         if (File::exists($kasirLogPath)) {
             File::delete($kasirLogPath);
@@ -63,7 +63,7 @@ class ApiMenuLoggerTest extends TestCase
     public function test_api_menu_logger_masks_sensitive_fields_and_identifies_user(): void
     {
         $date = now()->format('Y-m-d');
-        $userLogPath = storage_path("logs/menu-user-{$date}.log");
+        $userLogPath = storage_path("logs/user/menu-user-{$date}.log");
 
         if (File::exists($userLogPath)) {
             File::delete($userLogPath);
@@ -95,8 +95,8 @@ class ApiMenuLoggerTest extends TestCase
     public function test_web_routes_and_livewire_requests_are_logged_per_menu(): void
     {
         $date = now()->format('Y-m-d');
-        $masterProdukLog = storage_path("logs/menu-master-produk-{$date}.log");
-        $serialNumberLog = storage_path("logs/menu-serial-number-{$date}.log");
+        $masterProdukLog = storage_path("logs/master-produk/menu-master-produk-{$date}.log");
+        $serialNumberLog = storage_path("logs/serial-number/menu-serial-number-{$date}.log");
 
         if (File::exists($masterProdukLog)) {
             File::delete($masterProdukLog);
@@ -116,7 +116,7 @@ class ApiMenuLoggerTest extends TestCase
         $this->assertStringContainsString('GET /serial-number', File::get($serialNumberLog));
 
         // 3. Livewire update from Kasir page
-        $kasirMenuLog = storage_path("logs/menu-kasir-produk-{$date}.log");
+        $kasirMenuLog = storage_path("logs/kasir-produk/menu-kasir-produk-{$date}.log");
         if (File::exists($kasirMenuLog)) {
             File::delete($kasirMenuLog);
         }
