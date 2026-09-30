@@ -207,8 +207,8 @@
                                 <span class="font-mono font-black text-gray-900 block group-hover:text-[#5E17EB] transition-colors leading-tight truncate">
                                     {{ $item->no_servis_frontend }}
                                 </span>
-                                <span class="text-[10px] font-medium text-gray-400 block leading-tight mt-0.5 truncate">
-                                    {{ $item->cabang?->nama_cabang ?? 'Pusat' }}
+                                <span class="text-[10px] font-medium text-black-800 block leading-tight mt-0.5 truncate">
+                                    {{ $item->pembuat?->name ?? '-' }}
                                 </span>
                             </td>
 
@@ -227,7 +227,7 @@
                                 <span class="font-bold text-gray-900 block truncate max-w-[150px] leading-tight" title="{{ $item->customer?->nama ?? 'Pelanggan Umum' }}">
                                     {{ $item->customer?->nama ?? 'Pelanggan Umum' }}
                                 </span>
-                                <span class="text-[10px] font-mono text-gray-500 block leading-tight mt-0.5">
+                                <span class="text-[10px] font-mono text-black-800 block leading-tight mt-0.5">
                                     {{ $item->customer?->no_hp ?? '-' }}
                                 </span>
                             </td>
