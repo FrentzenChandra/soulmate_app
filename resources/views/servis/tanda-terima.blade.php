@@ -72,11 +72,11 @@
         <div class="grid grid-cols-12 gap-3 items-start pb-1">
 
             <!-- Left: Logo & Toko -->
-            <div class="col-span-7 flex items-start space-x-2.5">
-                <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-10 h-10 rounded-xl object-cover shrink-0 border border-gray-100 shadow-xs">
+            <div class="col-span-7 flex items-start space-x-3">
+                <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-gray-100 shadow-xs">
                 <div>
                     <h1 class="text-base font-black text-gray-900 tracking-tight leading-none">Soulmate Komputer</h1>
-                    <p class="text-[10px] font-medium text-gray-600 mt-0.5 leading-tight">
+                    <p class="text-[10px] font-medium text-gray-600 mt-1 leading-tight">
                         {{ $servis->cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang' }}
                     </p>
                     <p class="text-[10px] font-semibold text-gray-700 mt-0.5">
@@ -85,24 +85,31 @@
                 </div>
             </div>
 
-            <!-- Right: Meta Info (Tanggal, Jam, Kode Servis, Pelanggan) -->
-            <div class="col-span-5 grid grid-cols-2 gap-1.5 text-[11px]">
-                <div>
-                    <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Tanggal :</span>
-                    <span class="font-bold text-gray-800 font-mono text-[10px] block mt-0.5">{{ $servis->tanggal_masuk ? $servis->tanggal_masuk->format('d-m-Y H:i') : '-' }}</span>
-                </div>
-                <div>
-                    <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Pelanggan :</span>
-                    <span class="font-bold text-gray-900 block truncate text-[10px] mt-0.5" title="{{ $servis->customer?->nama ?? 'Pelanggan Umum' }}">
-                        {{ $servis->customer?->nama ?? 'Pelanggan Umum' }}
-                    </span>
-                </div>
-                <div class="col-span-2 pt-0.5 border-t border-gray-100 flex items-center justify-between">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase">Kode Servis:</span>
-                    <span class="text-xs font-black text-[#5E17EB] font-mono tracking-wider">
-                        {{ $servis->no_servis_frontend ?? $servis->no_servis }}
-                    </span>
-                </div>
+            <!-- Right: Meta Info (Tanggal, Pelanggan, Kode Servis 1 Baris per Item) -->
+            <div class="col-span-5 text-[11px]">
+                <table class="w-full">
+                    <tr>
+                        <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Tanggal</td>
+                        <td class="px-1 text-gray-400 font-bold">:</td>
+                        <td class="font-bold text-gray-800 font-mono text-[10px] py-0.5">{{ $servis->tanggal_masuk ? $servis->tanggal_masuk->format('d/m/Y H:i:s') : '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Pelanggan</td>
+                        <td class="px-1 text-gray-400 font-bold">:</td>
+                        <td class="font-bold text-gray-900 text-[10px] py-0.5">
+                            <span class="truncate block max-w-[170px]" title="{{ $servis->customer?->nama ?? 'Pelanggan Umum' }}">
+                                {{ $servis->customer?->nama ?? 'Pelanggan Umum' }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">KODE SERVIS</td>
+                        <td class="px-1 text-gray-400 font-bold">:</td>
+                        <td class="font-black text-[#5E17EB] font-mono text-xs py-0.5">
+                            {{ $servis->no_servis_frontend ?? $servis->no_servis }}
+                        </td>
+                    </tr>
+                </table>
             </div>
 
         </div>
