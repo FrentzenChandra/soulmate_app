@@ -239,8 +239,19 @@
 .tabulator-size-lg .tabulator .tabulator-header .tabulator-col-filter input,
 .tabulator-size-lg .tabulator .tabulator-header .tabulator-col-filter select { font-size: 11.5px !important; height: 28px !important; }
 .tabulator-size-lg .tabulator .tabulator-row { min-height: 48px !important; }
-.tabulator-size-lg .tabulator .tabulator-cell { font-size: 13.5px !important; padding: 8px 10px !important; }
 .tabulator-size-lg .tabulator .tabulator-cell span { font-size: 13px !important; }
+
+/* Ultra-Compact & Dense Table Layout (Super Berhimpit) */
+.tabulator-dense .tabulator .tabulator-header .tabulator-col {
+    padding: 2px 3px !important;
+}
+.tabulator-dense .tabulator .tabulator-row .tabulator-cell {
+    padding: 2px 2px !important;
+}
+.tabulator-dense .tabulator .tabulator-row {
+    min-height: 28px !important;
+}
+
 
 /* ========================================================= */
 /* Universal Blade Table Font Size Modifiers (S, M, L)       */
