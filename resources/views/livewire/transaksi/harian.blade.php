@@ -798,9 +798,9 @@
                                     <thead class="bg-gray-50 text-[10px] font-black text-gray-900 uppercase">
                                         <tr>
                                             <th class="py-2 px-3">Item</th>
-                                            <th class="py-2 px-3 text-center">Qty</th>
-                                            <th class="py-2 px-3 text-right">Modal (HPP)</th>
+                                            <th class="py-2 px-3 text-center">Jumlah</th>
                                             <th class="py-2 px-3 text-right">Harga Jual</th>
+                                            <th class="py-2 px-3 text-right">Modal</th>
                                             <th class="py-2 px-3 text-right">Laba</th>
                                         </tr>
                                     </thead>
@@ -809,8 +809,8 @@
                                             <tr>
                                                 <td class="py-2.5 px-3 font-bold text-gray-900">{{ $d->nama_item }}</td>
                                                 <td class="py-2.5 px-3 text-center font-mono font-bold text-gray-900">{{ $d->qty }}</td>
-                                                <td class="py-2.5 px-3 text-right font-mono font-bold text-amber-800">Rp {{ number_format($d->harga_modal, 0, ',', '.') }}</td>
                                                 <td class="py-2.5 px-3 text-right font-mono font-bold text-gray-900">Rp {{ number_format($d->harga_jual, 0, ',', '.') }}</td>
+                                                <td class="py-2.5 px-3 text-right font-mono font-bold text-amber-800">Rp {{ number_format($d->harga_modal, 0, ',', '.') }}</td>
                                                 <td class="py-2.5 px-3 text-right font-mono font-black {{ $d->laba >= 0 ? 'text-emerald-700' : 'text-rose-600' }}">Rp {{ number_format($d->laba, 0, ',', '.') }}</td>
                                             </tr>
                                         @endforeach
@@ -818,8 +818,8 @@
                                     <tfoot class="bg-blue-50/50 border-t border-blue-100 font-bold">
                                         <tr>
                                             <td colspan="2" class="py-2 px-3 text-gray-900 font-bold">Total Ringkasan:</td>
-                                            <td class="py-2 px-3 text-right font-mono text-amber-900 font-bold">Rp {{ number_format($selectedTransaksi->total_modal, 0, ',', '.') }}</td>
                                             <td class="py-2 px-3 text-right font-mono text-base text-[#0052FF] font-black">Rp {{ number_format($selectedTransaksi->grand_total, 0, ',', '.') }}</td>
+                                            <td class="py-2 px-3 text-right font-mono text-amber-900 font-bold">Rp {{ number_format($selectedTransaksi->total_modal, 0, ',', '.') }}</td>
                                             <td class="py-2 px-3 text-right font-mono text-base text-emerald-700 font-black">Rp {{ number_format($selectedTransaksi->total_laba, 0, ',', '.') }}</td>
                                         </tr>
                                     </tfoot>
