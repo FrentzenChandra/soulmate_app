@@ -307,13 +307,15 @@ class Index extends Component
         $totalNonCash = $totalKasKeluar - $totalCash;
 
         $sortCol = in_array($this->sortField, ['tanggal', 'nominal', 'keterangan']) ? $this->sortField : 'tanggal';
-        $query->orderBy($sortCol, $this->sortDirection === 'asc' ? 'asc' : 'desc');
+        $query->orderBy($sortCol, $this->sortDirection === 'asc' ? 'asc' : 'desc')
+            ->orderBy('id', 'desc');
 
         $allData = (clone $query)->get();
 
         $tableData = $allData->map(function ($item) {
             return [
                 'id' => $item->id,
+                'waktu_epoch' => $item->tanggal ? $item->tanggal->timestamp : 0,
                 'tanggal_raw' => $item->tanggal ? $item->tanggal->format('Y-m-d H:i') : '',
                 'tanggal_group' => $item->tanggal ? $item->tanggal->translatedFormat('l, d F Y') : '-',
                 'waktu' => $item->tanggal ? $item->tanggal->format('d/m/Y H:i') : '-',

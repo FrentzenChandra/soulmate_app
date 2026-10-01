@@ -373,6 +373,16 @@ window.tabulatorKasKeluarTable = function(config) {
                 paginationSizeSelector: [15, 25, 50, 100],
                 movableColumns: true,
                 groupBy: this.groupByDate ? "tanggal_group" : false,
+                groupOrder: function(a, b, aGroup, bGroup) {
+                    let aRows = aGroup.getRows();
+                    let bRows = bGroup.getRows();
+                    let aTime = aRows.length ? (aRows[0].getData().waktu_epoch || 0) : 0;
+                    let bTime = bRows.length ? (bRows[0].getData().waktu_epoch || 0) : 0;
+                    return bTime - aTime;
+                },
+                initialSort: [
+                    { column: "waktu_epoch", dir: "desc" }
+                ],
                 groupStartOpen: true,
                 groupToggleElement: "header",
                 groupHeader: function(value, count, data, group) {
@@ -432,7 +442,7 @@ window.tabulatorKasKeluarTable = function(config) {
                         minWidth: 160,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
-                        formatter: (cell) => `<span class="font-medium text-gray-900 text-xs block py-0.5 truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
+                        formatter: (cell) => `<span class="font-bold text-black text-sm block py-0.5 truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
                     },
                     {
                         title: "Sumber Dana",
@@ -528,7 +538,33 @@ window.editKasKeluar = (id) => {
     if (window.activeKasKeluarWire) window.activeKasKeluarWire.openEditModal(id);
 };
 window.deleteKasKeluarConfirm = (id) => {
-    if (confirm('Yakin ingin menghapus catatan kas keluar ini?')) {
+    if (window.swalConfirm) {
+        window.swalConfirm('Hapus Kas Keluar?', 'Catatan pengeluaran kas ini akan dihapus secara permanen.', {
+            danger: true,
+            confirmText: 'Ya, Hapus',
+            cancelText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed && window.activeKasKeluarWire) {
+                window.activeKasKeluarWire.delete(id);
+            }
+        });
+    } else if (window.Swal) {
+        window.Swal.fire({
+            title: 'Hapus Kas Keluar?',
+            text: 'Catatan pengeluaran kas ini akan dihapus secara permanen.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed && window.activeKasKeluarWire) {
+                window.activeKasKeluarWire.delete(id);
+            }
+        });
+    } else if (confirm('Yakin ingin menghapus catatan kas keluar ini?')) {
         if (window.activeKasKeluarWire) window.activeKasKeluarWire.delete(id);
     }
 };
