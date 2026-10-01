@@ -22,6 +22,9 @@ class TransaksiFullDetail extends Model
         'subtotal_modal',
         'subtotal_jual',
         'laba',
+        'ppn_id',
+        'ppn_persen',
+        'ppn_nominal',
     ];
 
     protected $casts = [
@@ -31,6 +34,8 @@ class TransaksiFullDetail extends Model
         'subtotal_modal' => 'decimal:2',
         'subtotal_jual' => 'decimal:2',
         'laba' => 'decimal:2',
+        'ppn_persen' => 'decimal:2',
+        'ppn_nominal' => 'decimal:2',
     ];
 
     public function transaksiFull(): BelongsTo
@@ -41,5 +46,10 @@ class TransaksiFullDetail extends Model
     public function produk(): BelongsTo
     {
         return $this->belongsTo(Produk::class, 'produk_id');
+    }
+
+    public function ppn(): BelongsTo
+    {
+        return $this->belongsTo(MasterPpn::class, 'ppn_id');
     }
 }

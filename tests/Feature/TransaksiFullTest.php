@@ -374,4 +374,63 @@ class TransaksiFullTest extends TestCase
         $this->assertNull($transaksi->fresh()->metode_pembayaran_id);
         $this->assertEquals('-', $transaksi->fresh()->metode_pembayaran);
     }
+
+    public function test_can_create_multi_item_transaksi_with_per_item_ppn()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        $ppn11 = MasterPpn::firstOrCreate(['nama' => 'PPN 11%'], [
+            'persen' => 11,
+            'is_aktif' => true,
+        ]);
+
+        $metode = MetodePembayaran::firstOrCreate(['nama' => 'Cash', 'cabang_id' => $superadmin->cabang_id], [
+            'is_aktif' => true,
+        ]);
+
+        $test = Livewire::test(TransaksiFull::class)
+            ->call('openCreateModal')
+            ->set('formNamaPelanggan', 'Pelanggan PPN Mix')
+            ->set('formTipeTransaksi', 'penjualan')
+            ->set('formStatus', 'Lunas')
+            ->set('formMetodePembayaranId', $metode->id)
+            ->set('formMetodePembayaran', $metode->nama)
+            // Item 1: Jasa Servis (Tanpa PPN)
+            ->set('items.0.nama_item', 'Jasa Install Windows')
+            ->set('items.0.harga_modal', 0)
+            ->set('items.0.harga_jual', 50000)
+            ->set('items.0.qty', 1)
+            ->set('items.0.ppn_id', null)
+            ->call('recalculateRow', 0)
+            // Item 2: Sparepart (Pakai PPN 11%)
+            ->call('addItemRow')
+            ->set('items.1.nama_item', 'SSD 256GB')
+            ->set('items.1.harga_modal', 200000)
+            ->set('items.1.harga_jual', 300000)
+            ->set('items.1.qty', 1)
+            ->set('items.1.ppn_id', $ppn11->id)
+            ->call('recalculateRow', 1)
+            ->call('simpanTransaksi')
+            ->assertHasNoErrors();
+
+        $trx = TransaksiFullModel::where('nama_pelanggan', 'Pelanggan PPN Mix')->first();
+        $this->assertNotNull($trx);
+        $this->assertEquals(350000, $trx->total_jual);
+        $this->assertEquals(33000, $trx->ppn_nominal); // 11% dari 300.000 = 33.000
+        $this->assertEquals(383000, $trx->grand_total); // 350.000 + 33.000 = 383.000
+
+        $details = $trx->details()->orderBy('id')->get();
+        $this->assertCount(2, $details);
+
+        // Item 1 Detail
+        $this->assertEquals('Jasa Install Windows', $details[0]->nama_item);
+        $this->assertNull($details[0]->ppn_id);
+        $this->assertEquals(0, $details[0]->ppn_nominal);
+
+        // Item 2 Detail
+        $this->assertEquals('SSD 256GB', $details[1]->nama_item);
+        $this->assertEquals($ppn11->id, $details[1]->ppn_id);
+        $this->assertEquals(33000, $details[1]->ppn_nominal);
+    }
 }

@@ -650,7 +650,7 @@
                                                     <!-- 3. Pajak -->
                                                     <div class="sm:col-span-3">
                                                         <label class="block font-bold text-gray-700 mb-1 text-[10px]">Pajak</label>
-                                                        <select wire:model.live="formPpnId"
+                                                        <select wire:model.live="items.{{ $idx }}.ppn_id"
                                                                 class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 bg-white font-bold text-gray-900 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
                                                             @if(!$ppnList->contains(fn($p) => (float)$p->persen == 0))
                                                                 <option value="">Tanpa PPN</option>
@@ -1269,18 +1269,31 @@ window.tabulatorTransaksiFullTable = function(config) {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             const isMulti = items.length > 1;
-                            const taxLabel = d.has_ppn ? 'PPN' : 'Non PPN';
-                            const taxColor = d.has_ppn ? 'text-[#0052FF]' : 'text-pink-600';
 
-                            if (items.length === 0 || !isMulti) {
+                            if (items.length === 0) {
+                                const taxLabel = d.has_ppn ? 'PPN' : 'Non PPN';
+                                const taxColor = d.has_ppn ? 'text-[#0052FF]' : 'text-pink-600';
                                 return `<span class="text-[10px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</span>`;
                             }
 
-                            const html = items.map(() => `
-                                <div class="leading-tight py-0.5 min-h-[18px] text-[10px] font-black ${taxColor} uppercase tracking-wider">
-                                    ${taxLabel}
-                                </div>
-                            `).join('');
+                            if (!isMulti) {
+                                const it = items[0];
+                                const itemHasPpn = it.has_ppn !== undefined ? it.has_ppn : d.has_ppn;
+                                const taxLabel = itemHasPpn ? 'PPN' : 'Non PPN';
+                                const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
+                                return `<span class="text-[10px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</span>`;
+                            }
+
+                            const html = items.map(it => {
+                                const itemHasPpn = it.has_ppn !== undefined ? it.has_ppn : d.has_ppn;
+                                const taxLabel = itemHasPpn ? 'PPN' : 'Non PPN';
+                                const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
+                                return `
+                                    <div class="leading-tight py-0.5 min-h-[18px] text-[10px] font-black ${taxColor} uppercase tracking-wider">
+                                        ${taxLabel}
+                                    </div>
+                                `;
+                            }).join('');
                             return `<div class="py-0.5 space-y-0.5 text-center">${html}</div>`;
                         }
                     },

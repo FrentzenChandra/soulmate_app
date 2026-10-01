@@ -260,6 +260,9 @@ class Full extends Component
                 'subtotal_modal' => (float) $d->subtotal_modal,
                 'subtotal_jual' => (float) $d->subtotal_jual,
                 'laba' => (float) $d->laba,
+                'ppn_id' => $d->ppn_id,
+                'ppn_persen' => (float) ($d->ppn_persen ?? 0),
+                'ppn_nominal' => (float) ($d->ppn_nominal ?? 0),
             ];
             $this->productSearchQueries[$idx] = $d->nama_item;
         }
@@ -375,6 +378,16 @@ class Full extends Component
                 $this->items[$idx]['produk_id'] = null;
                 $this->productSearchQueries[$idx] = $this->items[$idx]['nama_item'] ?? '';
             }
+            if (count($parts) >= 3 && $parts[2] === 'ppn_id') {
+                $idx = (int) $parts[1];
+                $val = $this->items[$idx]['ppn_id'] ?? null;
+                if ($val) {
+                    $ppn = MasterPpn::find($val);
+                    $this->items[$idx]['ppn_persen'] = $ppn ? (float) $ppn->persen : 0;
+                } else {
+                    $this->items[$idx]['ppn_persen'] = 0;
+                }
+            }
             if (count($parts) >= 2 && is_numeric($parts[1])) {
                 $idx = (int) $parts[1];
                 $this->recalculateRow($idx);
@@ -389,6 +402,7 @@ class Full extends Component
     public function addItemRow(): void
     {
         $idx = count($this->items);
+        $activePpn = MasterPpn::getAktifCached();
         $this->items[] = [
             'produk_id' => null,
             'nama_item' => '',
@@ -398,6 +412,9 @@ class Full extends Component
             'subtotal_modal' => 0,
             'subtotal_jual' => 0,
             'laba' => 0,
+            'ppn_id' => $activePpn ? $activePpn->id : null,
+            'ppn_persen' => $activePpn ? (float) $activePpn->persen : 0,
+            'ppn_nominal' => 0,
         ];
         $this->productSearchQueries[$idx] = '';
     }
@@ -451,12 +468,17 @@ class Full extends Component
 
         $hargaModal = is_numeric($rawModal) ? (float) $rawModal : (float) preg_replace('/[^0-9]/', '', (string) $rawModal);
         $hargaJual = is_numeric($rawJual) ? (float) $rawJual : (float) preg_replace('/[^0-9]/', '', (string) $rawJual);
+        $ppnPersen = (float) ($this->items[$index]['ppn_persen'] ?? 0);
+
+        $subJual = $hargaJual * $qty;
+        $ppnNominal = ($subJual * $ppnPersen) / 100;
 
         $this->items[$index]['harga_modal'] = $hargaModal;
         $this->items[$index]['harga_jual'] = $hargaJual;
         $this->items[$index]['subtotal_modal'] = $hargaModal * $qty;
-        $this->items[$index]['subtotal_jual'] = $hargaJual * $qty;
-        $this->items[$index]['laba'] = ($hargaJual * $qty) - ($hargaModal * $qty);
+        $this->items[$index]['subtotal_jual'] = $subJual;
+        $this->items[$index]['laba'] = $subJual - ($hargaModal * $qty);
+        $this->items[$index]['ppn_nominal'] = $ppnNominal;
     }
 
     public function simpanTransaksi(): void
@@ -495,19 +517,23 @@ class Full extends Component
 
             $totalModal = 0;
             $totalJual = 0;
+            $totalPpnNominal = 0;
 
             foreach ($this->items as $row) {
                 $qty = (int) $row['qty'];
                 $hModal = (float) $row['harga_modal'];
                 $hJual = (float) $row['harga_jual'];
+                $subJual = $hJual * $qty;
+                $ppnPersen = (float) ($row['ppn_persen'] ?? 0);
+                $rowPpnNominal = ($subJual * $ppnPersen) / 100;
 
                 $totalModal += ($hModal * $qty);
-                $totalJual += ($hJual * $qty);
+                $totalJual += $subJual;
+                $totalPpnNominal += $rowPpnNominal;
             }
 
             $totalLaba = $totalJual - $totalModal;
-            $ppnNominal = ($totalJual * (float) $this->formPpnPersen) / 100;
-            $grandTotal = $totalJual + $ppnNominal;
+            $grandTotal = $totalJual + $totalPpnNominal;
 
             if ($this->transaksiId) {
                 $existingTrx = TransaksiFull::find($this->transaksiId);
@@ -547,7 +573,7 @@ class Full extends Component
                 'metode_pembayaran' => $this->formMetodePembayaran,
                 'ppn_id' => $this->formPpnId,
                 'ppn_persen' => $this->formPpnPersen,
-                'ppn_nominal' => $ppnNominal,
+                'ppn_nominal' => $totalPpnNominal,
                 'total_modal' => $totalModal,
                 'total_jual' => $totalJual,
                 'total_laba' => $totalLaba,
@@ -568,6 +594,9 @@ class Full extends Component
                 $qty = (int) $row['qty'];
                 $hModal = (float) $row['harga_modal'];
                 $hJual = (float) $row['harga_jual'];
+                $subJual = $hJual * $qty;
+                $ppnPersen = (float) ($row['ppn_persen'] ?? 0);
+                $rowPpnNominal = ($subJual * $ppnPersen) / 100;
 
                 TransaksiFullDetail::create([
                     'transaksi_full_id' => $transaksi->id,
@@ -577,8 +606,11 @@ class Full extends Component
                     'harga_modal' => $hModal,
                     'harga_jual' => $hJual,
                     'subtotal_modal' => $hModal * $qty,
-                    'subtotal_jual' => $hJual * $qty,
-                    'laba' => ($hJual * $qty) - ($hModal * $qty),
+                    'subtotal_jual' => $subJual,
+                    'laba' => $subJual - ($hModal * $qty),
+                    'ppn_id' => ! empty($row['ppn_id']) ? (int) $row['ppn_id'] : null,
+                    'ppn_persen' => $ppnPersen,
+                    'ppn_nominal' => $rowPpnNominal,
                 ]);
             }
 
@@ -896,6 +928,9 @@ class Full extends Component
                     'subtotal_modal' => (float) ($d->subtotal_modal ?: ($d->harga_modal * $d->qty)),
                     'subtotal_jual' => (float) ($d->subtotal_jual ?: ($d->harga_jual * $d->qty)),
                     'laba' => (float) ($d->laba ?: (($d->harga_jual * $d->qty) - ($d->harga_modal * $d->qty))),
+                    'has_ppn' => ($d->ppn_persen > 0 || (float) $d->ppn_nominal > 0),
+                    'ppn_persen' => (float) $d->ppn_persen,
+                    'ppn_nominal' => (float) $d->ppn_nominal,
                 ])->values()->all(),
                 'rincian_item' => $item->details->map(fn($d) => $d->qty . 'x ' . $d->nama_item)->implode(', ') ?: 'Tanpa item',
                 'metode_pembayaran_id' => $item->metode_pembayaran_id,
