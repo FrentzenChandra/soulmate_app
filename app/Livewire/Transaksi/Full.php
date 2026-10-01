@@ -678,7 +678,7 @@ class Full extends Component
 
     public function openDetailModal(int $id): void
     {
-        $this->selectedTransaksi = TransaksiFull::with(['details.produk', 'customer', 'cabang', 'pegawai', 'ppn'])->findOrFail($id);
+        $this->selectedTransaksi = TransaksiFull::with(['details.produk', 'customer', 'cabang', 'pegawai', 'ppn', 'userInput', 'pelunas'])->findOrFail($id);
         $this->modalDetailOpen = true;
     }
 

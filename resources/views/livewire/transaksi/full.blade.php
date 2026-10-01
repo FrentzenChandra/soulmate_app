@@ -898,21 +898,13 @@
                         <!-- Snapshot Ringkas -->
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <span class="text-[10px] font-bold text-gray-900 uppercase block">No. Transaksi</span>
-                                <span class="font-mono font-black text-gray-900 block mt-0.5">{{ $selectedTransaksi->no_transaksi_frontend }}</span>
+                                <span class="text-[10px] font-bold text-gray-900 uppercase block">Penginput</span>
+                                <span class="font-bold text-gray-900 block mt-0.5 truncate" title="{{ $selectedTransaksi->userInput?->name ?? 'System' }}">{{ $selectedTransaksi->userInput?->name ?? 'System' }}</span>
                             </div>
                             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">Tipe</span>
                                 <span class="font-bold text-[#5E17EB] uppercase block mt-0.5">{{ $selectedTransaksi->tipe_transaksi }}</span>
                             </div>
-                            {{-- [KATEGORI PERANGKAT HIDE]
-                            @if($selectedTransaksi->tipe_transaksi === 'servis' && $selectedTransaksi->kategori_perangkat)
-                                <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
-                                    <span class="text-[10px] font-bold text-amber-900 uppercase block">Perangkat</span>
-                                    <span class="font-bold text-amber-900 block mt-0.5">{{ $selectedTransaksi->kategori_perangkat_label }}</span>
-                                </div>
-                            @endif
-                            --}}
                             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">Waktu</span>
                                 <span class="font-bold text-gray-900 block mt-0.5">{{ $selectedTransaksi->tanggal ? $selectedTransaksi->tanggal->format('d/m/Y H:i') : '-' }}</span>
@@ -933,9 +925,16 @@
                             <div class="text-right">
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">Metode / Status</span>
                                 <span class="font-bold text-gray-900 block">{{ $selectedTransaksi->metode_pembayaran }}</span>
-                                <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-black {{ $selectedTransaksi->status === 'Lunas' ? 'bg-emerald-100 text-emerald-800' : ($selectedTransaksi->status === 'Batal' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800') }}">
-                                    {{ $selectedTransaksi->status }}
-                                </span>
+                                <div class="flex items-center justify-end gap-1.5 mt-0.5">
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-black {{ $selectedTransaksi->status === 'Lunas' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
+                                        {{ $selectedTransaksi->status }}
+                                    </span>
+                                    @if($selectedTransaksi->status === 'Lunas' && ($selectedTransaksi->pelunas || $selectedTransaksi->tanggal_lunas))
+                                        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                            Oleh: {{ $selectedTransaksi->pelunas?->name ?? ($selectedTransaksi->userInput?->name ?? 'System') }} &bull; {{ $selectedTransaksi->tanggal_lunas ? $selectedTransaksi->tanggal_lunas->format('d/m/Y H:i') : '-' }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
