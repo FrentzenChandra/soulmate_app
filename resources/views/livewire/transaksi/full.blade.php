@@ -469,9 +469,6 @@
                                                                 {{ strtoupper(substr($formNamaPelanggan, 0, 1)) }}
                                                             </div>
                                                             <span class="truncate text-purple-950">{{ $formNamaPelanggan }}</span>
-                                                            @if($formNoHp)
-                                                                <span class="text-purple-600 font-mono text-[10px] shrink-0">({{ $formNoHp }})</span>
-                                                            @endif
                                                         </div>
                                                         <button type="button" wire:click="$set('formCustomerId', null)" class="text-rose-600 hover:text-rose-700 text-[10px] font-black hover:underline cursor-pointer ml-2 shrink-0">Ganti</button>
                                                     </div>
@@ -487,7 +484,6 @@
                                                                         wire:click="selectCustomer({{ $cs->id }}, '{{ addslashes($cs->nama) }}', '{{ $cs->no_hp }}')"
                                                                         class="w-full px-3 py-2 text-left hover:bg-purple-50 flex items-center justify-between text-xs cursor-pointer">
                                                                     <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
-                                                                    <span class="font-mono text-gray-500 text-[11px]">{{ $cs->no_hp }}</span>
                                                                 </button>
                                                             @endforeach
                                                         </div>
@@ -920,7 +916,6 @@
                             <div>
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">Pelanggan</span>
                                 <span class="font-bold text-gray-900 text-sm block">{{ $selectedTransaksi->nama_pelanggan }}</span>
-                                <span class="text-[10px] text-gray-900 font-mono font-bold">{{ $selectedTransaksi->no_hp ?: '-' }}</span>
                             </div>
                             <div class="text-right">
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">Metode / Status</span>
