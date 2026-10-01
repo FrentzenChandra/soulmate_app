@@ -470,7 +470,7 @@
                                            wire:model="formTargetTahunanLaptop"
                                            class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                                        ~{{ (int) round(($formTargetTahunanLaptop ?: 0) / 12) }} transaksi/bulan
+                                        {{ $formTargetTahunanLaptop ?: 0 }} transaksi / bulan (Jan &ndash; Des)
                                     </span>
                                 </div>
 
@@ -489,7 +489,7 @@
                                            wire:model="formTargetTahunanPrinter"
                                            class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                                        ~{{ (int) round(($formTargetTahunanPrinter ?: 0) / 12) }} transaksi/bulan
+                                        {{ $formTargetTahunanPrinter ?: 0 }} transaksi / bulan (Jan &ndash; Des)
                                     </span>
                                 </div>
 
@@ -508,7 +508,7 @@
                                            wire:model="formTargetTahunanKomputer"
                                            class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                                        ~{{ (int) round(($formTargetTahunanKomputer ?: 0) / 12) }} transaksi/bulan
+                                        {{ $formTargetTahunanKomputer ?: 0 }} transaksi / bulan (Jan &ndash; Des)
                                     </span>
                                 </div>
 
@@ -527,7 +527,7 @@
                                            wire:model="formTargetTahunanAdmin"
                                            class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                                        ~{{ (int) round(($formTargetTahunanAdmin ?: 0) / 12) }} transaksi/bulan
+                                        {{ $formTargetTahunanAdmin ?: 0 }} transaksi / bulan (Jan &ndash; Des)
                                     </span>
                                 </div>
                             </div>

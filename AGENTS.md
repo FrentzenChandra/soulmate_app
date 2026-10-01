@@ -127,9 +127,9 @@
 
 ## 18. Target Bulanan (Performance Board 12 Bulan) Standard
 - **Tabel Divisi (Laptop, Printer, Komputer, Admin):**
-  * Target diatur secara tahunan via modal "Atur Target Divisi (Tahunan)" (otomatis dibagi 12 bulan).
-  * Kolom ke-2 tabel divisi menampilkan nilai Target Tahunan (bukan jumlah count realisasi).
-  * Penyesuaian custom target & realisasi bulanan tetap didukung secara independen melalui klik per sel bulan.
+  * Target diatur per tahun via modal "Target Tahunan Divisi" di toolbar atas (nilai target yang diinput berlaku merata untuk setiap bulan Jan &ndash; Des, misal input 200 maka target bulanan tiap bulan adalah 200 transaksi).
+  * Kolom ke-2 tabel divisi menampilkan nilai target divisi tersebut.
+  * Penyesuaian realisasi manual per bulan tetap didukung secara independen melalui klik per sel bulan.
   * Indikator visual pencapaian divisi: `≥ 150%` (Over Target / Tech Blue), `100% - 149%` (Target Tercapai / Emerald), `< 100%` (Belum Tercapai / Rose).
 - **Tabel Staf (Individu):**
   * Realisasi murni 100% ditarik otomatis dari `transaksi_fulls` berdasarkan `pegawai_id`.

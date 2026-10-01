@@ -108,7 +108,7 @@ class Index extends Component
             $row = $targets->get($div);
             $val = 0;
             if ($row) {
-                $val = (int) ($row->target_bulanan * 12);
+                $val = (int) $row->target_bulanan;
             }
             $prop = 'formTargetTahunan' . ucfirst($div);
             $this->{$prop} = $val;
@@ -141,7 +141,7 @@ class Index extends Component
         ];
 
         foreach ($divisis as $div => $targetTahunan) {
-            $targetBulanan = (int) round($targetTahunan / 12);
+            $targetBulanan = (int) $targetTahunan;
 
             $targetDivisi = TargetDivisi::firstOrCreate(
                 [
@@ -297,7 +297,7 @@ class Index extends Component
         foreach ($divisiDefs as $key => $meta) {
             $targetDivisiRow = $targetDivisiModels->get($key);
             $defaultTarget = (int) ($targetDivisiRow?->target_bulanan ?? 0);
-            $targetTahunanInput = $defaultTarget * 12;
+            $targetTahunanInput = $defaultTarget;
             $grandTotalTargetTahunanInput += $targetTahunanInput;
 
             $monthlyRealisasi = $targetDivisiRow?->monthly_realisasi ?? [];

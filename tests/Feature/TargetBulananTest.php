@@ -155,13 +155,13 @@ class TargetBulananTest extends TestCase
 
         $targetLaptop = TargetDivisi::where('cabang_id', $cabangId)->where('divisi', 'laptop')->where('tahun', 2026)->first();
         $this->assertNotNull($targetLaptop);
-        $this->assertEquals(10, $targetLaptop->target_bulanan);
-        $this->assertEquals(10, $targetLaptop->monthly_targets['1']);
+        $this->assertEquals(120, $targetLaptop->target_bulanan);
+        $this->assertEquals(120, $targetLaptop->monthly_targets['1']);
 
         $targetPrinter = TargetDivisi::where('cabang_id', $cabangId)->where('divisi', 'printer')->where('tahun', 2026)->first();
         $this->assertNotNull($targetPrinter);
-        $this->assertEquals(5, $targetPrinter->target_bulanan);
-        $this->assertEquals(5, $targetPrinter->monthly_targets['1']);
+        $this->assertEquals(60, $targetPrinter->target_bulanan);
+        $this->assertEquals(60, $targetPrinter->monthly_targets['1']);
 
         // Verify direct annual target reflection in divisiMatrix
         Livewire::test(TargetBulananIndex::class)
