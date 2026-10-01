@@ -255,7 +255,7 @@
             <td style="width: 44%; vertical-align: top; padding-left: 15px;">
                 <table class="w-full totals-table">
                     <tr class="grandtotal-row">
-                        <td class="text-left font-bold uppercase">TOTAL TAGIHAN</td>
+                        <td class="text-left font-bold">Grandtotal</td>
                         <td class="text-right font-mono font-bold" style="color: #5E17EB;">
                             Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}
                         </td>

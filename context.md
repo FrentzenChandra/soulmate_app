@@ -67,11 +67,16 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
 - **2. Servis Keluar** (`/servis/keluar`): Khusus unit yang telah tuntas (status: `selesai` dan `sudah_diambil`).
 - **3. Servis Batal** (`/servis/batal`): Khusus unit dengan status `batal` dengan biaya Rp 0.
 
-### D. Kasir POS & Penomoran Invoice Harian
+### D. Kasir POS, Penomoran Invoice Harian & Standar Cetakan (24x14 cm)
 - **Kasir POS Produk** (`/kasir/produk`): Penjualan produk retail biasa dengan keranjang belanja, diskon, PPN, opsi Penjualan Non-Real, dan cetak invoice.
 - **Nomor Transaksi Atomik Harian**:
   - Backend Penjualan: `INV-PJ-[KODE_CABANG]-[YYMMDD]-[00001]` -> Frontend: `PJ-[YYMMDD]-[00001]`
   - Backend Servis: `INV-SV-[KODE_CABANG]-[YYMMDD]-[00001]` -> Frontend: `SV-[YYMMDD]-[00001]`
+- **Standar Cetakan Continuous Form (24 cm x 14 cm)**:
+  - Ukuran universal `@page { size: 240mm 140mm; margin: 3mm 6mm; }` (orientasi continuous form horizontal).
+  - Tipografi universal **Arial** (`Arial, Helvetica, sans-serif`), proporsional ~12 cm tinggi kertas 1 halaman pas.
+  - **Grandtotal Standard:** Seluruh label total akhir pada seluruh nota/cetakan penjualan, faktur servis, POS, dan PDF WAJIB bertuliskan **`Grandtotal`** (Title Case, dilarang `GRANDTOTAL`, `Grand Total`, atau `TOTAL TAGIHAN`).
+  - Format kuantiti berspasi (`1 UNIT`).
 
 ### E. Manajemen Pengguna (Master User & Soft Delete — `/master/user`)
 - Pengelolaan akun sistem / autentikasi (`Owner`, `Superadmin`, `Teknisi`, `Admin`, `Bendahara`).

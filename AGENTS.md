@@ -45,11 +45,17 @@
   * **Standar Tombol Loading:** Animasi SVG Heroicons spinner, transisi teks status (`Simpan` &rarr; `Menyimpan...`), dan proteksi `wire:loading.attr="disabled"`.
   * **Zero Placeholder Standard:** Seluruh input form pelanggan tanpa atribut `placeholder`.
 
-## 6. Daily Invoice Sequence & Frontend Display
+## 6. Daily Invoice Sequence, Continuous Form & Grandtotal Standard
 - **Format Backend:** `INV-PJ-[KODE_CABANG]-[YYMMDD]-[00001]` (counter atomik di-reset setiap hari per cabang).
 - **Format Frontend:** `PJ-[YYMMDD]-[00001]` (ditampilkan via accessor `no_transaksi_frontend`).
-- Format Servis: `INV-SV-[KODE_CABANG]-[YYMMDD]-[00001]` / `SV-[YYMMDD]-[00001]`.
-- Cetakan nota: Format kuantiti dan unit wajib berjarak (`{{ $qty }} UNIT`, bukan `1UNIT`).
+- **Format Servis:** `INV-SV-[KODE_CABANG]-[YYMMDD]-[00001]` / `SV-[YYMMDD]-[00001]`.
+- **Cetakan Nota & Continuous Form (24 cm x 14 cm):**
+  * Ukuran universal `@page { size: 240mm 140mm; margin: 3mm 6mm; }` (orientasi continuous form horizontal 240x140mm).
+  * Font universal **Arial** (`Arial, Helvetica, sans-serif`).
+  * Proporsional tinggi konten ~12 cm tanpa mengubah layout struktur asli.
+  * Format kuantiti dan unit wajib berjarak (`{{ $qty }} UNIT`, bukan `1UNIT`).
+- **Standardisasi Label Grandtotal:**
+  * Seluruh label total akhir pada seluruh nota/cetakan (Sales Invoice, Faktur Servis, Kasir POS, dan PDF) **WAJIB menggunakan teks `Grandtotal`** (Title Case persis `Grandtotal`, dilarang `GRANDTOTAL`, `Grand Total`, atau `TOTAL TAGIHAN`).
 
 ## 7. Docker & Execution Environment (Windows Host + Linux Container)
 - **Eksekusi Perintah Framework:** Semua perintah yang menyentuh filesystem / backend (`php artisan storage:link`, `php artisan migrate`, `php artisan optimize:clear`, dsb.) **WAJIB dieksekusi di dalam Docker container** (`docker exec soulmate_apps ...`), bukan di terminal Windows host.

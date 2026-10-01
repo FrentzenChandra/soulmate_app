@@ -173,8 +173,8 @@
                 </tbody>
                 <tfoot>
                     <tr class="border-t border-gray-800 font-bold text-[13px]">
-                        <td colspan="5" class="py-2 text-right uppercase">TOTAL TAGIHAN :</td>
-                        <td class="py-2 text-right font-mono text-[#5E17EB] font-black text-sm whitespace-nowrap pr-1">Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}</td>
+                        <td colspan="5" class="py-2 text-right text-sm sm:text-base font-black text-gray-900">Grandtotal :</td>
+                        <td class="py-2 text-right font-mono text-[#5E17EB] font-black text-sm sm:text-base whitespace-nowrap pr-1">Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}</td>
                     </tr>
                 </tfoot>
             </table>

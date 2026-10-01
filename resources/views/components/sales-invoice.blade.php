@@ -126,7 +126,7 @@
                     </tr>
                 @endif
                 <tr class="{{ ($penjualan->details->count() <= 1 && $penjualan->diskon <= 0 && $penjualan->ppn_nominal <= 0) ? 'border-t-2 border-gray-800 ' : 'border-t-2 border-gray-400 ' }}font-black">
-                    <td colspan="4" class="py-2 text-right text-sm sm:text-base font-black uppercase text-gray-900">Grandtotal :</td>
+                    <td colspan="4" class="py-2 text-right text-sm sm:text-base font-black text-gray-900">Grandtotal :</td>
                     <td class="py-2 text-right font-mono text-sm sm:text-base font-black text-[#5E17EB] whitespace-nowrap pr-1">Rp {{ number_format($penjualan->total, 0, ',', '.') }}</td>
                 </tr>
             </tfoot>

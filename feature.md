@@ -72,6 +72,12 @@ Nomor transaksi menggunakan generator urutan harian per cabang (`YYMMDD`):
 - **Backend Servis:** `INV-SV-[KODE_CABANG]-[YYMMDD]-[00001]` -> **Frontend:** `SV-[YYMMDD]-[00001]`
 - **Backend Produk:** `INV-PJ-[KODE_CABANG]-[YYMMDD]-[00001]` -> **Frontend:** `PJ-[YYMMDD]-[00001]`
 
+### Standar Cetakan Nota & Continuous Form (24 cm x 14 cm)
+- **Ukuran Universal:** `@page { size: 240mm 140mm; margin: 3mm 6mm; }` (orientasi continuous form horizontal).
+- **Tipografi & Skala:** Universal font **Arial** (`Arial, Helvetica, sans-serif`), proporsional ~12 cm tinggi kertas 1 halaman pas.
+- **Grandtotal Standard:** Seluruh label total akhir pada seluruh nota/cetakan penjualan, faktur servis, POS, dan PDF WAJIB bertuliskan **`Grandtotal`** (Title Case, dilarang `GRANDTOTAL`, `Grand Total`, atau `TOTAL TAGIHAN`).
+- **Format Kuantiti:** Format kuantiti berspasi (`1 UNIT`).
+
 ---
 
 ## 6. Data Master yang Dibutuhkan
