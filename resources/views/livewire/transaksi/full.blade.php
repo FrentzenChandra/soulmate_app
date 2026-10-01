@@ -1299,7 +1299,8 @@ window.tabulatorTransaksiFullTable = function(config) {
                     {
                         title: "Status",
                         field: "status",
-                        width: 115,
+                        width: 120,
+                        minWidth: 120,
                         hozAlign: "center",
                         headerFilter: "list",
                         headerFilterParams: { values: ["Lunas", "Bon"], clearable: true },
@@ -1309,18 +1310,20 @@ window.tabulatorTransaksiFullTable = function(config) {
                             const val = (cell.getValue() || '').toString();
                             const isLunas = val.toLowerCase() === 'lunas';
                             const id = d.id;
-                            const pelunasInfo = (isLunas && d.pelunas_nama && d.pelunas_nama !== '-')
-                                ? `<div class="text-[8.5px] text-emerald-700 font-bold leading-tight mt-0.5 truncate max-w-[105px] mx-auto" title="Dilunasi oleh: ${d.pelunas_nama} (${d.jam_lunas})">${d.pelunas_nama} (${d.jam_lunas})</div>`
-                                : '';
+                            const hasPelunas = isLunas && d.pelunas_nama && d.pelunas_nama !== '-';
                             return `
-                                <div class="py-0.5">
-                                    <select class="py-0.5 px-1.5 rounded text-[9.5px] font-black border transition-all cursor-pointer focus:ring-1 focus:ring-purple-200 ${
-                                        isLunas ? 'bg-emerald-50 text-emerald-800 border-emerald-400 font-black' : 'bg-rose-50 text-rose-800 border-rose-400 font-black'
+                                <div class="py-0.5 flex flex-col items-center justify-center min-h-[36px]">
+                                    <select class="w-[72px] py-0.5 px-1 rounded text-[9.5px] font-black border transition-all cursor-pointer text-center focus:ring-1 focus:ring-purple-200 ${
+                                        isLunas ? 'bg-emerald-50 text-emerald-800 border-emerald-400' : 'bg-rose-50 text-rose-800 border-rose-400'
                                     }" onchange="window.updateStatusFullDirect(${id}, this.value)">
                                         <option value="Lunas" ${isLunas ? 'selected' : ''}>Lunas</option>
                                         <option value="Bon" ${!isLunas ? 'selected' : ''}>Bon</option>
                                     </select>
-                                    ${pelunasInfo}
+                                    <div class="text-[8.5px] font-bold leading-tight mt-0.5 truncate max-w-[105px] text-center ${
+                                        hasPelunas ? 'text-emerald-700' : 'opacity-0 select-none'
+                                    }" title="${hasPelunas ? 'Dilunasi oleh: ' + d.pelunas_nama + ' (' + d.jam_lunas + ')' : ''}">
+                                        ${hasPelunas ? d.pelunas_nama + ' (' + d.jam_lunas + ')' : '-'}
+                                    </div>
                                 </div>
                             `;
                         }
@@ -1329,6 +1332,7 @@ window.tabulatorTransaksiFullTable = function(config) {
                         title: "Metode",
                         field: "metode_pembayaran",
                         width: 115,
+                        minWidth: 115,
                         hozAlign: "center",
                         formatter: (cell) => {
                             const d = cell.getData();
@@ -1351,10 +1355,12 @@ window.tabulatorTransaksiFullTable = function(config) {
                             }).join('');
 
                             return `
-                                <select class="py-0.5 px-1.5 rounded text-[9.5px] font-bold border transition-all cursor-pointer focus:ring-1 focus:ring-purple-200 ${colorStyle}"
-                                        onchange="window.updateMetodeFullDirect(${id}, parseInt(this.value, 10))">
-                                    ${options}
-                                </select>
+                                <div class="py-0.5 flex items-center justify-center">
+                                    <select class="w-[88px] py-0.5 px-1 rounded text-[9.5px] font-bold border transition-all cursor-pointer text-center focus:ring-1 focus:ring-purple-200 ${colorStyle}"
+                                            onchange="window.updateMetodeFullDirect(${id}, parseInt(this.value, 10))">
+                                        ${options}
+                                    </select>
+                                </div>
                             `;
                         }
                     },
