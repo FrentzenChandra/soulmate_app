@@ -808,7 +808,7 @@ class Full extends Component
 
         // Hitung 6 Ringkasan Finansial Utama
         $summaryBase = clone $query;
-        $allCurrent = $summaryBase->get();
+        $allCurrent = (clone $summaryBase)->orderBy('tanggal', 'desc')->orderByDesc('id')->get();
 
         $totalPendapatan = (float) $allCurrent->sum('grand_total');
         $totalModal = (float) $allCurrent->sum('total_modal');
@@ -882,6 +882,7 @@ class Full extends Component
                 'no_transaksi' => $item->no_transaksi_frontend,
                 'tipe_transaksi' => $item->tipe_transaksi,
                 'waktu' => $item->tanggal ? $item->tanggal->format('d/m/Y H:i') : '-',
+                'waktu_epoch' => $item->tanggal ? $item->tanggal->timestamp : 0,
                 'jam' => $item->tanggal ? $item->tanggal->format('H:i') : '-',
                 'tanggal_group' => $item->tanggal ? $item->tanggal->translatedFormat('l, d F Y') : '-',
                 'petugas' => $item->pegawai?->nama ?? 'Tanpa Pegawai',

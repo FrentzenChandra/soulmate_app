@@ -413,86 +413,85 @@
                                 </div>
                             @endif
 
-                            <!-- Section 1: Informasi Utama Transaksi -->
+                            <!-- Section 1: Informasi Transaksi & Pelanggan -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">1. Informasi Transaksi</span>
+                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">1. Informasi Transaksi &amp; Pelanggan</span>
                                     <span class="text-[11px] font-bold text-gray-500 font-mono sm:hidden">
                                         {{ \Carbon\Carbon::parse($formTanggalOnly ?: now())->translatedFormat('d M Y') }}
                                     </span>
                                 </div>
 
-                                <div>
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
                                     <!-- Tipe Transaksi (Pewarnaan Ungu / Kuning) -->
-                                    <label class="block font-bold text-gray-700 mb-1">Tipe Transaksi <span class="text-rose-500 font-bold">*</span></label>
-                                    <select wire:model.live="formTipeTransaksi"
-                                            class="w-full px-3.5 py-2 rounded-xl border font-bold text-xs transition-all cursor-pointer {{ $formTipeTransaksi === 'penjualan' ? 'bg-purple-50/80 border-purple-300 text-[#5E17EB] focus:ring-2 focus:ring-purple-200' : 'bg-amber-50/80 border-amber-300 text-amber-900 focus:ring-2 focus:ring-amber-200' }}">
-                                        <option value="penjualan">Penjualan Produk</option>
-                                        <option value="servis">Layanan Servis</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Section 2: Data Pelanggan -->
-                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">2. Data Pelanggan</span>
-                                    <div class="flex items-center space-x-2">
-                                        <button type="button"
-                                                wire:click="$set('formCustomerType', 'umum')"
-                                                class="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'umum' ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
-                                            Pelanggan Umum
-                                        </button>
-                                        <button type="button"
-                                                wire:click="$set('formCustomerType', 'langganan')"
-                                                class="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'langganan' ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
-                                            Pilih Master Pelanggan
-                                        </button>
+                                    <div class="sm:col-span-5">
+                                        <label class="block font-bold text-gray-700 mb-1">Tipe Transaksi <span class="text-rose-500 font-bold">*</span></label>
+                                        <select wire:model.live="formTipeTransaksi"
+                                                class="w-full px-3.5 py-2 rounded-xl border font-bold text-xs transition-all cursor-pointer {{ $formTipeTransaksi === 'penjualan' ? 'bg-purple-50/80 border-purple-300 text-[#5E17EB] focus:ring-2 focus:ring-purple-200' : 'bg-amber-50/80 border-amber-300 text-amber-900 focus:ring-2 focus:ring-amber-200' }}">
+                                            <option value="penjualan">Penjualan Produk</option>
+                                            <option value="servis">Layanan Servis</option>
+                                        </select>
                                     </div>
-                                </div>
 
-                                @if($formCustomerType === 'langganan')
-                                    <div class="space-y-2">
-                                        <div class="relative">
-                                            <input type="text"
-                                                   wire:model.live.debounce.250ms="formCustomerSearch"
-                                                   class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
-                                            @if(!empty($customerSuggestions) && !$formCustomerId)
-                                                <div class="absolute z-10 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
-                                                    @foreach($customerSuggestions as $cs)
-                                                        <button type="button"
-                                                                wire:key="sugg-cust-{{ $cs->id }}"
-                                                                wire:click="selectCustomer({{ $cs->id }}, '{{ $cs->nama }}', '{{ $cs->no_hp }}')"
-                                                                class="w-full px-3 py-2 text-left hover:bg-purple-50 flex items-center justify-between text-xs cursor-pointer">
-                                                            <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
-                                                        </button>
-                                                    @endforeach
-                                                </div>
-                                            @endif
+                                    <!-- Data Pelanggan -->
+                                    <div class="sm:col-span-7 space-y-1.5">
+                                        <div class="flex items-center justify-between">
+                                            <label class="block font-bold text-gray-700">Nama Lengkap Pelanggan <span class="text-rose-500 font-bold">*</span></label>
+                                            <div class="flex items-center space-x-1.5">
+                                                <button type="button"
+                                                        wire:click="$set('formCustomerType', 'umum')"
+                                                        class="px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'umum' ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
+                                                    Umum
+                                                </button>
+                                                <button type="button"
+                                                        wire:click="$set('formCustomerType', 'langganan')"
+                                                        class="px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'langganan' ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
+                                                    Master
+                                                </button>
+                                            </div>
                                         </div>
-                                        @if($formCustomerId)
-                                            <div class="p-2 bg-purple-50 border border-purple-200 rounded-xl flex items-center justify-between text-[11px] text-purple-900 font-bold">
-                                                <span>Pelanggan Terpilih: <strong>{{ $formNamaPelanggan }}</strong></span>
-                                                <button type="button" wire:click="$set('formCustomerId', null)" class="text-rose-500 hover:underline cursor-pointer">Ganti</button>
+
+                                        @if($formCustomerType === 'langganan')
+                                            <div class="space-y-1.5 relative">
+                                                <input type="text"
+                                                       wire:model.live.debounce.250ms="formCustomerSearch"
+                                                       class="w-full px-3 py-1.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] text-xs">
+                                                @if(!empty($customerSuggestions) && !$formCustomerId)
+                                                    <div class="absolute z-20 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
+                                                        @foreach($customerSuggestions as $cs)
+                                                            <button type="button"
+                                                                    wire:key="sugg-cust-{{ $cs->id }}"
+                                                                    wire:click="selectCustomer({{ $cs->id }}, '{{ $cs->nama }}', '{{ $cs->no_hp }}')"
+                                                                    class="w-full px-3 py-2 text-left hover:bg-purple-50 flex items-center justify-between text-xs cursor-pointer">
+                                                                <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
+                                                            </button>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                                @if($formCustomerId)
+                                                    <div class="p-1.5 bg-purple-50 border border-purple-200 rounded-xl flex items-center justify-between text-[11px] text-purple-900 font-bold">
+                                                        <span>Terpilih: <strong>{{ $formNamaPelanggan }}</strong></span>
+                                                        <button type="button" wire:click="$set('formCustomerId', null)" class="text-rose-500 hover:underline cursor-pointer">Ganti</button>
+                                                    </div>
+                                                @endif
                                             </div>
                                         @endif
-                                    </div>
-                                @endif
 
-                                <div>
-                                    <label class="block font-bold text-gray-700 mb-1">Nama Lengkap Pelanggan <span class="text-rose-500 font-bold">*</span></label>
-                                    <input type="text"
-                                           wire:model="formNamaPelanggan"
-                                           class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
-                                    @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                        <div>
+                                            <input type="text"
+                                                   wire:model="formNamaPelanggan"
+                                                   class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                            @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Section 3 & 4: Rincian Item Transaksi & Kustomisasi HPP / Jual -->
+                            <!-- Section 2: Rincian Item Transaksi -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">3. Rincian Item Transaksi</span>
+                                        <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">2. Rincian Item Transaksi</span>
                                         <span class="text-[10px] text-gray-500 font-medium">Bisa memilih Master Produk / Servis atau custom manual. Stok tidak akan berkurang.</span>
                                     </div>
                                     <button type="button"
@@ -669,14 +668,14 @@
                                 </div>
                             </div>
 
-                            <!-- Section 4: Pembayaran, Status & Pegawai -->
+                            <!-- Section 3: Pembayaran, Status, Pegawai & Catatan -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3.5">
-                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">4. Pembayaran, Status &amp; Pegawai</span>
+                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">3. Pembayaran, Status, Pegawai &amp; Catatan</span>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-start">
                                     <!-- 1. Status Transaksi -->
                                     <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Status  <span class="text-rose-500 font-bold">*</span></label>
+                                        <label class="block font-bold text-gray-700 mb-1">Status <span class="text-rose-500 font-bold">*</span></label>
                                         <select wire:model="formStatus"
                                                 class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
                                             <option value="Lunas">Lunas</option>
@@ -828,15 +827,15 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <!-- Section 6: Catatan Transaksi -->
-                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-2">
-                                <label class="block font-bold text-gray-700 text-[11px] uppercase tracking-wider">5. Catatan Transaksi</label>
-                                <textarea wire:model="formCatatan"
-                                          rows="2"
-                                          class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"></textarea>
+                                    <!-- 4. Catatan Transaksi (Input Text Single-Line) -->
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Catatan</label>
+                                        <input type="text"
+                                               wire:model="formCatatan"
+                                               class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                    </div>
+                                </div>
                             </div>
 
                         </div>
@@ -1110,6 +1109,16 @@ window.tabulatorTransaksiFullTable = function(config) {
                 paginationSizeSelector: [15, 25, 50, 100],
                 movableColumns: true,
                 groupBy: this.groupByDate ? "tanggal_group" : false,
+                groupOrder: function(a, b, aGroup, bGroup) {
+                    let aRows = aGroup.getRows();
+                    let bRows = bGroup.getRows();
+                    let aTime = aRows.length ? (aRows[0].getData().waktu_epoch || 0) : 0;
+                    let bTime = bRows.length ? (bRows[0].getData().waktu_epoch || 0) : 0;
+                    return bTime - aTime;
+                },
+                initialSort: [
+                    { column: "waktu_epoch", dir: "desc" }
+                ],
                 groupStartOpen: true,
                 groupToggleElement: "header",
                 groupHeader: function(value, count, data, group) {

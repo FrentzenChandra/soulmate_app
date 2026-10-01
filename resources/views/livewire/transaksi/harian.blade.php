@@ -264,86 +264,85 @@
                                 </div>
                             @endif
 
-                            <!-- Section 1: Informasi Utama Transaksi -->
+                            <!-- Section 1: Informasi Transaksi & Pelanggan -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">1. Informasi Transaksi</span>
+                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">1. Informasi Transaksi &amp; Pelanggan</span>
                                     <span class="text-[11px] font-bold text-gray-500 font-mono sm:hidden">
                                         {{ \Carbon\Carbon::parse($formTanggalOnly ?: now())->translatedFormat('d M Y') }}
                                     </span>
                                 </div>
 
-                                <div>
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
                                     <!-- Tipe Transaksi (Pewarnaan Ungu / Kuning) -->
-                                    <label class="block font-bold text-gray-700 mb-1">Tipe Transaksi <span class="text-rose-500 font-bold">*</span></label>
-                                    <select wire:model.live="formTipeTransaksi"
-                                            class="w-full px-3.5 py-2 rounded-xl border font-bold text-xs transition-all cursor-pointer {{ $formTipeTransaksi === 'penjualan' ? 'bg-purple-50/80 border-purple-300 text-[#5E17EB] focus:ring-2 focus:ring-purple-200' : 'bg-amber-50/80 border-amber-300 text-amber-900 focus:ring-2 focus:ring-amber-200' }}">
-                                        <option value="penjualan">Penjualan Produk</option>
-                                        <option value="servis">Layanan Servis</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Section 2: Data Pelanggan -->
-                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">2. Data Pelanggan</span>
-                                    <div class="flex items-center space-x-2">
-                                        <button type="button"
-                                                wire:click="$set('formCustomerType', 'umum')"
-                                                class="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'umum' ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
-                                            Pelanggan Umum
-                                        </button>
-                                        <button type="button"
-                                                wire:click="$set('formCustomerType', 'langganan')"
-                                                class="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'langganan' ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
-                                            Pilih Master Pelanggan
-                                        </button>
+                                    <div class="sm:col-span-5">
+                                        <label class="block font-bold text-gray-700 mb-1">Tipe Transaksi <span class="text-rose-500 font-bold">*</span></label>
+                                        <select wire:model.live="formTipeTransaksi"
+                                                class="w-full px-3.5 py-2 rounded-xl border font-bold text-xs transition-all cursor-pointer {{ $formTipeTransaksi === 'penjualan' ? 'bg-purple-50/80 border-purple-300 text-[#5E17EB] focus:ring-2 focus:ring-purple-200' : 'bg-amber-50/80 border-amber-300 text-amber-900 focus:ring-2 focus:ring-amber-200' }}">
+                                            <option value="penjualan">Penjualan Produk</option>
+                                            <option value="servis">Layanan Servis</option>
+                                        </select>
                                     </div>
-                                </div>
 
-                                @if($formCustomerType === 'langganan')
-                                    <div class="space-y-2">
-                                        <div class="relative">
-                                            <input type="text"
-                                                   wire:model.live.debounce.250ms="formCustomerSearch"
-                                                   class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                            @if(!empty($customerSuggestions) && !$formCustomerId)
-                                                <div class="absolute z-10 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
-                                                    @foreach($customerSuggestions as $cs)
-                                                        <button type="button"
-                                                                wire:key="sugg-cust-harian-{{ $cs->id }}"
-                                                                wire:click="selectCustomer({{ $cs->id }}, '{{ $cs->nama }}', '{{ $cs->no_hp }}')"
-                                                                class="w-full px-3 py-2 text-left hover:bg-blue-50 flex items-center justify-between text-xs cursor-pointer">
-                                                            <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
-                                                        </button>
-                                                    @endforeach
-                                                </div>
-                                            @endif
+                                    <!-- Data Pelanggan -->
+                                    <div class="sm:col-span-7 space-y-1.5">
+                                        <div class="flex items-center justify-between">
+                                            <label class="block font-bold text-gray-700">Nama Lengkap Pelanggan <span class="text-rose-500 font-bold">*</span></label>
+                                            <div class="flex items-center space-x-1.5">
+                                                <button type="button"
+                                                        wire:click="$set('formCustomerType', 'umum')"
+                                                        class="px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'umum' ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
+                                                    Umum
+                                                </button>
+                                                <button type="button"
+                                                        wire:click="$set('formCustomerType', 'langganan')"
+                                                        class="px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'langganan' ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
+                                                    Master
+                                                </button>
+                                            </div>
                                         </div>
-                                        @if($formCustomerId)
-                                            <div class="p-2 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between text-[11px] text-blue-900 font-bold">
-                                                <span>Pelanggan Terpilih: <strong>{{ $formNamaPelanggan }}</strong></span>
-                                                <button type="button" wire:click="$set('formCustomerId', null)" class="text-rose-500 hover:underline cursor-pointer">Ganti</button>
+
+                                        @if($formCustomerType === 'langganan')
+                                            <div class="space-y-1.5 relative">
+                                                <input type="text"
+                                                       wire:model.live.debounce.250ms="formCustomerSearch"
+                                                       class="w-full px-3 py-1.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] text-xs">
+                                                @if(!empty($customerSuggestions) && !$formCustomerId)
+                                                    <div class="absolute z-20 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
+                                                        @foreach($customerSuggestions as $cs)
+                                                            <button type="button"
+                                                                    wire:key="sugg-cust-harian-{{ $cs->id }}"
+                                                                    wire:click="selectCustomer({{ $cs->id }}, '{{ $cs->nama }}', '{{ $cs->no_hp }}')"
+                                                                    class="w-full px-3 py-2 text-left hover:bg-blue-50 flex items-center justify-between text-xs cursor-pointer">
+                                                                <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
+                                                            </button>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                                @if($formCustomerId)
+                                                    <div class="p-1.5 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between text-[11px] text-blue-900 font-bold">
+                                                        <span>Terpilih: <strong>{{ $formNamaPelanggan }}</strong></span>
+                                                        <button type="button" wire:click="$set('formCustomerId', null)" class="text-rose-500 hover:underline cursor-pointer">Ganti</button>
+                                                    </div>
+                                                @endif
                                             </div>
                                         @endif
-                                    </div>
-                                @endif
 
-                                <div>
-                                    <label class="block font-bold text-gray-700 mb-1">Nama Lengkap Pelanggan <span class="text-rose-500 font-bold">*</span></label>
-                                    <input type="text"
-                                           wire:model="formNamaPelanggan"
-                                           class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                    @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                        <div>
+                                            <input type="text"
+                                                   wire:model="formNamaPelanggan"
+                                                   class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                            @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Section 3: Rincian Item Transaksi & Kustomisasi HPP / Jual -->
+                            <!-- Section 2: Rincian Item Transaksi -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">3. Rincian Item Transaksi</span>
+                                        <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">2. Rincian Item Transaksi</span>
                                         <span class="text-[10px] text-gray-500 font-medium">Bisa memilih Master Produk / Servis atau custom manual. Stok tidak akan berkurang.</span>
                                     </div>
                                     <button type="button"
@@ -520,11 +519,11 @@
                                 </div>
                             </div>
 
-                            <!-- Section 4: Pembayaran, Status & Pegawai -->
+                            <!-- Section 3: Pembayaran, Status, Pegawai & Catatan -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3.5">
-                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">4. Pembayaran, Status &amp; Pegawai</span>
+                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">3. Pembayaran, Status, Pegawai &amp; Catatan</span>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
                                     <!-- 1. Status Transaksi -->
                                     <div>
                                         <label class="block font-bold text-gray-700 mb-1">Status <span class="text-rose-500 font-bold">*</span></label>
@@ -548,146 +547,146 @@
                                         @error('formMetodePembayaran') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
                                     </div>
 
-                                        <!-- 4. Pegawai / Petugas (Custom Dropdown UI dengan Search) -->
-                                        <div x-data="{
-                                            open: false,
-                                            search: '',
-                                            selectedId: @entangle('formPegawaiId').live,
-                                            users: @js($pegawaiList->map(fn($p) => [
-                                                'id' => $p->id,
-                                                'name' => $p->nama,
-                                                'role' => $p->role
-                                            ])),
-                                            get selectedUser() {
-                                                return this.users.find(u => u.id == this.selectedId) || { id: null, name: 'Tanpa Pegawai', role: '-' };
-                                            },
-                                            get filteredUsers() {
-                                                if (!this.search.trim()) return this.users;
-                                                const q = this.search.toLowerCase();
-                                                return this.users.filter(u => u.name.toLowerCase().includes(q) || u.role.toLowerCase().includes(q));
-                                            },
-                                            select(id) {
-                                                this.selectedId = id;
-                                                this.open = false;
-                                                this.search = '';
-                                            }
-                                        }" class="relative" @click.outside="open = false; search = ''">
-                                            <label class="block font-bold text-gray-700 mb-1">Pegawai</label>
+                                    <!-- 3. Pegawai / Petugas (Custom Dropdown UI dengan Search) -->
+                                    <div x-data="{
+                                        open: false,
+                                        search: '',
+                                        selectedId: @entangle('formPegawaiId').live,
+                                        users: @js($pegawaiList->map(fn($p) => [
+                                            'id' => $p->id,
+                                            'name' => $p->nama,
+                                            'role' => $p->role
+                                        ])),
+                                        get selectedUser() {
+                                            return this.users.find(u => u.id == this.selectedId) || { id: null, name: 'Tanpa Pegawai', role: '-' };
+                                        },
+                                        get filteredUsers() {
+                                            if (!this.search.trim()) return this.users;
+                                            const q = this.search.toLowerCase();
+                                            return this.users.filter(u => u.name.toLowerCase().includes(q) || u.role.toLowerCase().includes(q));
+                                        },
+                                        select(id) {
+                                            this.selectedId = id;
+                                            this.open = false;
+                                            this.search = '';
+                                        }
+                                    }" class="relative" @click.outside="open = false; search = ''">
+                                        <label class="block font-bold text-gray-700 mb-1">Pegawai</label>
 
-                                            <!-- Trigger Button -->
-                                            <button type="button"
-                                                    @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
-                                                    class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-xs flex items-center justify-between gap-2 shadow-2xs hover:border-[#0052FF] focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all cursor-pointer text-left">
-                                                <div class="flex items-center gap-2 min-w-0">
-                                                    <div class="w-6 h-6 rounded-lg flex items-center justify-center font-black text-[10px] shrink-0"
-                                                         :class="selectedUser.id ? 'bg-blue-100 text-[#0052FF]' : 'bg-gray-100 text-gray-500'">
-                                                        <span x-text="selectedUser.id ? selectedUser.name.charAt(0).toUpperCase() : '-'"></span>
-                                                    </div>
-                                                    <div class="min-w-0 truncate">
-                                                        <span class="block truncate text-xs font-bold" :class="selectedUser.id ? 'text-gray-900' : 'text-gray-500'" x-text="selectedUser.name"></span>
-                                                    </div>
+                                        <!-- Trigger Button -->
+                                        <button type="button"
+                                                @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
+                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-xs flex items-center justify-between gap-2 shadow-2xs hover:border-[#0052FF] focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all cursor-pointer text-left">
+                                            <div class="flex items-center gap-2 min-w-0">
+                                                <div class="w-6 h-6 rounded-lg flex items-center justify-center font-black text-[10px] shrink-0"
+                                                     :class="selectedUser.id ? 'bg-blue-100 text-[#0052FF]' : 'bg-gray-100 text-gray-500'">
+                                                    <span x-text="selectedUser.id ? selectedUser.name.charAt(0).toUpperCase() : '-'"></span>
                                                 </div>
-                                                <div class="flex items-center gap-1.5 shrink-0">
-                                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider"
-                                                          :class="selectedUser.id ? 'bg-blue-50 text-[#0052FF] border border-blue-100' : 'bg-gray-100 text-gray-500 border border-gray-200'"
-                                                          x-text="selectedUser.role"></span>
-                                                    <svg class="w-4 h-4 text-gray-400 transition-transform" :class="open ? 'rotate-180 text-[#0052FF]' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                <div class="min-w-0 truncate">
+                                                    <span class="block truncate text-xs font-bold" :class="selectedUser.id ? 'text-gray-900' : 'text-gray-500'" x-text="selectedUser.name"></span>
                                                 </div>
-                                            </button>
+                                            </div>
+                                            <div class="flex items-center gap-1.5 shrink-0">
+                                                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider"
+                                                      :class="selectedUser.id ? 'bg-blue-50 text-[#0052FF] border border-blue-100' : 'bg-gray-100 text-gray-500 border border-gray-200'"
+                                                      x-text="selectedUser.role"></span>
+                                                <svg class="w-4 h-4 text-gray-400 transition-transform" :class="open ? 'rotate-180 text-[#0052FF]' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                            </div>
+                                        </button>
 
-                                            <!-- Custom Dropdown Menu -->
-                                            <div x-show="open"
-                                                 x-transition:enter="transition ease-out duration-100"
-                                                 x-transition:enter-start="transform opacity-0 scale-95"
-                                                 x-transition:enter-end="transform opacity-100 scale-100"
-                                                 x-transition:leave="transition ease-in duration-75"
-                                                 x-transition:leave-start="transform opacity-100 scale-100"
-                                                 x-transition:leave-end="transform opacity-0 scale-95"
-                                                 class="absolute z-40 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-60 overflow-y-auto custom-scrollbar"
-                                                 style="display: none;">
+                                        <!-- Custom Dropdown Menu -->
+                                        <div x-show="open"
+                                             x-transition:enter="transition ease-out duration-100"
+                                             x-transition:enter-start="transform opacity-0 scale-95"
+                                             x-transition:enter-end="transform opacity-100 scale-100"
+                                             x-transition:leave="transition ease-in duration-75"
+                                             x-transition:leave-start="transform opacity-100 scale-100"
+                                             x-transition:leave-end="transform opacity-0 scale-95"
+                                             class="absolute z-40 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-60 overflow-y-auto custom-scrollbar"
+                                             style="display: none;">
 
-                                                <!-- Search Box (Zero Placeholder) -->
-                                                <div class="p-2 border-b border-gray-100 bg-gray-50/80 sticky top-0 z-10">
-                                                    <div class="relative">
-                                                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-gray-400">
-                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                                        </span>
-                                                        <input type="text"
-                                                               x-model="search"
-                                                               x-ref="searchInput"
-                                                               @keydown.escape="open = false; search = ''"
-                                                               class="w-full pl-8 pr-2.5 py-1 rounded-lg border border-gray-200 bg-white font-semibold text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]"
-                                                               aria-label="Cari Pegawai">
+                                            <!-- Search Box (Zero Placeholder) -->
+                                            <div class="p-2 border-b border-gray-100 bg-gray-50/80 sticky top-0 z-10">
+                                                <div class="relative">
+                                                    <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-gray-400">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                                    </span>
+                                                    <input type="text"
+                                                           x-model="search"
+                                                           x-ref="searchInput"
+                                                           @keydown.escape="open = false; search = ''"
+                                                           class="w-full pl-8 pr-2.5 py-1 rounded-lg border border-gray-200 bg-white font-semibold text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]"
+                                                           aria-label="Cari Pegawai">
+                                                </div>
+                                            </div>
+
+                                            <!-- User List -->
+                                            <div class="divide-y divide-gray-100">
+                                                <!-- Opsi Tanpa Pegawai / Kosong -->
+                                                <button type="button"
+                                                        @click="select(null)"
+                                                        class="w-full px-3 py-2.5 text-left flex items-center justify-between gap-2 hover:bg-blue-50/70 transition-colors cursor-pointer"
+                                                        :class="!selectedId ? 'bg-blue-50 text-[#0052FF]' : 'text-gray-800'">
+                                                    <div class="flex items-center gap-2.5 min-w-0">
+                                                        <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
+                                                             :class="!selectedId ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-100 text-gray-500'">
+                                                            -
+                                                        </div>
+                                                        <div class="min-w-0">
+                                                            <span class="block truncate font-bold text-xs" :class="!selectedId ? 'text-[#0052FF]' : 'text-gray-700'">Tanpa Pegawai</span>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                    <div class="flex items-center gap-1.5 shrink-0">
+                                                        <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
+                                                              :class="!selectedId ? 'bg-blue-200/80 text-blue-950 font-black' : 'bg-gray-100 text-gray-500'">-</span>
+                                                        <template x-if="!selectedId">
+                                                            <svg class="w-4 h-4 text-[#0052FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                        </template>
+                                                    </div>
+                                                </button>
 
-                                                <!-- User List -->
-                                                <div class="divide-y divide-gray-100">
-                                                    <!-- Opsi Tanpa Pegawai / Kosong -->
+                                                <template x-for="user in filteredUsers" :key="user.id">
                                                     <button type="button"
-                                                            @click="select(null)"
+                                                            @click="select(user.id)"
                                                             class="w-full px-3 py-2.5 text-left flex items-center justify-between gap-2 hover:bg-blue-50/70 transition-colors cursor-pointer"
-                                                            :class="!selectedId ? 'bg-blue-50 text-[#0052FF]' : 'text-gray-800'">
+                                                            :class="user.id == selectedId ? 'bg-blue-50 text-[#0052FF]' : 'text-gray-800'">
                                                         <div class="flex items-center gap-2.5 min-w-0">
                                                             <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
-                                                                 :class="!selectedId ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-100 text-gray-500'">
-                                                                -
+                                                                 :class="user.id == selectedId ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-100 text-gray-700'">
+                                                                <span x-text="user.name.charAt(0).toUpperCase()"></span>
                                                             </div>
                                                             <div class="min-w-0">
-                                                                <span class="block truncate font-bold text-xs" :class="!selectedId ? 'text-[#0052FF]' : 'text-gray-700'">Tanpa Pegawai</span>
+                                                                <span class="block truncate font-bold text-xs" :class="user.id == selectedId ? 'text-[#0052FF]' : 'text-gray-900'" x-text="user.name"></span>
                                                             </div>
                                                         </div>
                                                         <div class="flex items-center gap-1.5 shrink-0">
                                                             <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
-                                                                  :class="!selectedId ? 'bg-blue-200/80 text-blue-950 font-black' : 'bg-gray-100 text-gray-500'">-</span>
-                                                            <template x-if="!selectedId">
+                                                                  :class="user.id == selectedId ? 'bg-blue-200/80 text-blue-950 font-black' : 'bg-gray-100 text-gray-600'"
+                                                                  x-text="user.role"></span>
+                                                            <template x-if="user.id == selectedId">
                                                                 <svg class="w-4 h-4 text-[#0052FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                                                             </template>
                                                         </div>
                                                     </button>
+                                                </template>
 
-                                                    <template x-for="user in filteredUsers" :key="user.id">
-                                                        <button type="button"
-                                                                @click="select(user.id)"
-                                                                class="w-full px-3 py-2.5 text-left flex items-center justify-between gap-2 hover:bg-blue-50/70 transition-colors cursor-pointer"
-                                                                :class="user.id == selectedId ? 'bg-blue-50 text-[#0052FF]' : 'text-gray-800'">
-                                                            <div class="flex items-center gap-2.5 min-w-0">
-                                                                <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
-                                                                     :class="user.id == selectedId ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-100 text-gray-700'">
-                                                                    <span x-text="user.name.charAt(0).toUpperCase()"></span>
-                                                                </div>
-                                                                <div class="min-w-0">
-                                                                    <span class="block truncate font-bold text-xs" :class="user.id == selectedId ? 'text-[#0052FF]' : 'text-gray-900'" x-text="user.name"></span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="flex items-center gap-1.5 shrink-0">
-                                                                <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
-                                                                      :class="user.id == selectedId ? 'bg-blue-200/80 text-blue-950 font-black' : 'bg-gray-100 text-gray-600'"
-                                                                      x-text="user.role"></span>
-                                                                <template x-if="user.id == selectedId">
-                                                                    <svg class="w-4 h-4 text-[#0052FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                                                </template>
-                                                            </div>
-                                                        </button>
-                                                    </template>
-
-                                                    <template x-if="filteredUsers.length === 0">
-                                                        <div class="p-3 text-center text-xs text-gray-400 font-medium">
-                                                            Pegawai tidak ditemukan
-                                                        </div>
-                                                    </template>
-                                                </div>
+                                                <template x-if="filteredUsers.length === 0">
+                                                    <div class="p-3 text-center text-xs text-gray-400 font-medium">
+                                                        Pegawai tidak ditemukan
+                                                    </div>
+                                                </template>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                            <!-- Section 5: Catatan Transaksi -->
-                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-2">
-                                <label class="block font-bold text-gray-700 text-[11px] uppercase tracking-wider">5. Catatan Transaksi</label>
-                                <textarea wire:model="formCatatan"
-                                          rows="2"
-                                          class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]"></textarea>
+                                    <!-- 4. Catatan Transaksi -->
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Catatan</label>
+                                        <input type="text"
+                                               wire:model="formCatatan"
+                                               class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
+                                    </div>
+                                </div>
                             </div>
 
                         </div>
@@ -945,6 +944,9 @@ window.tabulatorTransaksiHarianTable = function(config) {
                 paginationSize: 25,
                 paginationSizeSelector: [15, 25, 50, 100],
                 movableColumns: true,
+                initialSort: [
+                    { column: "waktu_epoch", dir: "desc" }
+                ],
                 placeholder: "Belum ada transaksi hari ini.",
                 columns: [
                     { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 30, minWidth: 30, maxWidth: 30, resizable: false },
