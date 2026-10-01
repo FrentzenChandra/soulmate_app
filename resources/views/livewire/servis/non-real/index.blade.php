@@ -287,21 +287,29 @@
     <!-- MODAL 1: TAMBAH SERVIS NON REAL BARU                                    -->
     <!-- ======================================================================= -->
     @if($modalCreateOpen)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-            <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden my-6 animate-in fade-in zoom-in duration-150">
-                <!-- Header Modal -->
-                <div class="px-5 py-4 bg-[#5E17EB] text-white flex items-center justify-between">
-                    <div>
-                        <span class="px-2 py-0.5 rounded-md bg-white/20 text-[10px] font-black uppercase tracking-wider">Faktur Instan</span>
-                        <h3 class="text-base font-black tracking-tight mt-0.5">Tambah Servis Non Real</h3>
-                    </div>
-                    <button type="button" wire:click="closeCreateModal" class="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">
-                        {{-- <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> --}}
-                    </button>
-                </div>
+        <div wire:key="modal-create-servis-non-real" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="closeCreateModal"></div>
 
-                <!-- Form Body -->
-                <div class="p-5 space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar text-xs">
+            <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-gray-100">
+                    <!-- Header Modal -->
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Tambah Servis Non Real</h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Input transaksi servis cepat, data pelanggan, dan rincian biaya faktur instan</p>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="closeCreateModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <!-- Form Body -->
+                    <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto custom-scrollbar text-xs">
                     @if($errors->has('general'))
                         <div class="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl font-bold">
                             {{ $errors->first('general') }}
@@ -568,21 +576,29 @@
     <!-- MODAL 2: UPDATE / EDIT SERVIS NON REAL                                  -->
     <!-- ======================================================================= -->
     @if($modalEditOpen)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-            <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden my-6 animate-in fade-in zoom-in duration-150">
-                <!-- Header Modal Edit -->
-                <div class="px-5 py-4 bg-[#0052FF] text-white flex items-center justify-between">
-                    <div>
-                        <span class="px-2 py-0.5 rounded-md bg-white/20 text-[10px] font-black uppercase tracking-wider">Perbarui Faktur</span>
-                        <h3 class="text-base font-black tracking-tight mt-0.5">Edit Servis Non Real</h3>
-                    </div>
-                    <button type="button" wire:click="closeEditModal" class="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
+        <div wire:key="modal-edit-servis-non-real" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="closeEditModal"></div>
 
-                <!-- Form Body Edit -->
-                <div class="p-5 space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar text-xs">
+            <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-gray-100">
+                    <!-- Header Modal Edit -->
+                    <div class="bg-[#0052FF] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Update Servis Non Real</h3>
+                                <p class="text-xs text-blue-100 font-medium mt-0.5">Perbarui rincian jasa, sparepart, atau informasi transaksi non real</p>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="closeEditModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <!-- Form Body Edit -->
+                    <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto custom-scrollbar text-xs">
                     @if($errors->has('general'))
                         <div class="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl font-bold">
                             {{ $errors->first('general') }}
@@ -849,93 +865,105 @@
     <!-- MODAL 3: LIHAT DETAIL SERVIS NON REAL                                   -->
     <!-- ======================================================================= -->
     @if($modalDetailOpen && $selectedServis)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-            <div class="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden my-6 animate-in fade-in zoom-in duration-150">
-                <!-- Header Detail -->
-                <div class="px-5 py-4 bg-gray-900 text-white flex items-center justify-between">
-                    <div>
-                        <span class="px-2 py-0.5 rounded-md bg-white/20 text-[10px] font-black uppercase tracking-wider">Rincian Faktur</span>
-                        <h3 class="text-base font-black tracking-tight mt-0.5">{{ $selectedServis->no_servis_frontend }}</h3>
-                    </div>
-                    <button type="button" wire:click="closeDetailModal" class="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
+        <div wire:key="modal-detail-servis-non-real" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="closeDetailModal"></div>
 
-                <div class="p-5 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar text-xs">
-                    <!-- Info Baris -->
-                    <div class="grid grid-cols-2 gap-3 p-3.5 bg-gray-50 rounded-xl border border-gray-200">
-                        <div>
-                            <span class="text-[10px] font-bold text-gray-500 uppercase block">Pelanggan</span>
-                            <span class="font-bold text-gray-900 text-sm block">{{ $selectedServis->customer?->nama ?? '-' }}</span>
-                            <span class="text-[10px] text-gray-500 font-mono block">{{ $selectedServis->customer?->no_hp ?? '-' }}</span>
+            <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-xl border border-gray-100">
+                    <!-- Header Detail -->
+                    <div class="bg-gray-900 px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
+                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center space-x-2">
+                                    <h3 class="text-base font-bold text-white tracking-tight leading-snug">{{ $selectedServis->no_servis_frontend }}</h3>
+                                    <span class="px-2 py-0.5 rounded-md bg-purple-500/30 text-purple-300 text-[10px] font-black uppercase tracking-wider border border-purple-400/30">Non-Real</span>
+                                </div>
+                                <p class="text-xs text-gray-400 font-medium mt-0.5">Rincian faktur servis cepat dan breakdown item</p>
+                            </div>
                         </div>
-                        <div>
-                            <span class="text-[10px] font-bold text-gray-500 uppercase block">Waktu Faktur</span>
-                            <span class="font-bold text-gray-900 block">{{ $selectedServis->tanggal_masuk ? $selectedServis->tanggal_masuk->format('d M Y, H:i') : '-' }} WIB</span>
-                            <span class="text-[10px] text-gray-500 block">Petugas: {{ $selectedServis->pembuat?->name ?? '-' }}</span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] font-bold text-gray-500 uppercase block">Unit Perangkat</span>
-                            <span class="font-bold text-gray-900 block">{{ $selectedServis->tipe_unit }}</span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] font-bold text-gray-500 uppercase block">Masa Garansi</span>
-                            <span class="font-bold text-emerald-700 block">{{ $selectedServis->garansi_hari }} Hari (s/d {{ $selectedServis->garansi_sampai ? \Carbon\Carbon::parse($selectedServis->garansi_sampai)->format('d M Y') : '-' }})</span>
-                        </div>
+                        <button type="button" wire:click="closeDetailModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
                     </div>
 
-                    <!-- Rincian Item Detail -->
-                    <div class="border border-gray-200 rounded-xl overflow-hidden bg-white">
-                        <table class="w-full text-left border-collapse text-xs">
-                            <thead>
-                                <tr class="bg-gray-50 border-b border-gray-100 text-[10px] font-black uppercase text-gray-600">
-                                    <th class="p-2.5">Item</th>
-                                    <th class="p-2.5">Tipe</th>
-                                    <th class="p-2.5 text-center">Jumlah</th>
-                                    <th class="p-2.5 text-right">Harga</th>
-                                    <th class="p-2.5 text-right">Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                @forelse($selectedServis->details as $d)
-                                    <tr class="hover:bg-gray-50/50">
-                                        <td class="p-2.5 font-bold text-gray-900">{{ $d->nama_item }}</td>
-                                        <td class="p-2.5">
-                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ ($d->jenis ?? ($d->master_servis_id ? 'jasa' : 'sparepart')) === 'jasa' ? 'bg-emerald-50 text-emerald-700' : 'bg-pink-50 text-[#E6007A]' }}">
-                                                {{ ucfirst($d->jenis ?? ($d->master_servis_id ? 'jasa' : 'sparepart')) }}
-                                            </span>
-                                        </td>
-                                        <td class="p-2.5 text-center font-bold">{{ $d->qty }}</td>
-                                        <td class="p-2.5 text-right font-mono">Rp {{ number_format((float) ($d->harga ?? ($d->qty > 0 ? $d->subtotal / $d->qty : $d->subtotal)), 0, ',', '.') }}</td>
-                                        <td class="p-2.5 text-right font-black text-[#5E17EB]">Rp {{ number_format((float) $d->subtotal, 0, ',', '.') }}</td>
+                    <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar text-xs">
+                        <!-- Info Baris -->
+                        <div class="grid grid-cols-2 gap-3 p-3.5 bg-gray-50 rounded-xl border border-gray-200">
+                            <div>
+                                <span class="text-[10px] font-bold text-gray-500 uppercase block">Pelanggan</span>
+                                <span class="font-bold text-gray-900 text-sm block">{{ $selectedServis->customer?->nama ?? '-' }}</span>
+                                <span class="text-[10px] text-gray-500 font-mono block">{{ $selectedServis->customer?->no_hp ?? '-' }}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold text-gray-500 uppercase block">Waktu Faktur</span>
+                                <span class="font-bold text-gray-900 block">{{ $selectedServis->tanggal_masuk ? $selectedServis->tanggal_masuk->format('d M Y, H:i') : '-' }} WIB</span>
+                                <span class="text-[10px] text-gray-500 block">Petugas: {{ $selectedServis->pembuat?->name ?? '-' }}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold text-gray-500 uppercase block">Unit Perangkat</span>
+                                <span class="font-bold text-gray-900 block">{{ $selectedServis->tipe_unit }}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold text-gray-500 uppercase block">Masa Garansi</span>
+                                <span class="font-bold text-emerald-700 block">{{ $selectedServis->garansi_hari }} Hari (s/d {{ $selectedServis->garansi_sampai ? \Carbon\Carbon::parse($selectedServis->garansi_sampai)->format('d M Y') : '-' }})</span>
+                            </div>
+                        </div>
+
+                        <!-- Rincian Item Detail -->
+                        <div class="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-100 text-[10px] font-black uppercase text-gray-600">
+                                        <th class="p-2.5">Item</th>
+                                        <th class="p-2.5">Tipe</th>
+                                        <th class="p-2.5 text-center">Jumlah</th>
+                                        <th class="p-2.5 text-right">Harga</th>
+                                        <th class="p-2.5 text-right">Subtotal</th>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="p-4 text-center text-gray-400 font-semibold">Tidak ada rincian item.</td>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    @forelse($selectedServis->details as $d)
+                                        <tr class="hover:bg-gray-50/50">
+                                            <td class="p-2.5 font-bold text-gray-900">{{ $d->nama_item }}</td>
+                                            <td class="p-2.5">
+                                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ ($d->jenis ?? ($d->master_servis_id ? 'jasa' : 'sparepart')) === 'jasa' ? 'bg-emerald-50 text-emerald-700' : 'bg-pink-50 text-[#E6007A]' }}">
+                                                    {{ ucfirst($d->jenis ?? ($d->master_servis_id ? 'jasa' : 'sparepart')) }}
+                                                </span>
+                                            </td>
+                                            <td class="p-2.5 text-center font-bold">{{ $d->qty }}</td>
+                                            <td class="p-2.5 text-right font-mono">Rp {{ number_format((float) ($d->harga ?? ($d->qty > 0 ? $d->subtotal / $d->qty : $d->subtotal)), 0, ',', '.') }}</td>
+                                            <td class="p-2.5 text-right font-black text-[#5E17EB]">Rp {{ number_format((float) $d->subtotal, 0, ',', '.') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="p-4 text-center text-gray-400 font-semibold">Tidak ada rincian item.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-purple-50/70 font-black text-xs text-gray-900">
+                                        <td colspan="4" class="p-2.5 text-right">TOTAL FAKTUR:</td>
+                                        <td class="p-2.5 text-right text-[#5E17EB] text-sm">Rp {{ number_format((float) $selectedServis->total_biaya, 0, ',', '.') }}</td>
                                     </tr>
-                                @endforelse
-                            </tbody>
-                            <tfoot>
-                                <tr class="bg-purple-50/70 font-black text-xs text-gray-900">
-                                    <td colspan="4" class="p-2.5 text-right">TOTAL FAKTUR:</td>
-                                    <td class="p-2.5 text-right text-[#5E17EB] text-sm">Rp {{ number_format((float) $selectedServis->total_biaya, 0, ',', '.') }}</td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Footer Detail -->
-                <div class="px-5 py-3.5 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-                    <a href="{{ route('servis.invoice', $selectedServis->id) }}"
-                       class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        <span>Cetak Faktur</span>
-                    </a>
-                    <button type="button" wire:click="closeDetailModal" class="px-4 py-2 rounded-xl text-gray-700 bg-gray-200 hover:bg-gray-300 text-xs font-bold transition-colors cursor-pointer">
-                        Tutup
-                    </button>
+                    <!-- Footer Detail -->
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                        <a href="{{ route('servis.invoice', $selectedServis->id) }}"
+                           class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            <span>Cetak Faktur</span>
+                        </a>
+                        <button type="button" wire:click="closeDetailModal" class="px-4 py-2 rounded-xl text-gray-700 bg-gray-200 hover:bg-gray-300 text-xs font-bold transition-colors cursor-pointer">
+                            Tutup
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -945,24 +973,28 @@
     <!-- MODAL 4: KONFIRMASI HAPUS SERVIS NON REAL                               -->
     <!-- ======================================================================= -->
     @if($modalDeleteOpen)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs">
-            <div class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in zoom-in duration-150">
-                <div class="p-5 text-center space-y-3">
-                    <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        <div wire:key="modal-delete-servis-non-real" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="$set('modalDeleteOpen', false)"></div>
+
+            <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
+                    <div class="p-6 text-center space-y-3">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </div>
+                        <h3 class="text-base font-black text-gray-900">Hapus Servis Non Real?</h3>
+                        <p class="text-xs text-gray-500 font-medium">Transaksi <strong class="text-gray-900">{{ $deleteServisKode }}</strong> beserta seluruh rincian itemnya akan dihapus permanen.</p>
                     </div>
-                    <h3 class="text-base font-black text-gray-900">Hapus Servis Non Real?</h3>
-                    <p class="text-xs text-gray-500 font-medium">Transaksi <strong class="text-gray-900">{{ $deleteServisKode }}</strong> beserta seluruh rincian itemnya akan dihapus permanen.</p>
-                </div>
-                <div class="px-5 py-3.5 bg-gray-50 border-t border-gray-100 flex items-center justify-end space-x-2">
-                    <button type="button" wire:click="$set('modalDeleteOpen', false)" class="px-4 py-2 rounded-xl text-gray-700 bg-gray-200 hover:bg-gray-300 text-xs font-bold transition-colors cursor-pointer">
-                        Batal
-                    </button>
-                    <button type="button"
-                            wire:click="deleteServis"
-                            class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md transition-all cursor-pointer">
-                        Hapus Permanen
-                    </button>
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end space-x-2">
+                        <button type="button" wire:click="$set('modalDeleteOpen', false)" class="px-4 py-2 rounded-xl text-gray-700 bg-gray-200 hover:bg-gray-300 text-xs font-bold transition-colors cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="button"
+                                wire:click="deleteServis"
+                                class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md transition-all cursor-pointer">
+                            Hapus Permanen
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
