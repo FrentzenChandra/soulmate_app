@@ -991,7 +991,7 @@ window.tabulatorTransaksiHarianTable = function(config) {
                     {
                         title: "Pelanggan",
                         field: "pelanggan",
-                        width: 95,
+                        widthGrow: 1,
                         minWidth: 75,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
@@ -1000,7 +1000,7 @@ window.tabulatorTransaksiHarianTable = function(config) {
                     {
                         title: "Item",
                         field: "rincian_item",
-                        width: 135,
+                        widthGrow: 2,
                         minWidth: 90,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
