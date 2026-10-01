@@ -175,3 +175,11 @@
   * Modal detail transaksi pada blok data pelanggan HANYA menampilkan nama pelanggan tanpa nomor telepon.
 - **Ultra-Compact Dense Table & Slim Payload:**
   * Format tabel Transaksi FULL dan Harian menggunakan `.tabulator-dense`, font warna biaya ungu `#5E17EB`, opsi pagination `[200, 1000, 2000, 10000]` (default 200), dan slim query payload (`select` kolom spesifik) untuk menjaga performa optimal.
+
+## 24. Modal Form Isolation & Anti-Lag Livewire Input Standard
+- **Isolasi Background Table Dispatch:** Saat modal form terbuka (`$modalFormOpen === true` atau `$modalOpen === true`), komponen Livewire **DILARANG KERAS** memetakan payload tabel dan men-dispatch event tabel (`table-updated`) ke frontend. Event re-render tabel Tabulator HANYA boleh dipicu saat modal ditutup, saat data berhasil disimpan, dihapus, atau saat filter/search tabel diubah.
+- **Anti Double Network Roundtrip pada Input Form:**
+  * Dilarang memanggil `$wire.call(...)` manual di dalam handler `@input` jika field tersebut sudah terikat dengan `@entangle(...).live` atau `wire:model.live`.
+  * Gunakan debounce proporsional (`@input.debounce.250ms`, `wire:model.live.debounce.300ms`) pada kolom pencarian dan input dinamis untuk mencegah penumpukan request HTTP yang membekukan (*freeze*) thread browser.
+- **Kalkulasi Total Bersih:** Kalkulasi subtotal/total baris form diproses otomatis melalui lifecycle hook `updated()` di backend atau reaktif di frontend via Alpine tanpa merusak performa pengetikan pengguna.
+

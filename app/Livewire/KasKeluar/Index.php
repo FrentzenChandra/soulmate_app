@@ -310,26 +310,29 @@ class Index extends Component
         $query->orderBy($sortCol, $this->sortDirection === 'asc' ? 'asc' : 'desc')
             ->orderBy('id', 'desc');
 
-        $allData = (clone $query)->get();
+        $tableData = [];
+        if (! $this->modalOpen) {
+            $allData = (clone $query)->get();
 
-        $tableData = $allData->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'waktu_epoch' => $item->tanggal ? $item->tanggal->timestamp : 0,
-                'tanggal_raw' => $item->tanggal ? $item->tanggal->format('Y-m-d H:i') : '',
-                'tanggal_group' => $item->tanggal ? $item->tanggal->translatedFormat('l, d F Y') : '-',
-                'waktu' => $item->tanggal ? $item->tanggal->format('d/m/Y H:i') : '-',
-                'jam' => $item->tanggal ? $item->tanggal->format('H:i') : '-',
-                'kategori' => $item->kategori?->nama ?? 'Umum',
-                'sumber_dana' => $item->sumberDana?->nama ?? 'Kasir',
-                'keterangan' => $item->keterangan ?: '-',
-                'petugas' => $item->user?->name ?? 'Petugas',
-                'nominal' => (float) $item->nominal,
-                'nominal_formatted' => 'Rp ' . number_format($item->nominal, 0, ',', '.'),
-            ];
-        })->values()->all();
+            $tableData = $allData->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'waktu_epoch' => $item->tanggal ? $item->tanggal->timestamp : 0,
+                    'tanggal_raw' => $item->tanggal ? $item->tanggal->format('Y-m-d H:i') : '',
+                    'tanggal_group' => $item->tanggal ? $item->tanggal->translatedFormat('l, d F Y') : '-',
+                    'waktu' => $item->tanggal ? $item->tanggal->format('d/m/Y H:i') : '-',
+                    'jam' => $item->tanggal ? $item->tanggal->format('H:i') : '-',
+                    'kategori' => $item->kategori?->nama ?? 'Umum',
+                    'sumber_dana' => $item->sumberDana?->nama ?? 'Kasir',
+                    'keterangan' => $item->keterangan ?: '-',
+                    'petugas' => $item->user?->name ?? 'Petugas',
+                    'nominal' => (float) $item->nominal,
+                    'nominal_formatted' => 'Rp ' . number_format($item->nominal, 0, ',', '.'),
+                ];
+            })->values()->all();
 
-        $this->dispatch('kas-keluar-table-updated', data: $tableData);
+            $this->dispatch('kas-keluar-table-updated', data: $tableData);
+        }
 
         return view('livewire.kas-keluar.index', [
             'tableData' => $tableData,

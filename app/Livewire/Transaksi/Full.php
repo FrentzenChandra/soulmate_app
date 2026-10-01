@@ -922,70 +922,73 @@ class Full extends Component
         $transaksiList = $query->take($this->perPage)->get();
         $hasMore = $totalItems > $this->perPage;
 
-        // Slim query payload for ultra-fast table rendering
-        $allCurrent = (clone $summaryBase)
-            ->select([
-                'id', 'no_transaksi', 'cabang_id', 'tipe_transaksi', 'kategori_perangkat',
-                'tanggal', 'tanggal_lunas', 'nama_pelanggan', 'no_hp', 'status',
-                'metode_pembayaran_id', 'metode_pembayaran', 'catatan',
-                'total_modal', 'total_jual', 'grand_total', 'total_laba',
-                'ppn_id', 'ppn_persen', 'ppn_nominal',
-                'user_id', 'pelunas_user_id', 'pegawai_id'
-            ])
-            ->with([
-                'details:id,transaksi_full_id,qty,nama_item,harga_modal,harga_jual,subtotal_modal,subtotal_jual,laba,ppn_persen,ppn_nominal',
-                'userInput:id,name',
-                'pelunas:id,name',
-                'pegawai:id,nama'
-            ])
-            ->orderBy('tanggal', 'desc')
-            ->orderByDesc('id')
-            ->get();
+        // Slim query payload for ultra-fast table rendering (Hanya dieksekusi & dikirim jika modal TIDAK terbuka)
+        $tableData = [];
+        if (! $this->modalFormOpen) {
+            $allCurrent = (clone $summaryBase)
+                ->select([
+                    'id', 'no_transaksi', 'cabang_id', 'tipe_transaksi', 'kategori_perangkat',
+                    'tanggal', 'tanggal_lunas', 'nama_pelanggan', 'no_hp', 'status',
+                    'metode_pembayaran_id', 'metode_pembayaran', 'catatan',
+                    'total_modal', 'total_jual', 'grand_total', 'total_laba',
+                    'ppn_id', 'ppn_persen', 'ppn_nominal',
+                    'user_id', 'pelunas_user_id', 'pegawai_id'
+                ])
+                ->with([
+                    'details:id,transaksi_full_id,qty,nama_item,harga_modal,harga_jual,subtotal_modal,subtotal_jual,laba,ppn_persen,ppn_nominal',
+                    'userInput:id,name',
+                    'pelunas:id,name',
+                    'pegawai:id,nama'
+                ])
+                ->orderBy('tanggal', 'desc')
+                ->orderByDesc('id')
+                ->get();
 
-        $tableData = $allCurrent->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'no_transaksi' => $item->no_transaksi_frontend,
-                'tipe_transaksi' => $item->tipe_transaksi,
-                'waktu' => $item->tanggal ? $item->tanggal->format('d/m/Y H:i') : '-',
-                'waktu_epoch' => $item->tanggal ? $item->tanggal->timestamp : 0,
-                'jam' => $item->tanggal ? $item->tanggal->format('H:i') : '-',
-                'tanggal_group' => $item->tanggal ? $item->tanggal->translatedFormat('l, d F Y') : '-',
-                'petugas' => $item->pegawai?->nama ?? 'Tanpa Pegawai',
-                'user_input' => $item->userInput?->name ?? 'System',
-                'pelunas_nama' => $item->pelunas?->name ?? ($item->status === 'Lunas' ? ($item->userInput?->name ?? 'System') : '-'),
-                'tanggal_lunas' => $item->tanggal_lunas ? $item->tanggal_lunas->format('d/m/Y H:i') : '-',
-                'jam_lunas' => $item->tanggal_lunas ? $item->tanggal_lunas->format('H:i') : '-',
-                'pelanggan' => $item->nama_pelanggan,
-                'no_hp' => $item->no_hp ?: '-',
-                'items_list' => $item->details->map(fn($d) => [
-                    'qty' => (int) $d->qty,
-                    'nama' => $d->nama_item,
-                    'harga_modal' => (float) $d->harga_modal,
-                    'harga_jual' => (float) $d->harga_jual,
-                    'subtotal_modal' => (float) ($d->subtotal_modal ?: ($d->harga_modal * $d->qty)),
-                    'subtotal_jual' => (float) ($d->subtotal_jual ?: ($d->harga_jual * $d->qty)),
-                    'laba' => (float) ($d->laba ?: (($d->harga_jual * $d->qty) - ($d->harga_modal * $d->qty))),
-                    'has_ppn' => ($d->ppn_persen > 0 || (float) $d->ppn_nominal > 0),
-                    'ppn_persen' => (float) $d->ppn_persen,
-                    'ppn_nominal' => (float) $d->ppn_nominal,
-                ])->values()->all(),
-                'rincian_item' => $item->details->map(fn($d) => $d->qty . 'x ' . $d->nama_item)->implode(', ') ?: 'Tanpa item',
-                'metode_pembayaran_id' => $item->metode_pembayaran_id,
-                'metode_pembayaran' => $item->metode_pembayaran ?: '-',
-                'total_modal' => (float) $item->total_modal,
-                'total_jual' => (float) $item->total_jual,
-                'grand_total' => (float) $item->grand_total,
-                'total_laba' => (float) $item->total_laba,
-                'has_ppn' => ($item->ppn_persen > 0 || (float) $item->ppn_nominal > 0),
-                'ppn_persen' => (float) $item->ppn_persen,
-                'ppn_nominal' => (float) $item->ppn_nominal,
-                'status' => $item->status,
-                'keterangan' => $item->catatan ?: '-',
-            ];
-        })->values()->all();
+            $tableData = $allCurrent->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'no_transaksi' => $item->no_transaksi_frontend,
+                    'tipe_transaksi' => $item->tipe_transaksi,
+                    'waktu' => $item->tanggal ? $item->tanggal->format('d/m/Y H:i') : '-',
+                    'waktu_epoch' => $item->tanggal ? $item->tanggal->timestamp : 0,
+                    'jam' => $item->tanggal ? $item->tanggal->format('H:i') : '-',
+                    'tanggal_group' => $item->tanggal ? $item->tanggal->translatedFormat('l, d F Y') : '-',
+                    'petugas' => $item->pegawai?->nama ?? 'Tanpa Pegawai',
+                    'user_input' => $item->userInput?->name ?? 'System',
+                    'pelunas_nama' => $item->pelunas?->name ?? ($item->status === 'Lunas' ? ($item->userInput?->name ?? 'System') : '-'),
+                    'tanggal_lunas' => $item->tanggal_lunas ? $item->tanggal_lunas->format('d/m/Y H:i') : '-',
+                    'jam_lunas' => $item->tanggal_lunas ? $item->tanggal_lunas->format('H:i') : '-',
+                    'pelanggan' => $item->nama_pelanggan,
+                    'no_hp' => $item->no_hp ?: '-',
+                    'items_list' => $item->details->map(fn($d) => [
+                        'qty' => (int) $d->qty,
+                        'nama' => $d->nama_item,
+                        'harga_modal' => (float) $d->harga_modal,
+                        'harga_jual' => (float) $d->harga_jual,
+                        'subtotal_modal' => (float) ($d->subtotal_modal ?: ($d->harga_modal * $d->qty)),
+                        'subtotal_jual' => (float) ($d->subtotal_jual ?: ($d->harga_jual * $d->qty)),
+                        'laba' => (float) ($d->laba ?: (($d->harga_jual * $d->qty) - ($d->harga_modal * $d->qty))),
+                        'has_ppn' => ($d->ppn_persen > 0 || (float) $d->ppn_nominal > 0),
+                        'ppn_persen' => (float) $d->ppn_persen,
+                        'ppn_nominal' => (float) $d->ppn_nominal,
+                    ])->values()->all(),
+                    'rincian_item' => $item->details->map(fn($d) => $d->qty . 'x ' . $d->nama_item)->implode(', ') ?: 'Tanpa item',
+                    'metode_pembayaran_id' => $item->metode_pembayaran_id,
+                    'metode_pembayaran' => $item->metode_pembayaran ?: '-',
+                    'total_modal' => (float) $item->total_modal,
+                    'total_jual' => (float) $item->total_jual,
+                    'grand_total' => (float) $item->grand_total,
+                    'total_laba' => (float) $item->total_laba,
+                    'has_ppn' => ($item->ppn_persen > 0 || (float) $item->ppn_nominal > 0),
+                    'ppn_persen' => (float) $item->ppn_persen,
+                    'ppn_nominal' => (float) $item->ppn_nominal,
+                    'status' => $item->status,
+                    'keterangan' => $item->catatan ?: '-',
+                ];
+            })->values()->all();
 
-        $this->dispatch('transaksi-full-table-updated', data: $tableData);
+            $this->dispatch('transaksi-full-table-updated', data: $tableData);
+        }
 
         return view('livewire.transaksi.full', [
             'transaksiList' => $transaksiList,

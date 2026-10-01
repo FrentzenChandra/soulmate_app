@@ -325,7 +325,7 @@
                                                     </div>
                                                 @else
                                                     <input type="text"
-                                                           wire:model.live.debounce.250ms="formCustomerSearch"
+                                                           wire:model.live.debounce.300ms="formCustomerSearch"
                                                            class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all">
                                                     @if(!empty($customerSuggestions))
                                                         <div class="absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-48 overflow-y-auto custom-scrollbar">
@@ -384,7 +384,7 @@
                                                     <div class="flex-1 min-w-0 relative" x-data="{ openSuggest: false }" @click.outside="openSuggest = false">
                                                         <label class="block font-bold text-gray-700 mb-1 text-[11px]">Item <span class="text-rose-500 font-bold">*</span></label>
                                                         <input type="text"
-                                                               wire:model.live.debounce.200ms="items.{{ $idx }}.nama_item"
+                                                               wire:model.live.debounce.300ms="items.{{ $idx }}.nama_item"
                                                                @focus="openSuggest = true"
                                                                @click="openSuggest = true"
                                                                @input="openSuggest = true"
@@ -426,7 +426,7 @@
                                                         <label class="block font-bold text-gray-700 mb-1 text-[11px] text-center">Jumlah <span class="text-rose-500 font-bold">*</span></label>
                                                         <input type="number"
                                                                min="1"
-                                                               wire:model.live.debounce.250ms="items.{{ $idx }}.qty"
+                                                               wire:model.live.debounce.300ms="items.{{ $idx }}.qty"
                                                                class="w-full px-2 py-2 rounded-xl border border-gray-300 font-mono font-black text-center text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
                                                         @error("items.{$idx}.qty")
                                                             <span class="text-rose-500 font-bold text-[10px] block mt-0.5 text-center">{{ $message }}</span>
@@ -448,7 +448,6 @@
                                                              update(e) {
                                                                  let clean = e.target.value.replace(/[^0-9]/g, '');
                                                                  this.raw = clean ? parseInt(clean, 10) : 0;
-                                                                 $wire.call('recalculateRow', {{ $idx }});
                                                              }
                                                          }">
                                                         <label class="block font-bold text-[#0052FF] mb-1 text-[10px]">Biaya <span class="text-rose-500 font-bold">*</span></label>
@@ -457,7 +456,7 @@
                                                             <input type="text"
                                                                    inputmode="numeric"
                                                                    :value="formatted"
-                                                                   @input="update($event)"
+                                                                   @input.debounce.250ms="update($event)"
                                                                    class="w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-blue-300 bg-blue-50/40 font-mono font-black text-[#0052FF] text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
                                                         </div>
                                                         @error("items.{$idx}.harga_jual")
@@ -477,7 +476,6 @@
                                                              update(e) {
                                                                  let clean = e.target.value.replace(/[^0-9]/g, '');
                                                                  this.raw = clean ? parseInt(clean, 10) : 0;
-                                                                 $wire.call('recalculateRow', {{ $idx }});
                                                              }
                                                          }">
                                                         <label class="block font-bold text-amber-800 mb-1 text-[10px]">Modal <span class="text-rose-500 font-bold">*</span></label>
@@ -486,7 +484,7 @@
                                                             <input type="text"
                                                                    inputmode="numeric"
                                                                    :value="formatted"
-                                                                   @input="update($event)"
+                                                                   @input.debounce.250ms="update($event)"
                                                                    class="w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50/40 font-mono font-bold text-amber-900 text-xs focus:ring-2 focus:ring-amber-200 focus:border-amber-500">
                                                         </div>
                                                         @error("items.{$idx}.harga_modal")
