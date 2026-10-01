@@ -997,12 +997,12 @@ window.tabulatorTransaksiHarianTable = function(config) {
                                 return `<span class="text-[9px] text-gray-400 italic">Tanpa item</span>`;
                             }
                             const html = items.map(it => `
-                                <div class="flex items-start gap-1 leading-tight py-0.2 min-h-[16px]">
-                                    <span class="inline-block w-1 h-1 rounded-full bg-[#0052FF] shrink-0 mt-1"></span>
-                                    <span class="text-[9px] font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
+                                <div class="flex items-start gap-1.5 leading-tight py-0.5 min-h-[18px]">
+                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#0052FF] shrink-0 mt-1"></span>
+                                    <span class="text-[9.5px] font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
                                 </div>
                             `).join('');
-                            return `<div class="py-0.2 space-y-0.2">${html}</div>`;
+                            return `<div class="py-0.5 space-y-0.5">${html}</div>`;
                         }
                     },
                     {
@@ -1018,11 +1018,11 @@ window.tabulatorTransaksiHarianTable = function(config) {
                                 return `<span class="font-mono font-black text-[#5E17EB] text-[10px]">${this.formatRupiah(d.grand_total)}</span>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.2 min-h-[16px] text-[9.5px] font-bold text-[#5E17EB] font-mono">
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[9.5px] font-bold text-[#5E17EB] font-mono">
                                     ${this.formatRupiah(it.subtotal_jual)}
                                 </div>
                             `).join('');
-                            return `<div class="py-0.2 space-y-0.2 text-right">${html}</div>`;
+                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
                         }
                     },
                     {
@@ -1038,11 +1038,11 @@ window.tabulatorTransaksiHarianTable = function(config) {
                                 return `<span class="font-mono font-bold text-amber-600 text-[10px]">${this.formatRupiah(d.total_modal)}</span>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.2 min-h-[16px] text-[9.5px] font-bold text-amber-600 font-mono">
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[9.5px] font-bold text-amber-600 font-mono">
                                     ${this.formatRupiah(it.subtotal_modal)}
                                 </div>
                             `).join('');
-                            return `<div class="py-0.2 space-y-0.2 text-right">${html}</div>`;
+                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
                         }
                     },
                     {
@@ -1069,12 +1069,12 @@ window.tabulatorTransaksiHarianTable = function(config) {
                                 const taxLabel = itemHasPpn ? 'PPN' : 'Non PPN';
                                 const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
                                 return `
-                                    <div class="leading-tight py-0.2 min-h-[16px] text-[8px] font-black ${taxColor} uppercase tracking-wider">
+                                    <div class="leading-tight py-0.5 min-h-[18px] text-[8px] font-black ${taxColor} uppercase tracking-wider">
                                         ${taxLabel}
                                     </div>
                                 `;
                             }).join('');
-                            return `<div class="py-0.2 space-y-0.2 text-center">${html}</div>`;
+                            return `<div class="py-0.5 space-y-0.5 text-center">${html}</div>`;
                         }
                     },
                     {
