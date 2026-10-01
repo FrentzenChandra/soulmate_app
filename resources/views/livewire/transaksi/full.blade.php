@@ -499,7 +499,85 @@
 
                                 <div class="space-y-3">
                                     @foreach($items as $idx => $itemRow)
-                                        <div wire:key="item-row-{{ $idx }}" class="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs space-y-3">
+                                        <div wire:key="item-row-{{ $idx }}"
+                                             x-data="{
+                                                 qty: @entangle('items.' . $idx . '.qty'),
+                                                 hargaJual: @entangle('items.' . $idx . '.harga_jual'),
+                                                 hargaModal: @entangle('items.' . $idx . '.harga_modal'),
+                                                 displayJual: '',
+                                                 displayModal: '',
+                                                 parseRupiah(str) {
+                                                     if (str === null || str === undefined || str === '') return 0;
+                                                     let s = str.toString().toLowerCase().trim();
+                                                     if (s.endsWith('jt')) {
+                                                         let num = parseFloat(s.replace('jt', '').replace(',', '.'));
+                                                         return isNaN(num) ? 0 : Math.round(num * 1000000);
+                                                     }
+                                                     if (s.endsWith('k') || s.endsWith('rb')) {
+                                                         let num = parseFloat(s.replace(/k|rb/g, '').replace(',', '.'));
+                                                         return isNaN(num) ? 0 : Math.round(num * 1000);
+                                                     }
+                                                     let clean = s.replace(/[^0-9]/g, '');
+                                                     return clean ? parseInt(clean, 10) : 0;
+                                                 },
+                                                 formatRupiah(val) {
+                                                     if (val === null || val === undefined || val === '' || isNaN(val)) return '';
+                                                     let num = parseInt(val.toString().replace(/[^0-9]/g, ''), 10);
+                                                     return isNaN(num) || num === 0 ? '' : num.toLocaleString('id-ID');
+                                                 },
+                                                 onInputJual(val) {
+                                                     let s = val.toString().toLowerCase().trim();
+                                                     if (/[a-z]/.test(s)) {
+                                                         let parsed = this.parseRupiah(s);
+                                                         this.hargaJual = parsed;
+                                                         return;
+                                                     }
+                                                     let parsed = this.parseRupiah(s);
+                                                     this.hargaJual = parsed;
+                                                     this.displayJual = this.formatRupiah(parsed);
+                                                 },
+                                                 onBlurJual() {
+                                                     let parsed = this.parseRupiah(this.displayJual);
+                                                     this.hargaJual = parsed;
+                                                     this.displayJual = this.formatRupiah(parsed);
+                                                 },
+                                                 onInputModal(val) {
+                                                     let s = val.toString().toLowerCase().trim();
+                                                     if (/[a-z]/.test(s)) {
+                                                         let parsed = this.parseRupiah(s);
+                                                         this.hargaModal = parsed;
+                                                         return;
+                                                     }
+                                                     let parsed = this.parseRupiah(s);
+                                                     this.hargaModal = parsed;
+                                                     this.displayModal = this.formatRupiah(parsed);
+                                                 },
+                                                 onBlurModal() {
+                                                     let parsed = this.parseRupiah(this.displayModal);
+                                                     this.hargaModal = parsed;
+                                                     this.displayModal = this.formatRupiah(parsed);
+                                                 },
+                                                 init() {
+                                                     this.displayJual = this.formatRupiah(this.hargaJual);
+                                                     this.displayModal = this.formatRupiah(this.hargaModal);
+                                                     this.$watch('hargaJual', (v) => { this.displayJual = this.formatRupiah(v); });
+                                                     this.$watch('hargaModal', (v) => { this.displayModal = this.formatRupiah(v); });
+                                                 },
+                                                 get subtotalJual() {
+                                                     let q = parseInt(this.qty, 10) || 1;
+                                                     let j = parseInt(this.hargaJual, 10) || 0;
+                                                     return q * j;
+                                                 },
+                                                 get subtotalModal() {
+                                                     let q = parseInt(this.qty, 10) || 1;
+                                                     let m = parseInt(this.hargaModal, 10) || 0;
+                                                     return q * m;
+                                                 },
+                                                 get laba() {
+                                                     return this.subtotalJual - this.subtotalModal;
+                                                 }
+                                             }"
+                                             class="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs space-y-3">
                                             <div class="flex items-center justify-between gap-2">
                                                 <span class="text-[10px] font-black text-gray-400 uppercase">Item #{{ $idx + 1 }}</span>
                                                 @if(count($items) > 1)
@@ -571,26 +649,16 @@
                                                 <!-- Baris 2: Biaya, Modal, Pajak (Sederet) -->
                                                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1 border-t border-gray-100">
                                                     <!-- 1. Biaya (Harga Jual per Unit) -->
-                                                    <div class="sm:col-span-5"
-                                                         x-data="{
-                                                             raw: @entangle('items.' . $idx . '.harga_jual').live,
-                                                             get formatted() {
-                                                                 if (!this.raw && this.raw !== 0) return '';
-                                                                 let num = parseInt(this.raw.toString().replace(/[^0-9]/g, ''), 10);
-                                                                 return isNaN(num) || num === 0 ? '' : num.toLocaleString('id-ID');
-                                                             },
-                                                             update(e) {
-                                                                 let clean = e.target.value.replace(/[^0-9]/g, '');
-                                                                 this.raw = clean ? parseInt(clean, 10) : 0;
-                                                             }
-                                                         }">
+                                                    <div class="sm:col-span-5">
                                                         <label class="block font-bold text-[#5E17EB] mb-1 text-[10px]">Biaya <span class="text-rose-500 font-bold">*</span></label>
                                                         <div class="relative">
                                                             <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-[10px] font-bold text-purple-700/70 select-none pointer-events-none font-mono">Rp</span>
                                                             <input type="text"
                                                                    inputmode="numeric"
-                                                                   :value="formatted"
-                                                                   @input.debounce.250ms="update($event)"
+                                                                   x-model="displayJual"
+                                                                   @input="onInputJual($event.target.value)"
+                                                                   @blur="onBlurJual()"
+                                                                   @keydown.enter="onBlurJual()"
                                                                    class="w-full pl-8 pr-2 py-1.5 rounded-lg border border-purple-300 bg-purple-50/40 font-mono font-black text-[#5E17EB] text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                                         </div>
                                                         @error("items.{$idx}.harga_jual")
@@ -599,26 +667,16 @@
                                                     </div>
 
                                                     <!-- 2. Modal (HPP per Unit) -->
-                                                    <div class="sm:col-span-4"
-                                                         x-data="{
-                                                             raw: @entangle('items.' . $idx . '.harga_modal').live,
-                                                             get formatted() {
-                                                                 if (!this.raw && this.raw !== 0) return '';
-                                                                 let num = parseInt(this.raw.toString().replace(/[^0-9]/g, ''), 10);
-                                                                 return isNaN(num) || num === 0 ? '' : num.toLocaleString('id-ID');
-                                                             },
-                                                             update(e) {
-                                                                 let clean = e.target.value.replace(/[^0-9]/g, '');
-                                                                 this.raw = clean ? parseInt(clean, 10) : 0;
-                                                             }
-                                                         }">
+                                                    <div class="sm:col-span-4">
                                                         <label class="block font-bold text-amber-800 mb-1 text-[10px]">Modal <span class="text-rose-500 font-bold">*</span></label>
                                                         <div class="relative">
                                                             <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-[10px] font-bold text-amber-700/70 select-none pointer-events-none font-mono">Rp</span>
                                                             <input type="text"
                                                                    inputmode="numeric"
-                                                                   :value="formatted"
-                                                                   @input.debounce.250ms="update($event)"
+                                                                   x-model="displayModal"
+                                                                   @input="onInputModal($event.target.value)"
+                                                                   @blur="onBlurModal()"
+                                                                   @keydown.enter="onBlurModal()"
                                                                    class="w-full pl-8 pr-2 py-1.5 rounded-lg border border-amber-300 bg-amber-50/40 font-mono font-bold text-amber-900 text-xs focus:ring-2 focus:ring-amber-200 focus:border-amber-500">
                                                         </div>
                                                         @error("items.{$idx}.harga_modal")
@@ -642,16 +700,17 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Subtotal & Laba Baris -->
+                                            <!-- Subtotal & Laba Baris (Realtime via Alpine) -->
                                             <div class="pt-2 border-t border-gray-100 flex items-center justify-between text-[11px]">
                                                 <div class="flex items-center space-x-3 text-gray-500 font-medium">
-                                                    <span>Subtotal Biaya: <strong class="text-gray-900 font-mono">Rp {{ number_format((float)($itemRow['subtotal_jual'] ?? 0), 0, ',', '.') }}</strong></span>
-                                                    <span>Subtotal Modal: <strong class="text-amber-800 font-mono">Rp {{ number_format((float)($itemRow['subtotal_modal'] ?? 0), 0, ',', '.') }}</strong></span>
+                                                    <span>Subtotal Biaya: <strong class="text-gray-900 font-mono">Rp <span x-text="subtotalJual.toLocaleString('id-ID')"></span></strong></span>
+                                                    <span>Subtotal Modal: <strong class="text-amber-800 font-mono">Rp <span x-text="subtotalModal.toLocaleString('id-ID')"></span></strong></span>
                                                 </div>
                                                 <div>
                                                     <span class="font-bold text-gray-600">Laba Bersih:</span>
-                                                    <span class="font-mono font-black {{ ($itemRow['laba'] ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600' }} ml-1">
-                                                        Rp {{ number_format((float)($itemRow['laba'] ?? 0), 0, ',', '.') }}
+                                                    <span class="font-mono font-black ml-1"
+                                                          :class="laba >= 0 ? 'text-emerald-600' : 'text-rose-600'"
+                                                          x-text="'Rp ' + laba.toLocaleString('id-ID')">
                                                     </span>
                                                 </div>
                                             </div>
