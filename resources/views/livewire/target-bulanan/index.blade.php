@@ -570,7 +570,7 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             </div>
                             <div>
-                                <h3 class="text-base font-bold text-white tracking-tight">Edit Target Divisi {{ $editDivisiName }}</h3>
+                                <h3 class="text-base font-bold text-white tracking-tight">Edit Realisasi Divisi {{ $editDivisiName }}</h3>
                                 <p class="text-xs text-purple-200 font-medium">
                                     Bulan {{ \Carbon\Carbon::createFromDate($filterTahun, $editDivisiBulan, 1)->translatedFormat('F') }} {{ $filterTahun }}
                                 </p>
@@ -583,24 +583,16 @@
 
                     <form wire:submit.prevent="simpanEditCellDivisi">
                         <div class="p-6 space-y-4">
-                            <!-- 1. Target Syarat Bulanan Divisi -->
-                            <div class="p-3.5 bg-purple-50/50 rounded-2xl border border-purple-100">
-                                <label class="block font-bold text-gray-800 mb-1">
-                                    Target Divisi <span class="text-rose-500 font-bold">*</span>
-                                </label>
-                                <input type="number"
-                                       min="0"
-                                       wire:model="formTargetSyaratDivisi"
-                                       class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
-                                @error('formTargetSyaratDivisi')
-                                    <span class="text-rose-500 font-bold text-[10px] block mt-1">{{ $message }}</span>
-                                @enderror
+                            <!-- Info Target Bulanan (Read-Only) -->
+                            <div class="p-3 bg-purple-50/60 rounded-2xl border border-purple-100 flex items-center justify-between">
+                                <span class="font-bold text-gray-700 text-xs">Target Bulanan:</span>
+                                <span class="font-mono font-black text-[#5E17EB] text-xs">{{ $targetSyaratBulananInfo }} Transaksi</span>
                             </div>
 
-                            <!-- 2. Realisasi Terjadi Divisi -->
+                            <!-- Realisasi Terjadi Divisi -->
                             <div class="p-3.5 bg-gray-50 rounded-2xl border border-gray-200">
                                 <label class="block font-bold text-gray-800 mb-1">
-                                    Jumlah Transaksi <span class="text-rose-500 font-bold">*</span>
+                                    Jumlah Transaksi (Realisasi) <span class="text-rose-500 font-bold">*</span>
                                 </label>
                                 <input type="number"
                                        min="0"

@@ -31,12 +31,12 @@ class Index extends Component
     public int $formTargetTahunanKomputer = 0;
     public int $formTargetTahunanAdmin = 0;
 
-    // State Modal Edit Target & Realisasi Per Cell Divisi
+    // State Modal Edit Realisasi Per Cell Divisi
     public bool $modalEditCellDivisiOpen = false;
     public string $editDivisiKey = 'laptop';
     public string $editDivisiName = 'Laptop';
     public int $editDivisiBulan = 1;
-    public int $formTargetSyaratDivisi = 0;
+    public int $targetSyaratBulananInfo = 0;
     public int $formRealisasiDivisi = 0;
 
     public function mount(): void
@@ -172,7 +172,7 @@ class Index extends Component
     }
 
     // =========================================================================
-    // MODAL & ACTION: EDIT TARGET & REALISASI PER CELL (DIVISI)
+    // MODAL & ACTION: EDIT REALISASI PER CELL (DIVISI)
     // =========================================================================
 
     public function openEditCellDivisi(string $divisiKey, int $bulan): void
@@ -197,11 +197,10 @@ class Index extends Component
             ->where('divisi', $divisiKey)
             ->first();
 
-        $monthlyTargets = $targetDivisi?->monthly_targets ?? [];
         $monthlyRealisasi = $targetDivisi?->monthly_realisasi ?? [];
         $defaultBulanan = (int) ($targetDivisi?->target_bulanan ?? 0);
 
-        $this->formTargetSyaratDivisi = (int) ($monthlyTargets[(string)$bulan] ?? $defaultBulanan);
+        $this->targetSyaratBulananInfo = $defaultBulanan;
         $this->formRealisasiDivisi = (int) ($monthlyRealisasi[(string)$bulan] ?? 0);
 
         $this->modalEditCellDivisiOpen = true;
@@ -216,7 +215,6 @@ class Index extends Component
         $this->validate([
             'editDivisiKey' => 'required|string|in:laptop,printer,komputer,admin',
             'editDivisiBulan' => 'required|integer|min:1|max:12',
-            'formTargetSyaratDivisi' => 'required|integer|min:0',
             'formRealisasiDivisi' => 'required|integer|min:0',
         ]);
 
@@ -235,20 +233,16 @@ class Index extends Component
             ]
         );
 
-        $monthlyTargets = $targetDivisi->monthly_targets ?? [];
         $monthlyRealisasi = $targetDivisi->monthly_realisasi ?? [];
-
-        $monthlyTargets[(string)$this->editDivisiBulan] = (int) $this->formTargetSyaratDivisi;
         $monthlyRealisasi[(string)$this->editDivisiBulan] = (int) $this->formRealisasiDivisi;
 
         $targetDivisi->update([
-            'monthly_targets' => $monthlyTargets,
             'monthly_realisasi' => $monthlyRealisasi,
         ]);
 
         $this->modalEditCellDivisiOpen = false;
         $namaBulan = Carbon::createFromDate($this->filterTahun, $this->editDivisiBulan, 1)->translatedFormat('F');
-        session()->flash('success', "Target & Realisasi Divisi {$this->editDivisiName} bulan {$namaBulan} {$this->filterTahun} berhasil diperbarui!");
+        session()->flash('success', "Realisasi Divisi {$this->editDivisiName} bulan {$namaBulan} {$this->filterTahun} berhasil diperbarui!");
     }
 
     // =========================================================================
@@ -289,7 +283,7 @@ class Index extends Component
             ->get()
             ->keyBy('divisi');
 
-        // 3. Bangun Matriks Data Divisi (Target Tahunan Murni Inputan + Override Per Bulan + Realisasi)
+        // 3. Bangun Matriks Data Divisi (Target Tahunan Murni Inputan + Realisasi)
         $divisiDefs = [
             'laptop' => ['name' => 'LAPTOP', 'icon' => 'laptop'],
             'printer' => ['name' => 'PRINTER', 'icon' => 'printer'],
@@ -306,7 +300,6 @@ class Index extends Component
             $targetTahunanInput = $defaultTarget * 12;
             $grandTotalTargetTahunanInput += $targetTahunanInput;
 
-            $monthlyTargets = $targetDivisiRow?->monthly_targets ?? [];
             $monthlyRealisasi = $targetDivisiRow?->monthly_realisasi ?? [];
 
             $monthlyData = [];
@@ -332,10 +325,8 @@ class Index extends Component
                     })->count();
                 }
 
-                $hasExplicitTarget = isset($monthlyTargets[(string)$m]);
-                $targetSyarat = $hasExplicitTarget ? (int) $monthlyTargets[(string)$m] : $defaultTarget;
-                $hasData = ($hasExplicitTarget || $defaultTarget > 0 || $hasManualRealisasi) && ($targetSyarat > 0 || $count > 0);
-
+                $targetSyarat = $defaultTarget;
+                $hasData = ($defaultTarget > 0 || $hasManualRealisasi) && ($targetSyarat > 0 || $count > 0);
                 $percent = ($hasData && $targetSyarat > 0) ? (int) round(($count / $targetSyarat) * 100) : 0;
 
                 // Status classification

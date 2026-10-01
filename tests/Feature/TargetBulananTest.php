@@ -175,17 +175,23 @@ class TargetBulananTest extends TestCase
             });
     }
 
-    public function test_superadmin_can_edit_monthly_custom_target_and_realisasi_divisi()
+    public function test_superadmin_can_edit_monthly_custom_realisasi_divisi()
     {
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
+
+        // Setup annual target first
+        TargetDivisi::updateOrCreate(
+            ['cabang_id' => $superadmin->cabang_id ?: 1, 'divisi' => 'printer', 'tahun' => 2026],
+            ['target_bulanan' => 25]
+        );
 
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
             ->call('openEditCellDivisi', 'printer', 5)
             ->assertSet('editDivisiKey', 'printer')
             ->assertSet('editDivisiBulan', 5)
-            ->set('formTargetSyaratDivisi', 25)
+            ->assertSet('targetSyaratBulananInfo', 25)
             ->set('formRealisasiDivisi', 30)
             ->call('simpanEditCellDivisi')
             ->assertHasNoErrors()
@@ -197,7 +203,6 @@ class TargetBulananTest extends TestCase
             ->first();
 
         $this->assertNotNull($targetDivisi);
-        $this->assertEquals(25, $targetDivisi->monthly_targets['5']);
         $this->assertEquals(30, $targetDivisi->monthly_realisasi['5']);
 
         // Test rendering reflection
