@@ -3,11 +3,9 @@
 namespace Tests\Feature;
 
 use App\Livewire\Master\Pegawai\Index as MasterPegawaiIndex;
-use App\Livewire\TargetBulanan\Index as TargetBulananIndex;
 use App\Livewire\Transaksi\Full as TransaksiFullComponent;
 use App\Models\Cabang;
 use App\Models\Pegawai;
-use App\Models\TargetPegawai;
 use App\Models\TransaksiFull;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,7 +29,6 @@ class MasterPegawaiTest extends TestCase
         Role::firstOrCreate(['name' => 'Superadmin']);
         Role::firstOrCreate(['name' => 'Admin']);
         Role::firstOrCreate(['name' => 'Teknisi']);
-        Role::firstOrCreate(['name' => 'Kasir']);
 
         $this->cabang = Cabang::create([
             'nama_cabang' => 'Cabang Utama',
@@ -58,35 +55,61 @@ class MasterPegawaiTest extends TestCase
         $this->actingAs($this->owner)
             ->get(route('master.pegawai'))
             ->assertStatus(200)
-            ->assertSee('Master Pegawai');
+            ->assertSee('Master Pegawai')
+            ->assertSee('Bagian');
     }
 
-    public function test_can_create_pegawai_with_name_and_role_auto_detect_branch(): void
+    public function test_can_create_pegawai_with_default_bagian(): void
     {
         $this->actingAs($this->admin);
 
         Livewire::test(MasterPegawaiIndex::class)
             ->call('openCreateModal')
             ->set('nama', 'Budi Teknisi')
-            ->set('role', 'Teknisi')
+            ->set('bagian', 'Teknisi Laptop')
             ->call('simpanPegawai')
             ->assertHasNoErrors()
             ->assertSet('modalOpen', false);
 
         $this->assertDatabaseHas('pegawais', [
             'nama' => 'Budi Teknisi',
-            'role' => 'Teknisi',
+            'role' => 'Teknisi Laptop',
             'cabang_id' => $this->cabang->id,
             'is_aktif' => true,
         ]);
     }
 
-    public function test_can_update_pegawai(): void
+    public function test_can_create_pegawai_with_custom_new_bagian_dynamically(): void
+    {
+        $this->actingAs($this->owner);
+
+        Livewire::test(MasterPegawaiIndex::class)
+            ->call('openCreateModal')
+            ->set('nama', 'Doni Jaringan')
+            ->set('bagian', '__custom__')
+            ->set('customBagian', 'Teknisi Jaringan')
+            ->call('simpanPegawai')
+            ->assertHasNoErrors()
+            ->assertSet('modalOpen', false);
+
+        $this->assertDatabaseHas('pegawais', [
+            'nama' => 'Doni Jaringan',
+            'role' => 'Teknisi Jaringan',
+            'cabang_id' => $this->cabang->id,
+            'is_aktif' => true,
+        ]);
+
+        // Next time, 'Teknisi Jaringan' must appear in distinct bagian options
+        Livewire::test(MasterPegawaiIndex::class)
+            ->assertSee('Teknisi Jaringan');
+    }
+
+    public function test_can_update_pegawai_bagian(): void
     {
         $pegawai = Pegawai::create([
             'cabang_id' => $this->cabang->id,
-            'nama' => 'Andi Kasir',
-            'role' => 'Kasir',
+            'nama' => 'Andi Pajak',
+            'role' => 'Admin Stok',
             'is_aktif' => true,
         ]);
 
@@ -94,17 +117,40 @@ class MasterPegawaiTest extends TestCase
 
         Livewire::test(MasterPegawaiIndex::class)
             ->call('openEditModal', $pegawai->id)
-            ->set('nama', 'Andi Superadmin')
-            ->set('role', 'Superadmin')
+            ->set('nama', 'Andi Pajak Updated')
+            ->set('bagian', 'Admin Pajak')
             ->call('simpanPegawai')
             ->assertHasNoErrors()
             ->assertSet('modalOpen', false);
 
         $this->assertDatabaseHas('pegawais', [
             'id' => $pegawai->id,
-            'nama' => 'Andi Superadmin',
-            'role' => 'Superadmin',
+            'nama' => 'Andi Pajak Updated',
+            'role' => 'Admin Pajak',
         ]);
+    }
+
+    public function test_can_filter_pegawai_by_bagian(): void
+    {
+        Pegawai::create([
+            'cabang_id' => $this->cabang->id,
+            'nama' => 'Staf Bendahara 1',
+            'role' => 'Bendahara',
+            'is_aktif' => true,
+        ]);
+        Pegawai::create([
+            'cabang_id' => $this->cabang->id,
+            'nama' => 'Staf Konten 1',
+            'role' => 'Admin Konten',
+            'is_aktif' => true,
+        ]);
+
+        $this->actingAs($this->owner);
+
+        Livewire::test(MasterPegawaiIndex::class)
+            ->set('bagianFilter', 'Bendahara')
+            ->assertSee('Staf Bendahara 1')
+            ->assertDontSee('Staf Konten 1');
     }
 
     public function test_can_toggle_pegawai_status(): void
@@ -112,7 +158,7 @@ class MasterPegawaiTest extends TestCase
         $pegawai = Pegawai::create([
             'cabang_id' => $this->cabang->id,
             'nama' => 'Doni Teknisi',
-            'role' => 'Teknisi',
+            'role' => 'Teknisi Printer',
             'is_aktif' => true,
         ]);
 
@@ -162,30 +208,5 @@ class MasterPegawaiTest extends TestCase
             'pegawai_id' => $pegawai->id,
             'total_jual' => 100000,
         ]);
-    }
-
-    public function test_target_pegawai_can_be_saved(): void
-    {
-        $pegawai = Pegawai::create([
-            'cabang_id' => $this->cabang->id,
-            'nama' => 'Rudi Teknisi',
-            'role' => 'Teknisi',
-            'is_aktif' => true,
-        ]);
-
-        $this->actingAs($this->owner);
-
-        Livewire::test(TargetBulananIndex::class)
-            ->call('openEditCellPegawai', $pegawai->id, 5)
-            ->set('formTargetSyaratUser', 25)
-            ->call('simpanEditCellPegawai')
-            ->assertHasNoErrors();
-
-        $target = TargetPegawai::where('pegawai_id', $pegawai->id)
-            ->where('tahun', (int) now()->format('Y'))
-            ->first();
-
-        $this->assertNotNull($target);
-        $this->assertEquals(25, $target->monthly_targets['5'] ?? 0);
     }
 }

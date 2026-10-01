@@ -64,13 +64,13 @@
                        class="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-semibold text-gray-800 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all">
             </div>
 
-            <!-- Filter Role -->
+            <!-- Filter Bagian -->
             <div class="md:col-span-3">
-                <select wire:model.live="roleFilter"
+                <select wire:model.live="bagianFilter"
                         class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
-                    <option value="semua">Semua Role</option>
-                    @foreach($allowedRoles as $r)
-                        <option value="{{ $r }}">{{ $r }}</option>
+                    <option value="semua">Semua Bagian</option>
+                    @foreach($this->bagianOptions as $b)
+                        <option value="{{ $b }}">{{ $b }}</option>
                     @endforeach
                 </select>
             </div>
@@ -115,11 +115,11 @@
          :class="'tabulator-size-' + tableSize + ' table-size-' + tableSize">
 
         <!-- Loading Skeleton Overlay -->
-        <div wire:loading.block wire:target="search, roleFilter, statusFilter, cabangFilter, sortBy, perPage, gotoPage, nextPage, previousPage" class="p-6">
+        <div wire:loading.block wire:target="search, bagianFilter, statusFilter, cabangFilter, sortBy, perPage, gotoPage, nextPage, previousPage" class="p-6">
             <x-table-skeleton />
         </div>
 
-        <div wire:loading.remove wire:target="search, roleFilter, statusFilter, cabangFilter, sortBy, perPage, gotoPage, nextPage, previousPage" class="overflow-x-auto">
+        <div wire:loading.remove wire:target="search, bagianFilter, statusFilter, cabangFilter, sortBy, perPage, gotoPage, nextPage, previousPage" class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50/80 border-b border-gray-200/80 text-[11px] font-black uppercase tracking-wider text-gray-600">
@@ -134,7 +134,7 @@
                         </th>
                         <th class="py-3 px-4 cursor-pointer hover:text-purple-600 transition-colors" wire:click="sortBy('role')">
                             <div class="flex items-center space-x-1.5">
-                                <span>Role</span>
+                                <span>Bagian</span>
                                 @if($sortField === 'role')
                                     <svg class="w-3.5 h-3.5 text-[#5E17EB] {{ $sortDirection === 'desc' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
                                 @endif
@@ -242,7 +242,7 @@
                                     {{ $isEditMode ? 'Edit Data Pegawai' : 'Tambah Pegawai Baru' }}
                                 </h3>
                                 <p class="text-xs text-purple-200 font-medium mt-0.5">
-                                    {{ $isEditMode ? 'Perbarui nama atau role pegawai operasional' : 'Daftarkan nama & role pegawai toko' }}
+                                    {{ $isEditMode ? 'Perbarui nama atau bagian pegawai operasional' : 'Daftarkan nama & bagian pegawai toko' }}
                                 </p>
                             </div>
                         </div>
@@ -266,18 +266,31 @@
                                 @enderror
                             </div>
 
-                            <!-- Field 2: Role Pegawai (Select Option) -->
-                            <div>
-                                <label class="block font-bold text-gray-700 mb-1">Role Pegawai <span class="text-rose-500 font-bold">*</span></label>
-                                <select wire:model="role"
+                            <!-- Field 2: Bagian Pegawai (Select Option + Custom Input) -->
+                            <div class="space-y-2">
+                                <label class="block font-bold text-gray-700 mb-1">Bagian Pegawai <span class="text-rose-500 font-bold">*</span></label>
+                                <select wire:model.live="bagian"
                                         class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
-                                    @foreach($allowedRoles as $r)
-                                        <option value="{{ $r }}">{{ $r }}</option>
+                                    @foreach($this->bagianOptions as $b)
+                                        <option value="{{ $b }}">{{ $b }}</option>
                                     @endforeach
+                                    <option value="__custom__" class="font-black text-[#5E17EB] bg-purple-50">+ Tambah Bagian Baru...</option>
                                 </select>
-                                @error('role')
+                                @error('bagian')
                                     <span class="text-rose-500 font-bold text-[11px] block mt-1">{{ $message }}</span>
                                 @enderror
+
+                                @if($bagian === '__custom__')
+                                    <div class="p-3 bg-purple-50/70 rounded-2xl border border-purple-200 space-y-1.5 mt-2 transition-all">
+                                        <label class="block font-bold text-purple-950 text-[11px]">Nama Bagian Baru <span class="text-rose-500 font-bold">*</span></label>
+                                        <input type="text"
+                                               wire:model="customBagian"
+                                               class="w-full px-3.5 py-2 rounded-xl border border-purple-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all text-xs">
+                                        @error('customBagian')
+                                            <span class="text-rose-500 font-bold text-[11px] block mt-1">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                @endif
                             </div>
 
                         </div>

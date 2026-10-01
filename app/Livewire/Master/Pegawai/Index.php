@@ -6,6 +6,7 @@ use App\Livewire\Traits\WithSorting;
 use App\Models\Cabang;
 use App\Models\Pegawai;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
@@ -22,7 +23,7 @@ class Index extends Component
     public string $search = '';
 
     #[Url(except: 'semua')]
-    public string $roleFilter = 'semua';
+    public string $bagianFilter = 'semua';
 
     #[Url(except: 'semua')]
     public string $statusFilter = 'semua';
@@ -32,12 +33,13 @@ class Index extends Component
 
     public int $perPage = 15;
 
-    // State Modal Form (Create / Edit) - HANYA 2 FIELD: NAMA & ROLE
+    // State Modal Form (Create / Edit) - HANYA 2 FIELD: NAMA & BAGIAN
     public bool $modalOpen = false;
     public bool $isEditMode = false;
     public ?int $pegawaiId = null;
     public string $nama = '';
-    public string $role = 'Teknisi';
+    public string $bagian = 'Teknisi Laptop';
+    public string $customBagian = '';
     public ?int $cabang_id = null;
 
     // State Modal Delete
@@ -45,13 +47,32 @@ class Index extends Component
     public ?int $deleteId = null;
     public string $deleteNama = '';
 
-    public array $allowedRoles = [
-        'Superadmin',
-        'Admin',
-        'Teknisi',
+    public array $defaultBagians = [
+        'Teknisi Laptop',
+        'Teknisi Printer',
+        'Teknisi Komputer',
         'Bendahara',
-        'Kasir',
+        'Admin Pajak',
+        'Admin Stok',
+        'Admin Konten',
     ];
+
+    #[Computed]
+    public function bagianOptions(): array
+    {
+        $fromDb = Pegawai::distinct()
+            ->whereNotNull('role')
+            ->where('role', '!=', '')
+            ->pluck('role')
+            ->toArray();
+
+        return collect(array_merge($this->defaultBagians, $fromDb))
+            ->map(fn ($item) => trim($item))
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+    }
 
     public function mount(): void
     {
@@ -88,7 +109,7 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function updatingRoleFilter(): void
+    public function updatingBagianFilter(): void
     {
         $this->resetPage();
     }
@@ -109,7 +130,8 @@ class Index extends Component
         $this->isEditMode = false;
         $this->pegawaiId = null;
         $this->nama = '';
-        $this->role = 'Teknisi';
+        $this->bagian = 'Teknisi Laptop';
+        $this->customBagian = '';
         $this->cabang_id = $this->getTargetCabangId();
         $this->modalOpen = true;
     }
@@ -121,7 +143,8 @@ class Index extends Component
         $this->isEditMode = true;
         $this->pegawaiId = $pegawai->id;
         $this->nama = $pegawai->nama;
-        $this->role = $pegawai->role;
+        $this->bagian = $pegawai->role;
+        $this->customBagian = '';
         $this->cabang_id = $pegawai->cabang_id;
         $this->modalOpen = true;
     }
@@ -130,20 +153,35 @@ class Index extends Component
     {
         $this->modalOpen = false;
         $this->resetValidation();
-        $this->reset(['pegawaiId', 'nama', 'role', 'isEditMode']);
+        $this->reset(['pegawaiId', 'nama', 'bagian', 'customBagian', 'isEditMode']);
     }
 
     public function simpanPegawai(): void
     {
-        $this->validate([
-            'nama' => 'required|string|min:2|max:150',
-            'role' => 'required|in:' . implode(',', $this->allowedRoles),
-        ], [
-            'nama.required' => 'Nama pegawai wajib diisi.',
-            'nama.min' => 'Nama pegawai minimal 2 karakter.',
-            'role.required' => 'Role pegawai wajib dipilih.',
-            'role.in' => 'Pilihan role tidak valid.',
-        ]);
+        $isCustom = $this->bagian === '__custom__';
+
+        if ($isCustom) {
+            $this->validate([
+                'nama' => 'required|string|min:2|max:150',
+                'customBagian' => 'required|string|min:2|max:100',
+            ], [
+                'nama.required' => 'Nama pegawai wajib diisi.',
+                'nama.min' => 'Nama pegawai minimal 2 karakter.',
+                'customBagian.required' => 'Nama bagian baru wajib diisi.',
+                'customBagian.min' => 'Nama bagian baru minimal 2 karakter.',
+            ]);
+            $finalBagian = trim($this->customBagian);
+        } else {
+            $this->validate([
+                'nama' => 'required|string|min:2|max:150',
+                'bagian' => 'required|string|min:2|max:100',
+            ], [
+                'nama.required' => 'Nama pegawai wajib diisi.',
+                'nama.min' => 'Nama pegawai minimal 2 karakter.',
+                'bagian.required' => 'Bagian pegawai wajib dipilih.',
+            ]);
+            $finalBagian = trim($this->bagian);
+        }
 
         $targetCabangId = $this->isEditMode ? ($this->cabang_id ?: $this->getTargetCabangId()) : $this->getTargetCabangId();
 
@@ -151,14 +189,14 @@ class Index extends Component
             $pegawai = Pegawai::findOrFail($this->pegawaiId);
             $pegawai->update([
                 'nama' => trim($this->nama),
-                'role' => $this->role,
+                'role' => $finalBagian,
             ]);
             session()->flash('success', "Data pegawai '{$pegawai->nama}' berhasil diperbarui!");
         } else {
             $pegawai = Pegawai::create([
                 'cabang_id' => $targetCabangId,
                 'nama' => trim($this->nama),
-                'role' => $this->role,
+                'role' => $finalBagian,
                 'is_aktif' => true,
             ]);
             session()->flash('success', "Pegawai baru '{$pegawai->nama}' berhasil ditambahkan!");
@@ -226,9 +264,9 @@ class Index extends Component
             $query->where('cabang_id', (int) $this->cabangFilter);
         }
 
-        // Filter Role
-        if ($this->roleFilter !== 'semua' && ! empty($this->roleFilter)) {
-            $query->where('role', $this->roleFilter);
+        // Filter Bagian
+        if ($this->bagianFilter !== 'semua' && ! empty($this->bagianFilter)) {
+            $query->where('role', $this->bagianFilter);
         }
 
         // Filter Status Aktif
