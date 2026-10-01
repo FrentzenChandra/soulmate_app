@@ -126,15 +126,15 @@
 - **Validasi Unik Email & Username:** Validasi unik pada form pengguna wajib mengabaikan akun yang telah di-soft-delete (`Rule::unique('users', 'email')->whereNull('deleted_at')`).
 
 ## 18. Target Bulanan (Performance Board 12 Bulan) Standard
-- **Sistem Pengelolaan Per Cell Mandiri:** Target dan realisasi dikelola langsung per sel `(Divisi, Bulan)` dan `(User, Bulan)` secara independen.
-  * **Tabel Divisi (Laptop, Printer, Komputer, Admin):** Setiap sel bulan dapat diatur target syarat dan realisasi spesifiknya masing-masing via modal edit sel.
-  * **Tabel Staf (Individu):** Setiap sel bulan dapat diatur target syarat spesifik per staf, sementara realisasi terhitung otomatis dari `transaksi_fulls`.
-- **Hak Akses Set Target:** Hanya role **Owner** dan **Superadmin** yang berwenang mengklik sel tabel dan membuka modal edit target/realisasi.
-- **Indikator Visual Pencapaian:**
-  * `≥ 150%`: Over Target (Badge Tech Blue `#0052FF` / Indigo + SVG icon trending-up).
-  * `100% - 149%`: Target Tercapai (Badge Emerald `#10B981` + SVG icon check-circle).
-  * `< 100%`: Belum Tercapai (Badge Rose `#F43F5E` + SVG icon x-circle).
-  * Bulan mendatang (belum ada data & belum diset): Tanda strip netral (`-`).
+- **Tabel Divisi (Laptop, Printer, Komputer, Admin):**
+  * Target diatur secara tahunan via modal "Atur Target Divisi (Tahunan)" (otomatis dibagi 12 bulan).
+  * Kolom ke-2 tabel divisi menampilkan nilai Target Tahunan (bukan jumlah count realisasi).
+  * Penyesuaian custom target & realisasi bulanan tetap didukung secara independen melalui klik per sel bulan.
+  * Indikator visual pencapaian divisi: `≥ 150%` (Over Target / Tech Blue), `100% - 149%` (Target Tercapai / Emerald), `< 100%` (Belum Tercapai / Rose).
+- **Tabel Staf (Individu):**
+  * Realisasi murni 100% ditarik otomatis dari `transaksi_fulls` berdasarkan `pegawai_id`.
+  * Tanpa kolom target/persyaratan, tanpa badge status merah, dan tanpa modal edit per sel (read-only real-time performance summary).
+- **Hak Akses Set Target:** Hanya role **Owner** dan **Superadmin** yang berwenang mengatur target tahunan dan mengklik sel target divisi.
 - **Slogan Motivasi:** Header menampilkan slogan penyemangat: *"Target Bukan Untuk Ditakuti, Tapi Untuk Dikalahkan!"*.
 
 ## 19. Simplified Transaction Status Standard (Lunas & BON Only)

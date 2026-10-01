@@ -5,11 +5,9 @@ namespace App\Livewire\TargetBulanan;
 use App\Models\Cabang;
 use App\Models\Pegawai;
 use App\Models\TargetDivisi;
-use App\Models\TargetPegawai;
 use App\Models\TransaksiFull;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
@@ -25,6 +23,11 @@ class Index extends Component
     #[Url(except: 'semua')]
     public string $cabangFilter = 'semua';
 
+    // State Modal Atur Target Tahunan Divisi
+    public bool $modalSetTargetTahunanDivisiOpen = false;
+    public string $formDivisiKey = 'laptop';
+    public int $formTargetTahunanDivisi = 0;
+
     // State Modal Edit Target & Realisasi Per Cell Divisi
     public bool $modalEditCellDivisiOpen = false;
     public string $editDivisiKey = 'laptop';
@@ -32,13 +35,6 @@ class Index extends Component
     public int $editDivisiBulan = 1;
     public int $formTargetSyaratDivisi = 0;
     public int $formRealisasiDivisi = 0;
-
-    // State Modal Edit Target Per Cell Pegawai
-    public bool $modalEditCellUserOpen = false;
-    public ?int $editUserId = null;
-    public string $editUserName = '';
-    public int $editUserBulan = 1;
-    public int $formTargetSyaratUser = 0;
 
     public function mount(): void
     {
@@ -76,6 +72,80 @@ class Index extends Component
     }
 
     // =========================================================================
+    // MODAL & ACTION: ATUR TARGET TAHUNAN DIVISI
+    // =========================================================================
+
+    public function openSetTargetTahunanDivisi(?string $divisiKey = null): void
+    {
+        if (! $this->canManageTarget) {
+            abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
+        }
+
+        $cabangId = $this->getTargetCabangId();
+        $this->formDivisiKey = $divisiKey ?: 'laptop';
+
+        $target = TargetDivisi::where('cabang_id', $cabangId)
+            ->where('tahun', $this->filterTahun)
+            ->where('divisi', $this->formDivisiKey)
+            ->first();
+
+        if ($target) {
+            $monthlyTargets = $target->monthly_targets ?? [];
+            if (! empty($monthlyTargets)) {
+                $this->formTargetTahunanDivisi = (int) array_sum($monthlyTargets);
+            } else {
+                $this->formTargetTahunanDivisi = (int) ($target->target_bulanan * 12);
+            }
+        } else {
+            $this->formTargetTahunanDivisi = 0;
+        }
+
+        $this->modalSetTargetTahunanDivisiOpen = true;
+    }
+
+    public function simpanTargetTahunanDivisi(): void
+    {
+        if (! $this->canManageTarget) {
+            abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
+        }
+
+        $this->validate([
+            'formDivisiKey' => 'required|string|in:laptop,printer,komputer,admin',
+            'formTargetTahunanDivisi' => 'required|integer|min:0',
+        ]);
+
+        $cabangId = $this->getTargetCabangId();
+        $creatorId = Auth::id();
+        $targetBulanan = (int) round($this->formTargetTahunanDivisi / 12);
+
+        $targetDivisi = TargetDivisi::firstOrCreate(
+            [
+                'cabang_id' => $cabangId,
+                'tahun' => $this->filterTahun,
+                'divisi' => $this->formDivisiKey,
+            ],
+            [
+                'target_bulanan' => $targetBulanan,
+                'created_by' => $creatorId,
+            ]
+        );
+
+        $monthlyTargets = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $monthlyTargets[(string)$m] = $targetBulanan;
+        }
+
+        $targetDivisi->update([
+            'target_bulanan' => $targetBulanan,
+            'monthly_targets' => $monthlyTargets,
+        ]);
+
+        $this->modalSetTargetTahunanDivisiOpen = false;
+        $namaDiv = ucfirst($this->formDivisiKey);
+        session()->flash('success', "Target tahunan Divisi {$namaDiv} ({$this->formTargetTahunanDivisi} transaksi) tahun {$this->filterTahun} berhasil disimpan!");
+    }
+
+    // =========================================================================
     // MODAL & ACTION: EDIT TARGET & REALISASI PER CELL (DIVISI)
     // =========================================================================
 
@@ -103,8 +173,9 @@ class Index extends Component
 
         $monthlyTargets = $targetDivisi?->monthly_targets ?? [];
         $monthlyRealisasi = $targetDivisi?->monthly_realisasi ?? [];
+        $defaultBulanan = (int) ($targetDivisi?->target_bulanan ?? 0);
 
-        $this->formTargetSyaratDivisi = (int) ($monthlyTargets[(string)$bulan] ?? 0);
+        $this->formTargetSyaratDivisi = (int) ($monthlyTargets[(string)$bulan] ?? $defaultBulanan);
         $this->formRealisasiDivisi = (int) ($monthlyRealisasi[(string)$bulan] ?? 0);
 
         $this->modalEditCellDivisiOpen = true;
@@ -155,81 +226,6 @@ class Index extends Component
     }
 
     // =========================================================================
-    // MODAL & ACTION: EDIT TARGET PER CELL (PEGAWAI)
-    // =========================================================================
-
-    public function openEditCellPegawai(int $pegawaiId, int $bulan): void
-    {
-        if (! $this->canManageTarget) {
-            abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
-        }
-
-        $pegawai = Pegawai::findOrFail($pegawaiId);
-        $this->editUserId = $pegawai->id;
-        $this->editUserName = $pegawai->nama;
-        $this->editUserBulan = $bulan;
-        $cabangId = $this->getTargetCabangId();
-
-        $targetPegawai = TargetPegawai::where('cabang_id', $cabangId)
-            ->where('tahun', $this->filterTahun)
-            ->where('pegawai_id', $pegawaiId)
-            ->first();
-
-        $monthlyTargets = $targetPegawai?->monthly_targets ?? [];
-        $this->formTargetSyaratUser = (int) ($monthlyTargets[(string)$bulan] ?? 0);
-
-        $this->modalEditCellUserOpen = true;
-    }
-
-    public function openEditCellUser(int $userId, int $bulan): void
-    {
-        $this->openEditCellPegawai($userId, $bulan);
-    }
-
-    public function simpanEditCellUser(): void
-    {
-        $this->simpanEditCellPegawai();
-    }
-
-    public function simpanEditCellPegawai(): void
-    {
-        if (! $this->canManageTarget) {
-            abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
-        }
-
-        $this->validate([
-            'editUserId' => 'required|exists:pegawais,id',
-            'editUserBulan' => 'required|integer|min:1|max:12',
-            'formTargetSyaratUser' => 'required|integer|min:0',
-        ]);
-
-        $cabangId = $this->getTargetCabangId();
-        $creatorId = Auth::id();
-
-        $targetPegawai = TargetPegawai::firstOrCreate(
-            [
-                'cabang_id' => $cabangId,
-                'tahun' => $this->filterTahun,
-                'pegawai_id' => $this->editUserId,
-            ],
-            [
-                'target_bulanan' => 0,
-                'created_by' => $creatorId,
-            ]
-        );
-
-        $monthlyTargets = $targetPegawai->monthly_targets ?? [];
-        $monthlyTargets[(string)$this->editUserBulan] = (int) $this->formTargetSyaratUser;
-        $targetPegawai->update([
-            'monthly_targets' => $monthlyTargets,
-        ]);
-
-        $this->modalEditCellUserOpen = false;
-        $namaBulan = Carbon::createFromDate($this->filterTahun, $this->editUserBulan, 1)->translatedFormat('F');
-        session()->flash('success', "Target Pegawai {$this->editUserName} bulan {$namaBulan} {$this->filterTahun} berhasil diperbarui!");
-    }
-
-    // =========================================================================
     // RENDER & MATRIX DATA BUILDER
     // =========================================================================
 
@@ -267,7 +263,7 @@ class Index extends Component
             ->get()
             ->keyBy('divisi');
 
-        // 3. Bangun Matriks Data Divisi (100% Granular Manual Per Bulan dari Header)
+        // 3. Bangun Matriks Data Divisi (Target Tahunan + Override Per Bulan + Realisasi)
         $divisiDefs = [
             'laptop' => ['name' => 'LAPTOP', 'icon' => 'laptop'],
             'printer' => ['name' => 'PRINTER', 'icon' => 'printer'],
@@ -287,18 +283,33 @@ class Index extends Component
             $totalYtdTarget = 0;
 
             for ($m = 1; $m <= 12; $m++) {
-                $hasTarget = isset($monthlyTargets[(string)$m]);
-                $hasRealisasi = isset($monthlyRealisasi[(string)$m]);
-                $hasData = $hasTarget || $hasRealisasi;
+                // Realisasi diutamakan dari override manual jika diset, jika tidak dihitung dari transaksi_fulls
+                $hasManualRealisasi = isset($monthlyRealisasi[(string)$m]);
+                if ($hasManualRealisasi) {
+                    $count = (int) $monthlyRealisasi[(string)$m];
+                } else {
+                    $count = $trxList->filter(function ($t) use ($m, $key) {
+                        $isMonth = (int) $t->tanggal->format('n') === $m;
+                        if (! $isMonth) return false;
+                        $kat = strtolower($t->kategori_perangkat ?? '');
+                        $tipe = strtolower($t->tipe_transaksi ?? '');
+                        if ($key === 'laptop') return $kat === 'laptop';
+                        if ($key === 'printer') return $kat === 'printer';
+                        if ($key === 'komputer') return in_array($kat, ['komputer', 'pc']);
+                        if ($key === 'admin') return $tipe === 'penjualan' || $kat === 'admin' || (! in_array($kat, ['laptop', 'printer', 'komputer', 'pc']));
+                        return false;
+                    })->count();
+                }
 
-                $targetSyarat = $hasTarget ? (int) $monthlyTargets[(string)$m] : 0;
-                $count = $hasRealisasi ? (int) $monthlyRealisasi[(string)$m] : 0;
+                $hasExplicitTarget = isset($monthlyTargets[(string)$m]);
+                $targetSyarat = $hasExplicitTarget ? (int) $monthlyTargets[(string)$m] : $defaultTarget;
+                $hasData = ($hasExplicitTarget || $defaultTarget > 0 || $hasManualRealisasi) && ($targetSyarat > 0 || $count > 0);
 
                 $percent = ($hasData && $targetSyarat > 0) ? (int) round(($count / $targetSyarat) * 100) : 0;
 
                 // Status classification
                 $status = 'belum';
-                if (! $hasData) {
+                if (! $hasData || $targetSyarat <= 0) {
                     $status = 'empty';
                 } elseif ($percent >= 150) {
                     $status = 'over';
@@ -314,10 +325,8 @@ class Index extends Component
                     'has_data' => $hasData,
                 ];
 
-                if ($hasData) {
-                    $totalYtdRealisasi += $count;
-                    $totalYtdTarget += $targetSyarat;
-                }
+                $totalYtdRealisasi += $count;
+                $totalYtdTarget += $targetSyarat;
             }
 
             $ytdPercent = $totalYtdTarget > 0 ? (int) round(($totalYtdRealisasi / $totalYtdTarget) * 100) : 0;
@@ -370,10 +379,8 @@ class Index extends Component
                 'has_data' => $hasAnyData,
             ];
 
-            if ($hasAnyData) {
-                $grandTotalDivisiCount += $mCount;
-                $grandTotalDivisiTarget += $mTarget;
-            }
+            $grandTotalDivisiCount += $mCount;
+            $grandTotalDivisiTarget += $mTarget;
         }
 
         $grandDivisiPercent = $grandTotalDivisiTarget > 0 ? (int) round(($grandTotalDivisiCount / $grandTotalDivisiTarget) * 100) : 0;
@@ -386,7 +393,7 @@ class Index extends Component
             'ytd_percent' => $grandDivisiPercent,
         ];
 
-        // 4. Query & Bangun Matriks Data Individu (Pegawai - Realisasi Riil dari Transaksi FULL)
+        // 4. Query & Bangun Matriks Data Pegawai (MURNI TARIKAN DARI TRANSAKSI FULL - TANPA TARGET / BADGE MERAH)
         $pegawais = Pegawai::query()
             ->where('is_aktif', true)
             ->when(! $isHQ && $user->cabang_id, fn ($q) => $q->where('cabang_id', $user->cabang_id))
@@ -394,58 +401,22 @@ class Index extends Component
             ->orderBy('nama')
             ->get();
 
-        $targetPegawaiModels = TargetPegawai::where('tahun', $tahun)
-            ->when(! $isHQ || ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)), function ($q) use ($cabangId, $isHQ) {
-                $targetCab = (! $isHQ) ? $cabangId : (int) $this->cabangFilter;
-                $q->where('cabang_id', $targetCab);
-            })
-            ->get();
-
         $userMatrix = [];
         foreach ($pegawais as $p) {
-            $targetPegawaiRow = $targetPegawaiModels->firstWhere('pegawai_id', $p->id);
-            $monthlyTargets = $targetPegawaiRow?->monthly_targets ?? [];
-
             $monthlyData = [];
             $totalYtdRealisasi = 0;
-            $totalYtdTarget = 0;
 
             for ($m = 1; $m <= 12; $m++) {
-                // Realisasi TETAP OTOMATIS DARI TRANSAKSI FULL
                 $count = $trxList->filter(function ($t) use ($m, $p) {
                     return (int) $t->tanggal->format('n') === $m && $t->pegawai_id === $p->id;
                 })->count();
 
-                $hasTarget = isset($monthlyTargets[(string)$m]);
-                $targetSyarat = $hasTarget ? (int) $monthlyTargets[(string)$m] : 0;
-                $hasData = $hasTarget;
-                $percent = ($hasTarget && $targetSyarat > 0) ? (int) round(($count / $targetSyarat) * 100) : 0;
-
-                // Status classification
-                $status = 'belum';
-                if (! $hasData) {
-                    $status = 'empty';
-                } elseif ($percent >= 150) {
-                    $status = 'over';
-                } elseif ($percent >= 100) {
-                    $status = 'tercapai';
-                }
-
                 $monthlyData[$m] = [
                     'count' => $count,
-                    'target' => $targetSyarat,
-                    'percent' => $percent,
-                    'status' => $status,
-                    'has_data' => $hasData,
                 ];
 
-                if ($hasData || $count > 0) {
-                    $totalYtdRealisasi += $count;
-                    $totalYtdTarget += $targetSyarat;
-                }
+                $totalYtdRealisasi += $count;
             }
-
-            $ytdPercent = $totalYtdTarget > 0 ? (int) round(($totalYtdRealisasi / $totalYtdTarget) * 100) : 0;
 
             $userMatrix[] = [
                 'pegawai' => $p,
@@ -454,65 +425,31 @@ class Index extends Component
                     'name' => $p->nama,
                     'role' => $p->role,
                 ],
-                'target_bulanan' => 0,
                 'months' => $monthlyData,
                 'total_ytd' => $totalYtdRealisasi,
-                'total_target_ytd' => $totalYtdTarget,
-                'total_target_year' => $totalYtdTarget,
-                'ytd_percent' => $ytdPercent,
             ];
         }
 
-        // Summary Total Per Bulan Staf
+        // Summary Total Per Bulan Staf (Murni Realisasi Transaksi)
         $totalUserMonths = [];
         $grandTotalUserCount = 0;
-        $grandTotalUserTarget = 0;
 
         for ($m = 1; $m <= 12; $m++) {
             $mCount = 0;
-            $mTarget = 0;
-            $hasAnyData = false;
-
             foreach ($userMatrix as $u) {
                 $mCount += $u['months'][$m]['count'];
-                $mTarget += $u['months'][$m]['target'];
-                if ($u['months'][$m]['has_data'] || $u['months'][$m]['count'] > 0) {
-                    $hasAnyData = true;
-                }
-            }
-
-            $mPercent = ($hasAnyData && $mTarget > 0) ? (int) round(($mCount / $mTarget) * 100) : 0;
-            $status = 'belum';
-            if (! $hasAnyData) {
-                $status = 'empty';
-            } elseif ($mPercent >= 150) {
-                $status = 'over';
-            } elseif ($mPercent >= 100) {
-                $status = 'tercapai';
             }
 
             $totalUserMonths[$m] = [
                 'count' => $mCount,
-                'target' => $mTarget,
-                'percent' => $mPercent,
-                'status' => $status,
-                'has_data' => $hasAnyData,
             ];
 
-            if ($hasAnyData) {
-                $grandTotalUserCount += $mCount;
-                $grandTotalUserTarget += $mTarget;
-            }
+            $grandTotalUserCount += $mCount;
         }
-
-        $grandUserPercent = $grandTotalUserTarget > 0 ? (int) round(($grandTotalUserCount / $grandTotalUserTarget) * 100) : 0;
 
         $userSummary = [
             'months' => $totalUserMonths,
             'total_ytd' => $grandTotalUserCount,
-            'total_target_ytd' => $grandTotalUserTarget,
-            'total_target_year' => $grandTotalUserTarget,
-            'ytd_percent' => $grandUserPercent,
         ];
 
         return view('livewire.target-bulanan.index', [

@@ -6,7 +6,6 @@ use App\Livewire\TargetBulanan\Index as TargetBulananIndex;
 use App\Models\Cabang;
 use App\Models\Pegawai;
 use App\Models\TargetDivisi;
-use App\Models\TargetPegawai;
 use App\Models\TransaksiFull;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
@@ -55,16 +54,13 @@ class TargetBulananTest extends TestCase
         $this->get(route('target.bulanan'))->assertStatus(403);
     }
 
-    public function test_division_realization_matrix_calculated_from_transaksi_full()
+    public function test_employee_realization_matrix_calculated_purely_from_transaksi_full()
     {
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
 
         TransaksiFull::query()->delete();
         TargetDivisi::query()->delete();
-        TargetPegawai::query()->delete();
-
-        $tahun = 2026;
 
         $pegawai = Pegawai::firstOrCreate(
             ['cabang_id' => $superadmin->cabang_id ?: 1, 'nama' => 'Staf Uji'],
@@ -124,52 +120,33 @@ class TargetBulananTest extends TestCase
             'metode_pembayaran' => 'Cash',
         ]);
 
-        // Set monthly targets and realization for divisions
-        TargetDivisi::updateOrCreate([
-            'cabang_id' => $superadmin->cabang_id ?: 1,
-            'divisi' => 'laptop',
-            'tahun' => 2026,
-        ], [
-            'target_bulanan' => 10,
-            'monthly_targets' => ['1' => 10],
-            'monthly_realisasi' => ['1' => 10],
-        ]);
-
         $test = Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026);
-
-        $test->assertViewHas('divisiMatrix', function ($matrix) {
-            return isset($matrix['laptop'])
-                && $matrix['laptop']['months'][1]['count'] === 10
-                && $matrix['laptop']['months'][1]['target'] === 10
-                && $matrix['laptop']['months'][1]['percent'] === 100
-                && $matrix['printer']['months'][2]['has_data'] === false;
-        });
 
         $test->assertViewHas('userMatrix', function ($userMatrix) use ($pegawai) {
             $pegawaiRow = collect($userMatrix)->firstWhere('user.id', $pegawai->id);
             return $pegawaiRow !== null
                 && $pegawaiRow['months'][1]['count'] === 1
                 && $pegawaiRow['months'][2]['count'] === 1
-                && $pegawaiRow['months'][3]['count'] === 1;
+                && $pegawaiRow['months'][3]['count'] === 1
+                && $pegawaiRow['total_ytd'] === 3;
         });
     }
 
-    public function test_superadmin_can_edit_monthly_target_and_realisasi_divisi()
+    public function test_superadmin_can_set_annual_target_for_divisi()
     {
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
 
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->call('openEditCellDivisi', 'laptop', 5)
-            ->assertSet('editDivisiKey', 'laptop')
-            ->assertSet('editDivisiBulan', 5)
-            ->set('formTargetSyaratDivisi', 30)
-            ->set('formRealisasiDivisi', 45)
-            ->call('simpanEditCellDivisi')
+            ->call('openSetTargetTahunanDivisi', 'laptop')
+            ->assertSet('formDivisiKey', 'laptop')
+            ->assertSet('modalSetTargetTahunanDivisiOpen', true)
+            ->set('formTargetTahunanDivisi', 120)
+            ->call('simpanTargetTahunanDivisi')
             ->assertHasNoErrors()
-            ->assertSet('modalEditCellDivisiOpen', false);
+            ->assertSet('modalSetTargetTahunanDivisiOpen', false);
 
         $target = TargetDivisi::where('cabang_id', $superadmin->cabang_id ?: 1)
             ->where('divisi', 'laptop')
@@ -177,59 +154,55 @@ class TargetBulananTest extends TestCase
             ->first();
 
         $this->assertNotNull($target);
-        $this->assertEquals(30, $target->monthly_targets['5']);
-        $this->assertEquals(45, $target->monthly_realisasi['5']);
+        $this->assertEquals(10, $target->target_bulanan);
+        $this->assertEquals(10, $target->monthly_targets['1']);
+        $this->assertEquals(10, $target->monthly_targets['12']);
 
-        // Test rendering reflection
+        // Verify reflection in divisiMatrix
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->assertViewHas('divisiMatrix', function ($matrix) {
-                return isset($matrix['laptop'])
-                    && $matrix['laptop']['months'][5]['target'] === 30
-                    && $matrix['laptop']['months'][5]['count'] === 45
-                    && $matrix['laptop']['months'][5]['percent'] === 150
-                    && $matrix['laptop']['months'][5]['status'] === 'over';
+            ->assertViewHas('divisiMatrix', function ($divisiMatrix) {
+                return isset($divisiMatrix['laptop'])
+                    && $divisiMatrix['laptop']['total_target_year'] === 120
+                    && $divisiMatrix['laptop']['months'][1]['target'] === 10
+                    && $divisiMatrix['laptop']['months'][12]['target'] === 10;
             });
     }
 
-    public function test_superadmin_can_edit_monthly_target_pegawai()
+    public function test_superadmin_can_edit_monthly_custom_target_and_realisasi_divisi()
     {
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
 
-        $pegawai = Pegawai::firstOrCreate(
-            ['cabang_id' => $superadmin->cabang_id ?: 1, 'nama' => 'Teknisi Test'],
-            ['role' => 'Teknisi', 'is_aktif' => true]
-        );
-
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->call('openEditCellPegawai', $pegawai->id, 7)
-            ->assertSet('editUserId', $pegawai->id)
-            ->assertSet('editUserBulan', 7)
-            ->set('formTargetSyaratUser', 20)
-            ->call('simpanEditCellPegawai')
+            ->call('openEditCellDivisi', 'printer', 5)
+            ->assertSet('editDivisiKey', 'printer')
+            ->assertSet('editDivisiBulan', 5)
+            ->set('formTargetSyaratDivisi', 25)
+            ->set('formRealisasiDivisi', 30)
+            ->call('simpanEditCellDivisi')
             ->assertHasNoErrors()
-            ->assertSet('modalEditCellUserOpen', false);
+            ->assertSet('modalEditCellDivisiOpen', false);
 
-        $targetPegawai = TargetPegawai::where('cabang_id', $superadmin->cabang_id ?: 1)
-            ->where('pegawai_id', $pegawai->id)
+        $targetDivisi = TargetDivisi::where('cabang_id', $superadmin->cabang_id ?: 1)
+            ->where('divisi', 'printer')
             ->where('tahun', 2026)
             ->first();
 
-        $this->assertNotNull($targetPegawai);
-        $this->assertEquals(20, $targetPegawai->monthly_targets['7']);
+        $this->assertNotNull($targetDivisi);
+        $this->assertEquals(25, $targetDivisi->monthly_targets['5']);
+        $this->assertEquals(30, $targetDivisi->monthly_realisasi['5']);
 
         // Test rendering reflection
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->assertViewHas('userMatrix', function ($userMatrix) use ($pegawai) {
-                $pegawaiRow = collect($userMatrix)->firstWhere('user.id', $pegawai->id);
-                return $pegawaiRow !== null
-                    && $pegawaiRow['months'][7]['target'] === 20
-                    && $pegawaiRow['months'][7]['has_data'] === true
-                    && $pegawaiRow['months'][8]['has_data'] === false
-                    && $pegawaiRow['months'][8]['target'] === 0;
+            ->assertViewHas('divisiMatrix', function ($divisiMatrix) {
+                return isset($divisiMatrix['printer'])
+                    && $divisiMatrix['printer']['months'][5]['target'] === 25
+                    && $divisiMatrix['printer']['months'][5]['count'] === 30
+                    && $divisiMatrix['printer']['months'][5]['percent'] === 120
+                    && $divisiMatrix['printer']['months'][5]['status'] === 'tercapai';
             });
     }
 }

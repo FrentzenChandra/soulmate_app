@@ -21,7 +21,6 @@
                 <p class="text-xs font-bold text-gray-700 mt-0.5 flex items-center gap-1.5">
                     <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                     <span class="italic font-extrabold text-gray-900">&ldquo;Target Bukan Untuk Ditakuti, Tapi Untuk Dikalahkan!&rdquo;</span>
-                    {{-- <span class="text-gray-400 font-medium">(&bull; Realisasi tahun {{ $filterTahun }})</span> --}}
                 </p>
             </div>
         </div>
@@ -71,32 +70,44 @@
     <!-- TABEL 1: TARGET PER DIVISI                      -->
     <!-- ============================================== -->
     <div class="card-custom bg-white overflow-hidden border border-gray-200 shadow-sm rounded-2xl">
-        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-900 to-indigo-950 text-white rounded-t-2xl">
+        <div class="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-gradient-to-r from-gray-900 to-indigo-950 text-white rounded-t-2xl">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
                     <svg class="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                 </div>
                 <div>
                     <h2 class="text-sm font-black uppercase tracking-wider text-white">Target Per Divisi</h2>
-                    <p class="text-[11px] text-purple-200 font-medium">Realisasi unit divisi per bulan tahun {{ $filterTahun }}</p>
+                    <p class="text-[11px] text-purple-200 font-medium">Target & realisasi transaksi per divisi tahun {{ $filterTahun }}</p>
                 </div>
             </div>
+
+            <!-- Tombol Atur Target Tahunan Divisi -->
+            @if($canManageTarget)
+                <div>
+                    <button type="button"
+                            wire:click="openSetTargetTahunanDivisi('laptop')"
+                            class="px-3.5 py-1.5 rounded-xl bg-[#5E17EB] hover:bg-purple-600 text-white font-bold text-xs flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer border border-purple-400/30">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        <span>Atur Target Tahunan</span>
+                    </button>
+                </div>
+            @endif
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-center border-collapse table-fixed min-w-[1140px]">
                 <colgroup>
                     <col style="width: 150px;">
-                    <col style="width: 90px;">
+                    <col style="width: 85px;">
                     @for($m = 1; $m <= 12; $m++)
                         <col style="width: 74px;">
                     @endfor
-                    <col style="width: 95px;">
+                    <col style="width: 100px;">
                 </colgroup>
                 <thead>
                     <tr class="border-b border-gray-200 bg-gray-50/90 text-[10px] font-black text-gray-500 uppercase tracking-wider">
                         <th class="py-3 px-3 text-left">Divisi</th>
-                        <th class="py-3 px-2 text-center bg-gray-100/70 text-gray-900">Persyaratan</th>
+                        <th class="py-3 px-2 text-center bg-gray-100/70 text-gray-900">Target</th>
                         @php
                             $bulanNames = [
                                 1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun',
@@ -132,14 +143,14 @@
                                 </div>
                             </td>
 
-                            <!-- Total Persyaratan Setahun -->
+                            <!-- Total Target Setahun (Hasil Inputan Target Tahun) -->
                             <td class="py-3.5 px-2 text-center bg-gray-50/50">
                                 <span class="font-mono font-black text-gray-900 text-xs">
                                     {{ number_format($d['total_target_year'], 0, ',', '.') }}
                                 </span>
                             </td>
 
-                            <!-- 12 Bulan -->
+                            <!-- 12 Bulan (Edit Per Cell Divisi Tetap Aktif) -->
                             @for($m = 1; $m <= 12; $m++)
                                 @php $cell = $d['months'][$m]; @endphp
                                 <td class="py-2.5 px-1 align-middle text-center {{ $canManageTarget ? 'cursor-pointer hover:bg-purple-100/60 transition-colors' : '' }}"
@@ -151,25 +162,27 @@
                                             <span class="font-mono font-black text-gray-900 text-xs leading-tight">
                                                 {{ $cell['count'] }}
                                             </span>
-                                            <span class="text-[9px] font-bold text-gray-400 font-mono leading-none">/ {{ $cell['target'] }}</span>
-                                            <div class="mt-1">
-                                                @if($cell['status'] === 'over')
-                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-[#0052FF] text-white shadow-2xs" title="Over Target (>150%)">
-                                                        <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                                        <span>{{ $cell['percent'] }}%</span>
-                                                    </span>
-                                                @elseif($cell['status'] === 'tercapai')
-                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white shadow-2xs" title="Target Tercapai (100-149%)">
-                                                        <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                                        <span>{{ $cell['percent'] }}%</span>
-                                                    </span>
-                                                @else
-                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-rose-600 text-white shadow-2xs" title="Belum Tercapai (<100%)">
-                                                        <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                                        <span>{{ $cell['percent'] }}%</span>
-                                                    </span>
-                                                @endif
-                                            </div>
+                                            @if($cell['target'] > 0)
+                                                <span class="text-[9px] font-bold text-gray-400 font-mono leading-none">/ {{ $cell['target'] }}</span>
+                                                <div class="mt-1">
+                                                    @if($cell['status'] === 'over')
+                                                        <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-[#0052FF] text-white shadow-2xs" title="Over Target (&ge;150%)">
+                                                            <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                                                            <span>{{ $cell['percent'] }}%</span>
+                                                        </span>
+                                                    @elseif($cell['status'] === 'tercapai')
+                                                        <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white shadow-2xs" title="Target Tercapai (100-149%)">
+                                                            <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                            <span>{{ $cell['percent'] }}%</span>
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-rose-600 text-white shadow-2xs" title="Belum Tercapai (<100%)">
+                                                            <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                            <span>{{ $cell['percent'] }}%</span>
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            @endif
                                         </div>
                                     @endif
                                 </td>
@@ -180,24 +193,26 @@
                                 <span class="font-mono font-black text-sm text-[#5E17EB] block leading-tight">
                                     {{ number_format($d['total_ytd'], 0, ',', '.') }}
                                 </span>
-                                <span class="text-[9px] font-bold text-purple-700 font-mono leading-none">/ {{ number_format($d['total_target_ytd'], 0, ',', '.') }}</span>
-                                <div class="mt-1">
-                                    @if($d['ytd_percent'] >= 150)
-                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-[#0052FF] text-white">
-                                            <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                            <span>{{ $d['ytd_percent'] }}%</span>
-                                        </span>
-                                    @elseif($d['ytd_percent'] >= 100)
-                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white">
-                                            <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                            <span>{{ $d['ytd_percent'] }}%</span>
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-gray-200 text-gray-700">
-                                            <span>{{ $d['ytd_percent'] }}%</span>
-                                        </span>
-                                    @endif
-                                </div>
+                                @if($d['total_target_ytd'] > 0)
+                                    <span class="text-[9px] font-bold text-purple-700 font-mono leading-none">/ {{ number_format($d['total_target_ytd'], 0, ',', '.') }}</span>
+                                    <div class="mt-1">
+                                        @if($d['ytd_percent'] >= 150)
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-[#0052FF] text-white">
+                                                <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                                                <span>{{ $d['ytd_percent'] }}%</span>
+                                            </span>
+                                        @elseif($d['ytd_percent'] >= 100)
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white">
+                                                <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                <span>{{ $d['ytd_percent'] }}%</span>
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-gray-200 text-gray-700">
+                                                <span>{{ $d['ytd_percent'] }}%</span>
+                                            </span>
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -220,22 +235,24 @@
                                         <span class="font-mono font-black text-gray-900 text-xs leading-tight">
                                             {{ $sumCell['count'] }}
                                         </span>
-                                        <span class="text-[9px] font-bold text-gray-500 font-mono leading-none">/ {{ $sumCell['target'] }}</span>
-                                        <div class="mt-1">
-                                            @if($sumCell['status'] === 'over')
-                                                <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-[#0052FF] text-white shadow-2xs">
-                                                    <span>{{ $sumCell['percent'] }}%</span>
-                                                </span>
-                                            @elseif($sumCell['status'] === 'tercapai')
-                                                <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white shadow-2xs">
-                                                    <span>{{ $sumCell['percent'] }}%</span>
-                                                </span>
-                                            @else
-                                                <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-rose-600 text-white shadow-2xs">
-                                                    <span>{{ $sumCell['percent'] }}%</span>
-                                                </span>
-                                            @endif
-                                        </div>
+                                        @if($sumCell['target'] > 0)
+                                            <span class="text-[9px] font-bold text-gray-500 font-mono leading-none">/ {{ $sumCell['target'] }}</span>
+                                            <div class="mt-1">
+                                                @if($sumCell['status'] === 'over')
+                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-[#0052FF] text-white shadow-2xs">
+                                                        <span>{{ $sumCell['percent'] }}%</span>
+                                                    </span>
+                                                @elseif($sumCell['status'] === 'tercapai')
+                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white shadow-2xs">
+                                                        <span>{{ $sumCell['percent'] }}%</span>
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-rose-600 text-white shadow-2xs">
+                                                        <span>{{ $sumCell['percent'] }}%</span>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </div>
                                 @endif
                             </td>
@@ -244,12 +261,14 @@
                             <span class="font-mono font-black text-sm text-[#5E17EB] block leading-tight">
                                 {{ number_format($divisiSummary['total_ytd'], 0, ',', '.') }}
                             </span>
-                            <span class="text-[9px] font-bold text-purple-700 font-mono leading-none">/ {{ number_format($divisiSummary['total_target_ytd'], 0, ',', '.') }}</span>
-                            <div class="mt-1">
-                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black {{ $divisiSummary['ytd_percent'] >= 150 ? 'bg-[#0052FF] text-white' : ($divisiSummary['ytd_percent'] >= 100 ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-700') }}">
-                                    <span>{{ $divisiSummary['ytd_percent'] }}%</span>
-                                </span>
-                            </div>
+                            @if($divisiSummary['total_target_ytd'] > 0)
+                                <span class="text-[9px] font-bold text-purple-700 font-mono leading-none">/ {{ number_format($divisiSummary['total_target_ytd'], 0, ',', '.') }}</span>
+                                <div class="mt-1">
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black {{ $divisiSummary['ytd_percent'] >= 150 ? 'bg-[#0052FF] text-white' : ($divisiSummary['ytd_percent'] >= 100 ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-700') }}">
+                                        <span>{{ $divisiSummary['ytd_percent'] }}%</span>
+                                    </span>
+                                </div>
+                            @endif
                         </td>
                     </tr>
                 </tfoot>
@@ -258,7 +277,7 @@
     </div>
 
     <!-- ============================================== -->
-    <!-- TABEL 2: TARGET PER PEGAWAI                     -->
+    <!-- TABEL 2: TARGET PER PEGAWAI (MURNI TRANSAKSI)  -->
     <!-- ============================================== -->
     <div class="card-custom bg-white overflow-hidden border border-gray-200 shadow-sm rounded-2xl">
         <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-900 to-indigo-950 text-white rounded-t-2xl">
@@ -268,38 +287,36 @@
                 </div>
                 <div>
                     <h2 class="text-sm font-black uppercase tracking-wider text-white">Target Per Pegawai</h2>
-                    <p class="text-[11px] text-purple-200 font-medium">Realisasi transaksi per pegawai tahun {{ $filterTahun }}</p>
+                    <p class="text-[11px] text-purple-200 font-medium">Realisasi transaksi riil per staf tahun {{ $filterTahun }}</p>
                 </div>
             </div>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-center border-collapse table-fixed min-w-[1140px]">
+            <table class="w-full text-center border-collapse table-fixed min-w-[1050px]">
                 <colgroup>
-                    <col style="width: 150px;">
-                    <col style="width: 90px;">
+                    <col style="width: 180px;">
                     @for($m = 1; $m <= 12; $m++)
                         <col style="width: 74px;">
                     @endfor
-                    <col style="width: 95px;">
+                    <col style="width: 110px;">
                 </colgroup>
                 <thead>
                     <tr class="border-b border-gray-200 bg-gray-50/90 text-[10px] font-black text-gray-500 uppercase tracking-wider">
-                        <th class="py-3 px-3 text-left">Pegawai</th>
-                        <th class="py-3 px-2 text-center bg-gray-100/70 text-gray-900">Persyaratan</th>
+                        <th class="py-3 px-4 text-left">Pegawai</th>
                         @foreach($bulanNames as $mNum => $mLabel)
                             <th class="py-3 px-1 text-center">
                                 <span>{{ $mLabel }}</span>
                             </th>
                         @endforeach
-                        <th class="py-3 px-2 text-center bg-purple-50 text-[#5E17EB]">Total YTD</th>
+                        <th class="py-3 px-3 text-center bg-purple-50 text-[#5E17EB]">Total YTD</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-xs">
                     @forelse($userMatrix as $u)
                         <tr class="hover:bg-purple-50/20 transition-colors">
                             <!-- Nama Pegawai -->
-                            <td class="py-3.5 px-3 text-left">
+                            <td class="py-3.5 px-4 text-left">
                                 <span class="font-bold text-gray-900 block truncate" title="{{ $u['pegawai']->nama ?? $u['user']->name }}">
                                     {{ $u['pegawai']->nama ?? $u['user']->name }}
                                 </span>
@@ -308,77 +325,26 @@
                                 </span>
                             </td>
 
-                            <!-- Total Persyaratan Setahun -->
-                            <td class="py-3.5 px-2 text-center bg-gray-50/50">
-                                <span class="font-mono font-black text-gray-900 text-xs">
-                                    {{ number_format($u['total_target_year'], 0, ',', '.') }}
-                                </span>
-                            </td>
-
-                            <!-- 12 Bulan -->
+                            <!-- 12 Bulan (Realisasi Murni Transaksi FULL) -->
                             @for($m = 1; $m <= 12; $m++)
                                 @php $cell = $u['months'][$m]; @endphp
-                                <td class="py-2.5 px-1 align-middle text-center {{ $canManageTarget ? 'cursor-pointer hover:bg-purple-100/60 transition-colors' : '' }}"
-                                    @if($canManageTarget) wire:click="openEditCellPegawai({{ $u['pegawai']->id ?? $u['user']->id }}, {{ $m }})" title="Klik untuk edit target {{ $u['pegawai']->nama ?? $u['user']->name }} bulan {{ $bulanNames[$m] }}" @endif>
-                                    @if(! $cell['has_data'])
-                                        <span class="font-mono font-bold {{ $cell['count'] > 0 ? 'text-gray-900' : 'text-gray-300' }} text-xs leading-none">{{ $cell['count'] > 0 ? $cell['count'] : '-' }}</span>
-                                    @else
-                                        <div class="flex flex-col items-center justify-center">
-                                            <span class="font-mono font-black text-gray-900 text-xs leading-tight">
-                                                {{ $cell['count'] }}
-                                            </span>
-                                            <span class="text-[9px] font-bold text-gray-400 font-mono leading-none">/ {{ $cell['target'] }}</span>
-                                            <div class="mt-1">
-                                                @if($cell['status'] === 'over')
-                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-[#0052FF] text-white shadow-2xs" title="Over Target (>150%)">
-                                                        <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                                        <span>{{ $cell['percent'] }}%</span>
-                                                    </span>
-                                                @elseif($cell['status'] === 'tercapai')
-                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white shadow-2xs" title="Target Tercapai (100-149%)">
-                                                        <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                                        <span>{{ $cell['percent'] }}%</span>
-                                                    </span>
-                                                @else
-                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-rose-600 text-white shadow-2xs" title="Belum Tercapai (<100%)">
-                                                        <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                                        <span>{{ $cell['percent'] }}%</span>
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endif
+                                <td class="py-3 px-1 align-middle text-center">
+                                    <span class="font-mono font-black text-xs {{ $cell['count'] > 0 ? 'text-gray-900' : 'text-gray-300' }}">
+                                        {{ $cell['count'] > 0 ? number_format($cell['count'], 0, ',', '.') : '-' }}
+                                    </span>
                                 </td>
                             @endfor
 
                             <!-- Total YTD -->
-                            <td class="py-3.5 px-2 bg-purple-50/50 text-center">
+                            <td class="py-3.5 px-3 bg-purple-50/50 text-center">
                                 <span class="font-mono font-black text-sm text-[#5E17EB] block leading-tight">
                                     {{ number_format($u['total_ytd'], 0, ',', '.') }}
                                 </span>
-                                <span class="text-[9px] font-bold text-purple-700 font-mono leading-none">/ {{ number_format($u['total_target_ytd'], 0, ',', '.') }}</span>
-                                <div class="mt-1">
-                                    @if($u['ytd_percent'] >= 150)
-                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-[#0052FF] text-white">
-                                            <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                            <span>{{ $u['ytd_percent'] }}%</span>
-                                        </span>
-                                    @elseif($u['ytd_percent'] >= 100)
-                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white">
-                                            <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                            <span>{{ $u['ytd_percent'] }}%</span>
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-gray-200 text-gray-700">
-                                            <span>{{ $u['ytd_percent'] }}%</span>
-                                        </span>
-                                    @endif
-                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="15" class="py-8 text-center text-gray-400 font-medium">
+                            <td colspan="14" class="py-8 text-center text-gray-400 font-medium">
                                 Tidak ada data pegawai aktif pada cabang ini.
                             </td>
                         </tr>
@@ -386,52 +352,21 @@
                 </tbody>
                 <tfoot class="bg-gray-100/90 border-t-2 border-gray-300 text-xs font-black">
                     <tr>
-                        <td class="py-3 px-3 text-left font-black text-gray-900 uppercase tracking-wider">
+                        <td class="py-3 px-4 text-left font-black text-gray-900 uppercase tracking-wider">
                             TOTAL PEGAWAI
-                        </td>
-                        <td class="py-3 px-2 text-center bg-gray-200/60 font-mono font-black text-gray-900 text-xs">
-                            {{ number_format($userSummary['total_target_year'], 0, ',', '.') }}
                         </td>
                         @for($m = 1; $m <= 12; $m++)
                             @php $sumCell = $userSummary['months'][$m]; @endphp
-                            <td class="py-2.5 px-1 align-middle text-center bg-gray-50/50">
-                                @if(! $sumCell['has_data'])
-                                    <span class="text-gray-300 font-mono font-bold text-xs leading-none">-</span>
-                                @else
-                                    <div class="flex flex-col items-center justify-center">
-                                        <span class="font-mono font-black text-gray-900 text-xs leading-tight">
-                                            {{ $sumCell['count'] }}
-                                        </span>
-                                        <span class="text-[9px] font-bold text-gray-500 font-mono leading-none">/ {{ $sumCell['target'] }}</span>
-                                        <div class="mt-1">
-                                            @if($sumCell['status'] === 'over')
-                                                <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-[#0052FF] text-white shadow-2xs">
-                                                    <span>{{ $sumCell['percent'] }}%</span>
-                                                </span>
-                                            @elseif($sumCell['status'] === 'tercapai')
-                                                <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white shadow-2xs">
-                                                    <span>{{ $sumCell['percent'] }}%</span>
-                                                </span>
-                                            @else
-                                                <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-rose-600 text-white shadow-2xs">
-                                                    <span>{{ $sumCell['percent'] }}%</span>
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @endif
+                            <td class="py-3 px-1 align-middle text-center bg-gray-50/50">
+                                <span class="font-mono font-black text-xs {{ $sumCell['count'] > 0 ? 'text-gray-900' : 'text-gray-300' }}">
+                                    {{ $sumCell['count'] > 0 ? number_format($sumCell['count'], 0, ',', '.') : '-' }}
+                                </span>
                             </td>
                         @endfor
-                        <td class="py-3 px-2 bg-purple-100/70 text-center">
+                        <td class="py-3 px-3 bg-purple-100/70 text-center">
                             <span class="font-mono font-black text-sm text-[#5E17EB] block leading-tight">
                                 {{ number_format($userSummary['total_ytd'], 0, ',', '.') }}
                             </span>
-                            <span class="text-[9px] font-bold text-purple-700 font-mono leading-none">/ {{ number_format($userSummary['total_target_ytd'], 0, ',', '.') }}</span>
-                            <div class="mt-1">
-                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black {{ $userSummary['ytd_percent'] >= 150 ? 'bg-[#0052FF] text-white' : ($userSummary['ytd_percent'] >= 100 ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-700') }}">
-                                    <span>{{ $userSummary['ytd_percent'] }}%</span>
-                                </span>
-                            </div>
                         </td>
                     </tr>
                 </tfoot>
@@ -445,7 +380,7 @@
     <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
         <div class="flex items-center space-x-2">
             <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span class="font-black text-gray-900 uppercase tracking-wider text-[11px]">Keterangan Status Target:</span>
+            <span class="font-black text-gray-900 uppercase tracking-wider text-[11px]">Keterangan Status Target Divisi:</span>
         </div>
         <div class="flex flex-wrap items-center gap-3">
             <div class="flex items-center space-x-2 bg-blue-50/70 border border-blue-100 px-2.5 py-1.5 rounded-xl">
@@ -473,14 +408,98 @@
                 <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-black bg-gray-200 text-gray-700">
                     <span>-</span>
                 </span>
-                <span class="text-gray-500 font-bold text-[11px]">Bulan Mendatang</span>
+                <span class="text-gray-500 font-bold text-[11px]">Belum Diset</span>
             </div>
         </div>
     </div>
 
+    <!-- ============================================== -->
+    <!-- MODAL 1: ATUR TARGET TAHUNAN DIVISI            -->
+    <!-- ============================================== -->
+    @if($modalSetTargetTahunanDivisiOpen)
+        <div wire:key="modal-set-target-tahunan-divisi" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="$set('modalSetTargetTahunanDivisiOpen', false)"></div>
+
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 text-xs">
+
+                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 text-white flex items-center justify-between rounded-t-3xl gap-4">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-white tracking-tight">Atur Target Divisi (Tahunan)</h3>
+                                <p class="text-xs text-purple-200 font-medium">
+                                    Target kuota transaksi tahun {{ $filterTahun }}
+                                </p>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="$set('modalSetTargetTahunanDivisiOpen', false)" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <form wire:submit.prevent="simpanTargetTahunanDivisi">
+                        <div class="p-6 space-y-4">
+                            <!-- Pilih Divisi -->
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">
+                                    Pilih Divisi <span class="text-rose-500 font-bold">*</span>
+                                </label>
+                                <select wire:model="formDivisiKey"
+                                        class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] cursor-pointer">
+                                    <option value="laptop">LAPTOP</option>
+                                    <option value="printer">PRINTER</option>
+                                    <option value="komputer">KOMPUTER</option>
+                                    <option value="admin">ADMIN</option>
+                                </select>
+                                @error('formDivisiKey')
+                                    <span class="text-rose-500 font-bold text-[10px] block mt-1">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <!-- Target Tahunan -->
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">
+                                    Target Transaksi Setahun <span class="text-rose-500 font-bold">*</span>
+                                </label>
+                                <input type="number"
+                                       min="0"
+                                       wire:model="formTargetTahunanDivisi"
+                                       class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                                    Target ini akan dibagi rata per bulan (~{{ (int) round(($formTargetTahunanDivisi ?: 0) / 12) }} transaksi/bulan) dan dapat disesuaikan per bulan melalui tabel.
+                                </span>
+                                @error('formTargetTahunanDivisi')
+                                    <span class="text-rose-500 font-bold text-[10px] block mt-1">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 px-6 py-4 flex items-center justify-between rounded-b-3xl border-t border-gray-100">
+                            <button type="button"
+                                    wire:click="$set('modalSetTargetTahunanDivisiOpen', false)"
+                                    class="px-4 py-2 rounded-xl bg-white border border-gray-200 font-bold text-gray-700 hover:bg-gray-100 cursor-pointer">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                    wire:loading.attr="disabled"
+                                    class="px-5 py-2 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-black shadow-md shadow-purple-900/20 transition-all cursor-pointer flex items-center space-x-1.5 disabled:opacity-50">
+                                <svg wire:loading wire:target="simpanTargetTahunanDivisi" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                <span wire:loading.remove wire:target="simpanTargetTahunanDivisi">Simpan Target</span>
+                                <span wire:loading wire:target="simpanTargetTahunanDivisi">Menyimpan...</span>
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- ============================================== -->
-    <!-- MODAL 1: EDIT TARGET & REALISASI CELL (DIVISI)  -->
+    <!-- MODAL 2: EDIT TARGET & REALISASI CELL (DIVISI)  -->
     <!-- ============================================== -->
     @if($modalEditCellDivisiOpen)
         <div wire:key="modal-edit-cell-divisi" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
@@ -531,6 +550,9 @@
                                        min="0"
                                        wire:model="formRealisasiDivisi"
                                        class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                                    Kosongkan / masukkan 0 jika ingin mengikuti tarikan otomatis dari Transaksi FULL.
+                                </span>
                                 @error('formRealisasiDivisi')
                                     <span class="text-rose-500 font-bold text-[10px] block mt-1">{{ $message }}</span>
                                 @enderror
@@ -549,79 +571,6 @@
                                 <svg wire:loading wire:target="simpanEditCellDivisi" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                                 <span wire:loading.remove wire:target="simpanEditCellDivisi">Simpan Perubahan</span>
                                 <span wire:loading wire:target="simpanEditCellDivisi">Menyimpan...</span>
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <!-- ============================================== -->
-    <!-- MODAL 2: EDIT TARGET CELL (STAF / USER)        -->
-    <!-- ============================================== -->
-    @if($modalEditCellUserOpen)
-        <div wire:key="modal-edit-cell-user" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="$set('modalEditCellUserOpen', false)"></div>
-
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 text-xs">
-
-                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 text-white flex items-center justify-between rounded-t-3xl gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-10 h-10 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-bold text-white tracking-tight">Edit Target: {{ $editUserName }}</h3>
-                                <p class="text-xs text-purple-200 font-medium">
-                                    Bulan {{ \Carbon\Carbon::createFromDate($filterTahun, $editUserBulan, 1)->translatedFormat('F') }} {{ $filterTahun }}
-                                </p>
-                            </div>
-                        </div>
-                        <button type="button" wire:click="$set('modalEditCellUserOpen', false)" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-
-                    <form wire:submit.prevent="simpanEditCellUser">
-                        <div class="p-6 space-y-4">
-                            <!-- Realisasi Otomatis Info Box -->
-                            <div class="p-3.5 bg-purple-50/60 rounded-2xl border border-purple-100">
-                                <span class="text-[10px] font-bold text-purple-700 block uppercase tracking-wider mb-0.5">Info Realisasi Otomatis</span>
-                                <p class="text-[11px] text-gray-600 font-medium">
-                                    Realisasi capaian staf ini dihitung secara otomatis dari <strong>Transaksi FULL</strong>.
-                                </p>
-                            </div>
-
-                            <!-- Target Syarat Pegawai -->
-                            <div>
-                                <label class="block font-bold text-gray-700 mb-1">
-                                    Target Pegawai <span class="text-rose-500 font-bold">*</span>
-                                </label>
-                                <input type="number"
-                                       min="0"
-                                       wire:model="formTargetSyaratUser"
-                                       class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
-                                @error('formTargetSyaratUser')
-                                    <span class="text-rose-500 font-bold text-[10px] block mt-1">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="bg-gray-50 px-6 py-4 flex items-center justify-between rounded-b-3xl border-t border-gray-100">
-                            <button type="button"
-                                    wire:click="$set('modalEditCellUserOpen', false)"
-                                    class="px-4 py-2 rounded-xl bg-white border border-gray-200 font-bold text-gray-700 hover:bg-gray-100 cursor-pointer">
-                                Batal
-                            </button>
-                            <button type="submit"
-                                    wire:loading.attr="disabled"
-                                    class="px-5 py-2 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-black shadow-md shadow-purple-900/20 transition-all cursor-pointer flex items-center space-x-1.5 disabled:opacity-50">
-                                <svg wire:loading wire:target="simpanEditCellUser" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                                <span wire:loading.remove wire:target="simpanEditCellUser">Simpan Perubahan</span>
-                                <span wire:loading wire:target="simpanEditCellUser">Menyimpan...</span>
                             </button>
                         </div>
                     </form>
