@@ -276,7 +276,9 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
                                     <!-- Tipe Transaksi (Pewarnaan Ungu / Kuning) -->
                                     <div class="sm:col-span-5">
-                                        <label class="block font-bold text-gray-700 mb-1">Tipe Transaksi <span class="text-rose-500 font-bold">*</span></label>
+                                        <div class="flex items-center justify-between min-h-[22px] mb-1.5">
+                                            <label class="block font-bold text-gray-700">Tipe Transaksi <span class="text-rose-500 font-bold">*</span></label>
+                                        </div>
                                         <select wire:model.live="formTipeTransaksi"
                                                 class="w-full px-3.5 py-2 rounded-xl border font-bold text-xs transition-all cursor-pointer {{ $formTipeTransaksi === 'penjualan' ? 'bg-purple-50/80 border-purple-300 text-[#5E17EB] focus:ring-2 focus:ring-purple-200' : 'bg-amber-50/80 border-amber-300 text-amber-900 focus:ring-2 focus:ring-amber-200' }}">
                                             <option value="penjualan">Penjualan Produk</option>
@@ -285,55 +287,66 @@
                                     </div>
 
                                     <!-- Data Pelanggan -->
-                                    <div class="sm:col-span-7 space-y-1.5">
-                                        <div class="flex items-center justify-between">
-                                            <label class="block font-bold text-gray-700">Nama Lengkap Pelanggan <span class="text-rose-500 font-bold">*</span></label>
-                                            <div class="flex items-center space-x-1.5">
+                                    <div class="sm:col-span-7">
+                                        <div class="flex items-center justify-between min-h-[22px] mb-1.5">
+                                            <label class="block font-bold text-gray-700">Nama Pelanggan <span class="text-rose-500 font-bold">*</span></label>
+                                            <div class="flex items-center space-x-1">
                                                 <button type="button"
                                                         wire:click="$set('formCustomerType', 'umum')"
-                                                        class="px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'umum' ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
+                                                        class="px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'umum' ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                                                     Umum
                                                 </button>
                                                 <button type="button"
                                                         wire:click="$set('formCustomerType', 'langganan')"
-                                                        class="px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'langganan' ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-200 text-gray-700' }}">
+                                                        class="px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all cursor-pointer {{ $formCustomerType === 'langganan' ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                                                     Master
                                                 </button>
                                             </div>
                                         </div>
 
-                                        @if($formCustomerType === 'langganan')
-                                            <div class="space-y-1.5 relative">
+                                        @if($formCustomerType === 'umum')
+                                            <div>
                                                 <input type="text"
-                                                       wire:model.live.debounce.250ms="formCustomerSearch"
-                                                       class="w-full px-3 py-1.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] text-xs">
-                                                @if(!empty($customerSuggestions) && !$formCustomerId)
-                                                    <div class="absolute z-20 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
-                                                        @foreach($customerSuggestions as $cs)
-                                                            <button type="button"
-                                                                    wire:key="sugg-cust-harian-{{ $cs->id }}"
-                                                                    wire:click="selectCustomer({{ $cs->id }}, '{{ $cs->nama }}', '{{ $cs->no_hp }}')"
-                                                                    class="w-full px-3 py-2 text-left hover:bg-blue-50 flex items-center justify-between text-xs cursor-pointer">
-                                                                <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
-                                                            </button>
-                                                        @endforeach
-                                                    </div>
-                                                @endif
+                                                       wire:model="formNamaPelanggan"
+                                                       class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all">
+                                                @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                            </div>
+                                        @else
+                                            <div class="relative">
                                                 @if($formCustomerId)
-                                                    <div class="p-1.5 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between text-[11px] text-blue-900 font-bold">
-                                                        <span>Terpilih: <strong>{{ $formNamaPelanggan }}</strong></span>
-                                                        <button type="button" wire:click="$set('formCustomerId', null)" class="text-rose-500 hover:underline cursor-pointer">Ganti</button>
+                                                    <div class="px-3.5 py-1.5 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between text-xs font-bold min-h-[38px]">
+                                                        <div class="flex items-center gap-2 min-w-0">
+                                                            <div class="w-5 h-5 rounded-md bg-blue-200 text-[#0052FF] flex items-center justify-center font-black text-[10px] shrink-0">
+                                                                {{ strtoupper(substr($formNamaPelanggan, 0, 1)) }}
+                                                            </div>
+                                                            <span class="truncate text-blue-950">{{ $formNamaPelanggan }}</span>
+                                                            @if($formNoHp)
+                                                                <span class="text-blue-600 font-mono text-[10px] shrink-0">({{ $formNoHp }})</span>
+                                                            @endif
+                                                        </div>
+                                                        <button type="button" wire:click="$set('formCustomerId', null)" class="text-rose-600 hover:text-rose-700 text-[10px] font-black hover:underline cursor-pointer ml-2 shrink-0">Ganti</button>
                                                     </div>
+                                                @else
+                                                    <input type="text"
+                                                           wire:model.live.debounce.250ms="formCustomerSearch"
+                                                           class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all">
+                                                    @if(!empty($customerSuggestions))
+                                                        <div class="absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-48 overflow-y-auto custom-scrollbar">
+                                                            @foreach($customerSuggestions as $cs)
+                                                                <button type="button"
+                                                                        wire:key="sugg-cust-harian-{{ $cs->id }}"
+                                                                        wire:click="selectCustomer({{ $cs->id }}, '{{ addslashes($cs->nama) }}', '{{ $cs->no_hp }}')"
+                                                                        class="w-full px-3 py-2 text-left hover:bg-blue-50 flex items-center justify-between text-xs cursor-pointer">
+                                                                    <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
+                                                                    <span class="font-mono text-gray-500 text-[11px]">{{ $cs->no_hp }}</span>
+                                                                </button>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
                                                 @endif
+                                                @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
                                             </div>
                                         @endif
-
-                                        <div>
-                                            <input type="text"
-                                                   wire:model="formNamaPelanggan"
-                                                   class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
-                                            @error('formNamaPelanggan') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -594,7 +607,7 @@
                                             </div>
                                         </button>
 
-                                        <!-- Custom Dropdown Menu -->
+                                        <!-- Custom Dropdown Menu (Dropup) -->
                                         <div x-show="open"
                                              x-transition:enter="transition ease-out duration-100"
                                              x-transition:enter-start="transform opacity-0 scale-95"
@@ -602,7 +615,7 @@
                                              x-transition:leave="transition ease-in duration-75"
                                              x-transition:leave-start="transform opacity-100 scale-100"
                                              x-transition:leave-end="transform opacity-0 scale-95"
-                                             class="absolute z-40 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-60 overflow-y-auto custom-scrollbar"
+                                             class="absolute z-50 left-0 right-0 bottom-full mb-1.5 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-56 overflow-y-auto custom-scrollbar"
                                              style="display: none;">
 
                                             <!-- Search Box (Zero Placeholder) -->
