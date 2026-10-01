@@ -410,6 +410,7 @@ class Index extends Component
             DB::commit();
 
             $this->closeCreateModal();
+            $this->dispatch('open-print-invoice', url: route('servis.invoice', $servis->id) . '?autoprint=1');
             $this->dispatch('swal:success', ['title' => 'Berhasil!', 'text' => "Faktur Servis {$noServis} berhasil disimpan."]);
         } catch (\Exception $e) {
             DB::rollBack();

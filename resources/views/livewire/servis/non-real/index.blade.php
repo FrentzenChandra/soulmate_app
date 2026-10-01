@@ -17,7 +17,7 @@
                     wire:click="openCreateModal"
                     class="inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-[#5E17EB] text-white text-xs sm:text-sm font-bold shadow-md hover:bg-purple-700 transition-all cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-                <span>Tambah Servis Non Real</span>
+                <span>Cetak Nota Non Real</span>
             </button>
         </div>
     </div>
@@ -300,7 +300,7 @@
                                 <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                             </div>
                             <div class="min-w-0">
-                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Tambah Servis Non Real</h3>
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Cetak Nota Non Real</h3>
                                 <p class="text-xs text-purple-200 font-medium mt-0.5">Input transaksi servis cepat, data pelanggan, dan rincian biaya faktur instan</p>
                             </div>
                         </div>
