@@ -589,22 +589,18 @@
                                         <!-- Trigger Button -->
                                         <button type="button"
                                                 @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
-                                                class="w-full px-2.5 py-1.5 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-[11px] flex items-center justify-between gap-1.5 shadow-2xs hover:border-[#0052FF] focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all cursor-pointer text-left min-h-[34px]">
+                                                class="w-full px-2.5 py-1 rounded-xl border border-gray-300 bg-white text-gray-900 flex items-center justify-between gap-1.5 shadow-2xs hover:border-[#0052FF] focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all cursor-pointer text-left min-h-[34px]">
                                             <div class="flex items-center gap-1.5 min-w-0">
                                                 <div class="w-5 h-5 rounded-md flex items-center justify-center font-black text-[9px] shrink-0"
                                                      :class="selectedUser.id ? 'bg-blue-100 text-[#0052FF]' : 'bg-gray-100 text-gray-500'">
                                                     <span x-text="selectedUser.id ? selectedUser.name.charAt(0).toUpperCase() : '-'"></span>
                                                 </div>
-                                                <div class="min-w-0 truncate">
+                                                <div class="min-w-0 leading-tight">
                                                     <span class="block truncate text-[11px] font-bold" :class="selectedUser.id ? 'text-gray-900' : 'text-gray-500'" x-text="selectedUser.name"></span>
+                                                    <span class="block truncate text-[9px] font-semibold text-gray-400 capitalize" x-text="selectedUser.role"></span>
                                                 </div>
                                             </div>
-                                            <div class="flex items-center gap-1 shrink-0">
-                                                <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider"
-                                                      :class="selectedUser.id ? 'bg-blue-50 text-[#0052FF] border border-blue-100' : 'bg-gray-100 text-gray-500 border border-gray-200'"
-                                                      x-text="selectedUser.role"></span>
-                                                <svg class="w-3.5 h-3.5 text-gray-400 transition-transform" :class="open ? 'rotate-180 text-[#0052FF]' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                            </div>
+                                            <svg class="w-3.5 h-3.5 text-gray-400 transition-transform shrink-0" :class="open ? 'rotate-180 text-[#0052FF]' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                         </button>
 
                                         <!-- Custom Dropdown Menu (Dropup) -->
@@ -645,17 +641,14 @@
                                                              :class="!selectedId ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-100 text-gray-500'">
                                                             -
                                                         </div>
-                                                        <div class="min-w-0">
+                                                        <div class="min-w-0 leading-tight">
                                                             <span class="block truncate font-bold text-[11px]" :class="!selectedId ? 'text-[#0052FF]' : 'text-gray-700'">Tanpa Pegawai</span>
+                                                            <span class="block truncate text-[9px] font-semibold text-gray-400">-</span>
                                                         </div>
                                                     </div>
-                                                    <div class="flex items-center gap-1 shrink-0">
-                                                        <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider"
-                                                              :class="!selectedId ? 'bg-blue-200/80 text-blue-950 font-black' : 'bg-gray-100 text-gray-500'">-</span>
-                                                        <template x-if="!selectedId">
-                                                            <svg class="w-3.5 h-3.5 text-[#0052FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                                        </template>
-                                                    </div>
+                                                    <template x-if="!selectedId">
+                                                        <svg class="w-3.5 h-3.5 text-[#0052FF] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                    </template>
                                                 </button>
 
                                                 <template x-for="user in filteredUsers" :key="user.id">
@@ -668,18 +661,14 @@
                                                                  :class="user.id == selectedId ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-100 text-gray-700'">
                                                                 <span x-text="user.name.charAt(0).toUpperCase()"></span>
                                                             </div>
-                                                            <div class="min-w-0">
+                                                            <div class="min-w-0 leading-tight">
                                                                 <span class="block truncate font-bold text-[11px]" :class="user.id == selectedId ? 'text-[#0052FF]' : 'text-gray-900'" x-text="user.name"></span>
+                                                                <span class="block truncate text-[9px] font-semibold text-gray-400 capitalize" x-text="user.role"></span>
                                                             </div>
                                                         </div>
-                                                        <div class="flex items-center gap-1 shrink-0">
-                                                            <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider"
-                                                                  :class="user.id == selectedId ? 'bg-blue-200/80 text-blue-950 font-black' : 'bg-gray-100 text-gray-600'"
-                                                                  x-text="user.role"></span>
-                                                            <template x-if="user.id == selectedId">
-                                                                <svg class="w-3.5 h-3.5 text-[#0052FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                                            </template>
-                                                        </div>
+                                                        <template x-if="user.id == selectedId">
+                                                            <svg class="w-3.5 h-3.5 text-[#0052FF] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                        </template>
                                                     </button>
                                                 </template>
 
