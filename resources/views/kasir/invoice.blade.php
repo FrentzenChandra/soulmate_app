@@ -10,8 +10,8 @@
 
     <style>
         @page {
-            size: 240mm 140mm;
-            margin: 3mm 6mm 3mm 6mm;
+            size: portrait;
+            margin: 3mm 6mm;
         }
         * {
             font-family: Arial, Helvetica, sans-serif !important;

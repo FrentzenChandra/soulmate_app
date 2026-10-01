@@ -49,8 +49,8 @@
 - **Format Backend:** `INV-PJ-[KODE_CABANG]-[YYMMDD]-[00001]` (counter atomik di-reset setiap hari per cabang).
 - **Format Frontend:** `PJ-[YYMMDD]-[00001]` (ditampilkan via accessor `no_transaksi_frontend`).
 - **Format Servis:** `INV-SV-[KODE_CABANG]-[YYMMDD]-[00001]` / `SV-[YYMMDD]-[00001]`.
-- **Cetakan Nota & Continuous Form (24 cm x 14 cm):**
-  * Ukuran universal `@page { size: 240mm 140mm; margin: 3mm 6mm; }` (orientasi continuous form horizontal 240x140mm).
+- **Cetakan Nota & Continuous Form (Portrait Standard):**
+  * Orientasi cetak **WAJIB PORTRAIT** (`@page { size: portrait; margin: 3mm 6mm; }`, dilarang landscape).
   * Font universal **Arial** (`Arial, Helvetica, sans-serif`).
   * Proporsional tinggi konten ~12 cm tanpa mengubah layout struktur asli.
   * Format kuantiti dan unit wajib berjarak (`{{ $qty }} UNIT`, bukan `1UNIT`).

@@ -5,7 +5,7 @@
     <title>Faktur Servis - {{ $servis->no_servis_frontend ?? $servis->no_servis }}</title>
     <style>
         @page {
-            size: 240mm 140mm;
+            size: portrait;
             margin: 4mm 6mm;
         }
         * {

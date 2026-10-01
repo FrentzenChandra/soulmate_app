@@ -17,10 +17,10 @@
 - Non-owner roles (Superadmin, Admin, Teknisi) melihat aplikasi sebagai 1 toko mandiri ("Soulmate Komputer").
 - Sembunyikan label cabang, switcher, dan badge cabang di navbar, header, notifikasi untuk non-owner. Hanya Owner yang punya akses multi-cabang / HQ.
 
-## 4. Simplified Customer Data & Print / Continuous Form Standard
+## 4. Simplified Customer Data & Print / Portrait Standard
 - Data pelanggan operasional: Murni Nama (`nama`) dan No. WhatsApp/HP (`no_hp`).
 - Invoice number harian: Backend `INV-PJ-[KODE_CABANG]-[YYMMDD]-[00001]`, frontend `PJ-[YYMMDD]-[00001]`.
-- **Continuous Form 24x14 cm Standard:** Ukuran universal `@page { size: 240mm 140mm; margin: 3mm 6mm; }` (orientasi continuous form horizontal), font universal Arial, proporsional tinggi konten ~12 cm tanpa merusak layout. Format kuantiti berspasi (`1 UNIT`).
+- **Standar Cetak Portrait:** Orientasi cetak **WAJIB PORTRAIT** (`@page { size: portrait; margin: 3mm 6mm; }`, dilarang landscape), font universal Arial, proporsional tinggi konten ~12 cm tanpa merusak layout. Format kuantiti berspasi (`1 UNIT`).
 - **Grandtotal Standard:** Seluruh label total akhir pada seluruh nota/cetakan transaksi, faktur servis, dan POS wajib menggunakan teks `Grandtotal` (Title Case persis `Grandtotal`, dilarang `GRANDTOTAL`, `Grand Total`, atau `TOTAL TAGIHAN`).
 
 ## 5. Docker & Backend Execution
