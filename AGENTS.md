@@ -183,3 +183,11 @@
   * Gunakan debounce proporsional (`@input.debounce.250ms`, `wire:model.live.debounce.300ms`) pada kolom pencarian dan input dinamis untuk mencegah penumpukan request HTTP yang membekukan (*freeze*) thread browser.
 - **Kalkulasi Total Bersih:** Kalkulasi subtotal/total baris form diproses otomatis melalui lifecycle hook `updated()` di backend atau reaktif di frontend via Alpine tanpa merusak performa pengetikan pengguna.
 
+## 25. Master Pegawai & Dynamic Bagian Standard
+- **Terminologi Bagian (Bukan Role):** Modul Master Pegawai (`/master/pegawai`) menggunakan istilah **"Bagian"** untuk mengelompokkan divisi staf operasional/toko.
+- **7 Bagian Baseline Awal:** `Teknisi Laptop`, `Teknisi Printer`, `Teknisi Komputer`, `Bendahara`, `Admin Pajak`, `Admin Stok`, `Admin Konten`.
+- **Select Distinct Dinamis (Zero-Table Overhead):** Pilihan Bagian ditarik secara dinamis dari `SELECT DISTINCT role FROM pegawais` digabung dengan 7 bagian baseline.
+- **Input Bagian Baru Fleksibel:** Form modal menyediakan opsi `+ Tambah Bagian Baru...` dengan input teks tambahan. Saat disimpan, bagian baru tersebut otomatis masuk ke opsi pilihan dan filter.
+- **Pewarnaan Badge Cerdas:** Badge bagian otomatis memiliki styling warna Tailwind berbasis kata kunci (Laptop: Biru, Printer: Amber, Komputer: Purple, Bendahara: Emerald, Pajak: Rose, Stok: Cyan, Konten: Indigo, default: Slate/Gray).
+
+

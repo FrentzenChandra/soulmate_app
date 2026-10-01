@@ -1,6 +1,6 @@
 # Soulmate Komputer App
 
-Sistem Manajemen Operasional & Finansial Multi-Cabang untuk Usaha Servis Elektronik (Laptop, Komputer, Printer), Kasir Point of Sale (POS), Manajemen Stok Terpadu, Rekonsiliasi Kas, dan Performance Board Target Bulanan.
+Sistem Manajemen Operasional & Finansial Multi-Cabang untuk Usaha Servis Elektronik (Laptop, Komputer, Printer), Kasir Point of Sale (POS), Manajemen Stok Terpadu, Modul Transaksi Spreadsheet Tabulator.js, Rekonsiliasi Kas, dan Performance Board Target Bulanan.
 
 ---
 
@@ -14,28 +14,32 @@ Sistem Manajemen Operasional & Finansial Multi-Cabang untuk Usaha Servis Elektro
 
 ### 2. Kasir POS & Transaksi Tabulator.js
 - **Kasir Produk POS (`/kasir/produk`)**: Penjualan produk retail biasa, barcode scanner live, diskon, PPN, opsi Penjualan Non-Real, dan cetak nota thermal (58mm / 80mm).
-- **Transaksi FULL (`/transaksi/full`)**: Rekapitulasi finansial multi-dimensi (Modal HPP, Harga Jual, Status Pembayaran, Metode Pembayaran, Pajak PPN, Pegawai/Teknisi) berbasis **Tabulator.js**.
+- **Transaksi FULL (`/transaksi/full`)**: Rekapitulasi finansial multi-dimensi (Modal HPP, Harga Jual, Laba Bersih, Status Pembayaran, Metode Pembayaran, Pajak PPN, Pegawai) berbasis **Tabulator.js**.
 - **Status Transaksi Ringkas**: Hanya menggunakan 2 status pembayaran (**`Lunas`** dan **`BON`**).
-- **Transaksi Harian (`/transaksi/harian`)**: Audit transaksi real khusus hari ini (*today only*).
+- **Transaksi Harian (`/transaksi/harian`)**: Audit transaksi real khusus hari ini (*today only*) dengan **Zero Laba Standard** (informasi laba/profit/margin dilarang ditampilkan untuk staf operasional & kasir).
 
 ### 3. Target Bulanan (Performance Board 12 Bulan — `/target-bulanan`)
-- Matriks evaluasi 12 bulan (Januari s/d Desember) untuk 4 Divisi (`Laptop`, `Printer`, `Komputer`, `Admin`) dan per Staf (`User`).
-- Realisasi otomatis terhubung ke `transaksi_fulls`.
-- Input target tahunan per cabang oleh **Owner** dan **Superadmin**.
-- Status visual interaktif: Over Target (`≥150%`), Target Tercapai (`100-149%`), Belum Tercapai (`<100%`).
+- **Tabel Divisi (`Laptop`, `Printer`, `Komputer`, `Admin`)**: Target diatur per tahun via modal 5-in-1 di toolbar atas (nilai target yang diinput berlaku merata untuk setiap bulan Jan &ndash; Des, misal input 200 maka target bulanan tiap bulan adalah 200 transaksi). Kolom ke-2 menampilkan nilai target tersebut.
+- **Tabel Pegawai (Staf Individu)**: Realisasi murni 100% ditarik otomatis dari `transaksi_fulls` berdasarkan `pegawai_id`. Read-only performance summary tanpa kolom target dan tanpa badge status merah.
 - Slogan motivasi: *"Target Bukan Untuk Ditakuti, Tapi Untuk Dikalahkan!"*.
 
-### 4. Manajemen Kas & Keuangan
+### 4. Master Pegawai & Bagian Dinamis (`/master/pegawai`)
+- Menggunakan istilah **"Bagian"** (menggantikan "Role").
+- **7 Bagian Default Baseline**: `Teknisi Laptop`, `Teknisi Printer`, `Teknisi Komputer`, `Bendahara`, `Admin Pajak`, `Admin Stok`, `Admin Konten`.
+- **Select Distinct Dinamis**: Pilihan bagian ditarik secara dinamis dari database digabung dengan 7 bagian baseline, dilengkapi opsi `+ Tambah Bagian Baru...` pada modal form.
+- Pewarnaan badge otomatis berbasis kata kunci bagian.
+
+### 5. Manajemen Kas & Keuangan
 - **Modal Awal Kasir (`/modal-awal`)**: Pencatatan kas buka toko harian dengan proteksi duplikasi & alert notifikasi lonceng > 10:00.
-- **Cek Kas Cepat / Audit Laci**: Snapshot audit fisik laci kasir kapan saja tanpa mengunci transaksi.
+- **Cek Kas Cepat / Audit Laci**: Snapshot audit fisik laci kasir kapan saja tanpa mengunci transaksi harian.
 - **Kas Keluar (`/kas-keluar`)**: Pencatatan beban pengeluaran dengan Master Sumber Dana & Kategori Kas.
 - **Saldo Rekening Standalone (`/saldo`)**: Pencatatan rekening bank dan saldo mandiri.
 - **Serial Number Tracker (`/serial-number`)**: Pelacakan serial number perangkat & distributor.
 
-### 5. Multi-Cabang & Hak Akses Berjenjang
+### 6. Multi-Cabang & Hak Akses Berjenjang
 - **Owner**: Akses global seluruh cabang & Kantor Pusat (HQ), kelola PPN, kelola master cabang, dan switcher multi-cabang.
 - **Superadmin**: Single-store experience toko mandiri untuk mengelola operasional cabang dan akun staf cabangnya.
-- **Teknisi & Admin**: Akses operasional harian sesuai jobdesk (servis & kasir POS).
+- **Teknisi, Admin, & Bendahara**: Akses operasional harian sesuai jobdesk.
 - **User Soft Deletes & Integrity**: Perlindungan data historis menggunakan `SoftDeletes` dan `->withTrashed()`.
 
 ---
@@ -63,6 +67,7 @@ docker exec soulmate_apps php artisan migrate
 docker exec soulmate_apps php artisan optimize:clear
 
 # Menjalankan Test Tertarget
+docker exec soulmate_apps php artisan test --filter MasterPegawaiTest
 docker exec soulmate_apps php artisan test --filter TargetBulananTest
 docker exec soulmate_apps php artisan test --filter TransaksiFullTest
 ```
