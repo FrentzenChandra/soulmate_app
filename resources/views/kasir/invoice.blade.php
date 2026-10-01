@@ -12,7 +12,7 @@
 
     <style>
         @page {
-            size: 24cm 14cm;
+            size: portrait;
             margin: 4mm 6mm;
         }
         @media print {
