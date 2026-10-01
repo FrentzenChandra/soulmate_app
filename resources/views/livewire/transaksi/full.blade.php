@@ -682,15 +682,15 @@
                             </div>
 
                             <!-- Section 3: Pembayaran, Status, Pegawai & Catatan -->
-                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3.5">
+                            <div class="bg-gray-50/80 p-3.5 rounded-2xl border border-gray-200/80 space-y-2.5">
                                 <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">3. Pembayaran, Status, Pegawai &amp; Catatan</span>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-start">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 items-start">
                                     <!-- 1. Status Transaksi -->
                                     <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Status <span class="text-rose-500 font-bold">*</span></label>
+                                        <label class="block font-bold text-gray-700 mb-1 text-[10px]">Status <span class="text-rose-500 font-bold">*</span></label>
                                         <select wire:model="formStatus"
-                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
+                                                class="w-full px-2.5 py-1.5 rounded-xl border border-gray-300 bg-white font-black text-gray-900 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
                                             <option value="Lunas">Lunas</option>
                                             <option value="Bon">Bon</option>
                                         </select>
@@ -698,15 +698,15 @@
 
                                     <!-- 2. Metode Pembayaran -->
                                     <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Metode Pembayaran <span class="text-rose-500 font-bold">*</span></label>
+                                        <label class="block font-bold text-gray-700 mb-1 text-[10px]">Metode Pembayaran <span class="text-rose-500 font-bold">*</span></label>
                                         <select wire:model.live="formMetodePembayaranId"
-                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
+                                                class="w-full px-2.5 py-1.5 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer">
                                             <option value="">-- Pilih Metode --</option>
                                             @foreach($metodeList as $m)
                                                 <option value="{{ $m->id }}">{{ $m->nama }}</option>
                                             @endforeach
                                         </select>
-                                        @error('formMetodePembayaran') <span class="text-rose-500 font-bold block mt-0.5">{{ $message }}</span> @enderror
+                                        @error('formMetodePembayaran') <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span> @enderror
                                     </div>
 
                                     <!-- 3. Pegawai / Petugas (Custom Dropdown UI) -->
@@ -733,26 +733,26 @@
                                             this.search = '';
                                         }
                                     }" class="relative" @click.outside="open = false; search = ''">
-                                        <label class="block font-bold text-gray-700 mb-1">Pegawai</label>
+                                        <label class="block font-bold text-gray-700 mb-1 text-[10px]">Pegawai</label>
 
                                         <!-- Trigger Button -->
                                         <button type="button"
                                                 @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
-                                                class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-xs flex items-center justify-between gap-2 shadow-2xs hover:border-[#5E17EB] focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer text-left">
-                                            <div class="flex items-center gap-2 min-w-0">
-                                                <div class="w-6 h-6 rounded-lg flex items-center justify-center font-black text-[10px] shrink-0"
+                                                class="w-full px-2.5 py-1.5 rounded-xl border border-gray-300 bg-white font-bold text-gray-900 text-[11px] flex items-center justify-between gap-1.5 shadow-2xs hover:border-[#5E17EB] focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all cursor-pointer text-left min-h-[34px]">
+                                            <div class="flex items-center gap-1.5 min-w-0">
+                                                <div class="w-5 h-5 rounded-md flex items-center justify-center font-black text-[9px] shrink-0"
                                                      :class="selectedUser.id ? 'bg-purple-100 text-[#5E17EB]' : 'bg-gray-100 text-gray-500'">
                                                     <span x-text="selectedUser.id ? selectedUser.name.charAt(0).toUpperCase() : '-'"></span>
                                                 </div>
                                                 <div class="min-w-0 truncate">
-                                                    <span class="block truncate text-xs font-bold" :class="selectedUser.id ? 'text-gray-900' : 'text-gray-500'" x-text="selectedUser.name"></span>
+                                                    <span class="block truncate text-[11px] font-bold" :class="selectedUser.id ? 'text-gray-900' : 'text-gray-500'" x-text="selectedUser.name"></span>
                                                 </div>
                                             </div>
-                                            <div class="flex items-center gap-1.5 shrink-0">
-                                                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider"
+                                            <div class="flex items-center gap-1 shrink-0">
+                                                <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider"
                                                       :class="selectedUser.id ? 'bg-purple-50 text-[#5E17EB] border border-purple-100' : 'bg-gray-100 text-gray-500 border border-gray-200'"
                                                       x-text="selectedUser.role"></span>
-                                                <svg class="w-4 h-4 text-gray-400 transition-transform" :class="open ? 'rotate-180 text-[#5E17EB]' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                <svg class="w-3.5 h-3.5 text-gray-400 transition-transform" :class="open ? 'rotate-180 text-[#5E17EB]' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                             </div>
                                         </button>
 
@@ -768,16 +768,16 @@
                                              style="display: none;">
 
                                             <!-- Search Box (Zero Placeholder) -->
-                                            <div class="p-2 border-b border-gray-100 bg-gray-50/80 sticky top-0 z-10">
+                                            <div class="p-1.5 border-b border-gray-100 bg-gray-50/80 sticky top-0 z-10">
                                                 <div class="relative">
-                                                    <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-gray-400">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                                    <span class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none text-gray-400">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                                     </span>
                                                     <input type="text"
                                                            x-model="search"
                                                            x-ref="searchInput"
                                                            @keydown.escape="open = false; search = ''"
-                                                           class="w-full pl-8 pr-2.5 py-1 rounded-lg border border-gray-200 bg-white font-semibold text-gray-900 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"
+                                                           class="w-full pl-7 pr-2 py-1 rounded-lg border border-gray-200 bg-white font-semibold text-gray-900 text-[11px] focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]"
                                                            aria-label="Cari Pegawai">
                                                 </div>
                                             </div>
@@ -787,22 +787,22 @@
                                                 <!-- Opsi Tanpa Pegawai / Kosong -->
                                                 <button type="button"
                                                         @click="select(null)"
-                                                        class="w-full px-3 py-2.5 text-left flex items-center justify-between gap-2 hover:bg-purple-50/70 transition-colors cursor-pointer"
+                                                        class="w-full px-2.5 py-1.5 text-left flex items-center justify-between gap-1.5 hover:bg-purple-50/70 transition-colors cursor-pointer"
                                                         :class="!selectedId ? 'bg-purple-50 text-[#5E17EB]' : 'text-gray-800'">
-                                                    <div class="flex items-center gap-2.5 min-w-0">
-                                                        <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
+                                                    <div class="flex items-center gap-1.5 min-w-0">
+                                                        <div class="w-5 h-5 rounded-md flex items-center justify-center font-black text-[9px] shrink-0"
                                                              :class="!selectedId ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-100 text-gray-500'">
                                                             -
                                                         </div>
                                                         <div class="min-w-0">
-                                                            <span class="block truncate font-bold text-xs" :class="!selectedId ? 'text-[#5E17EB]' : 'text-gray-700'">Tanpa Pegawai</span>
+                                                            <span class="block truncate font-bold text-[11px]" :class="!selectedId ? 'text-[#5E17EB]' : 'text-gray-700'">Tanpa Pegawai</span>
                                                         </div>
                                                     </div>
-                                                    <div class="flex items-center gap-1.5 shrink-0">
-                                                        <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
+                                                    <div class="flex items-center gap-1 shrink-0">
+                                                        <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider"
                                                               :class="!selectedId ? 'bg-purple-200/80 text-purple-950 font-black' : 'bg-gray-100 text-gray-500'">-</span>
                                                         <template x-if="!selectedId">
-                                                            <svg class="w-4 h-4 text-[#5E17EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                            <svg class="w-3.5 h-3.5 text-[#5E17EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                                                         </template>
                                                     </div>
                                                 </button>
@@ -810,30 +810,30 @@
                                                 <template x-for="user in filteredUsers" :key="user.id">
                                                     <button type="button"
                                                             @click="select(user.id)"
-                                                            class="w-full px-3 py-2.5 text-left flex items-center justify-between gap-2 hover:bg-purple-50/70 transition-colors cursor-pointer"
+                                                            class="w-full px-2.5 py-1.5 text-left flex items-center justify-between gap-1.5 hover:bg-purple-50/70 transition-colors cursor-pointer"
                                                             :class="user.id == selectedId ? 'bg-purple-50 text-[#5E17EB]' : 'text-gray-800'">
-                                                        <div class="flex items-center gap-2.5 min-w-0">
-                                                            <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0"
+                                                        <div class="flex items-center gap-1.5 min-w-0">
+                                                            <div class="w-5 h-5 rounded-md flex items-center justify-center font-black text-[9px] shrink-0"
                                                                  :class="user.id == selectedId ? 'bg-[#5E17EB] text-white shadow-2xs' : 'bg-gray-100 text-gray-700'">
                                                                 <span x-text="user.name.charAt(0).toUpperCase()"></span>
                                                             </div>
                                                             <div class="min-w-0">
-                                                                <span class="block truncate font-bold text-xs" :class="user.id == selectedId ? 'text-[#5E17EB]' : 'text-gray-900'" x-text="user.name"></span>
+                                                                <span class="block truncate font-bold text-[11px]" :class="user.id == selectedId ? 'text-[#5E17EB]' : 'text-gray-900'" x-text="user.name"></span>
                                                             </div>
                                                         </div>
-                                                        <div class="flex items-center gap-1.5 shrink-0">
-                                                            <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
+                                                        <div class="flex items-center gap-1 shrink-0">
+                                                            <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider"
                                                                   :class="user.id == selectedId ? 'bg-purple-200/80 text-purple-950 font-black' : 'bg-gray-100 text-gray-600'"
                                                                   x-text="user.role"></span>
                                                             <template x-if="user.id == selectedId">
-                                                                <svg class="w-4 h-4 text-[#5E17EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                                <svg class="w-3.5 h-3.5 text-[#5E17EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                                                             </template>
                                                         </div>
                                                     </button>
                                                 </template>
 
                                                 <template x-if="filteredUsers.length === 0">
-                                                    <div class="p-3 text-center text-xs text-gray-400 font-medium">
+                                                    <div class="p-2.5 text-center text-[11px] text-gray-400 font-medium">
                                                         Pegawai tidak ditemukan
                                                     </div>
                                                 </template>
@@ -843,10 +843,10 @@
 
                                     <!-- 4. Catatan Transaksi (Input Text Single-Line) -->
                                     <div>
-                                        <label class="block font-bold text-gray-700 mb-1">Catatan</label>
+                                        <label class="block font-bold text-gray-700 mb-1 text-[10px]">Catatan</label>
                                         <input type="text"
                                                wire:model="formCatatan"
-                                               class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                               class="w-full px-2.5 py-1.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     </div>
                                 </div>
                             </div>
