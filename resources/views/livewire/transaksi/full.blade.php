@@ -52,79 +52,67 @@
     <!-- ============================================== -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
 
-        <!-- 1. Pendapatan -->
-        <div class="bg-white p-3.5 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between pb-2 border-b border-blue-100/80">
-                <span class="text-[10px] font-black text-blue-950 uppercase tracking-wider">Pendapatan</span>
-                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-blue-50 text-[#0052FF] border border-blue-200/60">
+        <!-- 1. Pendapatan (Ungu) -->
+        <div class="bg-white p-3.5 rounded-2xl border border-purple-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between pb-2 border-b border-purple-100/80">
+                <span class="text-[10px] font-black text-purple-950 uppercase tracking-wider">Pendapatan</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-purple-50 text-[#5E17EB] border border-purple-200/60">
                     Omzet
                 </span>
             </div>
             <div class="mt-3">
-                <span class="text-lg sm:text-xl font-mono font-black text-blue-700 tracking-tight block">
+                <span class="text-lg sm:text-xl font-mono font-black text-[#5E17EB] tracking-tight block">
                     Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
                 </span>
-                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                    Pendapatan Kotor
-                </span> --}}
             </div>
         </div>
 
-        <!-- 2. Modal -->
+        <!-- 2. Modal (Oren) -->
         <div class="bg-white p-3.5 rounded-2xl border border-amber-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between pb-2 border-b border-amber-100/80">
                 <span class="text-[10px] font-black text-amber-950 uppercase tracking-wider">Modal</span>
-                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200/60">
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/60">
                     HPP
                 </span>
             </div>
             <div class="mt-3">
-                <span class="text-lg sm:text-xl font-mono font-black text-amber-800 tracking-tight block">
+                <span class="text-lg sm:text-xl font-mono font-black text-amber-600 tracking-tight block">
                     Rp {{ number_format($totalModal, 0, ',', '.') }}
                 </span>
-                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                    Modal Pokok
-                </span> --}}
             </div>
         </div>
 
-        <!-- 3. Laba -->
-        <div class="bg-white p-3.5 rounded-2xl border border-purple-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between pb-2 border-b border-purple-100/80">
-                <span class="text-[10px] font-black text-purple-950 uppercase tracking-wider">Laba</span>
-                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-purple-50 text-[#5E17EB] border border-purple-200/60">
+        <!-- 3. Laba (Hijau) -->
+        <div class="bg-white p-3.5 rounded-2xl border border-emerald-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between pb-2 border-b border-emerald-100/80">
+                <span class="text-[10px] font-black text-emerald-950 uppercase tracking-wider">Laba</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60">
                     Margin
                 </span>
             </div>
             <div class="mt-3">
-                <span class="text-lg sm:text-xl font-mono font-black {{ $totalLaba >= 0 ? 'text-[#5E17EB]' : 'text-rose-600' }} tracking-tight block">
+                <span class="text-lg sm:text-xl font-mono font-black {{ $totalLaba >= 0 ? 'text-emerald-600' : 'text-rose-600' }} tracking-tight block">
                     Rp {{ number_format($totalLaba, 0, ',', '.') }}
                 </span>
-                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                    margin
-                </span> --}}
             </div>
         </div>
 
-        <!-- 4. Lunas -->
-        <div class="bg-white p-3.5 rounded-2xl border border-emerald-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between pb-2 border-b border-emerald-100/80">
-                <span class="text-[10px] font-black text-emerald-950 uppercase tracking-wider">Lunas</span>
-                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+        <!-- 4. Lunas (Biru) -->
+        <div class="bg-white p-3.5 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between pb-2 border-b border-blue-100/80">
+                <span class="text-[10px] font-black text-blue-950 uppercase tracking-wider">Lunas</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-blue-50 text-[#0052FF] border border-blue-200/60">
                     Terbayar
                 </span>
             </div>
             <div class="mt-3">
-                <span class="text-lg sm:text-xl font-mono font-black text-emerald-600 tracking-tight block">
+                <span class="text-lg sm:text-xl font-mono font-black text-[#0052FF] tracking-tight block">
                     Rp {{ number_format($totalLunas, 0, ',', '.') }}
                 </span>
-                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                    Transaksi berstatus lunas
-                </span> --}}
             </div>
         </div>
 
-        <!-- 5. Bon -->
+        <!-- 5. Bon (Merah) -->
         <div class="bg-white p-3.5 rounded-2xl border border-rose-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between pb-2 border-b border-rose-100/80">
                 <span class="text-[10px] font-black text-rose-950 uppercase tracking-wider">Bon</span>
@@ -136,9 +124,6 @@
                 <span class="text-lg sm:text-xl font-mono font-black text-rose-600 tracking-tight block">
                     Rp {{ number_format($totalBon, 0, ',', '.') }}
                 </span>
-                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                    Bon
-                </span> --}}
             </div>
         </div>
 
