@@ -133,39 +133,45 @@ class TargetBulananTest extends TestCase
         });
     }
 
-    public function test_superadmin_can_set_annual_target_for_divisi()
+    public function test_superadmin_can_set_annual_target_for_all_divisions_5in1_modal()
     {
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
 
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->call('openSetTargetTahunanDivisi', 'laptop')
-            ->assertSet('formDivisiKey', 'laptop')
+            ->call('openSetTargetTahunanDivisi')
             ->assertSet('modalSetTargetTahunanDivisiOpen', true)
-            ->set('formTargetTahunanDivisi', 120)
+            ->assertSet('formTahunTargetDivisi', 2026)
+            ->set('formTargetTahunanLaptop', 120)
+            ->set('formTargetTahunanPrinter', 60)
+            ->set('formTargetTahunanKomputer', 48)
+            ->set('formTargetTahunanAdmin', 240)
             ->call('simpanTargetTahunanDivisi')
             ->assertHasNoErrors()
             ->assertSet('modalSetTargetTahunanDivisiOpen', false);
 
-        $target = TargetDivisi::where('cabang_id', $superadmin->cabang_id ?: 1)
-            ->where('divisi', 'laptop')
-            ->where('tahun', 2026)
-            ->first();
+        $cabangId = $superadmin->cabang_id ?: 1;
 
-        $this->assertNotNull($target);
-        $this->assertEquals(10, $target->target_bulanan);
-        $this->assertEquals(10, $target->monthly_targets['1']);
-        $this->assertEquals(10, $target->monthly_targets['12']);
+        $targetLaptop = TargetDivisi::where('cabang_id', $cabangId)->where('divisi', 'laptop')->where('tahun', 2026)->first();
+        $this->assertNotNull($targetLaptop);
+        $this->assertEquals(10, $targetLaptop->target_bulanan);
+        $this->assertEquals(10, $targetLaptop->monthly_targets['1']);
 
-        // Verify reflection in divisiMatrix
+        $targetPrinter = TargetDivisi::where('cabang_id', $cabangId)->where('divisi', 'printer')->where('tahun', 2026)->first();
+        $this->assertNotNull($targetPrinter);
+        $this->assertEquals(5, $targetPrinter->target_bulanan);
+        $this->assertEquals(5, $targetPrinter->monthly_targets['1']);
+
+        // Verify direct annual target reflection in divisiMatrix
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
             ->assertViewHas('divisiMatrix', function ($divisiMatrix) {
                 return isset($divisiMatrix['laptop'])
-                    && $divisiMatrix['laptop']['total_target_year'] === 120
-                    && $divisiMatrix['laptop']['months'][1]['target'] === 10
-                    && $divisiMatrix['laptop']['months'][12]['target'] === 10;
+                    && $divisiMatrix['laptop']['target_tahunan_input'] === 120
+                    && $divisiMatrix['printer']['target_tahunan_input'] === 60
+                    && $divisiMatrix['komputer']['target_tahunan_input'] === 48
+                    && $divisiMatrix['admin']['target_tahunan_input'] === 240;
             });
     }
 

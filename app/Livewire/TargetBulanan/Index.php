@@ -23,10 +23,13 @@ class Index extends Component
     #[Url(except: 'semua')]
     public string $cabangFilter = 'semua';
 
-    // State Modal Atur Target Tahunan Divisi
+    // State Modal Atur Target Tahunan Divisi (5 Field: Tahun, Laptop, Printer, Komputer, Admin)
     public bool $modalSetTargetTahunanDivisiOpen = false;
-    public string $formDivisiKey = 'laptop';
-    public int $formTargetTahunanDivisi = 0;
+    public int $formTahunTargetDivisi = 2026;
+    public int $formTargetTahunanLaptop = 0;
+    public int $formTargetTahunanPrinter = 0;
+    public int $formTargetTahunanKomputer = 0;
+    public int $formTargetTahunanAdmin = 0;
 
     // State Modal Edit Target & Realisasi Per Cell Divisi
     public bool $modalEditCellDivisiOpen = false;
@@ -44,6 +47,7 @@ class Index extends Component
         }
 
         $this->filterTahun = (int) now()->format('Y');
+        $this->formTahunTargetDivisi = $this->filterTahun;
     }
 
     public function getCanManageTargetProperty(): bool
@@ -72,35 +76,43 @@ class Index extends Component
     }
 
     // =========================================================================
-    // MODAL & ACTION: ATUR TARGET TAHUNAN DIVISI
+    // MODAL & ACTION: ATUR TARGET TAHUNAN DIVISI (5-IN-1: TAHUN + 4 DIVISI)
     // =========================================================================
 
-    public function openSetTargetTahunanDivisi(?string $divisiKey = null): void
+    public function openSetTargetTahunanDivisi(): void
     {
         if (! $this->canManageTarget) {
             abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
         }
 
-        $cabangId = $this->getTargetCabangId();
-        $this->formDivisiKey = $divisiKey ?: 'laptop';
-
-        $target = TargetDivisi::where('cabang_id', $cabangId)
-            ->where('tahun', $this->filterTahun)
-            ->where('divisi', $this->formDivisiKey)
-            ->first();
-
-        if ($target) {
-            $monthlyTargets = $target->monthly_targets ?? [];
-            if (! empty($monthlyTargets)) {
-                $this->formTargetTahunanDivisi = (int) array_sum($monthlyTargets);
-            } else {
-                $this->formTargetTahunanDivisi = (int) ($target->target_bulanan * 12);
-            }
-        } else {
-            $this->formTargetTahunanDivisi = 0;
-        }
-
+        $this->formTahunTargetDivisi = $this->filterTahun;
+        $this->loadTargetTahunanDivisiFields();
         $this->modalSetTargetTahunanDivisiOpen = true;
+    }
+
+    public function updatedFormTahunTargetDivisi(): void
+    {
+        $this->loadTargetTahunanDivisiFields();
+    }
+
+    private function loadTargetTahunanDivisiFields(): void
+    {
+        $cabangId = $this->getTargetCabangId();
+        $targets = TargetDivisi::where('cabang_id', $cabangId)
+            ->where('tahun', $this->formTahunTargetDivisi)
+            ->get()
+            ->keyBy('divisi');
+
+        $divisis = ['laptop', 'printer', 'komputer', 'admin'];
+        foreach ($divisis as $div) {
+            $row = $targets->get($div);
+            $val = 0;
+            if ($row) {
+                $val = (int) ($row->target_bulanan * 12);
+            }
+            $prop = 'formTargetTahunan' . ucfirst($div);
+            $this->{$prop} = $val;
+        }
     }
 
     public function simpanTargetTahunanDivisi(): void
@@ -110,39 +122,53 @@ class Index extends Component
         }
 
         $this->validate([
-            'formDivisiKey' => 'required|string|in:laptop,printer,komputer,admin',
-            'formTargetTahunanDivisi' => 'required|integer|min:0',
+            'formTahunTargetDivisi' => 'required|integer|min:2024|max:2099',
+            'formTargetTahunanLaptop' => 'required|integer|min:0',
+            'formTargetTahunanPrinter' => 'required|integer|min:0',
+            'formTargetTahunanKomputer' => 'required|integer|min:0',
+            'formTargetTahunanAdmin' => 'required|integer|min:0',
         ]);
 
         $cabangId = $this->getTargetCabangId();
         $creatorId = Auth::id();
-        $targetBulanan = (int) round($this->formTargetTahunanDivisi / 12);
+        $tahun = $this->formTahunTargetDivisi;
 
-        $targetDivisi = TargetDivisi::firstOrCreate(
-            [
-                'cabang_id' => $cabangId,
-                'tahun' => $this->filterTahun,
-                'divisi' => $this->formDivisiKey,
-            ],
-            [
+        $divisis = [
+            'laptop' => $this->formTargetTahunanLaptop,
+            'printer' => $this->formTargetTahunanPrinter,
+            'komputer' => $this->formTargetTahunanKomputer,
+            'admin' => $this->formTargetTahunanAdmin,
+        ];
+
+        foreach ($divisis as $div => $targetTahunan) {
+            $targetBulanan = (int) round($targetTahunan / 12);
+
+            $targetDivisi = TargetDivisi::firstOrCreate(
+                [
+                    'cabang_id' => $cabangId,
+                    'tahun' => $tahun,
+                    'divisi' => $div,
+                ],
+                [
+                    'target_bulanan' => $targetBulanan,
+                    'created_by' => $creatorId,
+                ]
+            );
+
+            $monthlyTargets = [];
+            for ($m = 1; $m <= 12; $m++) {
+                $monthlyTargets[(string)$m] = $targetBulanan;
+            }
+
+            $targetDivisi->update([
                 'target_bulanan' => $targetBulanan,
-                'created_by' => $creatorId,
-            ]
-        );
-
-        $monthlyTargets = [];
-        for ($m = 1; $m <= 12; $m++) {
-            $monthlyTargets[(string)$m] = $targetBulanan;
+                'monthly_targets' => $monthlyTargets,
+            ]);
         }
 
-        $targetDivisi->update([
-            'target_bulanan' => $targetBulanan,
-            'monthly_targets' => $monthlyTargets,
-        ]);
-
+        $this->filterTahun = $tahun;
         $this->modalSetTargetTahunanDivisiOpen = false;
-        $namaDiv = ucfirst($this->formDivisiKey);
-        session()->flash('success', "Target tahunan Divisi {$namaDiv} ({$this->formTargetTahunanDivisi} transaksi) tahun {$this->filterTahun} berhasil disimpan!");
+        session()->flash('success', "Target tahunan untuk 4 divisi tahun {$tahun} berhasil disimpan!");
     }
 
     // =========================================================================
@@ -263,7 +289,7 @@ class Index extends Component
             ->get()
             ->keyBy('divisi');
 
-        // 3. Bangun Matriks Data Divisi (Target Tahunan + Override Per Bulan + Realisasi)
+        // 3. Bangun Matriks Data Divisi (Target Tahunan Murni Inputan + Override Per Bulan + Realisasi)
         $divisiDefs = [
             'laptop' => ['name' => 'LAPTOP', 'icon' => 'laptop'],
             'printer' => ['name' => 'PRINTER', 'icon' => 'printer'],
@@ -272,9 +298,14 @@ class Index extends Component
         ];
 
         $divisiMatrix = [];
+        $grandTotalTargetTahunanInput = 0;
+
         foreach ($divisiDefs as $key => $meta) {
             $targetDivisiRow = $targetDivisiModels->get($key);
             $defaultTarget = (int) ($targetDivisiRow?->target_bulanan ?? 0);
+            $targetTahunanInput = $defaultTarget * 12;
+            $grandTotalTargetTahunanInput += $targetTahunanInput;
+
             $monthlyTargets = $targetDivisiRow?->monthly_targets ?? [];
             $monthlyRealisasi = $targetDivisiRow?->monthly_realisasi ?? [];
 
@@ -335,6 +366,7 @@ class Index extends Component
                 'name' => $meta['name'],
                 'icon' => $meta['icon'],
                 'target_bulanan' => $defaultTarget,
+                'target_tahunan_input' => $targetTahunanInput,
                 'months' => $monthlyData,
                 'total_ytd' => $totalYtdRealisasi,
                 'total_target_ytd' => $totalYtdTarget,
@@ -387,6 +419,7 @@ class Index extends Component
 
         $divisiSummary = [
             'months' => $totalDivisiMonths,
+            'total_target_tahunan_input' => $grandTotalTargetTahunanInput,
             'total_ytd' => $grandTotalDivisiCount,
             'total_target_ytd' => $grandTotalDivisiTarget,
             'total_target_year' => $grandTotalDivisiTarget,

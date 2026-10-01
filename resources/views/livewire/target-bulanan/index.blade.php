@@ -25,7 +25,7 @@
             </div>
         </div>
 
-        <!-- Filter & Tombol Aksi (1 Baris) -->
+        <!-- Filter & Tombol Aksi (1 Baris Samping Filter Tahun) -->
         <div class="flex flex-wrap items-center gap-2 sm:gap-3">
             <!-- Filter Tahun -->
             <div class="flex items-center bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 shadow-2xs">
@@ -37,6 +37,16 @@
                     @endfor
                 </select>
             </div>
+
+            <!-- Tombol Target Tahunan Divisi (Disamping Filter Tahun) -->
+            @if($canManageTarget)
+                <button type="button"
+                        wire:click="openSetTargetTahunanDivisi"
+                        class="px-3.5 py-2 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-black text-xs flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer border border-purple-400/30">
+                    <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    <span>Target Tahunan Divisi</span>
+                </button>
+            @endif
 
             <!-- Filter Cabang (HQ Saja) -->
             @if($isHQ)
@@ -70,7 +80,7 @@
     <!-- TABEL 1: TARGET PER DIVISI                      -->
     <!-- ============================================== -->
     <div class="card-custom bg-white overflow-hidden border border-gray-200 shadow-sm rounded-2xl">
-        <div class="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-gradient-to-r from-gray-900 to-indigo-950 text-white rounded-t-2xl">
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-900 to-indigo-950 text-white rounded-t-2xl">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
                     <svg class="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
@@ -80,18 +90,6 @@
                     <p class="text-[11px] text-purple-200 font-medium">Target & realisasi transaksi per divisi tahun {{ $filterTahun }}</p>
                 </div>
             </div>
-
-            <!-- Tombol Atur Target Tahunan Divisi -->
-            @if($canManageTarget)
-                <div>
-                    <button type="button"
-                            wire:click="openSetTargetTahunanDivisi('laptop')"
-                            class="px-3.5 py-1.5 rounded-xl bg-[#5E17EB] hover:bg-purple-600 text-white font-bold text-xs flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer border border-purple-400/30">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        <span>Atur Target Tahunan</span>
-                    </button>
-                </div>
-            @endif
         </div>
 
         <div class="overflow-x-auto">
@@ -143,10 +141,10 @@
                                 </div>
                             </td>
 
-                            <!-- Total Target Setahun (Hasil Inputan Target Tahun) -->
+                            <!-- Target Tahunan (Murni Inputan Target Tahun) -->
                             <td class="py-3.5 px-2 text-center bg-gray-50/50">
                                 <span class="font-mono font-black text-gray-900 text-xs">
-                                    {{ number_format($d['total_target_year'], 0, ',', '.') }}
+                                    {{ number_format($d['target_tahunan_input'], 0, ',', '.') }}
                                 </span>
                             </td>
 
@@ -223,7 +221,7 @@
                             TOTAL DIVISI
                         </td>
                         <td class="py-3 px-2 text-center bg-gray-200/60 font-mono font-black text-gray-900 text-xs">
-                            {{ number_format($divisiSummary['total_target_year'], 0, ',', '.') }}
+                            {{ number_format($divisiSummary['total_target_tahunan_input'], 0, ',', '.') }}
                         </td>
                         @for($m = 1; $m <= 12; $m++)
                             @php $sumCell = $divisiSummary['months'][$m]; @endphp
@@ -414,14 +412,14 @@
     </div>
 
     <!-- ============================================== -->
-    <!-- MODAL 1: ATUR TARGET TAHUNAN DIVISI            -->
+    <!-- MODAL 1: ATUR TARGET TAHUNAN DIVISI (5-IN-1)   -->
     <!-- ============================================== -->
     @if($modalSetTargetTahunanDivisiOpen)
         <div wire:key="modal-set-target-tahunan-divisi" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
             <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="$set('modalSetTargetTahunanDivisiOpen', false)"></div>
 
             <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 text-xs">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100 text-xs">
 
                     <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 text-white flex items-center justify-between rounded-t-3xl gap-4">
                         <div class="flex items-center gap-3 min-w-0">
@@ -429,9 +427,9 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                             </div>
                             <div>
-                                <h3 class="text-base font-bold text-white tracking-tight">Atur Target Divisi (Tahunan)</h3>
+                                <h3 class="text-base font-bold text-white tracking-tight">Atur Target Tahunan Divisi</h3>
                                 <p class="text-xs text-purple-200 font-medium">
-                                    Target kuota transaksi tahun {{ $filterTahun }}
+                                    Target kuota transaksi 4 divisi tahun {{ $formTahunTargetDivisi }}
                                 </p>
                             </div>
                         </div>
@@ -442,38 +440,96 @@
 
                     <form wire:submit.prevent="simpanTargetTahunanDivisi">
                         <div class="p-6 space-y-4">
-                            <!-- Pilih Divisi -->
-                            <div>
-                                <label class="block font-bold text-gray-700 mb-1">
-                                    Pilih Divisi <span class="text-rose-500 font-bold">*</span>
+                            <!-- 1. Pilihan Tahun -->
+                            <div class="p-3.5 bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-between">
+                                <label class="block font-bold text-gray-800 text-xs">
+                                    Tahun Target <span class="text-rose-500 font-bold">*</span>
                                 </label>
-                                <select wire:model="formDivisiKey"
-                                        class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] cursor-pointer">
-                                    <option value="laptop">LAPTOP</option>
-                                    <option value="printer">PRINTER</option>
-                                    <option value="komputer">KOMPUTER</option>
-                                    <option value="admin">ADMIN</option>
+                                <select wire:model.live="formTahunTargetDivisi"
+                                        class="px-3.5 py-1.5 rounded-xl border border-gray-300 font-black text-xs text-gray-900 bg-white focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] cursor-pointer">
+                                    @for($y = (int)now()->format('Y') + 1; $y >= 2024; $y--)
+                                        <option value="{{ $y }}">{{ $y }}</option>
+                                    @endfor
                                 </select>
-                                @error('formDivisiKey')
-                                    <span class="text-rose-500 font-bold text-[10px] block mt-1">{{ $message }}</span>
-                                @enderror
                             </div>
 
-                            <!-- Target Tahunan -->
-                            <div>
-                                <label class="block font-bold text-gray-700 mb-1">
-                                    Target Transaksi Setahun <span class="text-rose-500 font-bold">*</span>
-                                </label>
-                                <input type="number"
-                                       min="0"
-                                       wire:model="formTargetTahunanDivisi"
-                                       class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-bold text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
-                                <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                                    Target ini akan dibagi rata per bulan (~{{ (int) round(($formTargetTahunanDivisi ?: 0) / 12) }} transaksi/bulan) dan dapat disesuaikan per bulan melalui tabel.
-                                </span>
-                                @error('formTargetTahunanDivisi')
-                                    <span class="text-rose-500 font-bold text-[10px] block mt-1">{{ $message }}</span>
-                                @enderror
+                            <!-- Grid 4 Divisi (Laptop, Printer, Komputer, Admin) -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <!-- 1. LAPTOP -->
+                                <div class="p-3.5 bg-blue-50/50 rounded-2xl border border-blue-100">
+                                    <div class="flex items-center space-x-2 mb-1.5">
+                                        <div class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                        </div>
+                                        <label class="block font-black text-gray-900 text-xs">
+                                            Target LAPTOP <span class="text-rose-500 font-bold">*</span>
+                                        </label>
+                                    </div>
+                                    <input type="number"
+                                           min="0"
+                                           wire:model="formTargetTahunanLaptop"
+                                           class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                    <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                                        ~{{ (int) round(($formTargetTahunanLaptop ?: 0) / 12) }} transaksi/bulan
+                                    </span>
+                                </div>
+
+                                <!-- 2. PRINTER -->
+                                <div class="p-3.5 bg-amber-50/50 rounded-2xl border border-amber-100">
+                                    <div class="flex items-center space-x-2 mb-1.5">
+                                        <div class="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                        </div>
+                                        <label class="block font-black text-gray-900 text-xs">
+                                            Target PRINTER <span class="text-rose-500 font-bold">*</span>
+                                        </label>
+                                    </div>
+                                    <input type="number"
+                                           min="0"
+                                           wire:model="formTargetTahunanPrinter"
+                                           class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                    <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                                        ~{{ (int) round(($formTargetTahunanPrinter ?: 0) / 12) }} transaksi/bulan
+                                    </span>
+                                </div>
+
+                                <!-- 3. KOMPUTER -->
+                                <div class="p-3.5 bg-purple-50/50 rounded-2xl border border-purple-100">
+                                    <div class="flex items-center space-x-2 mb-1.5">
+                                        <div class="w-6 h-6 rounded-lg bg-purple-100 text-[#5E17EB] flex items-center justify-center">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                        </div>
+                                        <label class="block font-black text-gray-900 text-xs">
+                                            Target KOMPUTER <span class="text-rose-500 font-bold">*</span>
+                                        </label>
+                                    </div>
+                                    <input type="number"
+                                           min="0"
+                                           wire:model="formTargetTahunanKomputer"
+                                           class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                    <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                                        ~{{ (int) round(($formTargetTahunanKomputer ?: 0) / 12) }} transaksi/bulan
+                                    </span>
+                                </div>
+
+                                <!-- 4. ADMIN -->
+                                <div class="p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+                                    <div class="flex items-center space-x-2 mb-1.5">
+                                        <div class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                        </div>
+                                        <label class="block font-black text-gray-900 text-xs">
+                                            Target ADMIN <span class="text-rose-500 font-bold">*</span>
+                                        </label>
+                                    </div>
+                                    <input type="number"
+                                           min="0"
+                                           wire:model="formTargetTahunanAdmin"
+                                           class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                    <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                                        ~{{ (int) round(($formTargetTahunanAdmin ?: 0) / 12) }} transaksi/bulan
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
