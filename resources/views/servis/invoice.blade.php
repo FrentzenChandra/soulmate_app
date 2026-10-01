@@ -12,8 +12,11 @@
 
     <style>
         @page {
-            size: portrait;
-            margin: 4mm 6mm;
+            size: 240mm 140mm;
+            margin: 3mm 6mm;
+        }
+        * {
+            font-family: Arial, Helvetica, sans-serif !important;
         }
         @media print {
             html, body {
@@ -43,10 +46,10 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen py-6 px-4 font-sans antialiased text-gray-900 selection:bg-purple-500 selection:text-white">
+<body class="bg-gray-100 min-h-screen py-6 px-4 antialiased text-gray-900 selection:bg-purple-500 selection:text-white" style="font-family: Arial, Helvetica, sans-serif;">
 
     <!-- Action Bar (Hidden on Print) -->
-    <div class="max-w-3xl mx-auto mb-4 flex items-center justify-between no-print bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm">
+    <div class="max-w-4xl mx-auto mb-4 flex items-center justify-between no-print bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm">
         <div class="flex items-center space-x-2">
             <button type="button"
                     onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = '{{ route('servis.keluar') }}'; }"
@@ -65,8 +68,8 @@
         </div>
     </div>
 
-    <!-- Faktur Container (Strict 1-Page on 24x15 cm) -->
-    <div id="invoicePrintArea" class="servis-invoice-container max-w-3xl mx-auto bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-md space-y-2.5 text-gray-900 text-xs">
+    <!-- Faktur Container (Strict 1-Page on 24x14 cm continuous form) -->
+    <div id="invoicePrintArea" class="servis-invoice-container max-w-4xl mx-auto bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-md space-y-3.5 text-gray-900 text-xs">
 
         @php
             $tglSelesai = $servis->tanggal_selesai ?? ($servis->tanggal_ambil ?? $servis->updated_at);
@@ -76,40 +79,40 @@
         <div class="grid grid-cols-12 gap-3 items-start pb-1">
 
             <!-- Left: Logo & Toko -->
-            <div class="col-span-7 flex items-start space-x-3">
-                <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-gray-100 shadow-xs">
+            <div class="col-span-7 flex items-start space-x-3.5">
+                <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-16 h-16 rounded-2xl object-cover shrink-0 border border-gray-100 shadow-xs">
                 <div>
-                    <h1 class="text-base font-black text-gray-900 tracking-tight leading-none">Soulmate Komputer</h1>
-                    <p class="text-[10px] font-medium text-gray-600 mt-1 leading-tight">
+                    <h1 class="text-[19px] font-black text-gray-900 tracking-tight leading-tight">Soulmate Komputer</h1>
+                    <p class="text-[11px] font-medium text-gray-600 mt-1 leading-snug">
                         {{ $servis->cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang' }}
                     </p>
-                    <p class="text-[10px] font-semibold text-gray-700 mt-0.5">
+                    <p class="text-[11px] font-semibold text-gray-700 mt-0.5">
                         WhatsApp: {{ format_whatsapp($servis->cabang?->no_wa ?? '081995466255') }}
                     </p>
                 </div>
             </div>
 
             <!-- Right: Meta Info (Tanggal, Jam, Kode Servis, Pelanggan) -->
-            <div class="col-span-5 text-[11px]">
+            <div class="col-span-5 text-xs">
                 <table class="w-full">
                     <tr>
-                        <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Tanggal Selesai</td>
-                        <td class="px-1 text-gray-400 font-bold">:</td>
-                        <td class="font-bold text-gray-800 font-mono text-[10px] py-0.5">{{ $tglSelesai ? $tglSelesai->format('d/m/Y H:i:s') : '-' }}</td>
+                        <td class="text-[11px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap w-28">Tanggal Selesai</td>
+                        <td class="px-1 text-gray-400 font-bold w-3">:</td>
+                        <td class="font-bold text-gray-800 font-mono text-xs py-0.5">{{ $tglSelesai ? $tglSelesai->format('d/m/Y H:i:s') : '-' }}</td>
                     </tr>
                     <tr>
-                        <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Pelanggan</td>
+                        <td class="text-[11px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Pelanggan</td>
                         <td class="px-1 text-gray-400 font-bold">:</td>
-                        <td class="font-bold text-gray-900 text-[10px] py-0.5">
-                            <span class="truncate block max-w-[170px]" title="{{ $servis->customer?->nama ?? 'Pelanggan Umum' }}">
+                        <td class="font-bold text-gray-900 text-xs py-0.5">
+                            <span class="truncate block max-w-[200px]" title="{{ $servis->customer?->nama ?? 'Pelanggan Umum' }}">
                                 {{ $servis->customer?->nama ?? 'Pelanggan Umum' }}
                             </span>
                         </td>
                     </tr>
                     <tr>
-                        <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">NO. FAKTUR SERVIS</td>
+                        <td class="text-[11px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">NO. FAKTUR SERVIS</td>
                         <td class="px-1 text-gray-400 font-bold">:</td>
-                        <td class="font-black text-[#5E17EB] font-mono text-xs py-0.5">
+                        <td class="font-black text-[#5E17EB] font-mono text-[13px] py-0.5">
                             {{ $servis->no_servis_frontend ?? $servis->no_servis }}
                         </td>
                     </tr>
@@ -119,107 +122,97 @@
         </div>
 
         <!-- Divider Strip -->
-        <div class="border-t border-b border-dashed border-gray-400 py-0.5 text-center font-bold tracking-widest text-[10px] uppercase text-gray-700 select-none">
+        <div class="border-t border-b border-dashed border-gray-400 py-1 text-center font-bold tracking-widest text-[11px] uppercase text-gray-700 select-none">
             &middot;&middot;&middot;&middot;&middot; FAKTUR SERVIS &middot;&middot;&middot;&middot;&middot;
         </div>
 
         <!-- Info Unit -->
-        <div class="grid grid-cols-2 gap-2 pb-1 border-b border-dashed border-gray-200 text-[11px]">
+        <div class="grid grid-cols-2 gap-2 pb-1 border-b border-dashed border-gray-200 text-xs">
             <div>
-                <span class="text-[9px] font-bold text-gray-500 uppercase block leading-none">PERANGKAT :</span>
-                <span class="text-xs font-bold text-gray-900 mt-0.5 inline-block">{{ $servis->tipe_unit ?: $servis->kategori_perangkat_label }}</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase block leading-none">PERANGKAT :</span>
+                <span class="text-xs font-bold text-gray-900 mt-1 inline-block">{{ $servis->tipe_unit ?: $servis->kategori_perangkat_label }}</span>
             </div>
             <div class="text-right">
-                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Petugas Kasir :</span>
-                <span class="font-semibold text-gray-800 text-[10px] mt-0.5 inline-block">{{ $servis->kasir?->name ?? ($servis->teknisi?->name ?? 'Soulmate Komputer') }}</span>
+                <span class="text-[11px] font-bold text-gray-400 uppercase block leading-none">Petugas Kasir :</span>
+                <span class="font-semibold text-gray-800 text-xs mt-1 inline-block">{{ $servis->kasir?->name ?? ($servis->teknisi?->name ?? 'Soulmate Komputer') }}</span>
             </div>
         </div>
 
         <!-- Tabel Rincian Jasa & Sparepart -->
         <div>
-            <table class="w-full text-left border-collapse text-[11px]">
+            <table class="w-full text-left border-collapse text-xs table-fixed">
                 <thead>
-                    <tr class="border-b border-gray-800 text-[10px] font-bold uppercase text-gray-700">
-                        <th class="py-1">No</th>
-                        <th class="py-1">Nama Barang / Jasa</th>
-                        <th class="py-1 text-center">Garansi</th>
-                        <th class="py-1 text-center">Qty</th>
-                        <th class="py-1 text-right">Harga</th>
-                        <th class="py-1 text-right">Subtotal</th>
+                    <tr class="border-b border-gray-800 text-xs font-bold uppercase text-gray-700">
+                        <th class="py-1.5 w-[5%]">No</th>
+                        <th class="py-1.5 w-[41%]">Nama Barang / Jasa</th>
+                        <th class="py-1.5 text-center w-[14%]">Garansi</th>
+                        <th class="py-1.5 text-center w-[10%]">Qty</th>
+                        <th class="py-1.5 text-right w-[15%]">Harga</th>
+                        <th class="py-1.5 text-right w-[15%] pr-1">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @forelse($servis->details as $idx => $det)
                         <tr>
-                            <td class="py-1 font-mono text-gray-500 text-[10px]">{{ $idx + 1 }}</td>
-                            <td class="py-1 font-semibold text-gray-900">
+                            <td class="py-2 font-mono text-gray-500 text-xs align-top">{{ $idx + 1 }}</td>
+                            <td class="py-2 font-semibold text-gray-900 align-top">
                                 {{ $det->nama_item }}
                             </td>
-                            <td class="py-1 text-center font-mono text-[10px] text-gray-700">
+                            <td class="py-2 text-center font-mono text-xs text-gray-700 align-top">
                                 {{ $det->garansi_label }}
                             </td>
-                            <td class="py-1 text-center font-mono font-bold">{{ $det->qty }}</td>
-                            <td class="py-1 text-right font-mono">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
-                            <td class="py-1 text-right font-mono font-bold text-gray-900">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
+                            <td class="py-2 text-center font-mono font-bold align-top">{{ $det->qty }}</td>
+                            <td class="py-2 text-right font-mono align-top whitespace-nowrap">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
+                            <td class="py-2 text-right font-mono font-bold text-gray-900 align-top whitespace-nowrap pr-1">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-1 text-center text-gray-400 italic">Biaya Servis Standar</td>
+                            <td colspan="6" class="py-2.5 text-center text-gray-400 italic">Biaya Servis Standar</td>
                         </tr>
                     @endforelse
                 </tbody>
                 <tfoot>
-                    <tr class="border-t border-gray-800 font-bold text-xs">
-                        <td colspan="5" class="py-1 text-right uppercase">TOTAL TAGIHAN :</td>
-                        <td class="py-1 text-right font-mono text-[#5E17EB]">Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}</td>
+                    <tr class="border-t border-gray-800 font-bold text-[13px]">
+                        <td colspan="5" class="py-2 text-right uppercase">TOTAL TAGIHAN :</td>
+                        <td class="py-2 text-right font-mono text-[#5E17EB] font-black text-sm whitespace-nowrap pr-1">Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}</td>
                     </tr>
-                    {{-- @if($servis->bayar > 0)
-                        <tr class="font-medium text-[10px] text-gray-600">
-                            <td colspan="5" class="py-0.5 text-right">Bayar ({{ strtoupper($servis->metode_pembayaran ?: 'Tunai') }}) :</td>
-                            <td class="py-0.5 text-right font-mono">Rp {{ number_format($servis->bayar, 0, ',', '.') }}</td>
-                        </tr>
-                        <tr class="font-medium text-[10px] text-gray-600">
-                            <td colspan="5" class="py-0.5 text-right">Kembalian :</td>
-                            <td class="py-0.5 text-right font-mono">Rp {{ number_format($servis->kembalian, 0, ',', '.') }}</td>
-                        </tr>
-                    @endif --}}
                 </tfoot>
             </table>
         </div>
 
         <!-- Tanda Tangan Section -->
-        <div class="grid grid-cols-2 gap-6 pt-1 text-center text-[10px]">
+        <div class="grid grid-cols-2 gap-6 pt-1 text-center text-xs avoid-break">
             <div>
                 <p class="font-medium text-gray-500">Pelanggan,</p>
-                <div class="h-6"></div>
-                <p class="font-bold text-gray-900 border-t border-gray-300 pt-0.5 inline-block min-w-[120px]">
+                <div class="h-11"></div>
+                <p class="font-bold text-gray-900 border-t border-gray-300 pt-0.5 inline-block min-w-[140px]">
                     {{ $servis->customer?->nama ?? 'Pelanggan' }}
                 </p>
             </div>
             <div>
                 <p class="font-medium text-gray-500">Kasir Toko,</p>
-                <div class="h-6"></div>
-                <p class="font-bold text-gray-900 border-t border-gray-300 pt-0.5 inline-block min-w-[120px]">
+                <div class="h-11"></div>
+                <p class="font-bold text-gray-900 border-t border-gray-300 pt-0.5 inline-block min-w-[140px]">
                     {{ $servis->kasir?->name ?? ($servis->teknisi?->name ?? 'Soulmate Komputer') }}
                 </p>
             </div>
         </div>
 
         <!-- Box Garansi Toko -->
-        <div class="p-2.5 rounded-xl bg-emerald-50/90 border border-emerald-200 flex items-start space-x-2.5">
+        <div class="p-3 rounded-xl bg-emerald-50/90 border border-emerald-200 flex items-start space-x-3 avoid-break">
             <div class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 font-bold mt-0.5">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
             </div>
-            <div class="text-[10px] leading-snug text-gray-800">
+            <div class="text-[11px] leading-snug text-gray-800">
                 @php
                     $hasGaransi = $servis->details->where('garansi_hari', '>', 0)->count() > 0;
                 @endphp
                 @if($hasGaransi)
-                    <strong class="text-emerald-800 font-bold block uppercase">KETENTUAN GARANSI PER ITEM</strong>
+                    <strong class="text-emerald-800 font-bold block uppercase text-xs">KETENTUAN GARANSI PER ITEM</strong>
                     Garansi berlaku per item sesuai rincian pada tabel di atas terhitung sejak tanggal konfirmasi selesai.
-                    <span class="block text-[9px] text-gray-500 mt-0.5">Garansi tidak berlaku jika nota hilang, segel rusak, terkena cairan, atau akibat kelalaian pemakaian/kelistrikan.</span>
+                    <span class="block text-[10px] text-gray-500 mt-0.5">Garansi tidak berlaku jika nota hilang, segel rusak, terkena cairan, atau akibat kelalaian pemakaian/kelistrikan.</span>
                 @else
-                    <strong class="text-gray-700 font-bold block">KETENTUAN LAYANAN</strong>
+                    <strong class="text-gray-700 font-bold block text-xs">KETENTUAN LAYANAN</strong>
                     Barang yang telah diambil telah dicek dan berfungsi normal di depan pelanggan (Non-Garansi).
                 @endif
             </div>

@@ -5,15 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sales Invoice - {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }} - Soulmate Komputer</title>
     <link rel="icon" type="image/jpeg" href="{{ asset('images/logo_bulat.png') }}">
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         @page {
-            size: portrait;
-            margin: 4mm 6mm;
+            size: 240mm 140mm;
+            margin: 3mm 6mm 3mm 6mm;
+        }
+        * {
+            font-family: Arial, Helvetica, sans-serif !important;
+            box-sizing: border-box;
         }
         @media print {
             html, body {
@@ -31,10 +33,10 @@
             .sales-invoice-container {
                 box-shadow: none !important;
                 border: none !important;
-                padding: 0 !important;
+                padding: 2mm 0 !important;
                 margin: 0 !important;
                 width: 100% !important;
-                max-width: 100% !important;
+                max-width: 228mm !important;
             }
             .sales-invoice-container tr,
             .sales-invoice-container .avoid-break {
@@ -43,10 +45,10 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen py-6 px-4 font-sans antialiased text-gray-900 selection:bg-purple-500 selection:text-white">
+<body class="bg-gray-100 min-h-screen py-6 px-4 font-sans antialiased text-gray-900 selection:bg-purple-500 selection:text-white" style="font-family: Arial, Helvetica, sans-serif !important;">
 
     <!-- Action Bar (Hidden on Print) -->
-    <div class="max-w-3xl mx-auto mb-4 flex items-center justify-between no-print bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm">
+    <div class="max-w-4xl mx-auto mb-4 flex items-center justify-between no-print bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm">
         <div class="flex items-center space-x-2">
             <button type="button"
                     onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = '{{ route('kasir.produk') }}'; }"
@@ -59,7 +61,7 @@
 
         <div class="flex items-center space-x-2">
             <button onclick="window.print()" class="px-5 py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold transition-all shadow-md inline-flex items-center space-x-1.5 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                 <span>Cetak Print</span>
             </button>
         </div>

@@ -5,16 +5,18 @@
     <title>Faktur Servis - {{ $servis->no_servis_frontend ?? $servis->no_servis }}</title>
     <style>
         @page {
-            margin: 6mm 8mm 6mm 8mm;
+            size: 240mm 140mm;
+            margin: 4mm 6mm;
         }
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif;
         }
         body {
-            font-family: 'DejaVu Sans', 'Helvetica', Arial, sans-serif;
-            font-size: 8.5pt;
+            font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif;
+            font-size: 9pt;
             color: #1a1a1a;
             line-height: 1.25;
             background: #fff;
@@ -44,45 +46,45 @@
             border-top: 1.5px dashed #333;
             border-bottom: 1.5px dashed #333;
             padding: 4px 0;
-            margin: 6px 0 6px 0;
+            margin: 6px 0;
             text-align: center;
             font-weight: bold;
             letter-spacing: 2px;
-            font-size: 8.5pt;
+            font-size: 9pt;
             color: #111;
         }
 
         .spec-bar {
             background: #f8f9fa;
             border: 1px solid #e5e7eb;
-            padding: 4px 8px;
+            padding: 5px 8px;
             margin-bottom: 6px;
             border-radius: 4px;
-            font-size: 8pt;
+            font-size: 8.5pt;
         }
 
         .items-table {
             margin-bottom: 6px;
         }
         .items-table th {
-            padding: 4px 6px;
+            padding: 5px 6px;
             font-weight: bold;
-            font-size: 8pt;
+            font-size: 8.5pt;
             border-top: 1.5px solid #222;
             border-bottom: 1.5px solid #222;
             background: #fafafa;
         }
         .items-table td {
-            padding: 4px 6px;
-            font-size: 8pt;
+            padding: 5px 6px;
+            font-size: 8.5pt;
             vertical-align: middle;
             border-bottom: 1px dotted #ccc;
         }
 
         .sign-title {
             color: #555;
-            font-size: 7.5pt;
-            margin-bottom: 28px;
+            font-size: 8pt;
+            margin-bottom: 30px;
         }
         .sign-name {
             border-top: 1px solid #333;
@@ -90,27 +92,27 @@
             display: inline-block;
             min-width: 140px;
             font-weight: bold;
-            font-size: 8pt;
+            font-size: 8.5pt;
         }
 
         .totals-table td {
             padding: 2px 4px;
-            font-size: 8pt;
+            font-size: 8.5pt;
         }
         .totals-table .grandtotal-row td {
             border-top: 1.5px solid #222;
-            padding-top: 3px;
-            font-size: 9pt;
+            padding-top: 4px;
+            font-size: 10pt;
             font-weight: bold;
         }
 
         .warranty-box {
             border: 1px solid #10b981;
             background: #ecfdf5;
-            padding: 5px 8px;
+            padding: 6px 8px;
             border-radius: 4px;
             margin-top: 6px;
-            font-size: 7.5pt;
+            font-size: 8pt;
             line-height: 1.3;
         }
     </style>

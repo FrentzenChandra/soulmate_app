@@ -5,16 +5,18 @@
     <title>Tanda Terima Servis - {{ $servis->no_servis_frontend ?? $servis->no_servis }}</title>
     <style>
         @page {
-            margin: 6mm 8mm 6mm 8mm;
+            size: 240mm 140mm;
+            margin: 4mm 6mm;
         }
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif;
         }
         body {
-            font-family: 'DejaVu Sans', 'Helvetica', Arial, sans-serif;
-            font-size: 8.5pt;
+            font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif;
+            font-size: 9pt;
             color: #1a1a1a;
             line-height: 1.25;
             background: #fff;
@@ -48,7 +50,7 @@
             text-align: center;
             font-weight: bold;
             letter-spacing: 2px;
-            font-size: 8.5pt;
+            font-size: 9pt;
             color: #111;
         }
 
@@ -64,12 +66,12 @@
             background: #fafafa;
             border-radius: 4px;
             padding: 6px 8px;
-            min-height: 48px;
+            min-height: 52px;
         }
 
         .sign-title {
             color: #555;
-            font-size: 7.5pt;
+            font-size: 8pt;
             margin-bottom: 30px;
         }
         .sign-name {
@@ -78,7 +80,7 @@
             display: inline-block;
             min-width: 150px;
             font-weight: bold;
-            font-size: 8pt;
+            font-size: 8.5pt;
         }
 
         .info-box {
@@ -87,7 +89,7 @@
             padding: 6px 10px;
             border-radius: 4px;
             margin-top: 8px;
-            font-size: 7.5pt;
+            font-size: 8pt;
             line-height: 1.3;
         }
     </style>

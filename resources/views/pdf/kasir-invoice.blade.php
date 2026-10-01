@@ -5,16 +5,18 @@
     <title>Sales Invoice - {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}</title>
     <style>
         @page {
-            margin: 6mm 8mm 6mm 8mm;
+            size: 240mm 140mm;
+            margin: 4mm 6mm;
         }
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif;
         }
         body {
-            font-family: 'DejaVu Sans', 'Helvetica', Arial, sans-serif;
-            font-size: 8.5pt;
+            font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif;
+            font-size: 9pt;
             color: #1a1a1a;
             line-height: 1.25;
             background: #fff;
@@ -44,11 +46,11 @@
             border-top: 1.5px dashed #333;
             border-bottom: 1.5px dashed #333;
             padding: 4px 0;
-            margin: 5px 0 6px 0;
+            margin: 6px 0;
             text-align: center;
             font-weight: bold;
             letter-spacing: 3px;
-            font-size: 8.5pt;
+            font-size: 9pt;
             color: #111;
         }
 
@@ -56,42 +58,42 @@
             margin-bottom: 6px;
         }
         .items-table th {
-            padding: 4px 6px;
+            padding: 5px 6px;
             font-weight: bold;
-            font-size: 8pt;
+            font-size: 8.5pt;
             border-top: 1.5px solid #222;
             border-bottom: 1.5px solid #222;
             background: #fafafa;
         }
         .items-table td {
-            padding: 4px 6px;
-            font-size: 8pt;
+            padding: 5px 6px;
+            font-size: 8.5pt;
             vertical-align: middle;
             border-bottom: 1px dotted #ccc;
         }
 
         .sign-title {
             color: #555;
-            font-size: 7.5pt;
-            margin-bottom: 28px;
+            font-size: 8pt;
+            margin-bottom: 30px;
         }
         .sign-name {
             border-top: 1px solid #333;
             padding-top: 3px;
             display: inline-block;
-            min-width: 130px;
+            min-width: 140px;
             font-weight: bold;
-            font-size: 8pt;
+            font-size: 8.5pt;
         }
 
         .totals-table td {
             padding: 2px 4px;
-            font-size: 8pt;
+            font-size: 8.5pt;
         }
         .totals-table .grandtotal-row td {
             border-top: 1.5px solid #222;
-            padding-top: 3px;
-            font-size: 9pt;
+            padding-top: 4px;
+            font-size: 10pt;
             font-weight: bold;
         }
     </style>

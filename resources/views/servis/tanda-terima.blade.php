@@ -12,8 +12,11 @@
 
     <style>
         @page {
-            size: portrait;
-            margin: 4mm 6mm;
+            size: 240mm 140mm;
+            margin: 3mm 6mm;
+        }
+        * {
+            font-family: Arial, Helvetica, sans-serif !important;
         }
         @media print {
             html, body {
@@ -43,10 +46,10 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen py-6 px-4 font-sans antialiased text-gray-900 selection:bg-purple-500 selection:text-white">
+<body class="bg-gray-100 min-h-screen py-6 px-4 antialiased text-gray-900 selection:bg-purple-500 selection:text-white" style="font-family: Arial, Helvetica, sans-serif;">
 
     <!-- Action Bar (Hidden on Print) -->
-    <div class="max-w-3xl mx-auto mb-4 flex items-center justify-between no-print bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm">
+    <div class="max-w-4xl mx-auto mb-4 flex items-center justify-between no-print bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm">
         <div class="flex items-center space-x-2">
             <button type="button"
                     onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = '{{ route('servis.masuk') }}'; }"
@@ -65,47 +68,47 @@
         </div>
     </div>
 
-    <!-- Tanda Terima Container (Strict 1-Page on 24x15 cm) -->
-    <div id="receiptPrintArea" class="tanda-terima-container max-w-3xl mx-auto bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-md space-y-2.5 text-gray-900 text-xs">
+    <!-- Tanda Terima Container (Strict 1-Page on 24x14 cm continuous form) -->
+    <div id="receiptPrintArea" class="tanda-terima-container max-w-4xl mx-auto bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-md space-y-3.5 text-gray-900 text-xs">
 
         <!-- Header: Store Identity & Service Ticket Info -->
         <div class="grid grid-cols-12 gap-3 items-start pb-1">
 
             <!-- Left: Logo & Toko -->
-            <div class="col-span-7 flex items-start space-x-3">
-                <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-gray-100 shadow-xs">
+            <div class="col-span-7 flex items-start space-x-3.5">
+                <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-16 h-16 rounded-2xl object-cover shrink-0 border border-gray-100 shadow-xs">
                 <div>
-                    <h1 class="text-base font-black text-gray-900 tracking-tight leading-none">Soulmate Komputer</h1>
-                    <p class="text-[10px] font-medium text-gray-600 mt-1 leading-tight">
+                    <h1 class="text-[19px] font-black text-gray-900 tracking-tight leading-tight">Soulmate Komputer</h1>
+                    <p class="text-[11px] font-medium text-gray-600 mt-1 leading-snug">
                         {{ $servis->cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang' }}
                     </p>
-                    <p class="text-[10px] font-semibold text-gray-700 mt-0.5">
+                    <p class="text-[11px] font-semibold text-gray-700 mt-0.5">
                         WhatsApp: {{ format_whatsapp($servis->cabang?->no_wa ?? '081995466255') }}
                     </p>
                 </div>
             </div>
 
             <!-- Right: Meta Info (Tanggal, Pelanggan, Kode Servis 1 Baris per Item) -->
-            <div class="col-span-5 text-[11px]">
+            <div class="col-span-5 text-xs">
                 <table class="w-full">
                     <tr>
-                        <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Tanggal</td>
-                        <td class="px-1 text-gray-400 font-bold">:</td>
-                        <td class="font-bold text-gray-800 font-mono text-[10px] py-0.5">{{ $servis->tanggal_masuk ? $servis->tanggal_masuk->format('d/m/Y H:i:s') : '-' }}</td>
+                        <td class="text-[11px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap w-28">Tanggal</td>
+                        <td class="px-1 text-gray-400 font-bold w-3">:</td>
+                        <td class="font-bold text-gray-800 font-mono text-xs py-0.5">{{ $servis->tanggal_masuk ? $servis->tanggal_masuk->format('d/m/Y H:i:s') : '-' }}</td>
                     </tr>
                     <tr>
-                        <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Pelanggan</td>
+                        <td class="text-[11px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">Pelanggan</td>
                         <td class="px-1 text-gray-400 font-bold">:</td>
-                        <td class="font-bold text-gray-900 text-[10px] py-0.5">
-                            <span class="truncate block max-w-[170px]" title="{{ $servis->customer?->nama ?? 'Pelanggan Umum' }}">
+                        <td class="font-bold text-gray-900 text-xs py-0.5">
+                            <span class="truncate block max-w-[200px]" title="{{ $servis->customer?->nama ?? 'Pelanggan Umum' }}">
                                 {{ $servis->customer?->nama ?? 'Pelanggan Umum' }}
                             </span>
                         </td>
                     </tr>
                     <tr>
-                        <td class="text-[9px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">KODE SERVIS</td>
+                        <td class="text-[11px] font-bold text-gray-500 uppercase py-0.5 whitespace-nowrap">KODE SERVIS</td>
                         <td class="px-1 text-gray-400 font-bold">:</td>
-                        <td class="font-black text-[#5E17EB] font-mono text-xs py-0.5">
+                        <td class="font-black text-[#5E17EB] font-mono text-[13px] py-0.5">
                             {{ $servis->no_servis_frontend ?? $servis->no_servis }}
                         </td>
                     </tr>
@@ -115,42 +118,42 @@
         </div>
 
         <!-- Divider Strip -->
-        <div class="border-t border-b border-dashed border-gray-400 py-0.5 text-center font-bold tracking-widest text-[10px] uppercase text-gray-700 select-none">
+        <div class="border-t border-b border-dashed border-gray-400 py-1 text-center font-bold tracking-widest text-[11px] uppercase text-gray-700 select-none">
             &middot;&middot;&middot;&middot;&middot; TANDA TERIMA BARANG SERVIS &middot;&middot;&middot;&middot;&middot;
         </div>
 
         <!-- Service Specs Grid -->
-        <div class="grid grid-cols-2 gap-x-4 gap-y-2 pt-0.5 text-[11px]">
+        <div class="grid grid-cols-2 gap-x-6 gap-y-3 pt-1 text-xs">
 
             <!-- Row 1: Nama Barang / Unit & Keluhan -->
-            <div class="border-b border-dashed border-gray-200 pb-1.5">
-                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Unit Perangkat :</span>
-                <span class="text-xs font-bold text-gray-900 mt-0.5 block">
+            <div class="border-b border-dashed border-gray-200 pb-2">
+                <span class="text-[11px] font-bold text-gray-400 uppercase block leading-none">Unit Perangkat :</span>
+                <span class="text-[13px] font-bold text-gray-900 mt-1 block">
                     {{ $servis->tipe_unit ?? ($servis->kategori_perangkat_label . ' (Tanpa Tipe)') }}
                 </span>
-                <span class="text-[10px] text-gray-500">
+                <span class="text-[11px] text-gray-500 mt-0.5 block">
                     Kategori: {{ $servis->kategori_perangkat_label }}
                 </span>
             </div>
 
-            <div class="border-b border-dashed border-gray-200 pb-1.5">
-                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Keluhan Kerusakan :</span>
-                <span class="text-[10px] font-semibold text-gray-800 mt-0.5 block whitespace-pre-line leading-tight">
+            <div class="border-b border-dashed border-gray-200 pb-2">
+                <span class="text-[11px] font-bold text-gray-400 uppercase block leading-none">Keluhan Kerusakan :</span>
+                <span class="text-xs font-semibold text-gray-800 mt-1 block whitespace-pre-line leading-relaxed">
                     {{ $servis->keluhan ?: '-' }}
                 </span>
             </div>
 
             <!-- Row 2: Kelengkapan & Catatan / Kondisi Fisik -->
-            <div>
-                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Kelengkapan Unit :</span>
-                <span class="text-[10px] font-medium text-gray-800 mt-0.5 block whitespace-pre-line leading-tight">
+            <div class="pt-1">
+                <span class="text-[11px] font-bold text-gray-400 uppercase block leading-none">Kelengkapan Unit :</span>
+                <span class="text-xs font-medium text-gray-800 mt-1 block whitespace-pre-line leading-relaxed">
                     {{ $servis->kelengkapan ?: 'Hanya Unit' }}
                 </span>
             </div>
 
-            <div>
-                <span class="text-[9px] font-bold text-gray-400 uppercase block leading-none">Kondisi Fisik :</span>
-                <span class="text-[10px] font-medium text-gray-800 mt-0.5 block whitespace-pre-line leading-tight">
+            <div class="pt-1">
+                <span class="text-[11px] font-bold text-gray-400 uppercase block leading-none">Kondisi Fisik :</span>
+                <span class="text-xs font-medium text-gray-800 mt-1 block whitespace-pre-line leading-relaxed">
                     {{ $servis->kondisi_barang ?: ($servis->catatan ?: '-') }}
                 </span>
             </div>
@@ -158,30 +161,30 @@
         </div>
 
         <!-- Tanda Tangan Section -->
-        <div class="grid grid-cols-2 gap-6 pt-1 text-center text-[10px]">
+        <div class="grid grid-cols-2 gap-6 pt-2 text-center text-xs avoid-break">
             <div>
                 <p class="font-medium text-gray-500">Pelanggan,</p>
-                <div class="h-6"></div>
-                <p class="font-bold text-gray-900 border-t border-gray-300 pt-0.5 inline-block min-w-[120px]">
+                <div class="h-11"></div>
+                <p class="font-bold text-gray-900 border-t border-gray-300 pt-0.5 inline-block min-w-[140px]">
                     {{ $servis->customer?->nama ?? 'Pelanggan' }}
                 </p>
             </div>
             <div>
                 <p class="font-medium text-gray-500">Hormat kami,</p>
-                <div class="h-6"></div>
-                <p class="font-bold text-gray-900 border-t border-gray-300 pt-0.5 inline-block min-w-[120px]">
+                <div class="h-11"></div>
+                <p class="font-bold text-gray-900 border-t border-gray-300 pt-0.5 inline-block min-w-[140px]">
                     {{ $servis->pembuat?->name ?? 'Soulmate Komputer' }}
                 </p>
             </div>
         </div>
 
         <!-- Box Footer: Public Web Tracking Info -->
-        <div class="p-2.5 rounded-xl bg-gray-50 border border-gray-200 flex items-center space-x-2.5">
+        <div class="p-3 rounded-xl bg-gray-50 border border-gray-200 flex items-center space-x-3 avoid-break">
             <div class="w-6 h-6 rounded-lg bg-purple-100 text-[#5E17EB] flex items-center justify-center shrink-0 border border-purple-200">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
             </div>
-            <div class="text-[10px] leading-snug text-gray-700">
-                Pengecekan status servis dapat dilakukan di <strong class="text-[#0052FF] font-bold">www.soulmatekomputer.com</strong> dengan memasukkan kode servis: <span class="font-mono font-bold text-gray-900 bg-white px-1.5 py-0.2 rounded border border-gray-300">{{ $servis->no_servis_frontend ?? $servis->no_servis }}</span>
+            <div class="text-[11px] leading-snug text-gray-700">
+                Pengecekan status servis dapat dilakukan di <strong class="text-[#0052FF] font-bold">www.soulmatekomputer.com</strong> dengan memasukkan kode servis: <span class="font-mono font-bold text-gray-900 bg-white px-2 py-0.5 rounded border border-gray-300">{{ $servis->no_servis_frontend ?? $servis->no_servis }}</span>
             </div>
         </div>
 
