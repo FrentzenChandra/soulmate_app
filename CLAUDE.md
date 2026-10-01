@@ -23,9 +23,10 @@
 - Windows Junction ≠ Linux Symlink. `storage:link` wajib dibuat di dalam container Linux agar tidak menghasilkan 403 Forbidden.
 - Gunakan `Storage::disk('public')` dan URL relatif `storage/...`.
 
-## 6. Komunikasi & Edukasi Konsep
+## 6. Komunikasi & Active Skills
 - Jelaskan istilah teknis IT dengan analogi sederhana dan ramah pemula sebelum detail teknis.
 - Mode komunikasi: ringkas, padat, hemat token (Caveman mode).
+- Skill **Frontend UI Engineering** (`frontend-ui-engineering`) dan **Ponytail** (`ponytail`) WAJIB selalu aktif setiap saat di semua percakapan.
 
 ## 7. Graphify Auto-Update
 - Jalankan `python -m graphify.cli update` setiap selesai melakukan perubahan kode.

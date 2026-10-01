@@ -103,7 +103,8 @@
     - Filter berlaku serentak pada metrik/ringkasan card di atas tabel dan pagination query tabel.
 
 ## 14. Skills & Capabilities
-- Dalam konteks workspace project: Aktifkan seluruh ekosistem skill (Caveman, Ponytail, Graphify, TDD, Surgical Patch, Subagents).
+- Dalam konteks workspace project: Aktifkan seluruh ekosistem skill (Caveman, Ponytail, Frontend UI Engineering, Graphify, TDD, Surgical Patch, Subagents).
+- Skill **Frontend UI Engineering** (`frontend-ui-engineering`) dan **Ponytail** (`ponytail`) WAJIB selalu aktif setiap saat di seluruh conversation/turn.
 - Pertahankan gaya komunikasi ringkas, padat, dan hemat token (Caveman mode).
 
 ## 15. Proactive Anomaly & Discrepancy Reporting
