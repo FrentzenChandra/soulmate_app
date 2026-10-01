@@ -1106,8 +1106,8 @@ window.tabulatorTransaksiFullTable = function(config) {
                 responsiveLayout: false,
                 resizableColumnFit: true,
                 pagination: "local",
-                paginationSize: 25,
-                paginationSizeSelector: [15, 25, 50, 100],
+                paginationSize: 200,
+                paginationSizeSelector: [200, 1000, 2000, 10000],
                 movableColumns: true,
                 groupBy: this.groupByDate ? "tanggal_group" : false,
                 groupOrder: function(a, b, aGroup, bGroup) {
@@ -1140,12 +1140,12 @@ window.tabulatorTransaksiFullTable = function(config) {
                 },
                 placeholder: "Belum ada data transaksi yang tercatat.",
                 columns: [
-                    { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 30, minWidth: 30, maxWidth: 30, resizable: false },
+                    { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 28, minWidth: 28, maxWidth: 28, resizable: false },
                     {
                         title: "Transaksi",
                         field: "tipe_transaksi",
-                        width: 130,
-                        minWidth: 115,
+                        width: 105,
+                        minWidth: 95,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
                         formatter: (cell) => {
@@ -1156,13 +1156,13 @@ window.tabulatorTransaksiFullTable = function(config) {
                                 : 'bg-purple-100 text-[#5E17EB] border border-purple-200 font-black';
                             return `
                                 <div class="leading-tight py-0.5">
-                                    <div class="mb-1">
-                                        <span class="inline-block px-2 py-0.5 rounded text-[8.5px] uppercase tracking-wider ${badgeColor}">
+                                    <div class="mb-0.5">
+                                        <span class="inline-block px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider ${badgeColor}">
                                             ${d.tipe_transaksi}
                                         </span>
                                     </div>
-                                    <div class="flex items-center gap-1.5 text-[9.5px] text-gray-500 font-semibold">
-                                        <span class="truncate font-bold text-gray-700" title="Diinput oleh: ${d.user_input}">${d.user_input}</span>
+                                    <div class="flex items-center gap-1 text-[9px] text-gray-500 font-semibold">
+                                        <span class="truncate font-bold text-gray-700 max-w-[55px]" title="Diinput oleh: ${d.user_input}">${d.user_input}</span>
                                         <span class="text-gray-300 font-bold">&bull;</span>
                                         <span class="font-mono text-gray-600 font-bold shrink-0">${d.jam}</span>
                                     </div>
@@ -1174,28 +1174,28 @@ window.tabulatorTransaksiFullTable = function(config) {
                         title: "Pelanggan",
                         field: "pelanggan",
                         widthGrow: 1,
-                        minWidth: 110,
+                        minWidth: 85,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
-                        formatter: (cell) => `<span class="font-bold text-gray-900 block truncate text-[11px]" title="${cell.getValue()}">${cell.getValue()}</span>`
+                        formatter: (cell) => `<span class="font-bold text-gray-900 block truncate text-[10.5px]" title="${cell.getValue()}">${cell.getValue()}</span>`
                     },
                     {
                         title: "Item",
                         field: "rincian_item",
                         widthGrow: 2,
-                        minWidth: 140,
+                        minWidth: 105,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<span class="text-[10px] text-gray-400 italic">Tanpa item</span>`;
+                                return `<span class="text-[9.5px] text-gray-400 italic">Tanpa item</span>`;
                             }
                             const html = items.map(it => `
-                                <div class="flex items-start gap-1.5 leading-tight py-0.5 min-h-[18px]">
+                                <div class="flex items-start gap-1 leading-tight py-0.5 min-h-[18px]">
                                     <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#5E17EB] shrink-0 mt-1"></span>
-                                    <span class="text-[10px] font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
+                                    <span class="text-[9.5px] font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
                                 </div>
                             `).join('');
                             return `<div class="py-0.5 space-y-0.5">${html}</div>`;
@@ -1205,15 +1205,16 @@ window.tabulatorTransaksiFullTable = function(config) {
                         title: "Biaya",
                         field: "grand_total",
                         hozAlign: "right",
-                        width: 115,
+                        width: 85,
+                        minWidth: 85,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<span class="font-mono font-black text-[#5E17EB] text-[11px]">${this.formatRupiah(d.grand_total)}</span>`;
+                                return `<span class="font-mono font-black text-[#5E17EB] text-[10.5px]">${this.formatRupiah(d.grand_total)}</span>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold text-slate-800 font-mono">
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[10px] font-bold text-[#5E17EB] font-mono">
                                     ${this.formatRupiah(it.subtotal_jual)}
                                 </div>
                             `).join('');
@@ -1224,15 +1225,16 @@ window.tabulatorTransaksiFullTable = function(config) {
                         title: "Modal",
                         field: "total_modal",
                         hozAlign: "right",
-                        width: 105,
+                        width: 78,
+                        minWidth: 78,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<span class="font-mono font-bold text-amber-600 text-[11px]">${this.formatRupiah(d.total_modal)}</span>`;
+                                return `<span class="font-mono font-bold text-amber-600 text-[10.5px]">${this.formatRupiah(d.total_modal)}</span>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold text-amber-600 font-mono">
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[10px] font-bold text-amber-600 font-mono">
                                     ${this.formatRupiah(it.subtotal_modal)}
                                 </div>
                             `).join('');
@@ -1243,16 +1245,17 @@ window.tabulatorTransaksiFullTable = function(config) {
                         title: "Laba",
                         field: "total_laba",
                         hozAlign: "right",
-                        width: 110,
+                        width: 78,
+                        minWidth: 78,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
                                 const val = Number(d.total_laba || 0);
-                                return `<span class="font-mono font-black text-[11px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
+                                return `<span class="font-mono font-black text-[10.5px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] text-[10.5px] font-bold font-mono ${it.laba >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
+                                <div class="leading-tight py-0.5 min-h-[18px] text-[10px] font-bold font-mono ${it.laba >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
                                     ${this.formatRupiah(it.laba)}
                                 </div>
                             `).join('');
@@ -1262,25 +1265,20 @@ window.tabulatorTransaksiFullTable = function(config) {
                     {
                         title: "Pajak",
                         field: "has_ppn",
-                        width: 90,
+                        width: 55,
+                        minWidth: 55,
                         hozAlign: "center",
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             const isMulti = items.length > 1;
 
-                            if (items.length === 0) {
-                                const taxLabel = d.has_ppn ? 'PPN' : 'Non PPN';
-                                const taxColor = d.has_ppn ? 'text-[#0052FF]' : 'text-pink-600';
-                                return `<span class="text-[10px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</span>`;
-                            }
-
-                            if (!isMulti) {
-                                const it = items[0];
+                            if (items.length === 0 || !isMulti) {
+                                const it = items[0] || {};
                                 const itemHasPpn = it.has_ppn !== undefined ? it.has_ppn : d.has_ppn;
                                 const taxLabel = itemHasPpn ? 'PPN' : 'Non PPN';
                                 const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
-                                return `<span class="text-[10px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</span>`;
+                                return `<span class="text-[9px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</span>`;
                             }
 
                             const html = items.map(it => {
@@ -1288,7 +1286,7 @@ window.tabulatorTransaksiFullTable = function(config) {
                                 const taxLabel = itemHasPpn ? 'PPN' : 'Non PPN';
                                 const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
                                 return `
-                                    <div class="leading-tight py-0.5 min-h-[18px] text-[10px] font-black ${taxColor} uppercase tracking-wider">
+                                    <div class="leading-tight py-0.5 min-h-[18px] text-[9px] font-black ${taxColor} uppercase tracking-wider">
                                         ${taxLabel}
                                     </div>
                                 `;
@@ -1299,8 +1297,8 @@ window.tabulatorTransaksiFullTable = function(config) {
                     {
                         title: "Status",
                         field: "status",
-                        width: 120,
-                        minWidth: 120,
+                        width: 78,
+                        minWidth: 78,
                         hozAlign: "center",
                         headerFilter: "list",
                         headerFilterParams: { values: ["Lunas", "Bon"], clearable: true },
@@ -1313,13 +1311,13 @@ window.tabulatorTransaksiFullTable = function(config) {
                             const hasPelunas = isLunas && d.pelunas_nama && d.pelunas_nama !== '-';
                             return `
                                 <div class="py-0.5 flex flex-col items-center justify-center min-h-[36px]">
-                                    <select class="w-[72px] py-0.5 px-1 rounded text-[9.5px] font-black border transition-all cursor-pointer text-center focus:ring-1 focus:ring-purple-200 ${
+                                    <select class="w-[64px] py-0.5 px-0.5 rounded text-[9px] font-black border transition-all cursor-pointer text-center focus:ring-1 focus:ring-purple-200 ${
                                         isLunas ? 'bg-emerald-50 text-emerald-800 border-emerald-400' : 'bg-rose-50 text-rose-800 border-rose-400'
                                     }" onchange="window.updateStatusFullDirect(${id}, this.value)">
                                         <option value="Lunas" ${isLunas ? 'selected' : ''}>Lunas</option>
                                         <option value="Bon" ${!isLunas ? 'selected' : ''}>Bon</option>
                                     </select>
-                                    <div class="text-[8.5px] font-bold leading-tight mt-0.5 truncate max-w-[105px] text-center ${
+                                    <div class="text-[8px] font-bold leading-tight mt-0.5 truncate max-w-[75px] text-center ${
                                         hasPelunas ? 'text-emerald-700' : 'opacity-0 select-none'
                                     }" title="${hasPelunas ? 'Dilunasi oleh: ' + d.pelunas_nama + ' (' + d.jam_lunas + ')' : ''}">
                                         ${hasPelunas ? d.pelunas_nama + ' (' + d.jam_lunas + ')' : '-'}
@@ -1331,8 +1329,8 @@ window.tabulatorTransaksiFullTable = function(config) {
                     {
                         title: "Metode",
                         field: "metode_pembayaran",
-                        width: 115,
-                        minWidth: 115,
+                        width: 78,
+                        minWidth: 78,
                         hozAlign: "center",
                         formatter: (cell) => {
                             const d = cell.getData();
@@ -1356,7 +1354,7 @@ window.tabulatorTransaksiFullTable = function(config) {
 
                             return `
                                 <div class="py-0.5 flex items-center justify-center">
-                                    <select class="w-[88px] py-0.5 px-1 rounded text-[9.5px] font-bold border transition-all cursor-pointer text-center focus:ring-1 focus:ring-purple-200 ${colorStyle}"
+                                    <select class="w-[68px] py-0.5 px-0.5 rounded text-[9px] font-bold border transition-all cursor-pointer text-center focus:ring-1 focus:ring-purple-200 ${colorStyle}"
                                             onchange="window.updateMetodeFullDirect(${id}, parseInt(this.value, 10))">
                                         ${options}
                                     </select>
@@ -1367,8 +1365,9 @@ window.tabulatorTransaksiFullTable = function(config) {
                     {
                         title: "Aksi",
                         field: "id",
-                        width: 85,
-                        maxWidth: 85,
+                        width: 68,
+                        minWidth: 68,
+                        maxWidth: 68,
                         hozAlign: "center",
                         headerSort: false,
                         resizable: false,
@@ -1377,15 +1376,15 @@ window.tabulatorTransaksiFullTable = function(config) {
                             const data = cell.getData();
                             const noTrx = (data.no_transaksi || '').replace(/'/g, "\\'");
                             return `
-                                <div class="flex items-center justify-center space-x-1">
-                                    <button type="button" onclick="window.viewTransaksiFullDetail(${id})" class="p-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer" title="Lihat Detail Transaksi">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                <div class="flex items-center justify-center space-x-0.5">
+                                    <button type="button" onclick="window.viewTransaksiFullDetail(${id})" class="p-0.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer" title="Lihat Detail Transaksi">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </button>
-                                    <button type="button" onclick="window.editTransaksiFull(${id})" class="p-1 rounded bg-blue-50 hover:bg-blue-100 text-[#0052FF] transition-colors cursor-pointer" title="Edit Transaksi">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    <button type="button" onclick="window.editTransaksiFull(${id})" class="p-0.5 rounded bg-blue-50 hover:bg-blue-100 text-[#0052FF] transition-colors cursor-pointer" title="Edit Transaksi">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
-                                    <button type="button" onclick="window.deleteTransaksiFullConfirm(${id}, '${noTrx}')" class="p-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer" title="Hapus Transaksi">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    <button type="button" onclick="window.deleteTransaksiFullConfirm(${id}, '${noTrx}')" class="p-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer" title="Hapus Transaksi">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
                                 </div>
                             `;

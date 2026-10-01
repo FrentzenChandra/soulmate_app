@@ -766,8 +766,8 @@ class Harian extends Component
             }
         }
 
-        // Query Utama Transaksi Harian (Hanya Tabel Utama, Fokus Hari Terpilih)
-        $query = TransaksiFull::with(['customer', 'cabang', 'pegawai', 'details', 'userInput', 'pelunas']);
+        // Query Utama Transaksi Harian
+        $query = TransaksiFull::query();
 
         // Scoping Cabang
         if (! $isHQ) {
@@ -827,7 +827,23 @@ class Harian extends Component
         $transaksiList = $query->take($this->perPage)->get();
         $hasMore = $totalItems > $this->perPage;
 
-        $allCurrent = (clone $query)->get();
+        // Slim query payload for ultra-fast table rendering
+        $allCurrent = (clone $query)
+            ->select([
+                'id', 'no_transaksi', 'cabang_id', 'tipe_transaksi', 'kategori_perangkat',
+                'tanggal', 'tanggal_lunas', 'nama_pelanggan', 'no_hp', 'status',
+                'metode_pembayaran_id', 'metode_pembayaran', 'catatan',
+                'total_modal', 'total_jual', 'grand_total', 'total_laba',
+                'ppn_id', 'ppn_persen', 'ppn_nominal',
+                'user_id', 'pelunas_user_id', 'pegawai_id'
+            ])
+            ->with([
+                'details:id,transaksi_full_id,qty,nama_item,harga_modal,harga_jual,subtotal_modal,subtotal_jual,laba,ppn_persen,ppn_nominal',
+                'userInput:id,name',
+                'pelunas:id,name',
+                'pegawai:id,nama'
+            ])
+            ->get();
         $tableData = $allCurrent->map(function ($item) {
             return [
                 'id' => $item->id,

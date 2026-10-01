@@ -854,16 +854,14 @@ class Full extends Component
             });
         }
 
-        // Hitung 6 Ringkasan Finansial Utama
+        // Hitung 6 Ringkasan Finansial Utama via direct SQL aggregation (Zero RAM Overhead)
         $summaryBase = clone $query;
-        $allCurrent = (clone $summaryBase)->orderBy('tanggal', 'desc')->orderByDesc('id')->get();
-
-        $totalPendapatan = (float) $allCurrent->sum('grand_total');
-        $totalModal = (float) $allCurrent->sum('total_modal');
-        $totalLaba = (float) $allCurrent->sum('total_laba');
-        $totalLunas = (float) $allCurrent->where('status', 'Lunas')->sum('grand_total');
-        $totalBon = (float) $allCurrent->filter(fn($t) => in_array(strtolower($t->status), ['bon']))->sum('grand_total');
-        $totalTransaksiCount = $allCurrent->count();
+        $totalPendapatan = (float) (clone $summaryBase)->sum('grand_total');
+        $totalModal = (float) (clone $summaryBase)->sum('total_modal');
+        $totalLaba = (float) (clone $summaryBase)->sum('total_laba');
+        $totalLunas = (float) (clone $summaryBase)->where('status', 'Lunas')->sum('grand_total');
+        $totalBon = (float) (clone $summaryBase)->whereRaw('LOWER(status) = ?', ['bon'])->sum('grand_total');
+        $totalTransaksiCount = (int) (clone $summaryBase)->count();
 
         // Hitung Uang Cash di Laci HARI INI (Terkunci Hari Ini / Realtime Kasir)
         $todayDate = now()->toDateString();
@@ -923,6 +921,26 @@ class Full extends Component
         $totalItems = (clone $query)->count();
         $transaksiList = $query->take($this->perPage)->get();
         $hasMore = $totalItems > $this->perPage;
+
+        // Slim query payload for ultra-fast table rendering
+        $allCurrent = (clone $summaryBase)
+            ->select([
+                'id', 'no_transaksi', 'cabang_id', 'tipe_transaksi', 'kategori_perangkat',
+                'tanggal', 'tanggal_lunas', 'nama_pelanggan', 'no_hp', 'status',
+                'metode_pembayaran_id', 'metode_pembayaran', 'catatan',
+                'total_modal', 'total_jual', 'grand_total', 'total_laba',
+                'ppn_id', 'ppn_persen', 'ppn_nominal',
+                'user_id', 'pelunas_user_id', 'pegawai_id'
+            ])
+            ->with([
+                'details:id,transaksi_full_id,qty,nama_item,harga_modal,harga_jual,subtotal_modal,subtotal_jual,laba,ppn_persen,ppn_nominal',
+                'userInput:id,name',
+                'pelunas:id,name',
+                'pegawai:id,nama'
+            ])
+            ->orderBy('tanggal', 'desc')
+            ->orderByDesc('id')
+            ->get();
 
         $tableData = $allCurrent->map(function ($item) {
             return [
