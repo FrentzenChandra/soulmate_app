@@ -16,6 +16,7 @@ class TransaksiFull extends Model
 
     protected $fillable = [
         'cabang_id',
+        'user_id',
         'pegawai_id',
         'customer_id',
         'nama_pelanggan',
@@ -25,6 +26,7 @@ class TransaksiFull extends Model
         'kategori_perangkat',
         'tanggal',
         'tanggal_lunas',
+        'pelunas_user_id',
         'metode_pembayaran_id',
         'metode_pembayaran',
         'ppn_id',
@@ -52,6 +54,16 @@ class TransaksiFull extends Model
     public function cabang(): BelongsTo
     {
         return $this->belongsTo(Cabang::class);
+    }
+
+    public function userInput(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id')->withTrashed();
+    }
+
+    public function pelunas(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'pelunas_user_id')->withTrashed();
     }
 
     public function pegawai(): BelongsTo

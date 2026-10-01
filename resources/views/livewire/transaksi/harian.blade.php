@@ -973,7 +973,7 @@ window.tabulatorTransaksiHarianTable = function(config) {
                                         </span>
                                     </div>
                                     <div class="flex items-center gap-1.5 text-[9.5px] text-gray-500 font-semibold">
-                                        <span class="truncate font-bold text-gray-700">${d.petugas}</span>
+                                        <span class="truncate font-bold text-gray-700" title="Diinput oleh: ${d.user_input}">${d.user_input}</span>
                                         <span class="text-gray-300 font-bold">&bull;</span>
                                         <span class="font-mono text-gray-600 font-bold shrink-0">${d.jam}</span>
                                     </div>
@@ -1090,22 +1090,29 @@ window.tabulatorTransaksiHarianTable = function(config) {
                     {
                         title: "Status",
                         field: "status",
-                        width: 100,
+                        width: 115,
                         hozAlign: "center",
                         headerFilter: "list",
                         headerFilterParams: { values: ["Lunas", "Bon"], clearable: true },
                         headerFilterFunc: multiSelectFilterFunc,
                         formatter: (cell) => {
+                            const d = cell.getData();
                             const val = (cell.getValue() || '').toString();
                             const isLunas = val.toLowerCase() === 'lunas';
-                            const id = cell.getData().id;
+                            const id = d.id;
+                            const pelunasInfo = (isLunas && d.pelunas_nama && d.pelunas_nama !== '-')
+                                ? `<div class="text-[8.5px] text-emerald-700 font-bold leading-tight mt-0.5 truncate max-w-[105px] mx-auto" title="Dilunasi oleh: ${d.pelunas_nama} (${d.jam_lunas})">${d.pelunas_nama} (${d.jam_lunas})</div>`
+                                : '';
                             return `
-                                <select class="py-0.5 px-1.5 rounded text-[9.5px] font-black border transition-all cursor-pointer focus:ring-1 focus:ring-blue-200 ${
-                                    isLunas ? 'bg-emerald-50 text-emerald-800 border-emerald-400 font-black' : 'bg-rose-50 text-rose-800 border-rose-400 font-black'
-                                }" onchange="window.updateStatusHarianDirect(${id}, this.value)">
-                                    <option value="Lunas" ${isLunas ? 'selected' : ''}>Lunas</option>
-                                    <option value="Bon" ${!isLunas ? 'selected' : ''}>Bon</option>
-                                </select>
+                                <div class="py-0.5">
+                                    <select class="py-0.5 px-1.5 rounded text-[9.5px] font-black border transition-all cursor-pointer focus:ring-1 focus:ring-blue-200 ${
+                                        isLunas ? 'bg-emerald-50 text-emerald-800 border-emerald-400 font-black' : 'bg-rose-50 text-rose-800 border-rose-400 font-black'
+                                    }" onchange="window.updateStatusHarianDirect(${id}, this.value)">
+                                        <option value="Lunas" ${isLunas ? 'selected' : ''}>Lunas</option>
+                                        <option value="Bon" ${!isLunas ? 'selected' : ''}>Bon</option>
+                                    </select>
+                                    ${pelunasInfo}
+                                </div>
                             `;
                         }
                     },

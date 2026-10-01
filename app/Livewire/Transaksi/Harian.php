@@ -521,24 +521,36 @@ class Harian extends Component
             $totalLaba = $totalJual - $totalModal;
             $grandTotal = $totalJual + $totalPpnNominal;
 
+            $statusNormalized = strtolower($this->formStatus) === 'bon' ? 'Bon' : 'Lunas';
+            $authUserId = Auth::id();
+
             if ($this->transaksiId) {
                 $existingTrx = TransaksiFull::find($this->transaksiId);
                 $tanggalParsed = $existingTrx ? $existingTrx->tanggal : now();
+                $userId = $existingTrx?->user_id ?: $authUserId;
+
+                if ($statusNormalized === 'Lunas') {
+                    if ($existingTrx && $existingTrx->status === 'Lunas') {
+                        $tanggalLunas = $existingTrx->tanggal_lunas ?: now();
+                        $pelunasUserId = $existingTrx->pelunas_user_id ?: $authUserId;
+                    } else {
+                        $tanggalLunas = now();
+                        $pelunasUserId = $authUserId;
+                    }
+                } else {
+                    $tanggalLunas = null;
+                    $pelunasUserId = null;
+                }
             } else {
                 $tanggalParsed = now();
-            }
+                $userId = $authUserId;
 
-            $tanggalLunas = null;
-            $statusNormalized = strtolower($this->formStatus) === 'bon' ? 'Bon' : 'Lunas';
-
-            if ($statusNormalized === 'Lunas') {
-                if ($this->transaksiId) {
-                    $existingTrx = TransaksiFull::find($this->transaksiId);
-                    $tanggalLunas = ($existingTrx && $existingTrx->status === 'Lunas' && $existingTrx->tanggal_lunas)
-                        ? $existingTrx->tanggal_lunas
-                        : now();
-                } else {
+                if ($statusNormalized === 'Lunas') {
                     $tanggalLunas = $tanggalParsed;
+                    $pelunasUserId = $authUserId;
+                } else {
+                    $tanggalLunas = null;
+                    $pelunasUserId = null;
                 }
             }
 
@@ -546,6 +558,7 @@ class Harian extends Component
 
             $data = [
                 'cabang_id' => $cabangId,
+                'user_id' => $userId,
                 'pegawai_id' => $pegawaiId,
                 'customer_id' => $this->formCustomerType === 'langganan' ? $this->formCustomerId : null,
                 'nama_pelanggan' => trim($this->formNamaPelanggan) ?: 'Konsumen',
@@ -555,6 +568,7 @@ class Harian extends Component
                 'kategori_perangkat' => $this->formTipeTransaksi === 'servis' ? ($this->formKategoriPerangkat ?: 'laptop') : null,
                 'tanggal' => $tanggalParsed,
                 'tanggal_lunas' => $tanggalLunas,
+                'pelunas_user_id' => $pelunasUserId,
                 'metode_pembayaran_id' => $this->formMetodePembayaranId,
                 'metode_pembayaran' => $this->formMetodePembayaran,
                 'ppn_id' => $this->formPpnId,
@@ -618,8 +632,10 @@ class Harian extends Component
             $transaksi->status = $statusNormalized;
             if ($statusNormalized === 'Lunas') {
                 $transaksi->tanggal_lunas = $transaksi->tanggal_lunas ?: now();
+                $transaksi->pelunas_user_id = Auth::id();
             } else {
                 $transaksi->tanggal_lunas = null;
+                $transaksi->pelunas_user_id = null;
             }
             $transaksi->save();
             session()->flash('success', "Status transaksi {$transaksi->no_transaksi_frontend} diubah ke {$statusNormalized}.");
@@ -751,7 +767,7 @@ class Harian extends Component
         }
 
         // Query Utama Transaksi Harian (Hanya Tabel Utama, Fokus Hari Terpilih)
-        $query = TransaksiFull::with(['customer', 'cabang', 'pegawai', 'details']);
+        $query = TransaksiFull::with(['customer', 'cabang', 'pegawai', 'details', 'userInput', 'pelunas']);
 
         // Scoping Cabang
         if (! $isHQ) {
@@ -822,6 +838,10 @@ class Harian extends Component
                 'jam' => $item->tanggal ? $item->tanggal->format('H:i') : '-',
                 'tanggal_group' => $item->tanggal ? $item->tanggal->translatedFormat('l, d F Y') : '-',
                 'petugas' => $item->pegawai?->nama ?? 'Tanpa Pegawai',
+                'user_input' => $item->userInput?->name ?? 'System',
+                'pelunas_nama' => $item->pelunas?->name ?? ($item->status === 'Lunas' ? ($item->userInput?->name ?? 'System') : '-'),
+                'tanggal_lunas' => $item->tanggal_lunas ? $item->tanggal_lunas->format('d/m/Y H:i') : '-',
+                'jam_lunas' => $item->tanggal_lunas ? $item->tanggal_lunas->format('H:i') : '-',
                 'pelanggan' => $item->nama_pelanggan,
                 'no_hp' => $item->no_hp ?: '-',
                 'items_list' => $item->details->map(fn($d) => [

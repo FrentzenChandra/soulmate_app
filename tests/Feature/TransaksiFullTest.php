@@ -433,4 +433,54 @@ class TransaksiFullTest extends TestCase
         $this->assertEquals($ppn11->id, $details[1]->ppn_id);
         $this->assertEquals(33000, $details[1]->ppn_nominal);
     }
+
+    public function test_audit_user_input_and_pelunas_tracking()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        $metode = MetodePembayaran::firstOrCreate(['nama' => 'Cash', 'cabang_id' => $superadmin->cabang_id], [
+            'is_aktif' => true,
+        ]);
+
+        // 1. Create BON transaction
+        Livewire::test(TransaksiFull::class)
+            ->call('openCreateModal')
+            ->set('formNamaPelanggan', 'Pelanggan Audit Test')
+            ->set('formTipeTransaksi', 'penjualan')
+            ->set('formStatus', 'Bon')
+            ->set('formMetodePembayaranId', $metode->id)
+            ->set('formMetodePembayaran', $metode->nama)
+            ->set('items.0.nama_item', 'Barang BON')
+            ->set('items.0.harga_modal', 10000)
+            ->set('items.0.harga_jual', 20000)
+            ->set('items.0.qty', 1)
+            ->call('recalculateRow', 0)
+            ->call('simpanTransaksi')
+            ->assertHasNoErrors();
+
+        $trx = TransaksiFullModel::where('nama_pelanggan', 'Pelanggan Audit Test')->first();
+        $this->assertNotNull($trx);
+        $this->assertEquals($superadmin->id, $trx->user_id);
+        $this->assertNull($trx->pelunas_user_id);
+        $this->assertNull($trx->tanggal_lunas);
+
+        // 2. Direct update from BON to Lunas
+        Livewire::test(TransaksiFull::class)
+            ->call('updateStatusDirect', $trx->id, 'Lunas');
+
+        $trxFresh = $trx->fresh();
+        $this->assertEquals('Lunas', $trxFresh->status);
+        $this->assertEquals($superadmin->id, $trxFresh->pelunas_user_id);
+        $this->assertNotNull($trxFresh->tanggal_lunas);
+
+        // 3. Direct update back to BON
+        Livewire::test(TransaksiFull::class)
+            ->call('updateStatusDirect', $trx->id, 'Bon');
+
+        $trxBonAgain = $trx->fresh();
+        $this->assertEquals('Bon', $trxBonAgain->status);
+        $this->assertNull($trxBonAgain->pelunas_user_id);
+        $this->assertNull($trxBonAgain->tanggal_lunas);
+    }
 }
