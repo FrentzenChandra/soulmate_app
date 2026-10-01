@@ -230,7 +230,7 @@
                                     {{ $transaksiId ? 'Edit Transaksi' : 'Input Transaksi Baru' }}
                                 </h3>
                                 <p class="text-xs text-blue-100 font-medium mt-0.5">
-                                    Entri data transaksi harian mandiri dengan kustomisasi HPP modal dan laba bersih
+                                    Entri data transaksi harian mandiri dengan kustomisasi item dan harga
                                 </p>
                             </div>
                         </div>
@@ -510,17 +510,11 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Subtotal & Laba Baris -->
+                                            <!-- Subtotal Baris -->
                                             <div class="pt-2 border-t border-gray-100 flex items-center justify-between text-[11px]">
                                                 <div class="flex items-center space-x-3 text-gray-500 font-medium">
                                                     <span>Subtotal Biaya: <strong class="text-gray-900 font-mono">Rp {{ number_format((float)($itemRow['subtotal_jual'] ?? 0), 0, ',', '.') }}</strong></span>
                                                     <span>Subtotal Modal: <strong class="text-amber-800 font-mono">Rp {{ number_format((float)($itemRow['subtotal_modal'] ?? 0), 0, ',', '.') }}</strong></span>
-                                                </div>
-                                                <div>
-                                                    <span class="font-bold text-gray-600">Laba Bersih:</span>
-                                                    <span class="font-mono font-black {{ ($itemRow['laba'] ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600' }} ml-1">
-                                                        Rp {{ number_format((float)($itemRow['laba'] ?? 0), 0, ',', '.') }}
-                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -801,7 +795,6 @@
                                             <th class="py-2 px-3 text-center">Jumlah</th>
                                             <th class="py-2 px-3 text-right">Harga Jual</th>
                                             <th class="py-2 px-3 text-right">Modal</th>
-                                            <th class="py-2 px-3 text-right">Laba</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
@@ -811,7 +804,6 @@
                                                 <td class="py-2.5 px-3 text-center font-mono font-bold text-gray-900">{{ $d->qty }}</td>
                                                 <td class="py-2.5 px-3 text-right font-mono font-bold text-gray-900">Rp {{ number_format($d->harga_jual, 0, ',', '.') }}</td>
                                                 <td class="py-2.5 px-3 text-right font-mono font-bold text-amber-800">Rp {{ number_format($d->harga_modal, 0, ',', '.') }}</td>
-                                                <td class="py-2.5 px-3 text-right font-mono font-black {{ $d->laba >= 0 ? 'text-emerald-700' : 'text-rose-600' }}">Rp {{ number_format($d->laba, 0, ',', '.') }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -820,7 +812,6 @@
                                             <td colspan="2" class="py-2 px-3 text-gray-900 font-bold">Total Ringkasan:</td>
                                             <td class="py-2 px-3 text-right font-mono text-base text-[#0052FF] font-black">Rp {{ number_format($selectedTransaksi->grand_total, 0, ',', '.') }}</td>
                                             <td class="py-2 px-3 text-right font-mono text-amber-900 font-bold">Rp {{ number_format($selectedTransaksi->total_modal, 0, ',', '.') }}</td>
-                                            <td class="py-2 px-3 text-right font-mono text-base text-emerald-700 font-black">Rp {{ number_format($selectedTransaksi->total_laba, 0, ',', '.') }}</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -1049,27 +1040,6 @@ window.tabulatorTransaksiHarianTable = function(config) {
                             const html = items.map(it => `
                                 <div class="leading-tight py-0.2 min-h-[16px] text-[9.5px] font-bold text-amber-600 font-mono">
                                     ${this.formatRupiah(it.subtotal_modal)}
-                                </div>
-                            `).join('');
-                            return `<div class="py-0.2 space-y-0.2 text-right">${html}</div>`;
-                        }
-                    },
-                    {
-                        title: "Laba",
-                        field: "total_laba",
-                        hozAlign: "right",
-                        width: 65,
-                        minWidth: 65,
-                        formatter: (cell) => {
-                            const d = cell.getData();
-                            const items = d.items_list || [];
-                            if (items.length === 0) {
-                                const val = Number(d.total_laba || 0);
-                                return `<span class="font-mono font-black text-[10px] ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${this.formatRupiah(val)}</span>`;
-                            }
-                            const html = items.map(it => `
-                                <div class="leading-tight py-0.2 min-h-[16px] text-[9.5px] font-bold font-mono ${it.laba >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
-                                    ${this.formatRupiah(it.laba)}
                                 </div>
                             `).join('');
                             return `<div class="py-0.2 space-y-0.2 text-right">${html}</div>`;

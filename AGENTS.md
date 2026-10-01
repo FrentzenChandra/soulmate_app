@@ -157,6 +157,21 @@
 - **Transaction Modal Form Sizing:**
   * Ukuran lebar modal input/edit transaksi (`$modalFormOpen`) di Transaksi FULL dan Transaksi Harian WAJIB menggunakan batas maksimal `sm:max-w-2xl` (bukan `sm:max-w-4xl`) agar proporsional, nyaman dilihat, dan ergonomis.
 
+## 22. Transaksi Harian Zero Laba Standard (Sensitivitas Margin Kasir & Staf)
+- **Larangan Total Informasi Laba di Transaksi Harian:** Pada modul **Transaksi Harian** (yang digunakan oleh staf operasional dan kasir), **SEMUA INFORMASI LABA (PROFIT / MARGIN) DILARANG KERAS DITAMPILKAN**:
+  * Dilarang menampilkan kolom `Laba` pada tabel Tabulator Transaksi Harian.
+  * Dilarang menampilkan kalkulasi/preview `Laba Bersih` pada baris modal form input/edit transaksi.
+  * Dilarang menampilkan kolom `Laba` pada tabel modal detail transaksi harian.
+  * Dilarang menampilkan metrik/ringkasan laba di header atau kartu metrik Transaksi Harian.
+- **Hak Akses Informasi Laba:** Informasi dan analisis laba secara penuh HANYA boleh diakses melalui modul **Transaksi FULL** (khusus role Superadmin dan Owner).
 
-
-
+## 23. Transaksi Modal Detail & Customer Form Simplification Standard
+- **Urutan Kolom Tabel Modal Detail:**
+  * Urutan kolom rincian barang/layanan pada modal detail transaksi WAJIB: `Item` &rarr; `Jumlah` (wajib memakai nama `Jumlah`, dilarang `Qty`) &rarr; `Harga Jual` &rarr; `Modal` (dilarang `Modal (HPP)`) &rarr; `Laba` (hanya ada di Transaksi FULL).
+  * Baris footer total ringkasan tersinkronisasi 1-to-1 dengan urutan kolom di atasnya.
+- **Zero Nomor Telepon pada Dropdown & Modal Detail Pelanggan:**
+  * Dropdown saran pencarian pelanggan (`$customerSuggestions`) pada modal input transaksi HANYA menampilkan nama pelanggan (tanpa nomor telepon di sampingnya).
+  * Kartu pelanggan terpilih pada form modal hanya menampilkan avatar inisial dan nama pelanggan.
+  * Modal detail transaksi pada blok data pelanggan HANYA menampilkan nama pelanggan tanpa nomor telepon.
+- **Ultra-Compact Dense Table & Slim Payload:**
+  * Format tabel Transaksi FULL dan Harian menggunakan `.tabulator-dense`, font warna biaya ungu `#5E17EB`, opsi pagination `[200, 1000, 2000, 10000]` (default 200), dan slim query payload (`select` kolom spesifik) untuk menjaga performa optimal.
