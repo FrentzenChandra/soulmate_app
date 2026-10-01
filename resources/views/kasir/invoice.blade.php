@@ -21,7 +21,7 @@
                 color: black !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                overflow: hidden !important;
+                overflow: visible !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
@@ -35,11 +35,9 @@
                 margin: 0 !important;
                 width: 100% !important;
                 max-width: 100% !important;
-                page-break-inside: avoid !important;
-                page-break-after: avoid !important;
-                page-break-before: avoid !important;
             }
-            .sales-invoice-container * {
+            .sales-invoice-container tr,
+            .sales-invoice-container .avoid-break {
                 page-break-inside: avoid !important;
             }
         }
@@ -71,14 +69,15 @@
     <x-sales-invoice :penjualan="$penjualan" />
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('autoprint') === '1') {
-            window.addEventListener('load', () => {
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('autoprint') === '1' || window.self !== window.top) {
                 setTimeout(() => {
+                    window.focus();
                     window.print();
-                }, 300);
-            });
-        }
+                }, 200);
+            }
+        });
     </script>
 </body>
 </html>

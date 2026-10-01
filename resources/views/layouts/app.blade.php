@@ -881,6 +881,44 @@
         </script>
     @endif
 
+    <!-- Global In-Page Direct Print Helper -->
+    <script>
+        window.printDocument = function(url) {
+            if (!url) return;
+            let frame = document.getElementById('global-print-frame');
+            if (frame) {
+                frame.remove();
+            }
+            frame = document.createElement('iframe');
+            frame.id = 'global-print-frame';
+            frame.style.position = 'fixed';
+            frame.style.right = '0';
+            frame.style.bottom = '0';
+            frame.style.width = '0';
+            frame.style.height = '0';
+            frame.style.border = '0';
+            frame.style.visibility = 'hidden';
+            frame.src = url;
+            document.body.appendChild(frame);
+        };
+
+        window.addEventListener('open-print-document', function(e) {
+            if (e.detail && e.detail.url) {
+                window.printDocument(e.detail.url);
+            }
+        });
+        window.addEventListener('open-print-receipt', function(e) {
+            if (e.detail && e.detail.url) {
+                window.printDocument(e.detail.url);
+            }
+        });
+        window.addEventListener('open-print-invoice', function(e) {
+            if (e.detail && e.detail.url) {
+                window.printDocument(e.detail.url);
+            }
+        });
+    </script>
+
     @stack('modals')
     @livewireScripts
     @stack('scripts')

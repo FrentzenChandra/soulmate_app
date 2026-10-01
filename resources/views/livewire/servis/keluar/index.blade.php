@@ -4,7 +4,7 @@
             .listen('.ServisStatusUpdated', () => { $wire.$refresh(); })
             .listen('ServisStatusUpdated', () => { $wire.$refresh(); });
     }
-" x-on:open-print-invoice.window="window.location.href = $event.detail.url" class="space-y-6">
+" x-on:open-print-invoice.window="window.printDocument ? window.printDocument($event.detail.url) : window.location.href = $event.detail.url" class="space-y-6">
 
     <!-- ============================================== -->
     <!-- HEADER HALAMAN & INFORMASI                     -->
@@ -327,11 +327,12 @@
                                     @endif
 
                                     <!-- Aksi 3: Cetak Faktur Nota -->
-                                    <a href="{{ route('servis.invoice', $item->id) }}"
-                                       class="p-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#5E17EB] transition-colors cursor-pointer"
-                                       title="Cetak Faktur Nota">
+                                    <button type="button"
+                                            onclick="window.printDocument('{{ route('servis.invoice', $item->id) }}')"
+                                            class="p-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#5E17EB] transition-colors cursor-pointer"
+                                            title="Cetak Faktur Nota">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                                    </a>
+                                    </button>
 
                                     <!-- Aksi 4: Serah Terima / Pelunasan -->
                                     @if($item->status === 'selesai')
@@ -504,11 +505,12 @@
 
                     <!-- Footer Modal Detail -->
                     <div class="bg-gray-50 px-6 py-4 flex items-center justify-between rounded-b-3xl border-t border-gray-100">
-                        <a href="{{ route('servis.invoice', $selectedServis->id) }}"
-                           class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-xs font-bold text-white transition-all cursor-pointer">
+                        <button type="button"
+                                onclick="window.printDocument('{{ route('servis.invoice', $selectedServis->id) }}')"
+                                class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-xs font-bold text-white transition-all cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                             <span>Cetak Faktur Nota</span>
-                        </a>
+                        </button>
 
                         <button type="button"
                                 wire:click="closeDetailModal"

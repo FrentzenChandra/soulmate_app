@@ -4,8 +4,8 @@
             .listen('.ServisStatusUpdated', () => { $wire.$refresh(); })
             .listen('ServisStatusUpdated', () => { $wire.$refresh(); });
     }
-" x-on:open-print-receipt.window="window.location.href = $event.detail.url"
-  x-on:open-print-invoice.window="window.location.href = $event.detail.url"
+" x-on:open-print-receipt.window="window.printDocument ? window.printDocument($event.detail.url) : window.location.href = $event.detail.url"
+  x-on:open-print-invoice.window="window.printDocument ? window.printDocument($event.detail.url) : window.location.href = $event.detail.url"
   class="space-y-6">
 
     <!-- ============================================== -->
@@ -367,11 +367,12 @@
                                     </button>
 
                                     <!-- Aksi 4: Cetak Tanda Terima Masuk -->
-                                    <a href="{{ route('servis.tanda-terima', $item->id) }}"
-                                       class="p-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#5E17EB] transition-colors cursor-pointer"
-                                       title="Cetak Tanda Terima Servis">
+                                    <button type="button"
+                                            onclick="window.printDocument('{{ route('servis.tanda-terima', $item->id) }}')"
+                                            class="p-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#5E17EB] transition-colors cursor-pointer"
+                                            title="Cetak Tanda Terima Servis">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                    </a>
+                                    </button>
 
                                     <!-- Aksi 5: Tindakan & Komponen -->
                                     <button type="button"
@@ -682,11 +683,12 @@
                     </div>
 
                     <div class="pt-2 flex flex-col sm:flex-row gap-2">
-                        <a href="{{ route('servis.tanda-terima', $lastCreatedServis->id) }}"
-                           class="flex-1 py-3 px-4 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-bold text-xs text-center shadow-md shadow-purple-600/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+                        <button type="button"
+                                onclick="window.printDocument('{{ route('servis.tanda-terima', $lastCreatedServis->id) }}')"
+                                class="flex-1 py-3 px-4 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-bold text-xs text-center shadow-md shadow-purple-600/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                             <span>Cetak Tanda Terima</span>
-                        </a>
+                        </button>
                         <button type="button"
                                 wire:click="$set('modalSuccessOpen', false)"
                                 class="py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition-colors cursor-pointer">
@@ -839,11 +841,12 @@
                     <!-- Footer Modal Detail -->
                     <div class="bg-gray-50 px-6 py-4 flex flex-wrap items-center justify-between gap-2 rounded-b-3xl border-t border-gray-100">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ route('servis.tanda-terima', $selectedServis->id) }}"
-                               class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-xs font-bold text-white transition-all cursor-pointer shadow-xs">
+                            <button type="button"
+                                    onclick="window.printDocument('{{ route('servis.tanda-terima', $selectedServis->id) }}')"
+                                    class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-xs font-bold text-white transition-all cursor-pointer shadow-xs">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                 <span>Tanda Terima</span>
-                            </a>
+                            </button>
 
                             @if($selectedServis->status === 'selesai')
                                 <button type="button"
