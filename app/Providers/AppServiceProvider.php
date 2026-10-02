@@ -28,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+        if (config('app.url') && ! app()->runningInConsole()) {
+            URL::forceRootUrl(config('app.url'));
+        }
+
         Gate::define('viewPulse', function (User $user) {
             return $user->isOwner() || $user->hasRole('Owner');
         });

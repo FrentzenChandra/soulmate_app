@@ -286,7 +286,7 @@
                         <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
 
                             <!-- Upload Foto Produk & Live Preview -->
-                            <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80">
+                            <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80" x-data="{ localPreview: null }">
                                 <div class="flex items-center justify-between mb-2">
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
                                         Foto Produk
@@ -301,10 +301,20 @@
 
                                 <div wire:loading.remove wire:target="foto">
                                     @if($foto)
+                                        @php
+                                            $serverPreview = null;
+                                            try {
+                                                $serverPreview = $foto->temporaryUrl();
+                                            } catch (\Throwable $e) {
+                                                $serverPreview = null;
+                                            }
+                                        @endphp
                                         <!-- PREVIEW FOTO BARU SEBELUM SIMPAN -->
                                         <div class="p-3.5 bg-white rounded-2xl border-2 border-[#5E17EB]/30 shadow-xs flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                                             <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-gray-100 border border-purple-200 shrink-0 shadow-inner group">
-                                                <img src="{{ $foto->temporaryUrl() }}" alt="Preview Foto Baru" class="w-full h-full object-cover">
+                                                <img :src="localPreview ? localPreview : '{{ $serverPreview }}'"
+                                                     alt="Preview Foto Baru"
+                                                     class="w-full h-full object-cover">
                                                 <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                     <span class="text-[10px] font-black text-white px-2 py-0.5 bg-[#5E17EB]/80 rounded-full">Preview</span>
                                                 </div>
@@ -326,7 +336,7 @@
                                                 </p>
                                                 <div class="mt-2.5 flex items-center space-x-2">
                                                     <button type="button"
-                                                            wire:click="cancelUploadFoto"
+                                                            @click="localPreview = null; $wire.cancelUploadFoto()"
                                                             class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                         <span>Batal / Hapus Pilihan</span>
@@ -352,7 +362,7 @@
                                                     <label class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#5E17EB] bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors cursor-pointer">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                                                         <span>Ganti Foto Baru</span>
-                                                        <input type="file" wire:model="foto" accept="image/*" class="hidden">
+                                                        <input type="file" wire:model="foto" @change="localPreview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null" accept="image/*" class="hidden">
                                                     </label>
                                                     <button type="button"
                                                             wire:click="removeExistingFoto"
@@ -373,6 +383,7 @@
                                             <div class="flex-1">
                                                 <input type="file"
                                                        wire:model="foto"
+                                                       @change="localPreview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null"
                                                        accept="image/*"
                                                        class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#5E17EB]/10 file:text-[#5E17EB] hover:file:bg-[#5E17EB]/20 cursor-pointer">
                                                 <p class="text-[10px] text-gray-400 mt-1">Pilih gambar JPG, PNG, atau WEBP (Maksimal 4MB).</p>
