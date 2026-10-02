@@ -227,30 +227,48 @@
 .tabulator-size-sm .tabulator .tabulator-header .tabulator-col-filter select { font-size: 9.5px !important; height: 22px !important; }
 .tabulator-size-sm .tabulator .tabulator-row { min-height: 32px !important; }
 .tabulator-size-sm .tabulator .tabulator-cell { font-size: 10.5px !important; padding: 4px 6px !important; }
-.tabulator-size-sm .tabulator .tabulator-cell span { font-size: 10.5px !important; }
+.tabulator-size-sm .tabulator .tabulator-cell span,
+.tabulator-size-sm .tabulator .tabulator-cell div,
+.tabulator-size-sm .tabulator .tabulator-cell p,
+.tabulator-size-sm .tabulator .tabulator-cell strong { font-size: 10.5px !important; }
 .tabulator-size-sm .tabulator .tabulator-cell span.text-sm,
 .tabulator-size-sm .tabulator .tabulator-cell span.font-bold,
-.tabulator-size-sm .tabulator .tabulator-cell span.font-black { font-size: 11.5px !important; }
+.tabulator-size-sm .tabulator .tabulator-cell span.font-black,
+.tabulator-size-sm .tabulator .tabulator-cell div.font-bold,
+.tabulator-size-sm .tabulator .tabulator-cell div.font-black,
+.tabulator-size-sm .tabulator .tabulator-cell strong.font-mono { font-size: 11px !important; }
 
 .tabulator-size-md .tabulator .tabulator-header .tabulator-col-title { font-size: 11px !important; }
 .tabulator-size-md .tabulator .tabulator-header .tabulator-col-filter input,
 .tabulator-size-md .tabulator .tabulator-header .tabulator-col-filter select { font-size: 10.5px !important; height: 24px !important; }
 .tabulator-size-md .tabulator .tabulator-row { min-height: 40px !important; }
 .tabulator-size-md .tabulator .tabulator-cell { font-size: 12px !important; padding: 6px 8px !important; }
-.tabulator-size-md .tabulator .tabulator-cell span { font-size: 12px !important; }
+.tabulator-size-md .tabulator .tabulator-cell span,
+.tabulator-size-md .tabulator .tabulator-cell div,
+.tabulator-size-md .tabulator .tabulator-cell p,
+.tabulator-size-md .tabulator .tabulator-cell strong { font-size: 12px !important; }
 .tabulator-size-md .tabulator .tabulator-cell span.text-sm,
 .tabulator-size-md .tabulator .tabulator-cell span.font-bold,
-.tabulator-size-md .tabulator .tabulator-cell span.font-black { font-size: 13.5px !important; }
+.tabulator-size-md .tabulator .tabulator-cell span.font-black,
+.tabulator-size-md .tabulator .tabulator-cell div.font-bold,
+.tabulator-size-md .tabulator .tabulator-cell div.font-black,
+.tabulator-size-md .tabulator .tabulator-cell strong.font-mono { font-size: 12.5px !important; }
 
 .tabulator-size-lg .tabulator .tabulator-header .tabulator-col-title { font-size: 13.5px !important; }
 .tabulator-size-lg .tabulator .tabulator-header .tabulator-col-filter input,
 .tabulator-size-lg .tabulator .tabulator-header .tabulator-col-filter select { font-size: 12.5px !important; height: 30px !important; }
 .tabulator-size-lg .tabulator .tabulator-row { min-height: 48px !important; }
 .tabulator-size-lg .tabulator .tabulator-cell { font-size: 14px !important; padding: 8px 10px !important; }
-.tabulator-size-lg .tabulator .tabulator-cell span { font-size: 14px !important; }
+.tabulator-size-lg .tabulator .tabulator-cell span,
+.tabulator-size-lg .tabulator .tabulator-cell div,
+.tabulator-size-lg .tabulator .tabulator-cell p,
+.tabulator-size-lg .tabulator .tabulator-cell strong { font-size: 13.5px !important; }
 .tabulator-size-lg .tabulator .tabulator-cell span.text-sm,
 .tabulator-size-lg .tabulator .tabulator-cell span.font-bold,
-.tabulator-size-lg .tabulator .tabulator-cell span.font-black { font-size: 15.5px !important; }
+.tabulator-size-lg .tabulator .tabulator-cell span.font-black,
+.tabulator-size-lg .tabulator .tabulator-cell div.font-bold,
+.tabulator-size-lg .tabulator .tabulator-cell div.font-black,
+.tabulator-size-lg .tabulator .tabulator-cell strong.font-mono { font-size: 14.5px !important; }
 
 /* Ultra-Compact & Dense Table Layout (Super Berhimpit) */
 .tabulator-dense .tabulator .tabulator-header .tabulator-col {

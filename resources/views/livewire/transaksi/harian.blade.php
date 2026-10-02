@@ -1034,7 +1034,7 @@ window.tabulatorTransaksiHarianTable = function(config) {
                         minWidth: 75,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
-                        formatter: (cell) => `<span class="font-bold text-gray-900 block truncate text-[10px]" title="${cell.getValue()}">${cell.getValue()}</span>`
+                        formatter: (cell) => `<span class="font-bold text-gray-900 block truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
                     },
                     {
                         title: "Item",
@@ -1047,12 +1047,12 @@ window.tabulatorTransaksiHarianTable = function(config) {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<span class="text-[9px] text-gray-400 italic">Tanpa item</span>`;
+                                return `<span class="text-gray-400 italic">Tanpa item</span>`;
                             }
                             const html = items.map(it => `
                                 <div class="flex items-start gap-1.5 leading-tight py-0.5 min-h-[18px]">
                                     <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#0052FF] shrink-0 mt-1"></span>
-                                    <span class="text-[9.5px] font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
+                                    <span class="font-bold text-slate-800 leading-snug"><strong class="font-mono text-[#0052FF]">${it.qty}x</strong> ${it.nama}</span>
                                 </div>
                             `).join('');
                             return `<div class="py-0.5 space-y-0.5">${html}</div>`;
@@ -1068,10 +1068,10 @@ window.tabulatorTransaksiHarianTable = function(config) {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<span class="font-mono font-black text-[#5E17EB] text-[10px]">${this.formatRupiah(d.grand_total)}</span>`;
+                                return `<span class="font-mono font-black text-[#5E17EB]">${this.formatRupiah(d.grand_total)}</span>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] text-[9.5px] font-bold text-[#5E17EB] font-mono">
+                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-[#5E17EB] font-mono">
                                     ${this.formatRupiah(it.subtotal_jual)}
                                 </div>
                             `).join('');
@@ -1088,10 +1088,10 @@ window.tabulatorTransaksiHarianTable = function(config) {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<span class="font-mono font-bold text-amber-600 text-[10px]">${this.formatRupiah(d.total_modal)}</span>`;
+                                return `<span class="font-mono font-bold text-amber-600">${this.formatRupiah(d.total_modal)}</span>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] text-[9.5px] font-bold text-amber-600 font-mono">
+                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-amber-600 font-mono">
                                     ${this.formatRupiah(it.subtotal_modal)}
                                 </div>
                             `).join('');
