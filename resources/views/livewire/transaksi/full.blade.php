@@ -1241,8 +1241,8 @@ window.tabulatorTransaksiFullTable = function(config) {
                     {
                         title: "Biaya",
                         field: "grand_total",
-                        width: 120,
-                        minWidth: 110,
+                        width: 132,
+                        minWidth: 125,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
@@ -1260,8 +1260,8 @@ window.tabulatorTransaksiFullTable = function(config) {
                     {
                         title: "Modal",
                         field: "total_modal",
-                        width: 110,
-                        minWidth: 100,
+                        width: 125,
+                        minWidth: 118,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
@@ -1279,8 +1279,8 @@ window.tabulatorTransaksiFullTable = function(config) {
                     {
                         title: "Laba",
                         field: "total_laba",
-                        width: 105,
-                        minWidth: 95,
+                        width: 120,
+                        minWidth: 112,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];

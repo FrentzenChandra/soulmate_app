@@ -1061,8 +1061,8 @@ window.tabulatorTransaksiHarianTable = function(config) {
                     {
                         title: "Biaya",
                         field: "grand_total",
-                        width: 120,
-                        minWidth: 110,
+                        width: 132,
+                        minWidth: 125,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
@@ -1080,8 +1080,8 @@ window.tabulatorTransaksiHarianTable = function(config) {
                     {
                         title: "Modal",
                         field: "total_modal",
-                        width: 110,
-                        minWidth: 100,
+                        width: 125,
+                        minWidth: 118,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
