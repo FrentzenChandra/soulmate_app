@@ -88,7 +88,7 @@
             <table class="w-full text-left text-xs">
                 <thead class="bg-gray-50/80 border-b border-gray-100 text-gray-400 uppercase font-extrabold text-[10px] tracking-wider">
                     <tr>
-                        <th class="py-3.5 px-4 w-14 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Foto</th>
+                        <th class="py-3.5 px-3 w-16 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Foto</th>
                         <x-th-sort field="nama_produk" :sortField="$sortField" :sortDirection="$sortDirection">Info Produk & SKU</x-th-sort>
                         <x-th-sort field="kategori_id" :sortField="$sortField" :sortDirection="$sortDirection">Kategori</x-th-sort>
                         <x-th-sort field="harga_beli" :sortField="$sortField" :sortDirection="$sortDirection" align="right">Harga Modal</x-th-sort>
@@ -112,20 +112,32 @@
                             $margin = $p->harga_beli > 0 ? (($p->harga_jual - $p->harga_beli) / $p->harga_beli) * 100 : 0;
                         @endphp
                         <tr class="hover:bg-gray-50/80 transition-colors">
-                            <!-- Foto Thumbnail (1-Day Browser Cache) -->
-                            <td class="py-4 px-4 text-center">
-                                @if($p->foto_url)
-                                    <img src="{{ str_starts_with($p->foto_url, 'http') ? $p->foto_url : asset($p->foto_url) }}"
-                                         alt="{{ $p->nama_produk }}"
-                                         loading="lazy"
-                                         decoding="async"
-                                         class="w-11 h-11 rounded-xl object-cover border border-gray-200 shadow-xs mx-auto"
-                                         onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-11 h-11 rounded-xl bg-purple-50 border border-purple-100 text-[#5E17EB] flex items-center justify-center mx-auto shadow-2xs\'><svg class=\'w-5 h-5 opacity-70\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg></div>';">
-                                @else
-                                    <div class="w-11 h-11 rounded-xl bg-purple-50 border border-purple-100 text-[#5E17EB] flex items-center justify-center mx-auto shadow-2xs">
-                                        <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    </div>
-                                @endif
+                            <!-- Foto Thumbnail Modern & Elegan -->
+                            <td class="py-3.5 px-3 text-center align-middle">
+                                <div class="relative w-12 h-12 rounded-2xl overflow-hidden bg-gray-50 border border-gray-200/80 shadow-2xs mx-auto flex items-center justify-center group/img">
+                                    @if($p->foto_url)
+                                        <img src="{{ str_starts_with($p->foto_url, 'http') ? $p->foto_url : asset($p->foto_url) }}"
+                                             alt="{{ $p->nama_produk }}"
+                                             loading="lazy"
+                                             decoding="async"
+                                             class="w-full h-full object-cover transition-transform duration-300 group-hover/img:scale-110"
+                                             onerror="this.onerror=null;this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden');">
+                                        <div class="hidden w-full h-full bg-purple-50 flex items-center justify-center text-[#5E17EB]">
+                                            <span class="font-black text-xs uppercase tracking-tight">{{ strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $p->nama_produk) ?: 'SK', 0, 2)) }}</span>
+                                        </div>
+                                    @else
+                                        <div class="w-full h-full bg-gradient-to-br from-purple-50 via-purple-50/80 to-purple-100/60 flex items-center justify-center text-[#5E17EB] transition-colors group-hover/img:bg-purple-100">
+                                            <span class="font-black text-xs uppercase tracking-tight text-[#5E17EB]">
+                                                {{ strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $p->nama_produk) ?: 'PR', 0, 2)) }}
+                                            </span>
+                                        </div>
+                                    @endif
+                                    @if($p->ready_marketplace)
+                                        <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-xs flex items-center justify-center" title="Ready di Marketplace Online">
+                                            <span class="w-1 h-1 rounded-full bg-white"></span>
+                                        </div>
+                                    @endif
+                                </div>
                             </td>
 
                             <!-- Produk Info & Barcode -->
