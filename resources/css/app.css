@@ -138,7 +138,7 @@
 
 .tabulator .tabulator-row {
     background-color: #ffffff !important;
-    border-bottom: 1px solid #f3f4f6 !important;
+    border-bottom: 1px solid #cbd5e1 !important;
     min-height: 40px !important;
     transition: background-color 0.15s ease !important;
 }
@@ -279,6 +279,7 @@
 }
 .tabulator-dense .tabulator .tabulator-row {
     min-height: 28px !important;
+    border-bottom: 1px solid #cbd5e1 !important;
 }
 
 

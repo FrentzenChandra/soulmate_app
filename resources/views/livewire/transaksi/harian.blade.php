@@ -1062,48 +1062,54 @@ window.tabulatorTransaksiHarianTable = function(config) {
                         title: "Biaya",
                         field: "grand_total",
                         hozAlign: "right",
-                        width: 72,
+                        headerHozAlign: "right",
+                        width: 80,
                         minWidth: 72,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<span class="font-mono font-black text-[#5E17EB]">${this.formatRupiah(d.grand_total)}</span>`;
+                                return `<div class="font-mono font-black text-[#5E17EB] text-right w-full">${this.formatRupiah(d.grand_total)}</div>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-[#5E17EB] font-mono">
+                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-[#5E17EB] font-mono text-right w-full">
                                     ${this.formatRupiah(it.subtotal_jual)}
                                 </div>
                             `).join('');
-                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
+                            return `<div class="py-0.5 space-y-0.5 text-right w-full">${html}</div>`;
                         }
                     },
                     {
                         title: "Modal",
                         field: "total_modal",
                         hozAlign: "right",
-                        width: 65,
-                        minWidth: 65,
+                        headerHozAlign: "right",
+                        width: 75,
+                        minWidth: 68,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<span class="font-mono font-bold text-amber-600">${this.formatRupiah(d.total_modal)}</span>`;
+                                return `<div class="font-mono font-bold text-amber-600 text-right w-full">${this.formatRupiah(d.total_modal)}</div>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-amber-600 font-mono">
+                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-amber-600 font-mono text-right w-full">
                                     ${this.formatRupiah(it.subtotal_modal)}
                                 </div>
                             `).join('');
-                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
+                            return `<div class="py-0.5 space-y-0.5 text-right w-full">${html}</div>`;
                         }
                     },
                     {
                         title: "Pajak",
-                        field: "has_ppn",
-                        width: 44,
-                        minWidth: 44,
+                        field: "pajak_label",
+                        width: 60,
+                        minWidth: 55,
                         hozAlign: "center",
+                        headerHozAlign: "center",
+                        headerFilter: "list",
+                        headerFilterParams: { values: ["PPN", "Non PPN"], clearable: true },
+                        headerFilterFunc: multiSelectFilterFunc,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
@@ -1133,9 +1139,10 @@ window.tabulatorTransaksiHarianTable = function(config) {
                     {
                         title: "Status",
                         field: "status",
-                        width: 62,
+                        width: 65,
                         minWidth: 62,
                         hozAlign: "center",
+                        headerHozAlign: "center",
                         headerFilter: "list",
                         headerFilterParams: { values: ["Lunas", "Bon"], clearable: true },
                         headerFilterFunc: multiSelectFilterFunc,
@@ -1144,7 +1151,8 @@ window.tabulatorTransaksiHarianTable = function(config) {
                             const val = (cell.getValue() || '').toString();
                             const isLunas = val.toLowerCase() === 'lunas';
                             const id = d.id;
-                            const hasPelunas = isLunas && d.pelunas_nama && d.pelunas_nama !== '-';
+                            const pelunasNama = (d.pelunas_nama || '').trim();
+                            const hasPelunas = isLunas && pelunasNama !== '' && pelunasNama !== '-';
                             return `
                                 <div class="py-0.2 flex flex-col items-center justify-center min-h-[30px]">
                                     <select class="w-[54px] py-0 px-0.5 rounded text-[8.5px] font-black border transition-all cursor-pointer text-center focus:ring-1 focus:ring-blue-200 ${
@@ -1153,11 +1161,13 @@ window.tabulatorTransaksiHarianTable = function(config) {
                                         <option value="Lunas" ${isLunas ? 'selected' : ''}>Lunas</option>
                                         <option value="Bon" ${!isLunas ? 'selected' : ''}>Bon</option>
                                     </select>
-                                    <div class="text-[7.5px] font-bold leading-tight mt-0.5 truncate max-w-[58px] text-center ${
-                                        hasPelunas ? 'text-emerald-700' : 'opacity-0 select-none'
-                                    }" title="${hasPelunas ? 'Dilunasi oleh: ' + d.pelunas_nama + ' (' + d.jam_lunas + ')' : ''}">
-                                        ${hasPelunas ? d.pelunas_nama + ' (' + d.jam_lunas + ')' : '-'}
-                                    </div>
+                                    ${hasPelunas ? `
+                                        <div class="text-[7.5px] font-bold leading-tight mt-0.5 truncate max-w-[58px] text-center text-emerald-700" title="Dilunasi oleh: ${pelunasNama}">
+                                            ${pelunasNama}
+                                        </div>
+                                    ` : `
+                                        <div class="text-[7.5px] leading-tight mt-0.5 opacity-0 select-none">-</div>
+                                    `}
                                 </div>
                             `;
                         }

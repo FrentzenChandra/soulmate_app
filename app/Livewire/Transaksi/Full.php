@@ -560,12 +560,16 @@ class Full extends Component
                 $userId = $existingTrx?->user_id ?: $authUserId;
 
                 if ($statusNormalized === 'Lunas') {
-                    if ($existingTrx && $existingTrx->status === 'Lunas') {
-                        $tanggalLunas = $existingTrx->tanggal_lunas ?: now();
-                        $pelunasUserId = $existingTrx->pelunas_user_id ?: $authUserId;
-                    } else {
+                    if ($existingTrx && strtolower($existingTrx->status) === 'bon') {
+                        // Perubahan dari BON ke Lunas -> catat pelunasan
                         $tanggalLunas = now();
                         $pelunasUserId = $authUserId;
+                    } elseif ($existingTrx && $existingTrx->status === 'Lunas') {
+                        $tanggalLunas = $existingTrx->tanggal_lunas ?: $existingTrx->tanggal;
+                        $pelunasUserId = $existingTrx->pelunas_user_id;
+                    } else {
+                        $tanggalLunas = now();
+                        $pelunasUserId = null;
                     }
                 } else {
                     $tanggalLunas = null;
@@ -577,7 +581,7 @@ class Full extends Component
 
                 if ($statusNormalized === 'Lunas') {
                     $tanggalLunas = $tanggalParsed;
-                    $pelunasUserId = $authUserId;
+                    $pelunasUserId = null; // Transaksi baru langsung lunas -> tidak perlu pelunas
                 } else {
                     $tanggalLunas = null;
                     $pelunasUserId = null;
@@ -663,10 +667,15 @@ class Full extends Component
         $statusNormalized = strtolower($newStatus) === 'bon' ? 'Bon' : 'Lunas';
         $transaksi = TransaksiFull::find($id);
         if ($transaksi) {
+            $oldStatus = $transaksi->status;
             $transaksi->status = $statusNormalized;
             if ($statusNormalized === 'Lunas') {
-                $transaksi->tanggal_lunas = $transaksi->tanggal_lunas ?: now();
-                $transaksi->pelunas_user_id = Auth::id();
+                if (strtolower($oldStatus) === 'bon') {
+                    $transaksi->tanggal_lunas = now();
+                    $transaksi->pelunas_user_id = Auth::id();
+                } else {
+                    $transaksi->tanggal_lunas = $transaksi->tanggal_lunas ?: now();
+                }
             } else {
                 $transaksi->tanggal_lunas = null;
                 $transaksi->pelunas_user_id = null;
@@ -1016,7 +1025,7 @@ class Full extends Component
                 $tglLunasFormatted = $lunasEpoch ? date('d/m/Y H:i', $lunasEpoch) : '-';
                 $jamLunasFormatted = $lunasEpoch ? date('H:i', $lunasEpoch) : '-';
 
-                $pelunasNama = $item->pelunas_name ?: ($item->status === 'Lunas' ? ($item->user_input_name ?: 'System') : '-');
+                $pelunasNama = ($item->status === 'Lunas' && ! empty($item->pelunas_user_id) && ! empty($item->pelunas_name)) ? $item->pelunas_name : null;
 
                 $trxDetails = $detailsByTrx[$item->id] ?? [];
                 $itemsList = [];
@@ -1074,6 +1083,7 @@ class Full extends Component
                     'grand_total' => (float) $item->grand_total,
                     'total_laba' => (float) $item->total_laba,
                     'has_ppn' => ((float) $item->ppn_persen > 0 || (float) $item->ppn_nominal > 0),
+                    'pajak_label' => ((float) $item->ppn_persen > 0 || (float) $item->ppn_nominal > 0) ? 'PPN' : 'Non PPN',
                     'ppn_persen' => (float) $item->ppn_persen,
                     'ppn_nominal' => (float) $item->ppn_nominal,
                     'status' => $item->status,
