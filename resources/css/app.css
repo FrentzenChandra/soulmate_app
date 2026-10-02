@@ -296,7 +296,7 @@
     padding: 0.375rem 0.625rem !important;
     font-size: 0.75rem !important;
 }
-.table-size-sm table td span, .table-size-sm table td button, .table-size-sm table td a {
+.table-size-sm table td span, .table-size-sm table td button, .table-size-sm table td a, .table-size-sm table td p, .table-size-sm table td div {
     font-size: 0.75rem !important;
 }
 .table-size-sm table td .badge-tag {
@@ -314,7 +314,7 @@
     padding: 0.625rem 0.875rem !important;
     font-size: 0.8125rem !important;
 }
-.table-size-md table td span, .table-size-md table td button, .table-size-md table td a {
+.table-size-md table td span, .table-size-md table td button, .table-size-md table td a, .table-size-md table td p, .table-size-md table td div {
     font-size: 0.8125rem !important;
 }
 
@@ -329,7 +329,7 @@
     padding: 0.875rem 1rem !important;
     font-size: 0.9375rem !important;
 }
-.table-size-lg table td span, .table-size-lg table td button, .table-size-lg table td a {
+.table-size-lg table td span, .table-size-lg table td button, .table-size-lg table td a, .table-size-lg table td p, .table-size-lg table td div {
     font-size: 0.9375rem !important;
 }
 

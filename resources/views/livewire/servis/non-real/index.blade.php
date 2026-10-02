@@ -1,4 +1,4 @@
-<div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6" x-data="{ tableSize: localStorage.getItem('soulmate_table_size') || 'M' }" @table-size-changed.window="tableSize = $event.detail">
+<div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6" x-data="{ tableSize: localStorage.getItem('soulmate_table_size') || 'md' }" @table-size-changed.window="tableSize = $event.detail">
 
     <!-- Header & Page Title -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -98,13 +98,9 @@
     </div>
 
     <!-- Tabel Data Servis Non Real (Format & Desain Selaras Servis Masuk) -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
+    <div :class="'table-size-' + tableSize" class="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
         <div class="overflow-x-auto custom-scrollbar">
-            <table class="w-full text-left border-collapse table-fixed min-w-[1000px]" :class="{
-                'text-[11px]': tableSize === 'S',
-                'text-[12px]': tableSize === 'M',
-                'text-[13px]': tableSize === 'L'
-            }">
+            <table class="w-full text-left border-collapse table-fixed min-w-[1000px]">
                 <colgroup>
                     <col style="width: 140px;">
                     <col style="width: 120px;">
@@ -153,7 +149,7 @@
                 <tbody wire:key="servis-data-body"
                        wire:loading.remove
                        wire:target="search, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
-                       class="divide-y divide-gray-100 text-xs">
+                       class="divide-y divide-gray-100">
                     @forelse($servisList as $item)
                         <tr wire:key="servis-non-real-{{ $item->id }}" class="hover:bg-purple-50/30 transition-colors group">
                             <!-- No. Tiket / Faktur & Pembuat -->

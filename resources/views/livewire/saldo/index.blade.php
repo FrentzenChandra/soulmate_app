@@ -1,4 +1,4 @@
-<div class="p-4 sm:p-6 space-y-6" x-data="{ tableSize: localStorage.getItem('soulmate_table_size') || 'M' }" @table-size-changed.window="tableSize = $event.detail">
+<div class="p-4 sm:p-6 space-y-6" x-data="{ tableSize: localStorage.getItem('soulmate_table_size') || 'md' }" @table-size-changed.window="tableSize = $event.detail">
 
     <!-- Flash Message Notification -->
     @if (session()->has('success'))
@@ -150,20 +150,10 @@
                 </div>
 
                 <!-- Table Content -->
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-left border-collapse"
-                           :class="{
-                               'text-[11px]': tableSize === 'S',
-                               'text-[12px]': tableSize === 'M',
-                               'text-[13px]': tableSize === 'L'
-                           }">
+                <div :class="'table-size-' + tableSize" class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-gray-50/50 border-b border-gray-200 text-gray-500 font-extrabold uppercase tracking-wider"
-                                :class="{
-                                    'text-[10px]': tableSize === 'S',
-                                    'text-[11px]': tableSize === 'M',
-                                    'text-[12px]': tableSize === 'L'
-                                }">
+                            <tr class="bg-gray-50/50 border-b border-gray-200 text-gray-500 font-extrabold uppercase tracking-wider">
                                 <th class="py-3 px-5 w-14 text-center">No</th>
                                 <th class="py-3 px-5">Nama Bank</th>
                                 <th class="py-3 px-5">Atas Nama</th>

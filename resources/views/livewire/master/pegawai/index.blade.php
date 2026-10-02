@@ -1,8 +1,8 @@
 <div x-data="{
-    tableSize: localStorage.getItem('soulmate_table_size') || 'M',
+    tableSize: localStorage.getItem('soulmate_table_size') || 'md',
     init() {
         window.addEventListener('table-size-changed', (e) => {
-            this.tableSize = e.detail.size;
+            this.tableSize = e.detail;
         });
     }
 }" class="space-y-6">
