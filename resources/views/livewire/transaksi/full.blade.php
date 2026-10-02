@@ -1243,8 +1243,8 @@ window.tabulatorTransaksiFullTable = function(config) {
                         field: "grand_total",
                         hozAlign: "right",
                         headerHozAlign: "right",
-                        width: 120,
-                        minWidth: 110,
+                        width: 148,
+                        minWidth: 140,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
@@ -1264,8 +1264,8 @@ window.tabulatorTransaksiFullTable = function(config) {
                         field: "total_modal",
                         hozAlign: "right",
                         headerHozAlign: "right",
-                        width: 115,
-                        minWidth: 105,
+                        width: 142,
+                        minWidth: 138,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
@@ -1285,8 +1285,8 @@ window.tabulatorTransaksiFullTable = function(config) {
                         field: "total_laba",
                         hozAlign: "right",
                         headerHozAlign: "right",
-                        width: 115,
-                        minWidth: 105,
+                        width: 142,
+                        minWidth: 138,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
