@@ -8,6 +8,7 @@ use App\Models\TargetDivisi;
 use App\Models\TransaksiFull;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
@@ -261,18 +262,68 @@ class Index extends Component
 
         $tahun = $this->filterTahun;
 
-        // 1. Query Realisasi dari Transaksi FULL
-        $trxQuery = TransaksiFull::query()
-            ->whereYear('tanggal', $tahun)
-            ->where('status', '!=', 'Batal');
+        // 1. Query Realisasi Agregasi dari Transaksi FULL via SQL GROUP BY (Super Cepat & Hemat RAM)
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+        $monthExpr = $isSqlite ? "CAST(strftime('%m', tanggal) AS INTEGER)" : 'MONTH(tanggal)';
 
-        if (! $isHQ) {
-            $trxQuery->where('cabang_id', $cabangId);
-        } elseif ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
-            $trxQuery->where('cabang_id', (int) $this->cabangFilter);
+        $cabangScope = function ($q) use ($isHQ, $cabangId) {
+            if (! $isHQ) {
+                $q->where('cabang_id', $cabangId);
+            } elseif ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
+                $q->where('cabang_id', (int) $this->cabangFilter);
+            }
+        };
+
+        // Rekap Pegawai: Group by bulan & pegawai_id
+        $pegawaiRawCounts = TransaksiFull::query()
+            ->selectRaw("{$monthExpr} as bulan, pegawai_id, COUNT(*) as total")
+            ->whereYear('tanggal', $tahun)
+            ->where('status', '!=', 'Batal')
+            ->whereNotNull('pegawai_id')
+            ->tap($cabangScope)
+            ->groupByRaw("{$monthExpr}, pegawai_id")
+            ->get();
+
+        $pegawaiMap = [];
+        foreach ($pegawaiRawCounts as $row) {
+            $pegawaiMap[$row->pegawai_id][(int) $row->bulan] = (int) $row->total;
         }
 
-        $trxList = $trxQuery->get(['id', 'tipe_transaksi', 'kategori_perangkat', 'pegawai_id', 'tanggal']);
+        // Rekap Divisi: Group by bulan, tipe_transaksi, kategori_perangkat
+        $divisiRawCounts = TransaksiFull::query()
+            ->selectRaw("{$monthExpr} as bulan, tipe_transaksi, LOWER(COALESCE(kategori_perangkat, '')) as kategori, COUNT(*) as total")
+            ->whereYear('tanggal', $tahun)
+            ->where('status', '!=', 'Batal')
+            ->tap($cabangScope)
+            ->groupByRaw("{$monthExpr}, tipe_transaksi, LOWER(COALESCE(kategori_perangkat, ''))")
+            ->get();
+
+        $divisiMap = [
+            'laptop' => [],
+            'printer' => [],
+            'komputer' => [],
+            'admin' => [],
+        ];
+
+        foreach ($divisiRawCounts as $row) {
+            $m = (int) $row->bulan;
+            $tipe = strtolower($row->tipe_transaksi ?? '');
+            $kat = strtolower($row->kategori ?? '');
+            $total = (int) $row->total;
+
+            if ($kat === 'laptop') {
+                $divisiMap['laptop'][$m] = ($divisiMap['laptop'][$m] ?? 0) + $total;
+            }
+            if ($kat === 'printer') {
+                $divisiMap['printer'][$m] = ($divisiMap['printer'][$m] ?? 0) + $total;
+            }
+            if (in_array($kat, ['komputer', 'pc'])) {
+                $divisiMap['komputer'][$m] = ($divisiMap['komputer'][$m] ?? 0) + $total;
+            }
+            if ($tipe === 'penjualan' || $kat === 'admin' || (! in_array($kat, ['laptop', 'printer', 'komputer', 'pc']))) {
+                $divisiMap['admin'][$m] = ($divisiMap['admin'][$m] ?? 0) + $total;
+            }
+        }
 
         // 2. Query Target Divisi Models
         $targetDivisiModels = TargetDivisi::where('tahun', $tahun)
@@ -307,22 +358,12 @@ class Index extends Component
             $totalYtdTarget = 0;
 
             for ($m = 1; $m <= 12; $m++) {
-                // Realisasi diutamakan dari override manual jika diset, jika tidak dihitung dari transaksi_fulls
+                // Realisasi diutamakan dari override manual jika diset, jika tidak diambil dari hasil SQL agregasi
                 $hasManualRealisasi = isset($monthlyRealisasi[(string)$m]);
                 if ($hasManualRealisasi) {
                     $count = (int) $monthlyRealisasi[(string)$m];
                 } else {
-                    $count = $trxList->filter(function ($t) use ($m, $key) {
-                        $isMonth = (int) $t->tanggal->format('n') === $m;
-                        if (! $isMonth) return false;
-                        $kat = strtolower($t->kategori_perangkat ?? '');
-                        $tipe = strtolower($t->tipe_transaksi ?? '');
-                        if ($key === 'laptop') return $kat === 'laptop';
-                        if ($key === 'printer') return $kat === 'printer';
-                        if ($key === 'komputer') return in_array($kat, ['komputer', 'pc']);
-                        if ($key === 'admin') return $tipe === 'penjualan' || $kat === 'admin' || (! in_array($kat, ['laptop', 'printer', 'komputer', 'pc']));
-                        return false;
-                    })->count();
+                    $count = (int) ($divisiMap[$key][$m] ?? 0);
                 }
 
                 $targetSyarat = $defaultTarget;
@@ -431,9 +472,7 @@ class Index extends Component
             $totalYtdRealisasi = 0;
 
             for ($m = 1; $m <= 12; $m++) {
-                $count = $trxList->filter(function ($t) use ($m, $p) {
-                    return (int) $t->tanggal->format('n') === $m && $t->pegawai_id === $p->id;
-                })->count();
+                $count = (int) ($pegawaiMap[$p->id][$m] ?? 0);
 
                 $monthlyData[$m] = [
                     'count' => $count,
