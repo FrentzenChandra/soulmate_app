@@ -263,8 +263,12 @@ class Index extends Component
         $tahun = $this->filterTahun;
 
         // 1. Query Realisasi Agregasi dari Transaksi FULL via SQL GROUP BY (Super Cepat & Hemat RAM)
-        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
-        $monthExpr = $isSqlite ? "CAST(strftime('%m', tanggal) AS INTEGER)" : 'MONTH(tanggal)';
+        $driver = DB::connection()->getDriverName();
+        $monthExpr = match ($driver) {
+            'pgsql', 'postgres' => 'EXTRACT(MONTH FROM tanggal)::integer',
+            'sqlite' => "CAST(strftime('%m', tanggal) AS INTEGER)",
+            default => 'MONTH(tanggal)',
+        };
 
         $cabangScope = function ($q) use ($isHQ, $cabangId) {
             if (! $isHQ) {
