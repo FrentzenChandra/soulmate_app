@@ -26,6 +26,17 @@ class MasterServisStok extends Model
         'is_aktif' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::saved(function ($stok) {
+            \App\Livewire\Components\NotificationBell::clearNotificationCache();
+        });
+
+        static::deleted(function ($stok) {
+            \App\Livewire\Components\NotificationBell::clearNotificationCache();
+        });
+    }
+
     public function masterServis(): BelongsTo
     {
         return $this->belongsTo(MasterServis::class, 'master_servis_id');

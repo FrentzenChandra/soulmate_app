@@ -7,6 +7,7 @@ use App\Models\MasterServisStok;
 use App\Models\ModalAwal;
 use App\Models\Stok;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 class NotificationBell extends Component
@@ -20,10 +21,28 @@ class NotificationBell extends Component
     public int $totalAlerts = 0;
 
     protected $listeners = [
-        'stockUpdated' => '$refresh',
-        'refreshNotification' => '$refresh',
-        'modalAwalUpdated' => '$refresh',
+        'stockUpdated' => 'handleNotificationRefresh',
+        'refreshNotification' => 'handleNotificationRefresh',
+        'modalAwalUpdated' => 'handleNotificationRefresh',
     ];
+
+    public function handleNotificationRefresh(): void
+    {
+        $this->clearNotificationCache();
+    }
+
+    public static function clearNotificationCache(): void
+    {
+        Cache::forget('notification_bell_hq');
+        try {
+            $cabangIds = Cabang::pluck('id');
+            foreach ($cabangIds as $cid) {
+                Cache::forget("notification_bell_cabang_{$cid}");
+            }
+        } catch (\Throwable $e) {
+            // Silently ignore if DB is unmigrated or inaccessible
+        }
+    }
 
     public function render()
     {
@@ -50,16 +69,28 @@ class NotificationBell extends Component
         $isOwner = $user->isOwner();
         $activeBranchSession = session('active_branch_id', 'hq');
         $isHQ = $isOwner && $activeBranchSession === 'hq';
+        $targetCabangId = $isOwner ? (int) $activeBranchSession : $user->cabang_id;
 
-        $this->emptyCount = 0;
-        $this->criticalCount = 0;
-        $this->modalAwalAlertCount = 0;
+        $cacheKey = $isHQ ? 'notification_bell_hq' : "notification_bell_cabang_{$targetCabangId}";
+
+        $data = Cache::remember($cacheKey, 60, function () use ($isHQ, $isOwner, $targetCabangId) {
+            return $this->fetchNotificationData($isHQ, $isOwner, $targetCabangId);
+        });
+
+        $this->emptyCount = $data['emptyCount'];
+        $this->criticalCount = $data['criticalCount'];
+        $this->modalAwalAlertCount = $data['modalAwalAlertCount'];
+        $this->totalAlerts = $data['totalAlerts'];
+
+        return view('livewire.components.notification-bell', $data);
+    }
+
+    private function fetchNotificationData(bool $isHQ, bool $isOwner, mixed $targetCabangId): array
+    {
+        $emptyCount = 0;
+        $criticalCount = 0;
+        $modalAwalAlertCount = 0;
         $missingModalCabangs = collect();
-        $contextName = 'Kantor Pusat (HQ)';
-
-        $currentTime = now();
-        $isPast10Am = $currentTime->hour >= 10;
-        $todayDate = $currentTime->toDateString();
 
         if ($isHQ) {
             // Mode HQ: Memantau stok produk AKTIF & sparepart di semua cabang yang jumlahnya <= min_stok
@@ -83,19 +114,8 @@ class NotificationBell extends Component
             $emptySparepart = $stoksSparepart->where('jumlah', '<=', 0);
             $criticalSparepart = $stoksSparepart->where('jumlah', '>', 0);
 
-            $this->emptyCount = $emptyProduk->count() + $emptySparepart->count();
-            $this->criticalCount = $criticalProduk->count() + $criticalSparepart->count();
-
-            // [TEMP HIDE] Peringatan Modal Awal setelah jam 10:00 untuk semua cabang aktif
-            // if ($isPast10Am) {
-            //     $aktifCabangs = Cabang::where('status', 'aktif')->get();
-            //     $existingModalCabangIds = ModalAwal::whereDate('tanggal', $todayDate)
-            //         ->pluck('cabang_id')
-            //         ->toArray();
-            //
-            //     $missingModalCabangs = $aktifCabangs->reject(fn ($c) => in_array($c->id, $existingModalCabangIds))->values();
-            //     $this->modalAwalAlertCount = $missingModalCabangs->count();
-            // }
+            $emptyCount = $emptyProduk->count() + $emptySparepart->count();
+            $criticalCount = $criticalProduk->count() + $criticalSparepart->count();
 
             $itemsProduk = $stoksProduk->map(function ($s) {
                 return (object) [
@@ -129,20 +149,19 @@ class NotificationBell extends Component
             $contextName = 'Semua Cabang (HQ)';
         } else {
             // Mode Cabang: Hanya memantau stok produk AKTIF & sparepart di cabang ini saja
-            $targetCabangId = $isOwner ? (int) $activeBranchSession : $user->cabang_id;
             $cabang = Cabang::find($targetCabangId) ?? Cabang::first();
-            $targetCabangId = $cabang?->id ?? 1;
+            $realCabangId = $cabang?->id ?? 1;
             $contextName = $isOwner ? ($cabang?->nama_cabang ?? 'Cabang') : 'Soulmate Komputer';
 
             $stoksProduk = Stok::with('produk')
-                ->where('cabang_id', $targetCabangId)
+                ->where('cabang_id', $realCabangId)
                 ->where('is_aktif', true)
                 ->whereHas('produk')
                 ->whereColumn('jumlah', '<=', 'min_stok')
                 ->get();
 
             $stoksSparepart = MasterServisStok::with('masterServis')
-                ->where('cabang_id', $targetCabangId)
+                ->where('cabang_id', $realCabangId)
                 ->where('is_aktif', true)
                 ->whereHas('masterServis', fn ($q) => $q->where('jenis', 'sparepart')->where('is_aktif', true))
                 ->whereColumn('jumlah', '<=', 'min_stok')
@@ -154,22 +173,8 @@ class NotificationBell extends Component
             $emptySparepart = $stoksSparepart->where('jumlah', '<=', 0);
             $criticalSparepart = $stoksSparepart->where('jumlah', '>', 0);
 
-            $this->emptyCount = $emptyProduk->count() + $emptySparepart->count();
-            $this->criticalCount = $criticalProduk->count() + $criticalSparepart->count();
-
-            // [TEMP HIDE] Peringatan Modal Awal setelah jam 10:00 untuk cabang ini
-            // if ($isPast10Am) {
-            //     $hasModal = ModalAwal::where('cabang_id', $targetCabangId)
-            //         ->whereDate('tanggal', $todayDate)
-            //         ->exists();
-            //
-            //     if (! $hasModal) {
-            //         $this->modalAwalAlertCount = 1;
-            //         if ($cabang) {
-            //             $missingModalCabangs = collect([$cabang]);
-            //         }
-            //     }
-            // }
+            $emptyCount = $emptyProduk->count() + $emptySparepart->count();
+            $criticalCount = $criticalProduk->count() + $criticalSparepart->count();
 
             $itemsProduk = $stoksProduk->map(function ($s) use ($cabang) {
                 return (object) [
@@ -202,19 +207,19 @@ class NotificationBell extends Component
             $alertItems = $itemsProduk->concat($itemsSparepart)->sortBy('jumlah')->take(50);
         }
 
-        $this->totalAlerts = $this->emptyCount + $this->criticalCount + $this->modalAwalAlertCount;
+        $totalAlerts = $emptyCount + $criticalCount + $modalAwalAlertCount;
 
-        return view('livewire.components.notification-bell', [
-            'emptyCount' => $this->emptyCount,
-            'criticalCount' => $this->criticalCount,
-            'modalAwalAlertCount' => $this->modalAwalAlertCount,
+        return [
+            'emptyCount' => $emptyCount,
+            'criticalCount' => $criticalCount,
+            'modalAwalAlertCount' => $modalAwalAlertCount,
             'missingModalCabangs' => $missingModalCabangs,
-            'totalAlerts' => $this->totalAlerts,
+            'totalAlerts' => $totalAlerts,
             'alertItems' => $alertItems,
             'contextName' => $contextName,
             'isHQ' => $isHQ,
             'isOwner' => $isOwner,
-        ]);
+        ];
     }
 }
 

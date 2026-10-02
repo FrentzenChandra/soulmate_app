@@ -25,6 +25,17 @@ class Stok extends Model
         'is_aktif' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::saved(function ($stok) {
+            \App\Livewire\Components\NotificationBell::clearNotificationCache();
+        });
+
+        static::deleted(function ($stok) {
+            \App\Livewire\Components\NotificationBell::clearNotificationCache();
+        });
+    }
+
     public function produk()
     {
         return $this->belongsTo(Produk::class);
