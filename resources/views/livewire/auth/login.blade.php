@@ -164,36 +164,5 @@
             </button>
         </form>
 
-        <!-- Quick Demo Switcher (Super Admin & Staff) -->
-        <div class="mt-6 pt-5 border-t border-gray-100">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2 text-center">Akses Cepat Login</p>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <button type="button"
-                        wire:click="fillCredentials('superadmin')"
-                        class="px-2.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-950 font-extrabold text-left transition-colors flex items-center justify-between cursor-pointer shadow-2xs">
-                    <span>Super Admin</span>
-                    <span class="text-[9px] text-[#5E17EB] font-black bg-white px-1.5 py-0.5 rounded border border-purple-200">Utama</span>
-                </button>
-                <button type="button"
-                        wire:click="fillCredentials('bendahara_pkp')"
-                        class="px-2.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-950 font-extrabold text-left transition-colors flex items-center justify-between cursor-pointer shadow-2xs">
-                    <span>Bendahara</span>
-                    <span class="text-[9px] text-amber-700 font-black bg-white px-1.5 py-0.5 rounded border border-amber-200">Kas</span>
-                </button>
-                <button type="button"
-                        wire:click="fillCredentials('admin_pkp')"
-                        class="px-2.5 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-800 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
-                    <span>Admin</span>
-                    <span class="text-[9px] text-gray-500 font-normal">Kasir</span>
-                </button>
-                <button type="button"
-                        wire:click="fillCredentials('teknisi_pkp')"
-                        class="px-2.5 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-800 font-bold text-left transition-colors flex items-center justify-between cursor-pointer">
-                    <span>Teknisi</span>
-                    <span class="text-[9px] text-gray-500 font-normal">Servis</span>
-                </button>
-            </div>
-            <p class="text-[10px] text-gray-400 text-center mt-2.5">Password default: <code class="bg-gray-100 px-1 py-0.5 rounded text-gray-700 font-mono font-bold">password</code></p>
-        </div>
     </div>
 </div>
