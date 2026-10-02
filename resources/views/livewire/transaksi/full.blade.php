@@ -1445,6 +1445,25 @@ window.tabulatorTransaksiFullTable = function(config) {
                     this.selectedCount = 0;
                 }
             });
+
+            // Realtime Echo Listener for In-Place Row Mutation (Zero DOM Flash & Scroll Preservation)
+            if (window.Echo) {
+                window.Echo.channel('transaksi-updates')
+                    .listen('.TransaksiUpdated', (e) => {
+                        if (!this.table) return;
+
+                        if (e.action === 'deleted') {
+                            const targetId = e.transaksiId || e.id;
+                            if (targetId) {
+                                this.table.deleteRow(targetId);
+                                this.rowCount = this.table.getData().length;
+                            }
+                        } else if (e.rowPayload && typeof e.rowPayload === 'object') {
+                            this.table.updateOrAddData([e.rowPayload]);
+                            this.rowCount = this.table.getData().length;
+                        }
+                    });
+            }
         },
 
         applyFilter() {

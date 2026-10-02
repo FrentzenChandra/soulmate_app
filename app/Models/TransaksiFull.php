@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\TransaksiUpdated;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,38 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class TransaksiFull extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::saved(function (TransaksiFull $model) {
+            try {
+                event(new TransaksiUpdated(
+                    $model->id,
+                    (string) $model->status,
+                    (string) $model->no_transaksi,
+                    $model->cabang_id,
+                    'saved',
+                    $model->toTabulatorRow()
+                ));
+            } catch (\Throwable $e) {
+                // Ignore broadcast error
+            }
+        });
+
+        static::deleted(function (TransaksiFull $model) {
+            try {
+                event(new TransaksiUpdated(
+                    $model->id,
+                    (string) $model->status,
+                    (string) $model->no_transaksi,
+                    $model->cabang_id,
+                    'deleted'
+                ));
+            } catch (\Throwable $e) {
+                // Ignore broadcast error
+            }
+        });
+    }
 
     protected $table = 'transaksi_fulls';
 
@@ -134,5 +167,54 @@ class TransaksiFull extends Model
             'komputer', 'pc' => 'Komputer',
             default => ucfirst($this->kategori_perangkat ?: 'Lainnya'),
         };
+    }
+
+    /**
+     * Map model instance into Tabulator flat row payload
+     */
+    public function toTabulatorRow(): array
+    {
+        $this->loadMissing(['details', 'userInput', 'pelunas', 'pegawai']);
+
+        return [
+            'id' => $this->id,
+            'no_transaksi' => $this->no_transaksi_frontend,
+            'tipe_transaksi' => $this->tipe_transaksi,
+            'waktu' => $this->tanggal ? $this->tanggal->format('d/m/Y H:i') : '-',
+            'waktu_epoch' => $this->tanggal ? $this->tanggal->timestamp : 0,
+            'jam' => $this->tanggal ? $this->tanggal->format('H:i') : '-',
+            'tanggal_group' => $this->tanggal ? $this->tanggal->translatedFormat('l, d F Y') : '-',
+            'petugas' => $this->pegawai?->nama ?? 'Tanpa Pegawai',
+            'user_input' => $this->userInput?->name ?? 'System',
+            'pelunas_nama' => $this->pelunas?->name ?? ($this->status === 'Lunas' ? ($this->userInput?->name ?? 'System') : '-'),
+            'tanggal_lunas' => $this->tanggal_lunas ? $this->tanggal_lunas->format('d/m/Y H:i') : '-',
+            'jam_lunas' => $this->tanggal_lunas ? $this->tanggal_lunas->format('H:i') : '-',
+            'pelanggan' => $this->nama_pelanggan,
+            'no_hp' => $this->no_hp ?: '-',
+            'items_list' => $this->details->map(fn($d) => [
+                'qty' => (int) $d->qty,
+                'nama' => $d->nama_item,
+                'harga_modal' => (float) $d->harga_modal,
+                'harga_jual' => (float) $d->harga_jual,
+                'subtotal_modal' => (float) ($d->subtotal_modal ?: ($d->harga_modal * $d->qty)),
+                'subtotal_jual' => (float) ($d->subtotal_jual ?: ($d->harga_jual * $d->qty)),
+                'laba' => (float) ($d->laba ?: (($d->harga_jual * $d->qty) - ($d->harga_modal * $d->qty))),
+                'has_ppn' => ($d->ppn_persen > 0 || (float) $d->ppn_nominal > 0),
+                'ppn_persen' => (float) $d->ppn_persen,
+                'ppn_nominal' => (float) $d->ppn_nominal,
+            ])->values()->all(),
+            'rincian_item' => $this->details->map(fn($d) => $d->qty . 'x ' . $d->nama_item)->implode(', ') ?: 'Tanpa item',
+            'metode_pembayaran_id' => $this->metode_pembayaran_id,
+            'metode_pembayaran' => $this->metode_pembayaran ?: '-',
+            'total_modal' => (float) $this->total_modal,
+            'total_jual' => (float) $this->total_jual,
+            'grand_total' => (float) $this->grand_total,
+            'total_laba' => (float) $this->total_laba,
+            'has_ppn' => ($this->ppn_persen > 0 || (float) $this->ppn_nominal > 0),
+            'ppn_persen' => (float) $this->ppn_persen,
+            'ppn_nominal' => (float) $this->ppn_nominal,
+            'status' => $this->status,
+            'keterangan' => $this->catatan ?: '-',
+        ];
     }
 }

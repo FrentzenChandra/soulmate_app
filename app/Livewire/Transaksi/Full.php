@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -186,6 +187,21 @@ class Full extends Component
     public function updatingCabangFilter(): void
     {
         $this->resetPage();
+    }
+
+    // =========================================================================
+    // REALTIME REVERB WEBSOCKET LISTENER (Rule 24 Form Isolation Guard)
+    // =========================================================================
+
+    #[On('echo:transaksi-updates,TransaksiUpdated')]
+    public function handleRealtimeTransaksiUpdate($event = null): void
+    {
+        // Proteksi Rule 24: Jangan ganggu saat user sedang membuka / mengetik form
+        if ($this->modalFormOpen || $this->modalDetailOpen || $this->modalDeleteOpen) {
+            return;
+        }
+
+        // Livewire akan me-render kartu ringkasan keuangan dan menyinkronkan data jika perlu
     }
 
     // =========================================================================
