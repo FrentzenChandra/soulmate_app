@@ -111,9 +111,11 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
 - **Performance Board 12 Bulan (Januari &ndash; Desember)**:
   - **Tabel 1: Target Per Divisi** (Laptop, Printer, Komputer, Admin):
     * Target diatur per tahun via modal 5-in-1 "Target Tahunan Divisi" di toolbar atas (nilai target yang diinput berlaku merata untuk setiap bulan Jan &ndash; Des, misal input 200 maka target bulanan tiap bulan adalah 200 transaksi).
-    * Kolom ke-2 tabel divisi menampilkan nilai target divisi tersebut.
+    * Kolom ke-2 tabel divisi menampilkan nilai target tahunan divisi tersebut.
+    * 12 Sel Bulan (Jan &ndash; Des) HANYA menampilkan angka realisasi riil yang bersih (tanpa teks `/ <target>` dan tanpa badge persentase `%`).
+    * Kolom Total YTD menampilkan total realisasi tahun berjalan, perbandingan target tahunan berjalan (`/ total_target_ytd`), dan badge persentase YTD (`≥ 150%` Over Target / Biru, `100% - 149%` Tercapai / Hijau, `< 100%` Belum Tercapai / Abu-abu).
+    * Tanpa baris ringkasan footer `TOTAL DIVISI` (tabel ultra-clean dan padat).
     * Penyesuaian realisasi manual per bulan tetap didukung secara independen melalui klik per sel bulan.
-    * Indikator status pencapaian: `≥ 150%` (Over Target / Tech Blue), `100% - 149%` (Target Tercapai / Emerald), `< 100%` (Belum Tercapai / Rose).
   - **Tabel 2: Target Per Pegawai (Staf Individu)**:
     * Realisasi murni 100% ditarik otomatis dari `transaksi_fulls` berdasarkan `pegawai_id`.
     * Tanpa kolom target/persyaratan, tanpa badge status merah, dan tanpa modal edit per sel (read-only real-time performance summary).

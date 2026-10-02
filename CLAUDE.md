@@ -52,7 +52,7 @@
 - **Isolasi Modal Form:** Dilarang men-dispatch event tabel Tabulator ke frontend saat modal form sedang dibuka.
 
 ## 11. Target Bulanan (Performance Board 12 Bulan — `/target-bulanan`)
-- **Tabel Divisi (Laptop, Printer, Komputer, Admin):** Target diatur per tahun via modal 5-in-1 di toolbar atas (nilai target yang diinput berlaku merata tiap bulan Jan-Des, misal input 200 maka target tiap bulan adalah 200). Kolom ke-2 menampilkan nilai target tersebut. Edit per cell hanya untuk mengisi custom realisasi (jumlah transaksi).
+- **Tabel Divisi (Laptop, Printer, Komputer, Admin):** Target diatur per tahun via modal 5-in-1 di toolbar atas (berlaku merata Jan-Des). Kolom ke-2 menampilkan nilai target tahunan. 12 Sel Bulan (Jan-Des) HANYA menampilkan angka realisasi riil yang bersih (tanpa teks `/ target` dan tanpa badge persentase `%`). Kolom Total YTD menampilkan total realisasi, perbandingan target tahunan berjalan (`/ total_target_ytd`), dan badge persentase YTD. Tanpa baris footer Total Divisi. Penyesuaian realisasi manual tetap didukung via klik per sel bulan.
 - **Tabel Pegawai (Staf):** Realisasi murni 100% ditarik otomatis dari `transaksi_fulls` berdasarkan `pegawai_id`. Read-only performance summary tanpa kolom target, tanpa modal edit per cell, dan tanpa badge status merah.
 - Slogan motivasi: *"Target Bukan Untuk Ditakuti, Tapi Untuk Dikalahkan!"*.
 

@@ -152,9 +152,11 @@ Halaman antarmuka publik tanpa login untuk layar Smart TV di cabang:
 - **Tabel 1 — Target & Realisasi Per Divisi**:
   - 4 Divisi: **Laptop**, **Printer**, **Komputer**, dan **Admin**.
   - Target diatur per tahun via modal 5-in-1 "Target Tahunan Divisi" di toolbar atas (nilai target yang diinput berlaku merata untuk setiap bulan Jan &ndash; Des, misal input 200 maka target tiap bulan adalah 200 transaksi).
-  - Kolom ke-2 tabel divisi menampilkan nilai target divisi tersebut.
-  - Realisasi ditarik otomatis dari `transaksi_fulls` (atau penyesuaian manual per cell bulan jika diperlukan).
-  - Indikator status pencapaian: `≥ 150%` (Over Target / Tech Blue), `100% - 149%` (Target Tercapai / Emerald), `< 100%` (Belum Tercapai / Rose).
+  - Kolom ke-2 tabel divisi menampilkan nilai target tahunan divisi tersebut.
+  - 12 Sel Bulan (Jan &ndash; Des) HANYA menampilkan angka realisasi riil yang bersih (tanpa teks `/ <target>` dan tanpa badge persentase `%`).
+  - Kolom Total YTD menampilkan total realisasi tahun berjalan, perbandingan target tahunan berjalan (`/ total_target_ytd`), dan badge persentase YTD (`≥ 150%` Over Target / Biru, `100% - 149%` Tercapai / Hijau, `< 100%` Belum Tercapai / Abu-abu).
+  - Tanpa baris ringkasan footer `TOTAL DIVISI` (tabel ultra-clean dan padat).
+  - Realisasi ditarik otomatis dari `transaksi_fulls` (atau penyesuaian manual per cell bulan jika diperlukan melalui klik per sel).
 - **Tabel 2 — Target Per Pegawai (Staf Individu)**:
   - Menampilkan seluruh pegawai yang bertugas di cabang terpilih (`pegawais` cabang).
   - Realisasi murni 100% ditarik otomatis dari `transaksi_fulls` berdasarkan `pegawai_id`.
