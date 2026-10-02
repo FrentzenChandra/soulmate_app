@@ -1243,16 +1243,16 @@ window.tabulatorTransaksiFullTable = function(config) {
                         field: "grand_total",
                         hozAlign: "right",
                         headerHozAlign: "right",
-                        width: 80,
-                        minWidth: 72,
+                        width: 120,
+                        minWidth: 110,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<div class="font-mono font-black text-[#5E17EB] text-right w-full">${this.formatRupiah(d.grand_total)}</div>`;
+                                return `<div class="font-mono font-black text-[#5E17EB] text-right w-full whitespace-nowrap">${this.formatRupiah(d.grand_total)}</div>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-[#5E17EB] font-mono text-right w-full">
+                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-[#5E17EB] font-mono text-right w-full whitespace-nowrap">
                                     ${this.formatRupiah(it.subtotal_jual)}
                                 </div>
                             `).join('');
@@ -1264,16 +1264,16 @@ window.tabulatorTransaksiFullTable = function(config) {
                         field: "total_modal",
                         hozAlign: "right",
                         headerHozAlign: "right",
-                        width: 75,
-                        minWidth: 68,
+                        width: 115,
+                        minWidth: 105,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<div class="font-mono font-bold text-amber-600 text-right w-full">${this.formatRupiah(d.total_modal)}</div>`;
+                                return `<div class="font-mono font-bold text-amber-600 text-right w-full whitespace-nowrap">${this.formatRupiah(d.total_modal)}</div>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-amber-600 font-mono text-right w-full">
+                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-amber-600 font-mono text-right w-full whitespace-nowrap">
                                     ${this.formatRupiah(it.subtotal_modal)}
                                 </div>
                             `).join('');
@@ -1285,17 +1285,17 @@ window.tabulatorTransaksiFullTable = function(config) {
                         field: "total_laba",
                         hozAlign: "right",
                         headerHozAlign: "right",
-                        width: 75,
-                        minWidth: 68,
+                        width: 115,
+                        minWidth: 105,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
                                 const val = Number(d.total_laba || 0);
-                                return `<div class="font-mono font-black ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'} text-right w-full">${this.formatRupiah(val)}</div>`;
+                                return `<div class="font-mono font-black ${val >= 0 ? 'text-emerald-600' : 'text-rose-600'} text-right w-full whitespace-nowrap">${this.formatRupiah(val)}</div>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] font-bold font-mono ${it.laba >= 0 ? 'text-emerald-600' : 'text-rose-600'} text-right w-full">
+                                <div class="leading-tight py-0.5 min-h-[18px] font-bold font-mono ${it.laba >= 0 ? 'text-emerald-600' : 'text-rose-600'} text-right w-full whitespace-nowrap">
                                     ${this.formatRupiah(it.laba)}
                                 </div>
                             `).join('');
