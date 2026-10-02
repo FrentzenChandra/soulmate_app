@@ -1061,52 +1061,48 @@ window.tabulatorTransaksiHarianTable = function(config) {
                     {
                         title: "Biaya",
                         field: "grand_total",
-                        hozAlign: "right",
-                        headerHozAlign: "right",
-                        width: 148,
-                        minWidth: 140,
+                        width: 120,
+                        minWidth: 110,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<div class="font-mono font-black text-[#5E17EB] text-right w-full whitespace-nowrap">${this.formatRupiah(d.grand_total)}</div>`;
+                                return `<div class="font-mono font-black text-[#5E17EB] whitespace-nowrap">${this.formatRupiah(d.grand_total)}</div>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-[#5E17EB] font-mono text-right w-full whitespace-nowrap">
+                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-[#5E17EB] font-mono whitespace-nowrap">
                                     ${this.formatRupiah(it.subtotal_jual)}
                                 </div>
                             `).join('');
-                            return `<div class="py-0.5 space-y-0.5 text-right w-full">${html}</div>`;
+                            return `<div class="py-0.5 space-y-0.5">${html}</div>`;
                         }
                     },
                     {
                         title: "Modal",
                         field: "total_modal",
-                        hozAlign: "right",
-                        headerHozAlign: "right",
-                        width: 142,
-                        minWidth: 138,
+                        width: 110,
+                        minWidth: 100,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<div class="font-mono font-bold text-amber-600 text-right w-full whitespace-nowrap">${this.formatRupiah(d.total_modal)}</div>`;
+                                return `<div class="font-mono font-bold text-amber-600 whitespace-nowrap">${this.formatRupiah(d.total_modal)}</div>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-amber-600 font-mono text-right w-full whitespace-nowrap">
+                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-amber-600 font-mono whitespace-nowrap">
                                     ${this.formatRupiah(it.subtotal_modal)}
                                 </div>
                             `).join('');
-                            return `<div class="py-0.5 space-y-0.5 text-right w-full">${html}</div>`;
+                            return `<div class="py-0.5 space-y-0.5">${html}</div>`;
                         }
                     },
                     {
                         title: "Pajak",
                         field: "pajak_label",
-                        width: 60,
-                        minWidth: 55,
-                        hozAlign: "center",
-                        headerHozAlign: "center",
+                        width: 70,
+                        minWidth: 65,
+                        hozAlign: "left",
+                        headerHozAlign: "left",
                         headerFilter: "list",
                         headerFilterParams: { values: ["PPN", "Non PPN"], clearable: true },
                         headerFilterFunc: multiSelectFilterFunc,
@@ -1118,14 +1114,14 @@ window.tabulatorTransaksiHarianTable = function(config) {
                             if (items.length === 0 || !isMulti) {
                                 const it = items[0] || {};
                                 const itemHasPpn = it.has_ppn !== undefined ? it.has_ppn : d.has_ppn;
-                                const taxLabel = itemHasPpn ? 'PPN' : 'Non PPN';
+                                const taxLabel = itemHasPpn ? 'PPN' : 'NON PPN';
                                 const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
                                 return `<span class="text-[8px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</span>`;
                             }
 
                             const html = items.map(it => {
                                 const itemHasPpn = it.has_ppn !== undefined ? it.has_ppn : d.has_ppn;
-                                const taxLabel = itemHasPpn ? 'PPN' : 'Non PPN';
+                                const taxLabel = itemHasPpn ? 'PPN' : 'NON PPN';
                                 const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
                                 return `
                                     <div class="leading-tight py-0.5 min-h-[18px] text-[8px] font-black ${taxColor} uppercase tracking-wider">
@@ -1133,14 +1129,14 @@ window.tabulatorTransaksiHarianTable = function(config) {
                                     </div>
                                 `;
                             }).join('');
-                            return `<div class="py-0.5 space-y-0.5 text-center">${html}</div>`;
+                            return `<div class="py-0.5 space-y-0.5">${html}</div>`;
                         }
                     },
                     {
                         title: "Status",
                         field: "status",
-                        width: 65,
-                        minWidth: 62,
+                        width: 68,
+                        minWidth: 65,
                         hozAlign: "center",
                         headerHozAlign: "center",
                         headerFilter: "list",
@@ -1175,8 +1171,8 @@ window.tabulatorTransaksiHarianTable = function(config) {
                     {
                         title: "Metode",
                         field: "metode_pembayaran",
-                        width: 62,
-                        minWidth: 62,
+                        width: 78,
+                        minWidth: 72,
                         hozAlign: "center",
                         formatter: (cell) => {
                             const d = cell.getData();
@@ -1200,7 +1196,7 @@ window.tabulatorTransaksiHarianTable = function(config) {
 
                             return `
                                 <div class="py-0.2 flex items-center justify-center">
-                                    <select class="w-[56px] py-0 px-0.5 rounded text-[8.5px] font-bold border transition-all cursor-pointer text-center focus:ring-1 focus:ring-blue-200 ${colorStyle}"
+                                    <select class="w-[68px] py-0 px-0.5 rounded text-[8.5px] font-bold border transition-all cursor-pointer text-center focus:ring-1 focus:ring-blue-200 ${colorStyle}"
                                             onchange="window.updateMetodeHarianDirect(${id}, parseInt(this.value, 10))">
                                         ${options}
                                     </select>
@@ -1211,9 +1207,9 @@ window.tabulatorTransaksiHarianTable = function(config) {
                     {
                         title: "Aksi",
                         field: "id",
-                        width: 52,
-                        minWidth: 52,
-                        maxWidth: 52,
+                        width: 55,
+                        minWidth: 55,
+                        maxWidth: 55,
                         hozAlign: "center",
                         headerSort: false,
                         resizable: false,
