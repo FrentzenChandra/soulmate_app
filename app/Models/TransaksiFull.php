@@ -129,9 +129,9 @@ class TransaksiFull extends Model
      * e.g. "INV-PJ-CB-PKP-260922-00001" -> "PJ-260922-00001"
      * e.g. "INV-SV-CB-PKP-260922-00001" -> "SV-260922-00001"
      */
-    public function getNoTransaksiFrontendAttribute(): string
+    public static function formatNoTransaksiFrontend(?string $raw): string
     {
-        $raw = (string) $this->no_transaksi;
+        $raw = (string) $raw;
 
         if (preg_match('/(?:INV-)?(PJ|SV)-[A-Za-z0-9_-]+?-(\d+-\d+)$/i', $raw, $matches)) {
             return strtoupper($matches[1]) . '-' . $matches[2];
@@ -142,6 +142,11 @@ class TransaksiFull extends Model
         }
 
         return str_replace('INV-', '', $raw);
+    }
+
+    public function getNoTransaksiFrontendAttribute(): string
+    {
+        return static::formatNoTransaksiFrontend($this->no_transaksi);
     }
 
     public function getStatusLabelAttribute(): string
