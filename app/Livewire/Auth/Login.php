@@ -34,11 +34,6 @@ class Login extends Component
         ];
     }
 
-    public function fillCredentials(string $username, string $password = 'password'): void
-    {
-        $this->identity = $username;
-        $this->password = $password;
-    }
 
     public function authenticate()
     {

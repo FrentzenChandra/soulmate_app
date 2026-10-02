@@ -42,19 +42,6 @@ class RoleAndUserSeeder extends Seeder
         );
         $owner->syncRoles([$ownerRole]);
 
-        $dev = User::withTrashed()->updateOrCreate(
-            ['email' => 'dev@soulmate.test'],
-            [
-                'name' => 'Developer Mode',
-                'username' => 'dev',
-                'password' => Hash::make('password'),
-                'cabang_id' => null, // null = Akses semua cabang tanpa batasan
-                'no_hp' => '081200000000',
-                'status' => 'aktif',
-                'deleted_at' => null,
-            ]
-        );
-        $dev->syncRoles([$ownerRole]);
 
         // 3. Akun Superadmin (Admin Cabang - Akses Semua Menu di 1 Cabang)
         $superadminPkp = User::withTrashed()->updateOrCreate(
