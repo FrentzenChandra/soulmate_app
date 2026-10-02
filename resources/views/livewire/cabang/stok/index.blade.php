@@ -147,19 +147,13 @@
                             <!-- Foto Produk -->
                             <td class="py-4 px-4 text-center">
                                 <div class="relative inline-block">
-                                    @if($item->foto_url && file_exists(public_path($item->foto_url)))
-                                        <img src="{{ asset($item->foto_url) }}"
-                                             alt="{{ $item->nama_produk }}"
-                                             loading="lazy"
-                                             decoding="async"
-                                             class="w-12 h-12 rounded-xl object-cover border {{ $isZero ? 'border-rose-300 ring-2 ring-rose-200' : ($isCrit ? 'border-amber-300 ring-2 ring-amber-200' : 'border-gray-200') }} shadow-xs mx-auto">
-                                    @elseif($item->foto_url && (str_starts_with($item->foto_url, 'http') || str_starts_with($item->foto_url, 'storage/') || str_starts_with($item->foto_url, 'images/')))
-                                        <img src="{{ asset($item->foto_url) }}"
+                                    @if($item->foto_url)
+                                        <img src="{{ str_starts_with($item->foto_url, 'http') ? $item->foto_url : asset($item->foto_url) }}"
                                              alt="{{ $item->nama_produk }}"
                                              loading="lazy"
                                              decoding="async"
                                              class="w-12 h-12 rounded-xl object-cover border {{ $isZero ? 'border-rose-300 ring-2 ring-rose-200' : ($isCrit ? 'border-amber-300 ring-2 ring-amber-200' : 'border-gray-200') }} shadow-xs mx-auto"
-                                             onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.png') }}';">
+                                             onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-12 h-12 rounded-xl {{ $isZero ? 'bg-rose-100 text-rose-600 border border-rose-200' : ($isCrit ? 'bg-amber-100 text-amber-600 border border-amber-200' : 'bg-blue-50 text-[#0052FF] border border-blue-100') }} flex items-center justify-center mx-auto shadow-2xs\'><svg class=\'w-5 h-5 opacity-80\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg></div>';">
                                     @else
                                         <div class="w-12 h-12 rounded-xl {{ $isZero ? 'bg-rose-100 text-rose-600 border border-rose-200' : ($isCrit ? 'bg-amber-100 text-amber-600 border border-amber-200' : 'bg-blue-50 text-[#0052FF] border border-blue-100') }} flex items-center justify-center mx-auto shadow-2xs">
                                             <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>

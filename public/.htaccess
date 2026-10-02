@@ -25,3 +25,11 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# 1-Day Browser HTTP Image & Media Cache (86,400 seconds)
+<IfModule mod_headers.c>
+    <FilesMatch "\.(ico|pdf|flv|jpg|jpeg|png|gif|webp|svg|woff|woff2|ttf|eot)$">
+        Header set Cache-Control "max-age=86400, public, stale-while-revalidate=604800"
+    </FilesMatch>
+</IfModule>
+

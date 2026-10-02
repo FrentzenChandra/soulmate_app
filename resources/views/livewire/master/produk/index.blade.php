@@ -112,17 +112,15 @@
                             $margin = $p->harga_beli > 0 ? (($p->harga_jual - $p->harga_beli) / $p->harga_beli) * 100 : 0;
                         @endphp
                         <tr class="hover:bg-gray-50/80 transition-colors">
-                            <!-- Foto Thumbnail -->
+                            <!-- Foto Thumbnail (1-Day Browser Cache) -->
                             <td class="py-4 px-4 text-center">
-                                @if($p->foto_url && file_exists(public_path($p->foto_url)))
-                                    <img src="{{ asset($p->foto_url) }}"
+                                @if($p->foto_url)
+                                    <img src="{{ str_starts_with($p->foto_url, 'http') ? $p->foto_url : asset($p->foto_url) }}"
                                          alt="{{ $p->nama_produk }}"
-                                         class="w-11 h-11 rounded-xl object-cover border border-gray-200 shadow-xs mx-auto">
-                                @elseif($p->foto_url && (str_starts_with($p->foto_url, 'http') || str_starts_with($p->foto_url, 'storage/') || str_starts_with($p->foto_url, 'images/')))
-                                    <img src="{{ asset($p->foto_url) }}"
-                                         alt="{{ $p->nama_produk }}"
+                                         loading="lazy"
+                                         decoding="async"
                                          class="w-11 h-11 rounded-xl object-cover border border-gray-200 shadow-xs mx-auto"
-                                         onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.png') }}';">
+                                         onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-11 h-11 rounded-xl bg-purple-50 border border-purple-100 text-[#5E17EB] flex items-center justify-center mx-auto shadow-2xs\'><svg class=\'w-5 h-5 opacity-70\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg></div>';">
                                 @else
                                     <div class="w-11 h-11 rounded-xl bg-purple-50 border border-purple-100 text-[#5E17EB] flex items-center justify-center mx-auto shadow-2xs">
                                         <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>

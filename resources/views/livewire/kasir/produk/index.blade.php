@@ -151,21 +151,15 @@
                         </div>
 
                         <div>
-                            <!-- Thumbnail & Floating Stock Indicator (Lazy Loaded) -->
+                            <!-- Thumbnail & Floating Stock Indicator (Lazy Loaded with 1-Day Browser Cache) -->
                             <div class="relative w-full aspect-square rounded-xl bg-gray-50 overflow-hidden mb-2.5 flex items-center justify-center border border-gray-100">
-                                @if($p->foto_url && file_exists(public_path($p->foto_url)))
-                                    <img src="{{ asset($p->foto_url) }}"
-                                         alt="{{ $p->nama_produk }}"
-                                         loading="lazy"
-                                         decoding="async"
-                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                                @elseif($p->foto_url && (str_starts_with($p->foto_url, 'http') || str_starts_with($p->foto_url, 'storage/') || str_starts_with($p->foto_url, 'images/')))
-                                    <img src="{{ asset($p->foto_url) }}"
+                                @if($p->foto_url)
+                                    <img src="{{ str_starts_with($p->foto_url, 'http') ? $p->foto_url : asset($p->foto_url) }}"
                                          alt="{{ $p->nama_produk }}"
                                          loading="lazy"
                                          decoding="async"
                                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                         onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.png') }}';">
+                                         onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center bg-purple-50 text-[#5E17EB]\'><svg class=\'w-10 h-10 opacity-40\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg></div>';">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center bg-purple-50 text-[#5E17EB]">
                                         <svg class="w-10 h-10 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -278,8 +272,13 @@
                         @if($selectedCustomer)
                             <div class="p-2.5 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-between">
                                 <div class="flex items-center space-x-2.5 truncate">
-                                    @if($selectedCustomer->foto_url && file_exists(public_path($selectedCustomer->foto_url)))
-                                        <img src="{{ asset($selectedCustomer->foto_url) }}" alt="{{ $selectedCustomer->nama }}" class="w-8 h-8 rounded-full object-cover border border-purple-200 shrink-0">
+                                    @if($selectedCustomer->foto_url)
+                                        <img src="{{ str_starts_with($selectedCustomer->foto_url, 'http') ? $selectedCustomer->foto_url : asset($selectedCustomer->foto_url) }}"
+                                             alt="{{ $selectedCustomer->nama }}"
+                                             loading="lazy"
+                                             decoding="async"
+                                             class="w-8 h-8 rounded-full object-cover border border-purple-200 shrink-0"
+                                             onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-8 h-8 rounded-full bg-purple-200 text-[#5E17EB] font-black flex items-center justify-center text-xs shrink-0\'>{{ strtoupper(substr($selectedCustomer->nama, 0, 1)) }}</div>';">
                                     @else
                                         <div class="w-8 h-8 rounded-full bg-purple-200 text-[#5E17EB] font-black flex items-center justify-center text-xs shrink-0">
                                             {{ strtoupper(substr($selectedCustomer->nama, 0, 1)) }}
