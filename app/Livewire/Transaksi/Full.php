@@ -938,7 +938,7 @@ class Full extends Component
 
         // Ultra-Fast toBase() query payload for Tabulator (Zero Eloquent Model Hydration, ~85% RAM reduction)
         $tableData = [];
-        if (! $this->modalFormOpen) {
+        if (! $this->modalFormOpen && ! $this->modalDetailOpen && ! $this->modalDeleteOpen) {
             $allCurrent = (clone $summaryBase)
                 ->toBase()
                 ->leftJoin('users as u', 'u.id', '=', 'transaksi_fulls.user_id')

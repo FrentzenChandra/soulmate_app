@@ -1446,7 +1446,16 @@ window.tabulatorTransaksiFullTable = function(config) {
 
             Livewire.on('transaksi-full-table-updated', ({ data }) => {
                 if (this.table && Array.isArray(data)) {
-                    this.table.setData(data);
+                    const holder = this.table.element ? this.table.element.querySelector('.tabulator-tableholder') : null;
+                    const scrollPos = holder ? holder.scrollTop : 0;
+                    const winScroll = window.scrollY;
+
+                    this.table.replaceData(data).then(() => {
+                        if (holder && scrollPos > 0) holder.scrollTop = scrollPos;
+                        if (winScroll > 0) window.scrollTo({ top: winScroll, behavior: 'instant' });
+                    }).catch(() => {
+                        this.table.setData(data);
+                    });
                     this.rowCount = data.length;
                     this.selectedCount = 0;
                 }
