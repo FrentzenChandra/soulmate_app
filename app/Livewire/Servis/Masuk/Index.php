@@ -162,6 +162,11 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function loadMore(): void
+    {
+        $this->perPage += 15;
+    }
+
     public function openCreateModal(): void
     {
         $this->resetCreateForm();

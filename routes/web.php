@@ -102,7 +102,7 @@ Route::middleware('auth')->group(function () {
 
             if (request()->query('format') === 'pdf' || request()->has('pdf') || request()->query('autosave') === '1') {
                 $pdf = Pdf::loadView('pdf.servis-tanda-terima', ['servis' => $servis])
-                    ->setPaper([0, 0, 680.315, 425.197], 'portrait');
+                    ->setPaper([0, 0, 680.315, 425.197]);
                 $filename = 'Tanda_Terima_Servis_' . Str::slug($servis->no_servis_frontend ?? $servis->no_servis) . '.pdf';
 
                 return request()->query('download') === '1'
@@ -121,7 +121,7 @@ Route::middleware('auth')->group(function () {
 
             if (request()->query('format') === 'pdf' || request()->has('pdf') || request()->query('autosave') === '1') {
                 $pdf = Pdf::loadView('pdf.servis-invoice', ['servis' => $servis])
-                    ->setPaper([0, 0, 680.315, 425.197], 'portrait');
+                    ->setPaper([0, 0, 680.315, 425.197]);
                 $filename = 'Faktur_Servis_' . Str::slug($servis->no_servis_frontend ?? $servis->no_servis) . '.pdf';
 
                 return request()->query('download') === '1'
@@ -145,7 +145,7 @@ Route::middleware('auth')->group(function () {
 
             if (request()->query('format') === 'pdf' || request()->has('pdf') || request()->query('autosave') === '1') {
                 $pdf = Pdf::loadView('pdf.kasir-invoice', ['penjualan' => $penjualan])
-                    ->setPaper([0, 0, 680.315, 396.850], 'portrait');
+                    ->setPaper([0, 0, 680.315, 396.850]);
                 $filename = 'Sales_Invoice_' . Str::slug($penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi) . '.pdf';
 
                 return request()->query('download') === '1'

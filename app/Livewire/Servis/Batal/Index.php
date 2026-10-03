@@ -94,6 +94,11 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function loadMore(): void
+    {
+        $this->perPage += 15;
+    }
+
     public function openDetailModal(int $id): void
     {
         $this->selectedServis = ServisMasuk::with(['customer', 'cabang', 'pembuat', 'statusLogs.user', 'details'])->findOrFail($id);
