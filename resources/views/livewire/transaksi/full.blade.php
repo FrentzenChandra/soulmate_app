@@ -1446,20 +1446,44 @@ window.tabulatorTransaksiFullTable = function(config) {
 
             Livewire.on('transaksi-full-table-updated', ({ data }) => {
                 if (this.table && Array.isArray(data)) {
+                    const mainEl = document.querySelector('main');
                     const holder = this.table.element ? this.table.element.querySelector('.tabulator-tableholder') : null;
-                    const scrollPos = holder ? holder.scrollTop : 0;
-                    const winScroll = window.scrollY;
+                    const mainScroll = mainEl ? mainEl.scrollTop : 0;
+                    const tableScroll = holder ? holder.scrollTop : 0;
 
                     this.table.replaceData(data).then(() => {
-                        if (holder && scrollPos > 0) holder.scrollTop = scrollPos;
-                        if (winScroll > 0) window.scrollTo({ top: winScroll, behavior: 'instant' });
+                        if (mainEl && mainScroll > 0) mainEl.scrollTop = mainScroll;
+                        if (holder && tableScroll > 0) holder.scrollTop = tableScroll;
                     }).catch(() => {
                         this.table.setData(data);
+                        if (mainEl && mainScroll > 0) mainEl.scrollTop = mainScroll;
+                        if (holder && tableScroll > 0) holder.scrollTop = tableScroll;
                     });
                     this.rowCount = data.length;
                     this.selectedCount = 0;
                 }
             });
+
+            // Livewire Hook to lock & preserve scroll across all commits (modals, filters, actions)
+            if (window.Livewire && window.Livewire.hook) {
+                window.Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+                    const mainEl = document.querySelector('main');
+                    const holder = this.table?.element ? this.table.element.querySelector('.tabulator-tableholder') : document.querySelector('.tabulator-tableholder');
+                    const mainScroll = mainEl ? mainEl.scrollTop : 0;
+                    const tableScroll = holder ? holder.scrollTop : 0;
+
+                    succeed(() => {
+                        queueMicrotask(() => {
+                            if (mainEl && mainScroll > 0) mainEl.scrollTop = mainScroll;
+                            if (holder && tableScroll > 0) holder.scrollTop = tableScroll;
+                            requestAnimationFrame(() => {
+                                if (mainEl && mainScroll > 0) mainEl.scrollTop = mainScroll;
+                                if (holder && tableScroll > 0) holder.scrollTop = tableScroll;
+                            });
+                        });
+                    });
+                });
+            }
 
             // Realtime Echo Listener for In-Place Row Mutation (Zero DOM Flash & Scroll Preservation)
             if (window.Echo) {
@@ -1515,13 +1539,46 @@ window.tabulatorTransaksiFullTable = function(config) {
 };
 
 window.viewTransaksiFullDetail = (id) => {
-    if (window.activeTransaksiFullWire) window.activeTransaksiFullWire.openDetailModal(id);
+    const mainEl = document.querySelector('main');
+    const holder = document.querySelector('.tabulator-tableholder');
+    const mainScroll = mainEl ? mainEl.scrollTop : 0;
+    const tableScroll = holder ? holder.scrollTop : 0;
+
+    if (window.activeTransaksiFullWire) {
+        window.activeTransaksiFullWire.openDetailModal(id);
+        requestAnimationFrame(() => {
+            if (mainEl && mainScroll > 0) mainEl.scrollTop = mainScroll;
+            if (holder && tableScroll > 0) holder.scrollTop = tableScroll;
+        });
+    }
 };
 window.editTransaksiFull = (id) => {
-    if (window.activeTransaksiFullWire) window.activeTransaksiFullWire.openEditModal(id);
+    const mainEl = document.querySelector('main');
+    const holder = document.querySelector('.tabulator-tableholder');
+    const mainScroll = mainEl ? mainEl.scrollTop : 0;
+    const tableScroll = holder ? holder.scrollTop : 0;
+
+    if (window.activeTransaksiFullWire) {
+        window.activeTransaksiFullWire.openEditModal(id);
+        requestAnimationFrame(() => {
+            if (mainEl && mainScroll > 0) mainEl.scrollTop = mainScroll;
+            if (holder && tableScroll > 0) holder.scrollTop = tableScroll;
+        });
+    }
 };
 window.deleteTransaksiFullConfirm = (id, noTrx) => {
-    if (window.activeTransaksiFullWire) window.activeTransaksiFullWire.confirmDelete(id, noTrx);
+    const mainEl = document.querySelector('main');
+    const holder = document.querySelector('.tabulator-tableholder');
+    const mainScroll = mainEl ? mainEl.scrollTop : 0;
+    const tableScroll = holder ? holder.scrollTop : 0;
+
+    if (window.activeTransaksiFullWire) {
+        window.activeTransaksiFullWire.confirmDelete(id, noTrx);
+        requestAnimationFrame(() => {
+            if (mainEl && mainScroll > 0) mainEl.scrollTop = mainScroll;
+            if (holder && tableScroll > 0) holder.scrollTop = tableScroll;
+        });
+    }
 };
 window.updateStatusFullDirect = (id, status) => {
     if (window.activeTransaksiFullWire) window.activeTransaksiFullWire.updateStatusDirect(id, status);
