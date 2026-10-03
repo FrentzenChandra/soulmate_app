@@ -13,7 +13,7 @@
     <style>
         @page {
             size: portrait;
-            margin: 3mm 6mm;
+            margin: 4mm 15mm;
         }
         * {
             font-family: Arial, Helvetica, sans-serif !important;
