@@ -1174,6 +1174,10 @@ window.tabulatorTransaksiHarianTable = function(config) {
                         width: 78,
                         minWidth: 72,
                         hozAlign: "center",
+                        headerHozAlign: "center",
+                        headerFilter: "list",
+                        headerFilterParams: { values: (config.metodeList || []).map(m => m.nama), clearable: true },
+                        headerFilterFunc: multiSelectFilterFunc,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const val = (d.metode_pembayaran || '').trim();
