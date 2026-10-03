@@ -191,6 +191,18 @@
     height: auto !important;
 }
 
+.tabulator .tabulator-row .tabulator-cell[style*="text-align: right"],
+.tabulator .tabulator-row .tabulator-cell.tabulator-align-right {
+    justify-content: flex-end !important;
+    text-align: right !important;
+}
+
+.tabulator .tabulator-row .tabulator-cell[style*="text-align: center"],
+.tabulator .tabulator-row .tabulator-cell.tabulator-align-center {
+    justify-content: center !important;
+    text-align: center !important;
+}
+
 .tabulator .tabulator-footer {
     background-color: #ffffff !important;
     border-top: 1px solid #e5e7eb !important;
