@@ -881,11 +881,11 @@ class Full extends Component
 
         // Hitung 6 Ringkasan Finansial Utama via direct SQL aggregation (Zero RAM Overhead)
         $summaryBase = clone $query;
-        $totalPendapatan = (float) (clone $summaryBase)->sum('grand_total');
+        $totalPendapatan = (float) (clone $summaryBase)->sum('total_jual');
         $totalModal = (float) (clone $summaryBase)->sum('total_modal');
         $totalLaba = (float) (clone $summaryBase)->sum('total_laba');
-        $totalLunas = (float) (clone $summaryBase)->where('status', 'Lunas')->sum('grand_total');
-        $totalBon = (float) (clone $summaryBase)->whereRaw('LOWER(status) = ?', ['bon'])->sum('grand_total');
+        $totalLunas = (float) (clone $summaryBase)->where('status', 'Lunas')->sum('total_jual');
+        $totalBon = (float) (clone $summaryBase)->whereRaw('LOWER(status) = ?', ['bon'])->sum('total_jual');
         $totalTransaksiCount = (int) (clone $summaryBase)->count();
 
         // Hitung Uang Cash - Full Akumulasi Sepanjang Masa (All-Time, Zero Date Constraint)
@@ -922,7 +922,7 @@ class Full extends Component
             })->orWhereDoesntHave('sumberDana');
         })->sum('nominal');
 
-        $transaksiCashMasuk = (float) $cashMasukQ->sum('grand_total');
+        $transaksiCashMasuk = (float) $cashMasukQ->sum('total_jual');
 
         $totalUangCash = $totalModalAwal + $transaksiCashMasuk - $totalKasKeluarCash;
 

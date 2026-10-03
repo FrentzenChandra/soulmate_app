@@ -220,7 +220,7 @@ class TransaksiFullTest extends TestCase
         // Test Filter PPN
         Livewire::test(TransaksiFull::class)
             ->set('ppnFilter', 'ppn')
-            ->assertViewHas('totalPendapatan', 111000.0)
+            ->assertViewHas('totalPendapatan', 100000.0)
             ->assertViewHas('totalModal', 70000.0)
             ->assertViewHas('totalLaba', 30000.0)
             // Test Filter Non-PPN

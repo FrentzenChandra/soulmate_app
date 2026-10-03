@@ -863,7 +863,7 @@
                                     <tfoot class="bg-blue-50/50 border-t border-blue-100 font-bold">
                                         <tr>
                                             <td colspan="2" class="py-2 px-3 text-gray-900 font-bold">Total Ringkasan:</td>
-                                            <td class="py-2 px-3 text-right font-mono text-base text-[#0052FF] font-black">Rp {{ number_format($selectedTransaksi->grand_total, 0, ',', '.') }}</td>
+                                            <td class="py-2 px-3 text-right font-mono text-base text-[#0052FF] font-black">Rp {{ number_format($selectedTransaksi->total_jual, 0, ',', '.') }}</td>
                                             <td class="py-2 px-3 text-right font-mono text-amber-900 font-bold">Rp {{ number_format($selectedTransaksi->total_modal, 0, ',', '.') }}</td>
                                         </tr>
                                     </tfoot>
@@ -1060,14 +1060,14 @@ window.tabulatorTransaksiHarianTable = function(config) {
                     },
                     {
                         title: "Biaya",
-                        field: "grand_total",
+                        field: "total_jual",
                         width: 132,
                         minWidth: 125,
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<div class="font-mono font-black text-[#5E17EB] whitespace-nowrap">${this.formatRupiah(d.grand_total)}</div>`;
+                                return `<div class="font-mono font-black text-[#5E17EB] whitespace-nowrap">${this.formatRupiah(d.total_jual)}</div>`;
                             }
                             const html = items.map(it => `
                                 <div class="leading-tight py-0.5 min-h-[18px] font-bold text-[#5E17EB] font-mono whitespace-nowrap">
