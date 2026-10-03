@@ -888,25 +888,14 @@ class Full extends Component
         $totalBon = (float) (clone $summaryBase)->whereRaw('LOWER(status) = ?', ['bon'])->sum('grand_total');
         $totalTransaksiCount = (int) (clone $summaryBase)->count();
 
-        // Hitung Uang Cash di Laci HARI INI (Terkunci Hari Ini / Realtime Kasir)
-        $todayDate = now()->toDateString();
-        $todayStart = now()->startOfDay();
-        $todayEnd = now()->endOfDay();
-
-        $modalAwalQ = ModalAwal::whereDate('tanggal', $todayDate);
-        $kasKeluarQ = KasKeluar::whereBetween('tanggal', [$todayStart, $todayEnd]);
+        // Hitung Uang Cash - Full Akumulasi Sepanjang Masa (All-Time, Zero Date Constraint)
+        $modalAwalQ = ModalAwal::query();
+        $kasKeluarQ = KasKeluar::query();
         $cashMasukQ = TransaksiFull::query()
             ->where('status', 'Lunas')
             ->where(function ($q) {
                 $q->whereRaw('LOWER(metode_pembayaran) LIKE ?', ['%cash%'])
                     ->orWhereRaw('LOWER(metode_pembayaran) LIKE ?', ['%tunai%']);
-            })
-            ->where(function ($q) use ($todayStart, $todayEnd) {
-                $q->whereBetween('tanggal_lunas', [$todayStart, $todayEnd])
-                    ->orWhere(function ($sq) use ($todayStart, $todayEnd) {
-                        $sq->whereNull('tanggal_lunas')
-                            ->whereBetween('tanggal', [$todayStart, $todayEnd]);
-                    });
             });
 
         if (! $isHQ) {
@@ -924,7 +913,7 @@ class Full extends Component
 
         $totalModalAwal = (float) $modalAwalQ->sum('nominal');
 
-        // Kas Keluar Cash Hari Ini
+        // Kas Keluar Cash Sepanjang Masa
         $totalKasKeluarCash = (float) $kasKeluarQ->where(function ($q) {
             $q->whereHas('sumberDana', function ($sq) {
                 $sq->whereRaw('LOWER(nama) LIKE ?', ['%cash%'])

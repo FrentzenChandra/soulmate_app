@@ -132,16 +132,13 @@
             <div class="flex items-center justify-between pb-2 border-b border-teal-100/80">
                 <span class="text-[10px] font-black text-teal-950 uppercase tracking-wider">Uang Cash</span>
                 <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-teal-50 text-teal-700 border border-teal-200/60">
-                    Hari Ini
+                    Akumulasi
                 </span>
             </div>
             <div class="mt-3">
                 <span class="text-lg sm:text-xl font-mono font-black {{ $totalUangCash >= 0 ? 'text-teal-700' : 'text-rose-600' }} tracking-tight block">
                     Rp {{ number_format($totalUangCash, 0, ',', '.') }}
                 </span>
-                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                    Cash Fisik Pada Hari ini
-                </span> --}}
             </div>
         </div>
 
