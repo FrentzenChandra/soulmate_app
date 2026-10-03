@@ -92,17 +92,17 @@
             <tbody class="divide-y divide-gray-200">
                 @foreach($penjualan->details as $d)
                     <tr>
-                        <td class="py-2.5 font-mono text-gray-600 text-xs align-top truncate pr-2">
+                        <td class="py-1 font-mono text-gray-600 text-xs align-top truncate pr-2">
                             {{ $d->produk?->barcode ?: 'BRG-' . str_pad((string)$d->produk_id, 4, '0', STR_PAD_LEFT) }}
                         </td>
-                        <td class="py-2.5 align-top pr-2">
+                        <td class="py-1 align-top pr-2">
                             <span class="font-bold text-gray-900 block leading-snug">
                                 {{ $d->nama_item }}
                             </span>
                         </td>
-                        <td class="py-2.5 text-center font-mono font-bold align-top whitespace-nowrap text-gray-900 text-xs">{{ $d->qty }} UNIT</td>
-                        <td class="py-2.5 text-right font-mono align-top whitespace-nowrap text-xs">Rp {{ number_format($d->harga, 0, ',', '.') }}</td>
-                        <td class="py-2.5 text-right font-mono font-bold align-top whitespace-nowrap text-gray-900 text-xs">Rp {{ number_format($d->subtotal, 0, ',', '.') }}</td>
+                        <td class="py-1 text-center font-mono font-bold align-top whitespace-nowrap text-gray-900 text-xs">{{ $d->qty }} UNIT</td>
+                        <td class="py-1 text-right font-mono align-top whitespace-nowrap text-xs">Rp {{ number_format($d->harga, 0, ',', '.') }}</td>
+                        <td class="py-1 text-right font-mono font-bold align-top whitespace-nowrap text-gray-900 text-xs">Rp {{ number_format($d->subtotal, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>

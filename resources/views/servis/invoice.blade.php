@@ -154,20 +154,20 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse($servis->details as $idx => $det)
                         <tr>
-                            <td class="py-2 font-mono text-gray-500 text-xs align-top">{{ $idx + 1 }}</td>
-                            <td class="py-2 font-semibold text-gray-900 align-top">
+                            <td class="py-1 font-mono text-gray-500 text-xs align-top">{{ $idx + 1 }}</td>
+                            <td class="py-1 font-semibold text-gray-900 align-top">
                                 {{ $det->nama_item }}
                             </td>
-                            <td class="py-2 text-center font-mono text-xs text-gray-700 align-top">
+                            <td class="py-1 text-center font-mono text-xs text-gray-700 align-top">
                                 {{ $det->garansi_label }}
                             </td>
-                            <td class="py-2 text-center font-mono font-bold align-top">{{ $det->qty }}</td>
-                            <td class="py-2 text-right font-mono align-top whitespace-nowrap">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
-                            <td class="py-2 text-right font-mono font-bold text-gray-900 align-top whitespace-nowrap">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
+                            <td class="py-1 text-center font-mono font-bold align-top">{{ $det->qty }}</td>
+                            <td class="py-1 text-right font-mono align-top whitespace-nowrap">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
+                            <td class="py-1 text-right font-mono font-bold text-gray-900 align-top whitespace-nowrap">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-2.5 text-center text-gray-400 italic">Biaya Servis Standar</td>
+                            <td colspan="6" class="py-2 text-center text-gray-400 italic">Biaya Servis Standar</td>
                         </tr>
                     @endforelse
                 </tbody>

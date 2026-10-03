@@ -74,7 +74,7 @@
             background: #fafafa;
         }
         .items-table td {
-            padding: 5px 6px;
+            padding: 2.5px 5px;
             font-size: 8.5pt;
             vertical-align: middle;
             border-bottom: 1px dotted #ccc;
