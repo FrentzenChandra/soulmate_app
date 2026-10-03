@@ -1063,18 +1063,20 @@ window.tabulatorTransaksiHarianTable = function(config) {
                         field: "total_jual",
                         width: 132,
                         minWidth: 125,
+                        hozAlign: "right",
+                        headerHozAlign: "right",
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<div class="font-mono font-black text-[#5E17EB] whitespace-nowrap">${this.formatRupiah(d.total_jual)}</div>`;
+                                return `<div class="font-mono font-black text-[#5E17EB] whitespace-nowrap text-right">${this.formatRupiah(d.total_jual)}</div>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-[#5E17EB] font-mono whitespace-nowrap">
+                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-[#5E17EB] font-mono whitespace-nowrap text-right">
                                     ${this.formatRupiah(it.subtotal_jual)}
                                 </div>
                             `).join('');
-                            return `<div class="py-0.5 space-y-0.5">${html}</div>`;
+                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
                         }
                     },
                     {
@@ -1082,18 +1084,20 @@ window.tabulatorTransaksiHarianTable = function(config) {
                         field: "total_modal",
                         width: 125,
                         minWidth: 118,
+                        hozAlign: "right",
+                        headerHozAlign: "right",
                         formatter: (cell) => {
                             const d = cell.getData();
                             const items = d.items_list || [];
                             if (items.length === 0) {
-                                return `<div class="font-mono font-bold text-amber-600 whitespace-nowrap">${this.formatRupiah(d.total_modal)}</div>`;
+                                return `<div class="font-mono font-bold text-amber-600 whitespace-nowrap text-right">${this.formatRupiah(d.total_modal)}</div>`;
                             }
                             const html = items.map(it => `
-                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-amber-600 font-mono whitespace-nowrap">
+                                <div class="leading-tight py-0.5 min-h-[18px] font-bold text-amber-600 font-mono whitespace-nowrap text-right">
                                     ${this.formatRupiah(it.subtotal_modal)}
                                 </div>
                             `).join('');
-                            return `<div class="py-0.5 space-y-0.5">${html}</div>`;
+                            return `<div class="py-0.5 space-y-0.5 text-right">${html}</div>`;
                         }
                     },
                     {
