@@ -50,7 +50,7 @@
 - **Format Frontend:** `PJ-[YYMMDD]-[00001]` (ditampilkan via accessor `no_transaksi_frontend`).
 - **Format Servis:** `INV-SV-[KODE_CABANG]-[YYMMDD]-[00001]` / `SV-[YYMMDD]-[00001]`.
 - **Cetakan Nota & Continuous Form (Portrait Standard):**
-  * Orientasi cetak **WAJIB PORTRAIT** (`@page { size: 230mm 140mm; margin: 4mm 15mm; }`, 23 cm x 14 cm Continuous Form, dilarang landscape).
+  * Orientasi cetak **WAJIB PORTRAIT** (`@page { size: portrait; margin: 4mm 15mm; }`, dilarang landscape).
   * Font universal **Arial** (`Arial, Helvetica, sans-serif`).
   * Proporsional tinggi konten ~12 cm tanpa mengubah layout struktur asli.
   * Format kuantiti dan unit wajib berjarak (`{{ $qty }} UNIT`, bukan `1UNIT`).

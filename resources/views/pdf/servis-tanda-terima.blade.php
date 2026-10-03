@@ -5,7 +5,7 @@
     <title>Tanda Terima Servis - {{ $servis->no_servis_frontend ?? $servis->no_servis }}</title>
     <style>
         @page {
-            size: 230mm 140mm;
+            size: portrait;
             margin: 4mm 15mm;
         }
         * {
