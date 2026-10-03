@@ -10,7 +10,7 @@
 
     <style>
         @page {
-            size: portrait;
+            size: 230mm 140mm;
             margin: 4mm 15mm;
         }
         * {
@@ -36,7 +36,7 @@
                 padding: 2mm 0 !important;
                 margin: 0 !important;
                 width: 100% !important;
-                max-width: 228mm !important;
+                max-width: 230mm !important;
             }
             .sales-invoice-container tr,
             .sales-invoice-container .avoid-break {

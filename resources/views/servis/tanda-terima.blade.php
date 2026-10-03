@@ -12,7 +12,7 @@
 
     <style>
         @page {
-            size: portrait;
+            size: 230mm 140mm;
             margin: 4mm 15mm;
         }
         * {

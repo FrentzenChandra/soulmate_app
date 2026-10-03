@@ -5,7 +5,7 @@
     <title>Sales Invoice - {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}</title>
     <style>
         @page {
-            size: portrait;
+            size: 230mm 140mm;
             margin: 4mm 15mm;
         }
         * {
