@@ -172,11 +172,11 @@
     <table class="w-full items-table table-layout">
         <thead>
             <tr>
-                <th class="text-left" style="width: 20%;">Kode Barang</th>
-                <th class="text-left" style="width: 44%;">Nama Barang</th>
+                <th class="text-left" style="width: 16%;">Kode Barang</th>
+                <th class="text-left" style="width: 38%;">Nama Barang</th>
                 <th class="text-center" style="width: 10%;">Jumlah</th>
-                <th class="text-right" style="width: 13%;">Harga (Rp)</th>
-                <th class="text-right" style="width: 13%;">Total (Rp)</th>
+                <th class="text-right" style="width: 18%;">Harga (Rp)</th>
+                <th class="text-right" style="width: 18%;">Total (Rp)</th>
             </tr>
         </thead>
         <tbody>
@@ -205,24 +205,24 @@
     <!-- Bottom Section: Customer Sign, Cashier Sign, Totals -->
     <table class="w-full table-layout" style="margin-top: 4px;">
         <tr>
-            <!-- Customer Sign (28%) -->
-            <td style="width: 28%; text-align: center; vertical-align: top;">
+            <!-- Customer Sign (26%) -->
+            <td style="width: 26%; text-align: center; vertical-align: top;">
                 <div class="sign-title">Customer,</div>
                 <div>
                     <span class="sign-name">{{ $customerName }}</span>
                 </div>
             </td>
 
-            <!-- Cashier Sign (28%) -->
-            <td style="width: 28%; text-align: center; vertical-align: top;">
+            <!-- Cashier Sign (26%) -->
+            <td style="width: 26%; text-align: center; vertical-align: top;">
                 <div class="sign-title">Cashier,</div>
                 <div>
                     <span class="sign-name">{{ $cashierName }}</span>
                 </div>
             </td>
 
-            <!-- Totals Summary (44%) -->
-            <td style="width: 44%; vertical-align: top; padding-left: 15px;">
+            <!-- Totals Summary (48%) -->
+            <td style="width: 48%; vertical-align: top; padding-left: 8px;">
                 <table class="w-full totals-table">
                     @if($penjualan->details->count() > 1)
                         <tr>

@@ -74,11 +74,11 @@
     <div class="pt-0.5">
         <table class="w-full text-left border-collapse text-xs table-fixed">
             <colgroup>
+                <col style="width: 16%;">
+                <col style="width: 38%;">
+                <col style="width: 10%;">
                 <col style="width: 18%;">
-                <col style="width: 42%;">
-                <col style="width: 12%;">
-                <col style="width: 14%;">
-                <col style="width: 14%;">
+                <col style="width: 18%;">
             </colgroup>
             <thead>
                 <tr class="border-b-2 border-gray-800 text-xs font-bold uppercase text-gray-800">
@@ -86,7 +86,7 @@
                     <th class="py-2 text-left">Nama Barang</th>
                     <th class="py-2 text-center">Jumlah</th>
                     <th class="py-2 text-right">Harga (Rp)</th>
-                    <th class="py-2 text-right pr-1">Total (Rp)</th>
+                    <th class="py-2 text-right">Total (Rp)</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -102,32 +102,32 @@
                         </td>
                         <td class="py-2.5 text-center font-mono font-bold align-top whitespace-nowrap text-gray-900 text-xs">{{ $d->qty }} UNIT</td>
                         <td class="py-2.5 text-right font-mono align-top whitespace-nowrap text-xs">Rp {{ number_format($d->harga, 0, ',', '.') }}</td>
-                        <td class="py-2.5 text-right font-mono font-bold align-top whitespace-nowrap text-gray-900 text-xs pr-1">Rp {{ number_format($d->subtotal, 0, ',', '.') }}</td>
+                        <td class="py-2.5 text-right font-mono font-bold align-top whitespace-nowrap text-gray-900 text-xs">Rp {{ number_format($d->subtotal, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>
             <tfoot>
                 @if($penjualan->details->count() > 1)
                     <tr class="border-t border-gray-400 font-medium text-xs text-gray-700">
-                        <td colspan="4" class="py-1 text-right font-bold">Subtotal :</td>
-                        <td class="py-1 text-right font-mono font-bold text-gray-900 pr-1">Rp {{ number_format($penjualan->subtotal, 0, ',', '.') }}</td>
+                        <td colspan="4" class="py-1 text-right font-bold pr-2">Subtotal :</td>
+                        <td class="py-1 text-right font-mono font-bold text-gray-900">Rp {{ number_format($penjualan->subtotal, 0, ',', '.') }}</td>
                     </tr>
                 @endif
                 @if($penjualan->diskon > 0)
                     <tr class="{{ $penjualan->details->count() <= 1 ? 'border-t border-gray-400 ' : '' }}font-medium text-xs text-gray-600">
-                        <td colspan="4" class="py-0.5 text-right font-bold">Potongan Diskon :</td>
-                        <td class="py-0.5 text-right font-mono font-bold text-rose-600 pr-1">- Rp {{ number_format($penjualan->diskon, 0, ',', '.') }}</td>
+                        <td colspan="4" class="py-0.5 text-right font-bold pr-2">Potongan Diskon :</td>
+                        <td class="py-0.5 text-right font-mono font-bold text-rose-600">- Rp {{ number_format($penjualan->diskon, 0, ',', '.') }}</td>
                     </tr>
                 @endif
                 @if($penjualan->ppn_nominal > 0)
                     <tr class="{{ ($penjualan->details->count() <= 1 && $penjualan->diskon <= 0) ? 'border-t border-gray-400 ' : '' }}font-medium text-xs text-gray-600">
-                        <td colspan="4" class="py-0.5 text-right font-bold">PPN {{ (int)$penjualan->ppn_persen }}% :</td>
-                        <td class="py-0.5 text-right font-mono font-bold text-gray-900 pr-1">Rp {{ number_format($penjualan->ppn_nominal, 0, ',', '.') }}</td>
+                        <td colspan="4" class="py-0.5 text-right font-bold pr-2">PPN {{ (int)$penjualan->ppn_persen }}% :</td>
+                        <td class="py-0.5 text-right font-mono font-bold text-gray-900">Rp {{ number_format($penjualan->ppn_nominal, 0, ',', '.') }}</td>
                     </tr>
                 @endif
                 <tr class="{{ ($penjualan->details->count() <= 1 && $penjualan->diskon <= 0 && $penjualan->ppn_nominal <= 0) ? 'border-t-2 border-gray-800 ' : 'border-t-2 border-gray-400 ' }}font-black">
-                    <td colspan="4" class="py-2 text-right text-sm sm:text-base font-black text-gray-900">Grandtotal :</td>
-                    <td class="py-2 text-right font-mono text-sm sm:text-base font-black text-[#5E17EB] whitespace-nowrap pr-1">Rp {{ number_format($penjualan->total, 0, ',', '.') }}</td>
+                    <td colspan="4" class="py-2 text-right text-xs sm:text-sm font-black text-gray-900 pr-2">Grandtotal :</td>
+                    <td class="py-2 text-right font-mono text-xs sm:text-sm font-black text-[#5E17EB] whitespace-nowrap">Rp {{ number_format($penjualan->total, 0, ',', '.') }}</td>
                 </tr>
             </tfoot>
         </table>

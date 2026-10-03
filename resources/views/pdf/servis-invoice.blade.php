@@ -203,11 +203,11 @@
         <thead>
             <tr>
                 <th class="text-center" style="width: 5%;">No</th>
-                <th class="text-left" style="width: 40%;">Nama Barang / Jasa</th>
-                <th class="text-center" style="width: 15%;">Garansi</th>
+                <th class="text-left" style="width: 35%;">Nama Barang / Jasa</th>
+                <th class="text-center" style="width: 14%;">Garansi</th>
                 <th class="text-center" style="width: 8%;">Qty</th>
-                <th class="text-right" style="width: 16%;">Harga</th>
-                <th class="text-right" style="width: 16%;">Subtotal</th>
+                <th class="text-right" style="width: 19%;">Harga</th>
+                <th class="text-right" style="width: 19%;">Subtotal</th>
             </tr>
         </thead>
         <tbody>
@@ -235,24 +235,24 @@
     <!-- Signatures & Totals Section -->
     <table class="w-full table-layout" style="margin-top: 4px;">
         <tr>
-            <!-- Customer Sign (28%) -->
-            <td style="width: 28%; text-align: center; vertical-align: top;">
+            <!-- Customer Sign (26%) -->
+            <td style="width: 26%; text-align: center; vertical-align: top;">
                 <div class="sign-title">Pelanggan,</div>
                 <div>
                     <span class="sign-name">{{ $customerName }}</span>
                 </div>
             </td>
 
-            <!-- Cashier Sign (28%) -->
-            <td style="width: 28%; text-align: center; vertical-align: top;">
+            <!-- Cashier Sign (26%) -->
+            <td style="width: 26%; text-align: center; vertical-align: top;">
                 <div class="sign-title">Kasir Toko,</div>
                 <div>
                     <span class="sign-name">{{ $kasirTeknisi }}</span>
                 </div>
             </td>
 
-            <!-- Totals & Payment Summary (44%) -->
-            <td style="width: 44%; vertical-align: top; padding-left: 15px;">
+            <!-- Totals & Payment Summary (48%) -->
+            <td style="width: 48%; vertical-align: top; padding-left: 8px;">
                 <table class="w-full totals-table">
                     <tr class="grandtotal-row">
                         <td class="text-left font-bold">Grandtotal</td>

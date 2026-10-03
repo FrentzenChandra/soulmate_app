@@ -144,11 +144,11 @@
                 <thead>
                     <tr class="border-b border-gray-800 text-xs font-bold uppercase text-gray-700">
                         <th class="py-1.5 w-[5%]">No</th>
-                        <th class="py-1.5 w-[41%]">Nama Barang / Jasa</th>
-                        <th class="py-1.5 text-center w-[14%]">Garansi</th>
-                        <th class="py-1.5 text-center w-[10%]">Qty</th>
-                        <th class="py-1.5 text-right w-[15%]">Harga</th>
-                        <th class="py-1.5 text-right w-[15%] pr-1">Subtotal</th>
+                        <th class="py-1.5 w-[35%]">Nama Barang / Jasa</th>
+                        <th class="py-1.5 text-center w-[13%]">Garansi</th>
+                        <th class="py-1.5 text-center w-[9%]">Qty</th>
+                        <th class="py-1.5 text-right w-[19%]">Harga</th>
+                        <th class="py-1.5 text-right w-[19%]">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -163,7 +163,7 @@
                             </td>
                             <td class="py-2 text-center font-mono font-bold align-top">{{ $det->qty }}</td>
                             <td class="py-2 text-right font-mono align-top whitespace-nowrap">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
-                            <td class="py-2 text-right font-mono font-bold text-gray-900 align-top whitespace-nowrap pr-1">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
+                            <td class="py-2 text-right font-mono font-bold text-gray-900 align-top whitespace-nowrap">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -172,9 +172,9 @@
                     @endforelse
                 </tbody>
                 <tfoot>
-                    <tr class="border-t border-gray-800 font-bold text-[13px]">
-                        <td colspan="5" class="py-2 text-right text-sm sm:text-base font-black text-gray-900">Grandtotal :</td>
-                        <td class="py-2 text-right font-mono text-[#5E17EB] font-black text-sm sm:text-base whitespace-nowrap pr-1">Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}</td>
+                    <tr class="border-t border-gray-800 font-bold text-xs">
+                        <td colspan="5" class="py-2 text-right text-xs sm:text-sm font-black text-gray-900 pr-2">Grandtotal :</td>
+                        <td class="py-2 text-right font-mono text-[#5E17EB] font-black text-xs sm:text-sm whitespace-nowrap">Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}</td>
                     </tr>
                 </tfoot>
             </table>
