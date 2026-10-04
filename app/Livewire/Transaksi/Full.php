@@ -932,10 +932,6 @@ class Full extends Component
         $sortColumn = in_array($this->sortField, $allowedSorts) ? 'transaksi_fulls.' . $this->sortField : 'transaksi_fulls.tanggal';
         $query->orderBy($sortColumn, $sortDir)->orderByDesc('transaksi_fulls.id');
 
-        $totalItems = (clone $query)->count();
-        $transaksiList = $query->take($this->perPage)->get();
-        $hasMore = $totalItems > $this->perPage;
-
         // Ultra-Fast toBase() query payload for Tabulator (Zero Eloquent Model Hydration, ~85% RAM reduction)
         $tableData = [];
         if (! $this->modalFormOpen && ! $this->modalDetailOpen && ! $this->modalDeleteOpen) {
@@ -1084,10 +1080,7 @@ class Full extends Component
         }
 
         return view('livewire.transaksi.full', [
-            'transaksiList' => $transaksiList,
             'tableData' => $tableData,
-            'totalItems' => $totalItems,
-            'hasMore' => $hasMore,
             'totalTransaksiCount' => $totalTransaksiCount,
 
             // 6 Kotak Metrik Finansial
