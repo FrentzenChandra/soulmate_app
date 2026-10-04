@@ -47,7 +47,7 @@
     <!-- FILTER BAR & MODE PERIODE                      -->
     <!-- ============================================== -->
     <div class="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-xs space-y-4">
-        
+
         <!-- Baris 1: Mode Periode Switcher & Input Tanggal Dinamis -->
         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-100">
             <div class="flex items-center space-x-1.5 bg-gray-100 p-1 rounded-xl">
@@ -114,7 +114,7 @@
 
         <!-- Baris 2: Filter Kategori & Sumber Dana -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3">
-            {{-- 
+            {{--
             <!-- Search Bar Backend Multi-Kata (Di-comment karena pencarian sudah di-handle oleh Tabulator Quick Search & Header Filter) -->
             <div class="md:col-span-6 relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -401,7 +401,7 @@ window.tabulatorKasKeluarTable = function(config) {
                 },
                 placeholder: "Belum ada catatan kas keluar pada periode ini.",
                 columns: [
-                    { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 30, minWidth: 30, maxWidth: 30, resizable: false },
+                    // { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 30, minWidth: 30, maxWidth: 30, resizable: false },
                     {
                         title: "Kategori",
                         field: "kategori",

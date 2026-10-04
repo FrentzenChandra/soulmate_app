@@ -411,7 +411,7 @@ window.tabulatorAuditTable = function(config) {
                 },
                 placeholder: "Belum ada catatan audit laci pada periode ini.",
                 columns: [
-                    { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 35, minWidth: 35, maxWidth: 35, resizable: false },
+                  //  { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 35, minWidth: 35, maxWidth: 35, resizable: false },
                     { title: "Waktu", field: "waktu", width: 120, hozAlign: "center", sorter: "string", headerFilter: "input", headerFilterPlaceholder: "", formatter: (cell) => `<span class="font-bold text-gray-700 font-mono text-[11px]">${cell.getValue()}</span>` },
                     { title: "Petugas", field: "petugas", widthGrow: 1, minWidth: 100, headerFilter: "list", headerFilterParams: { valuesLookup: "all", clearable: true, multiselect: true }, headerFilterFunc: multiSelectFilterFunc, formatter: (cell) => `<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 text-gray-800 font-bold text-[11px]">${cell.getValue()}</span>` },
                     { title: "Modal Awal", field: "modal_awal", hozAlign: "right", width: 110, formatter: (cell) => `<span class="font-mono text-gray-600 text-[11px]">${this.formatRupiah(cell.getValue())}</span>` },

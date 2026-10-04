@@ -997,7 +997,7 @@ window.tabulatorTransaksiHarianTable = function(config) {
                 ],
                 placeholder: "Belum ada transaksi hari ini.",
                 columns: [
-                    { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 24, minWidth: 24, maxWidth: 24, resizable: false },
+                    // { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 24, minWidth: 24, maxWidth: 24, resizable: false },
                     {
                         title: "Transaksi",
                         field: "tipe_transaksi",
