@@ -17,7 +17,7 @@
 
         <!-- Left: Logo & Toko -->
         <div class="col-span-7 flex items-start space-x-3.5">
-            <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-16 h-16 rounded-2xl object-cover shrink-0 border border-gray-100 shadow-xs">
+            <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-16 h-16 rounded-2xl object-cover shrink-0 shadow-xs">
             <div>
                 <h1 class="text-lg  text-gray-900 tracking-tight leading-none " style="font-family: Arial, Helvetica, sans-serif;">Soulmate Komputer</h1>
                 <p class="text-xs font-medium text-gray-600 mt-1.5 leading-snug">
