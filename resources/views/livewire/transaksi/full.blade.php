@@ -1391,7 +1391,7 @@ window.tabulatorTransaksiFullTable = function(config) {
 
                             let colorStyle = 'bg-blue-50 text-[#0052FF] border-blue-300';
                             if (isCash) {
-                                colorStyle = 'bg-indigo-50 text-indigo-700 border-indigo-300';
+                                colorStyle = 'bg-orange-50 text-orange-700 border-orange-300';
                             } else if (isEmpty) {
                                 colorStyle = 'bg-gray-100 text-gray-500 border-gray-300';
                             }
