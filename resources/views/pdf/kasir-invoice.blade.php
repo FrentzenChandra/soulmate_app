@@ -138,7 +138,7 @@
                     <tr>
                         <td class="text-muted  uppercase" style="width: 38%; font-size: 7.5pt;">Tanggal</td>
                         <td style="width: 4%;">:</td>
-                        <td class=" font-mono">{{ $penjualan->tanggal->format('d/m/Y H:i:s') }}</td>
+                        <td class=" ">{{ $penjualan->tanggal->format('d/m/Y H:i:s') }}</td>
                     </tr>
                     <tr>
                         <td class="text-muted  uppercase" style="font-size: 7.5pt;">Pelanggan</td>
@@ -153,7 +153,7 @@
                     <tr>
                         <td class="text-muted  uppercase" style="font-size: 7.5pt;">NO. PENJUALAN</td>
                         <td>:</td>
-                        <td class=" font-mono" style="font-size: 9pt; color: #5E17EB;">
+                        <td class=" " style="font-size: 9pt; color: #5E17EB;">
                             {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}
                         </td>
                     </tr>
@@ -181,19 +181,19 @@
         <tbody>
             @foreach($penjualan->details as $d)
                 <tr>
-                    <td class="font-mono text-muted">
+                    <td class=" text-muted">
                         {{ $d->produk?->barcode ?: 'BRG-' . str_pad((string)$d->produk_id, 4, '0', STR_PAD_LEFT) }}
                     </td>
                     <td>
                         <span class="">{{ $d->nama_item }}</span>
                     </td>
-                    <td class="text-center  font-mono">
+                    <td class="text-center  ">
                         {{ $d->qty }} UNIT
                     </td>
-                    <td class="text-right font-mono">
+                    <td class="text-right ">
                         {{ number_format($d->harga, 0, ',', '.') }}
                     </td>
-                    <td class="text-right  font-mono">
+                    <td class="text-right  ">
                         {{ number_format($d->subtotal, 0, ',', '.') }}
                     </td>
                 </tr>
@@ -226,24 +226,24 @@
                     @if($penjualan->details->count() > 1)
                         <tr>
                             <td class="text-left text-muted">Subtotal</td>
-                            <td class="text-right font-mono ">Rp {{ number_format($penjualan->subtotal, 0, ',', '.') }}</td>
+                            <td class="text-right  ">Rp {{ number_format($penjualan->subtotal, 0, ',', '.') }}</td>
                         </tr>
                     @endif
                     @if($penjualan->diskon > 0)
                         <tr>
                             <td class="text-left text-muted">Potongan</td>
-                            <td class="text-right font-mono " style="color: #b91c1c;">- Rp {{ number_format($penjualan->diskon, 0, ',', '.') }}</td>
+                            <td class="text-right  " style="color: #b91c1c;">- Rp {{ number_format($penjualan->diskon, 0, ',', '.') }}</td>
                         </tr>
                     @endif
                     @if($penjualan->ppn_nominal > 0)
                         <tr>
                             <td class="text-left text-muted">PPN {{ (int)$penjualan->ppn_persen }}%</td>
-                            <td class="text-right font-mono ">Rp {{ number_format($penjualan->ppn_nominal, 0, ',', '.') }}</td>
+                            <td class="text-right  ">Rp {{ number_format($penjualan->ppn_nominal, 0, ',', '.') }}</td>
                         </tr>
                     @endif
                     <tr class="grandtotal-row">
                         <td class="text-left ">Grandtotal</td>
-                        <td class="text-right font-mono " style="color: #000;">
+                        <td class="text-right  " style="color: #000;">
                             Rp {{ number_format($penjualan->total, 0, ',', '.') }}
                         </td>
                     </tr>
