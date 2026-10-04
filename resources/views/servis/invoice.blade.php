@@ -57,7 +57,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 <span>Kembali</span>
             </button>
-            <span class="text-xs font-mono text-gray-500 font-semibold">| {{ $servis->no_servis_frontend ?? $servis->no_servis }}</span>
+            <span class="text-xs font-mono text-gray-500 ">| {{ $servis->no_servis_frontend ?? $servis->no_servis }}</span>
         </div>
 
         <div class="flex items-center space-x-2">
@@ -134,7 +134,7 @@
             </div>
             <div class="text-right">
                 <span class="text-[11px]  text-gray-400 uppercase block leading-none">Petugas Kasir :</span>
-                <span class="font-semibold text-gray-800 text-xs mt-1 inline-block">{{ $servis->kasir?->name ?? ($servis->teknisi?->name ?? 'Soulmate Komputer') }}</span>
+                <span class=" text-gray-800 text-xs mt-1 inline-block">{{ $servis->kasir?->name ?? ($servis->teknisi?->name ?? 'Soulmate Komputer') }}</span>
             </div>
         </div>
 
@@ -155,7 +155,7 @@
                     @forelse($servis->details as $idx => $det)
                         <tr>
                             <td class="py-1 font-mono text-gray-500 text-xs align-top">{{ $idx + 1 }}</td>
-                            <td class="py-1 font-semibold text-gray-900 align-top">
+                            <td class="py-1  text-gray-900 align-top">
                                 {{ $det->nama_item }}
                             </td>
                             <td class="py-1 text-center font-mono text-xs text-gray-700 align-top">
