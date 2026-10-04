@@ -33,13 +33,13 @@
         <div class="col-span-5 text-xs">
             <table class="w-full">
                 <tr>
-                    <td class="text-xs  text-gray-500 uppercase py-0.5 whitespace-nowrap" style="width: 35%;">Tanggal</td>
-                    <td class="px-1.5 text-gray-400 " style="width: 5%;">:</td>
+                    <td class="text-xs  text-gray-800 uppercase py-0.5 whitespace-nowrap" style="width: 35%;">Tanggal</td>
+                    <td class="px-1.5 text-gray-800 " style="width: 5%;">:</td>
                     <td class=" text-gray-800 font-mono text-xs py-0.5">{{ $penjualan->tanggal->format('d/m/Y H:i:s') }}</td>
                 </tr>
                 <tr>
-                    <td class="text-xs  text-gray-500 uppercase py-0.5 whitespace-nowrap">Pelanggan</td>
-                    <td class="px-1.5 text-gray-400 ">:</td>
+                    <td class="text-xs  text-gray-800 uppercase py-0.5 whitespace-nowrap">Pelanggan</td>
+                    <td class="px-1.5 text-gray-800 ">:</td>
                     <td class=" text-gray-900 text-xs py-0.5">
                         <span class="truncate block max-w-[200px]" title="{{ $customerName }}">
                             {{ $customerName }}
@@ -47,15 +47,15 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="text-xs  text-gray-500 uppercase py-0.5 whitespace-nowrap">Pembayaran</td>
-                    <td class="px-1.5 text-gray-400 ">:</td>
+                    <td class="text-xs  text-gray-800 uppercase py-0.5 whitespace-nowrap">Pembayaran</td>
+                    <td class="px-1.5 text-gray-800 ">:</td>
                     <td class=" uppercase text-xs py-0.5 {{ $penjualan->status === 'bon' ? 'text-amber-700 ' : 'text-gray-900' }}">
                         {{ $penjualan->status === 'bon' ? 'BON (BELUM LUNAS)' : $metodeBayar }}
                     </td>
                 </tr>
                 <tr>
-                    <td class="text-xs  text-gray-500 uppercase py-0.5 whitespace-nowrap">NO. PENJUALAN</td>
-                    <td class="px-1.5 text-gray-400 ">:</td>
+                    <td class="text-xs  text-gray-800 uppercase py-0.5 whitespace-nowrap">NO. PENJUALAN</td>
+                    <td class="px-1.5 text-gray-800 ">:</td>
                     <td class=" text-[#5E17EB] font-mono text-sm py-0.5">
                         {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}
                     </td>
