@@ -27,7 +27,7 @@
         .font-bold { font-weight: bold; }
         .font-mono { font-family: 'Courier New', Courier, monospace; }
         .uppercase { text-transform: uppercase; }
-        .text-muted { color: #555; }
+        .text-muted { color: #1a1a1a; }
 
         table {
             width: 100%;
@@ -42,8 +42,8 @@
         }
 
         .divider-title {
-            border-top: 1.5px dashed #333;
-            border-bottom: 1.5px dashed #333;
+            border-top: 2.5px dashed #0a0a0a;
+            border-bottom: 2.5px dashed #0a0a0a;
             padding: 4px 0;
             margin: 6px 0 8px 0;
             text-align: center;
@@ -69,12 +69,12 @@
         }
 
         .sign-title {
-            color: #555;
+            color: #1a1a1a;
             font-size: 8pt;
             margin-bottom: 30px;
         }
         .sign-name {
-            border-top: 1px solid #333;
+            border-top: 1px solid #1a1a1a;
             padding-top: 3px;
             display: inline-block;
             min-width: 150px;
@@ -166,7 +166,7 @@
             <td class="spec-cell" style="width: 50%; padding-left: 0;">
                 <div class="spec-box" style="margin-bottom: 6px;">
                     <div class="text-muted font-bold uppercase" style="font-size: 7pt;">Unit Perangkat :</div>
-                    <div class="font-bold" style="font-size: 8.5pt; margin-top: 1px;">
+                    <div style="font-size: 8.5pt; margin-top: 1px;">
                         {{ $servis->tipe_unit ?: ($servis->kategori_perangkat_label . ' (Tanpa Tipe)') }}
                     </div>
                     <div class="text-muted" style="font-size: 7pt; margin-top: 1px;">
@@ -176,7 +176,7 @@
 
                 <div class="spec-box">
                     <div class="text-muted font-bold uppercase" style="font-size: 7pt;">Keluhan Kerusakan :</div>
-                    <div style="margin-top: 2px; font-size: 7.5pt; line-height: 1.25;">
+                    <div style="margin-top: 2px; font-size: 7.5pt; line-height: 1.25;  font-style: normal;">
                         {{ $servis->keluhan ?: '-' }}
                     </div>
                 </div>
