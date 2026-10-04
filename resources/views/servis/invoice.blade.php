@@ -155,7 +155,7 @@
                     @forelse($servis->details as $idx => $det)
                         <tr>
                             <td class="py-1 font-mono text-gray-500 text-xs align-top">{{ $idx + 1 }}</td>
-                            <td class="py-1  text-gray-900 align-top">
+                            <td class="py-1 text-gray-900 align-top">
                                 {{ $det->nama_item }}
                             </td>
                             <td class="py-1 text-center font-mono text-xs text-gray-700 align-top">
@@ -174,7 +174,7 @@
                 <tfoot>
                     <tr class="border-t border-gray-800  text-xs">
                         <td colspan="5" class="py-2 text-right text-xs sm:text-sm font-black text-gray-900 pr-2">Grandtotal :</td>
-                        <td class="py-2 text-right font-mono text-[#5E17EB] font-black text-xs sm:text-sm whitespace-nowrap">Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}</td>
+                        <td class="py-2 text-right font-mono text-[#5E17EB] text-xs sm:text-sm whitespace-nowrap">Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}</td>
                     </tr>
                 </tfoot>
             </table>
