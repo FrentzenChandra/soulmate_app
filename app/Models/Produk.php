@@ -48,4 +48,9 @@ class Produk extends Model
     {
         return $this->hasMany(PenjualanDetail::class);
     }
+
+    public function transaksiFullDetails()
+    {
+        return $this->hasMany(TransaksiFullDetail::class, 'produk_id');
+    }
 }

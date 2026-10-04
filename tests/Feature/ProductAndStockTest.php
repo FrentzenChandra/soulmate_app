@@ -579,4 +579,196 @@ class ProductAndStockTest extends TestCase
             ->assertSee('Total Modal')
             ->assertSee('Rp 1.500.000');
     }
+
+    public function test_cabang_stok_can_delete_unused_product_and_its_stocks()
+    {
+        $this->actingAs($this->superadmin);
+
+        $prod = Produk::create([
+            'nama_produk' => 'Kabel HDMI 1.5m Unused',
+            'barcode' => '899999000888',
+            'harga_beli' => 15000,
+            'harga_jual' => 25000,
+        ]);
+
+        $stok = Stok::create([
+            'produk_id' => $prod->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 5,
+            'min_stok' => 2,
+            'is_aktif' => true,
+        ]);
+
+        Livewire::test(\App\Livewire\Cabang\Stok\Index::class)
+            ->call('deleteProduk', $prod->id)
+            ->assertDispatched('swal:toast');
+
+        $this->assertSoftDeleted('produks', ['id' => $prod->id]);
+        $this->assertDatabaseMissing('stoks', ['id' => $stok->id]);
+    }
+
+    public function test_cabang_stok_cannot_delete_product_with_penjualan_details()
+    {
+        $this->actingAs($this->superadmin);
+
+        $prod = Produk::create([
+            'nama_produk' => 'Mouse Gaming RGB',
+            'barcode' => '899999000777',
+            'harga_beli' => 100000,
+            'harga_jual' => 150000,
+        ]);
+
+        Stok::create([
+            'produk_id' => $prod->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 10,
+            'min_stok' => 2,
+            'is_aktif' => true,
+        ]);
+
+        $penjualan = \App\Models\Penjualan::create([
+            'no_transaksi' => 'INV-PJ-PKP-2610-00001',
+            'cabang_id' => $this->cabangPkp->id,
+            'kasir_id' => $this->superadmin->id,
+            'tipe_transaksi' => 'produk',
+            'tanggal' => now(),
+            'subtotal' => 150000,
+            'diskon' => 0,
+            'ppn_persen' => 0,
+            'ppn_nominal' => 0,
+            'total' => 150000,
+            'metode_bayar' => 'cash',
+            'status' => 'selesai',
+        ]);
+
+        \App\Models\PenjualanDetail::create([
+            'penjualan_id' => $penjualan->id,
+            'produk_id' => $prod->id,
+            'tipe_item' => 'produk',
+            'nama_item' => $prod->nama_produk,
+            'qty' => 1,
+            'harga' => 150000,
+            'subtotal' => 150000,
+            'hpp' => 100000,
+        ]);
+
+        Livewire::test(\App\Livewire\Cabang\Stok\Index::class)
+            ->call('deleteProduk', $prod->id)
+            ->assertDispatched('swal:modal');
+
+        $this->assertDatabaseHas('produks', [
+            'id' => $prod->id,
+            'deleted_at' => null,
+        ]);
+    }
+
+    public function test_cabang_stok_cannot_delete_product_with_servis_details()
+    {
+        $this->actingAs($this->superadmin);
+
+        $prod = Produk::create([
+            'nama_produk' => 'RAM DDR4 8GB Kingston',
+            'barcode' => '899999000666',
+            'harga_beli' => 250000,
+            'harga_jual' => 350000,
+        ]);
+
+        Stok::create([
+            'produk_id' => $prod->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 10,
+            'min_stok' => 2,
+            'is_aktif' => true,
+        ]);
+
+        $customer = \App\Models\Customer::create([
+            'cabang_id' => $this->cabangPkp->id,
+            'nama' => 'Budi Servis',
+            'no_hp' => '08123456789',
+        ]);
+
+        $servis = \App\Models\ServisMasuk::create([
+            'cabang_id' => $this->cabangPkp->id,
+            'created_by' => $this->superadmin->id,
+            'customer_id' => $customer->id,
+            'no_servis' => 'INV-SV-PKP-2610-00001',
+            'tipe_unit' => 'Laptop Asus ROG',
+            'keluhan' => 'Upgrade RAM',
+            'status' => 'dalam_pengerjaan',
+            'tanggal_masuk' => now(),
+        ]);
+
+        \App\Models\ServisDetail::create([
+            'servis_id' => $servis->id,
+            'produk_id' => $prod->id,
+            'nama_item' => $prod->nama_produk,
+            'qty' => 1,
+            'harga' => 350000,
+            'subtotal' => 350000,
+            'modal' => 250000,
+        ]);
+
+        Livewire::test(\App\Livewire\Cabang\Stok\Index::class)
+            ->call('deleteProduk', $prod->id)
+            ->assertDispatched('swal:modal');
+
+        $this->assertDatabaseHas('produks', [
+            'id' => $prod->id,
+            'deleted_at' => null,
+        ]);
+    }
+
+    public function test_cabang_stok_cannot_delete_product_with_transaksi_full_details()
+    {
+        $this->actingAs($this->superadmin);
+
+        $prod = Produk::create([
+            'nama_produk' => 'SSD NVMe 512GB',
+            'barcode' => '899999000555',
+            'harga_beli' => 400000,
+            'harga_jual' => 550000,
+        ]);
+
+        Stok::create([
+            'produk_id' => $prod->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 10,
+            'min_stok' => 2,
+            'is_aktif' => true,
+        ]);
+
+        $transaksi = \App\Models\TransaksiFull::create([
+            'no_transaksi' => 'TRX-2610-0001',
+            'cabang_id' => $this->cabangPkp->id,
+            'user_id' => $this->superadmin->id,
+            'nama_pelanggan' => 'Andi Full',
+            'tanggal' => now()->toDateString(),
+            'total_modal' => 400000,
+            'total_biaya' => 550000,
+            'total_laba' => 150000,
+            'status' => 'Lunas',
+            'metode_bayar' => 'CASH',
+        ]);
+
+        \App\Models\TransaksiFullDetail::create([
+            'transaksi_full_id' => $transaksi->id,
+            'produk_id' => $prod->id,
+            'nama_item' => $prod->nama_produk,
+            'qty' => 1,
+            'harga_modal' => 400000,
+            'harga_jual' => 550000,
+            'subtotal_modal' => 400000,
+            'subtotal_jual' => 550000,
+            'laba' => 150000,
+        ]);
+
+        Livewire::test(\App\Livewire\Cabang\Stok\Index::class)
+            ->call('deleteProduk', $prod->id)
+            ->assertDispatched('swal:modal');
+
+        $this->assertDatabaseHas('produks', [
+            'id' => $prod->id,
+            'deleted_at' => null,
+        ]);
+    }
 }

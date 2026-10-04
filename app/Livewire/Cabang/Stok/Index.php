@@ -184,6 +184,72 @@ class Index extends Component
         $this->modalAdjustOpen = false;
     }
 
+    public function deleteProduk(int $id): void
+    {
+        $user = Auth::user();
+        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin'))) {
+            $this->dispatch('swal:modal', [
+                'type' => 'error',
+                'title' => 'Akses Ditolak',
+                'text' => 'Anda tidak memiliki hak akses untuk menghapus produk.',
+            ]);
+
+            return;
+        }
+
+        $produk = Produk::with(['penjualanDetails', 'servisDetails', 'transaksiFullDetails'])->find($id);
+        if (! $produk) {
+            $this->dispatch('swal:toast', [
+                'type' => 'error',
+                'title' => 'Gagal',
+                'text' => 'Data produk tidak ditemukan.',
+            ]);
+
+            return;
+        }
+
+        // Pengecekan Riwayat Transaksi di tabel penjualan_details, servis_details, dan transaksi_full_details
+        $hasPenjualan = $produk->penjualanDetails()->exists() || DB::table('penjualan_details')->where('produk_id', $produk->id)->exists();
+        $hasServis = $produk->servisDetails()->exists() || DB::table('servis_details')->where('produk_id', $produk->id)->exists();
+        $hasTransaksiFull = $produk->transaksiFullDetails()->exists() || DB::table('transaksi_full_details')->where('produk_id', $produk->id)->exists();
+
+        if ($hasPenjualan || $hasServis || $hasTransaksiFull) {
+            $reasons = [];
+            if ($hasPenjualan) {
+                $reasons[] = 'Penjualan Kasir (penjualan_details)';
+            }
+            if ($hasServis) {
+                $reasons[] = 'Faktur Servis (servis_details)';
+            }
+            if ($hasTransaksiFull) {
+                $reasons[] = 'Transaksi Toko (transaksi_full_details)';
+            }
+
+            $reasonText = implode(', ', $reasons);
+
+            $this->dispatch('swal:modal', [
+                'type' => 'error',
+                'title' => 'Tidak Dapat Dihapus',
+                'text' => "Produk \"{$produk->nama_produk}\" tidak dapat dihapus karena sudah memiliki riwayat data transaksi pada: {$reasonText}.",
+            ]);
+
+            return;
+        }
+
+        // Hapus data stok cabang dan produk
+        Stok::where('produk_id', $produk->id)->delete();
+        $namaProduk = $produk->nama_produk;
+        $produk->delete();
+
+        $this->dispatch('stockUpdated');
+        $this->dispatch('swal:toast', [
+            'type' => 'success',
+            'title' => 'Berhasil Dihapus',
+            'text' => "Produk \"{$namaProduk}\" berhasil dihapus dari sistem.",
+        ]);
+        session()->flash('success', "Produk \"{$namaProduk}\" berhasil dihapus.");
+    }
+
     public function render()
     {
         $cabang = $this->activeCabang;
