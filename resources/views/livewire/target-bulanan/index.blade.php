@@ -153,9 +153,35 @@
                                 @php $cell = $d['months'][$m]; @endphp
                                 <td class="py-3 px-1 align-middle text-center {{ $canManageTarget ? 'cursor-pointer hover:bg-purple-100/60 transition-colors' : '' }}"
                                     @if($canManageTarget) wire:click="openEditCellDivisi('{{ $key }}', {{ $m }})" title="Klik untuk edit target & realisasi {{ $d['name'] }} bulan {{ $bulanNames[$m] }}" @endif>
-                                    <span class="font-mono font-black text-xs {{ $cell['has_data'] && $cell['count'] > 0 ? 'text-gray-900' : 'text-gray-300' }}">
-                                        {{ $cell['has_data'] && $cell['count'] > 0 ? number_format($cell['count'], 0, ',', '.') : '-' }}
-                                    </span>
+                                    @if(! $cell['has_data'])
+                                        <span class="text-gray-300 font-mono font-bold text-xs leading-none">-</span>
+                                    @else
+                                        <div class="flex flex-col items-center justify-center">
+                                            <span class="font-mono font-black text-gray-900 text-xs leading-tight">
+                                                {{ $cell['count'] > 0 ? number_format($cell['count'], 0, ',', '.') : '0' }}
+                                            </span>
+                                            @if($cell['target'] > 0)
+                                                <div class="mt-1">
+                                                    @if($cell['status'] === 'over')
+                                                        <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-[#0052FF] text-white shadow-2xs" title="Over Target (&ge;150%)">
+                                                            <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                                                            <span>{{ $cell['percent'] }}%</span>
+                                                        </span>
+                                                    @elseif($cell['status'] === 'tercapai')
+                                                        <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white shadow-2xs" title="Target Tercapai (100-149%)">
+                                                            <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                            <span>{{ $cell['percent'] }}%</span>
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-rose-600 text-white shadow-2xs" title="Belum Tercapai (<100%)">
+                                                            <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                            <span>{{ $cell['percent'] }}%</span>
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </td>
                             @endfor
 
@@ -178,7 +204,8 @@
                                                 <span>{{ $d['ytd_percent'] }}%</span>
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-gray-200 text-gray-700">
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-rose-600 text-white shadow-2xs">
+                                                <svg class="w-2.5 h-2.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                 <span>{{ $d['ytd_percent'] }}%</span>
                                             </span>
                                         @endif

@@ -135,8 +135,8 @@
 - **Tabel Divisi (Laptop, Printer, Komputer, Admin):**
   * Target diatur per tahun via modal "Target Tahunan Divisi" di toolbar atas (nilai target yang diinput berlaku merata untuk setiap bulan Jan &ndash; Des, misal input 200 maka target bulanan tiap bulan adalah 200 transaksi).
   * Kolom ke-2 tabel divisi menampilkan nilai target tahunan divisi tersebut.
-  * 12 Sel Bulan (Jan &ndash; Des) HANYA menampilkan angka realisasi riil yang bersih (tanpa teks `/ <target>` dan tanpa badge persentase `%`).
-  * Kolom Total YTD menampilkan total realisasi tahun berjalan, perbandingan target tahunan berjalan (`/ total_target_ytd`), dan badge persentase YTD: `≥ 150%` (Over Target / Tech Blue), `100% - 149%` (Target Tercapai / Emerald), `< 100%` (Belum Tercapai / Rose).
+  * 12 Sel Bulan (Jan &ndash; Des) menampilkan angka realisasi riil dan badge persentase status pencapaian (`≥ 150%` Over Target / Tech Blue, `100% - 149%` Target Tercapai / Emerald, `< 100%` Belum Tercapai / Rose Merah).
+  * Kolom Total YTD menampilkan total realisasi tahun berjalan, perbandingan target tahunan berjalan (`/ total_target_ytd`), dan badge persentase YTD: `≥ 150%` (Over Target / Tech Blue), `100% - 149%` (Target Tercapai / Emerald), `< 100%` (Belum Tercapai / Rose Merah).
   * Tanpa baris ringkasan footer `TOTAL DIVISI` (tabel bersih dan padat).
   * Penyesuaian realisasi manual per bulan tetap didukung secara independen melalui klik per sel bulan.
 - **Tabel Staf (Individu):**
