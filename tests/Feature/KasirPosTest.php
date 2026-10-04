@@ -231,7 +231,8 @@ class KasirPosTest extends TestCase
             ->set('jumlahBayar', 400000) // Bayar 400.000 -> Kembalian 50.000
             ->set('catatan', 'Nota atas nama Toko Berkah')
             ->call('prosesPembayaran')
-            ->assertSet('modalSuccessOpen', true)
+            ->assertSet('modalBayarOpen', false)
+            ->assertDispatched('open-print-invoice')
             ->assertSet('cart', []);
 
         // Verifikasi database Penjualan
@@ -301,7 +302,7 @@ class KasirPosTest extends TestCase
             ->set('metodeBayar', 'cash')
             ->set('jumlahBayar', 200000)
             ->call('prosesPembayaran')
-            ->assertSet('modalSuccessOpen', true);
+            ->assertDispatched('open-print-invoice');
 
         $penjualan = Penjualan::latest('id')->first();
         $this->assertNotNull($penjualan);
@@ -398,7 +399,7 @@ class KasirPosTest extends TestCase
             ->set('selectedPpnId', $this->ppn0->id)
             ->call('openPaymentModal')
             ->call('prosesPembayaran')
-            ->assertSet('modalSuccessOpen', true);
+            ->assertDispatched('open-print-invoice');
 
         // Verifikasi penjualan tersimpan dengan is_real = false
         $this->assertDatabaseHas('penjualans', [
@@ -465,8 +466,7 @@ class KasirPosTest extends TestCase
             ->call('addToCart', $this->produk1->id)
             ->set('customerType', 'umum')
             ->call('simpanSebagaiBon')
-            ->assertDispatched('swal:warning')
-            ->assertSet('modalSuccessOpen', false);
+            ->assertDispatched('swal:warning');
     }
 
     public function test_can_save_bon_with_customer_and_decrements_stock(): void
@@ -483,7 +483,7 @@ class KasirPosTest extends TestCase
             ->call('addToCart', $this->produk1->id)
             ->call('selectCustomer', $customer->id)
             ->call('simpanSebagaiBon')
-            ->assertSet('modalSuccessOpen', true)
+            ->assertDispatched('open-print-invoice')
             ->assertSet('cart', []);
 
         $this->assertDatabaseHas('penjualans', [
@@ -523,7 +523,7 @@ class KasirPosTest extends TestCase
             ->set('jumlahBayar', 200000)
             ->assertSet('kembalian', 50000)
             ->call('prosesPembayaran')
-            ->assertSet('modalSuccessOpen', true);
+            ->assertDispatched('open-print-invoice');
 
         $this->assertDatabaseHas('penjualans', [
             'cabang_id' => $this->cabangPkp->id,
@@ -547,7 +547,7 @@ class KasirPosTest extends TestCase
             ->assertSet('metodeBayar', 'QRIS')
             ->assertSet('kembalian', 0)
             ->call('prosesPembayaran')
-            ->assertSet('modalSuccessOpen', true);
+            ->assertDispatched('open-print-invoice');
 
         $this->assertDatabaseHas('penjualans', [
             'cabang_id' => $this->cabangPkp->id,

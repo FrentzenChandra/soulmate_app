@@ -8,6 +8,7 @@
             $wire.openScanModal(tab);
         }
      }"
+     x-on:open-print-invoice.window="window.printDocument ? window.printDocument($event.detail.url) : window.location.href = $event.detail.url"
      @keydown.window="
         if ($event.key === 'F4' || $event.code === 'F4') {
             $event.preventDefault();
@@ -978,70 +979,6 @@
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <!-- ============================================== -->
-    <!-- MODAL SUKSES & CETAK SALES INVOICE             -->
-    <!-- ============================================== -->
-    @if($modalSuccessOpen && $lastPenjualan)
-        <div class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-            <div class="fixed inset-0 bg-gray-950/80 backdrop-blur-xs transition-opacity" wire:click="newTransaction"></div>
-
-            <div class="flex min-h-full items-center justify-center p-3 sm:p-6 text-center">
-                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all my-6 w-full sm:max-w-3xl border border-gray-100 flex flex-col max-h-[92vh]">
-
-                    <!-- Header Modal Sukses -->
-                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 no-print shrink-0 shadow-sm">
-                        <div class="flex items-center gap-3.5 min-w-0">
-                            <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
-                                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                            <div class="min-w-0">
-                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Transaksi Berhasil Disimpan</h3>
-                                <p class="text-xs text-purple-200 font-mono font-medium mt-0.5">{{ $lastPenjualan->no_transaksi_frontend }}</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center space-x-2">
-                            <a href="{{ route('kasir.produk.invoice', $lastPenjualan->id) }}"
-                               class="hidden sm:inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-bold transition-all">
-                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                <span>Lihat Nota</span>
-                            </a>
-                            <button type="button"
-                                    wire:click="newTransaction"
-                                    class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Scrollable Invoice Preview Body -->
-                    <div class="p-3 sm:p-6 overflow-y-auto bg-gray-50/80 custom-scrollbar flex-1">
-                        <x-sales-invoice :penjualan="$lastPenjualan" />
-                    </div>
-
-                    <!-- Footer Action Buttons -->
-                    <div class="p-4 sm:p-5 bg-white border-t border-gray-100 flex flex-col-reverse sm:flex-row items-center justify-between gap-3 shrink-0 no-print">
-                        <button type="button"
-                                wire:click="newTransaction"
-                                class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-800 text-xs font-bold transition-all cursor-pointer">
-                            + Transaksi Baru
-                        </button>
-
-                        <div class="flex items-center space-x-2.5 w-full sm:w-auto justify-end">
-                            <button type="button"
-                                    onclick="window.printDocument('{{ route('kasir.produk.invoice', $lastPenjualan->id) }}')"
-                                    class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold transition-all shadow-md inline-flex items-center justify-center space-x-2 cursor-pointer">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                                <span>Cetak Nota</span>
-                            </button>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>

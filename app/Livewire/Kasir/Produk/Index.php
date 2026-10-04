@@ -85,11 +85,6 @@ class Index extends Component
 
     public string $catatan = '';
 
-    // Modal Struk & Nota Selesai
-    public bool $modalSuccessOpen = false;
-
-    public ?int $lastPenjualanId = null;
-
     protected $queryString = [
         'search' => ['except' => ''],
         'kategoriFilter' => ['except' => 'semua'],
@@ -655,10 +650,11 @@ class Index extends Component
                 $this->dispatch('stockUpdated');
             }
 
-            $this->lastPenjualanId = $penjualan->id;
             $this->modalBayarOpen = false;
-            $this->modalSuccessOpen = true;
             $this->clearCart();
+            $this->setCustomerUmum();
+            $this->dispatch('open-print-invoice', url: route('kasir.produk.invoice', $penjualan->id) . '?autoprint=1');
+            session()->flash('success', "Transaksi {$penjualan->no_transaksi_frontend} berhasil diproses!");
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -771,9 +767,10 @@ class Index extends Component
                 $this->dispatch('stockUpdated');
             }
 
-            $this->lastPenjualanId = $penjualan->id;
-            $this->modalSuccessOpen = true;
             $this->clearCart();
+            $this->setCustomerUmum();
+            $this->dispatch('open-print-invoice', url: route('kasir.produk.invoice', $penjualan->id) . '?autoprint=1');
+            session()->flash('success', "Transaksi Bon {$penjualan->no_transaksi_frontend} berhasil disimpan!");
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -782,14 +779,6 @@ class Index extends Component
                 'text' => $e->getMessage(),
             ]);
         }
-    }
-
-    public function newTransaction(): void
-    {
-        $this->modalSuccessOpen = false;
-        $this->lastPenjualanId = null;
-        $this->clearCart();
-        $this->setCustomerUmum();
     }
 
     public function render()
@@ -818,8 +807,6 @@ class Index extends Component
         }
 
         $selectedCustomer = $this->selectedCustomerId ? Customer::find($this->selectedCustomerId) : null;
-        $lastPenjualan = $this->lastPenjualanId ? Penjualan::with(['details.produk', 'cabang', 'kasir', 'customer', 'ppn'])->find($this->lastPenjualanId) : null;
-
         $masterMetodePembayarans = MetodePembayaran::getAktifCached();
 
         if (! $cabang) {
@@ -833,7 +820,6 @@ class Index extends Component
                 'masterMetodePembayarans' => $masterMetodePembayarans,
                 'customers' => $customers,
                 'selectedCustomer' => null,
-                'lastPenjualan' => null,
             ]);
         }
 
@@ -878,7 +864,6 @@ class Index extends Component
             'masterMetodePembayarans' => $masterMetodePembayarans,
             'customers' => $customers,
             'selectedCustomer' => $selectedCustomer,
-            'lastPenjualan' => $lastPenjualan,
         ]);
     }
 }
