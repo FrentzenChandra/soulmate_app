@@ -955,7 +955,7 @@ window.tabulatorTransaksiHarianTable = function(config) {
         selectedCount: 0,
 
         formatRupiah(val) {
-            return 'Rp ' + Number(val || 0).toLocaleString('id-ID');
+            return Number(val || 0).toLocaleString('id-ID');
         },
 
         initTable() {

@@ -1106,7 +1106,7 @@ window.tabulatorTransaksiFullTable = function(config) {
         },
 
         formatRupiah(val) {
-            return 'Rp ' + Number(val || 0).toLocaleString('id-ID');
+            return Number(val || 0).toLocaleString('id-ID');
         },
 
         initTable() {
