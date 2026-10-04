@@ -154,7 +154,8 @@ class TransaksiFullTest extends TestCase
 
         Livewire::test(TransaksiFull::class)
             ->assertSet('periodeMode', 'range')
-            ->assertSet('startDate', now()->toDateString())
+            // ->assertSet('startDate', now()->toDateString())
+            ->assertSet('startDate', now()->startOfMonth()->toDateString())
             ->assertSet('endDate', now()->toDateString())
             ->call('setPeriodeMode', 'bulanan')
             ->assertSet('periodeMode', 'bulanan')

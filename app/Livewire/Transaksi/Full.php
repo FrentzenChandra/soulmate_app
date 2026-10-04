@@ -98,7 +98,8 @@ class Full extends Component
             abort(403, 'Akses modul Transaksi FULL dibatasi.');
         }
 
-        $this->startDate = now()->toDateString();
+        // $this->startDate = now()->toDateString();
+        $this->startDate = now()->startOfMonth()->toDateString();
         $this->endDate = now()->toDateString();
         $this->filterBulan = now()->format('m');
         $this->filterTahun = now()->format('Y');
