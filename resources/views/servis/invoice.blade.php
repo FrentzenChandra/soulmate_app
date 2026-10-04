@@ -148,12 +148,12 @@
             <table class="w-full text-left border-collapse text-xs table-fixed">
                 <thead>
                     <tr class="border-b border-gray-800 text-xs  uppercase text-gray-700">
-                        <th class="w-[5%]">No</th>
-                        <th class="w-[35%]">Nama Barang / Jasa</th>
-                        <th class="text-center w-[13%]">Garansi</th>
-                        <th class="text-center w-[9%]">Qty</th>
-                        <th class="text-right w-[19%]">Harga</th>
-                        <th class="text-right w-[19%]">Subtotal</th>
+                        <th class="pb-1 w-[5%]">No</th>
+                        <th class="pb-1 w-[35%]">Nama Barang / Jasa</th>
+                        <th class="pb-1 text-center w-[13%]">Garansi</th>
+                        <th class="pb-1 text-center w-[9%]">Qty</th>
+                        <th class="pb-1 text-right w-[19%]">Harga</th>
+                        <th class="pb-1 text-right w-[19%]">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
