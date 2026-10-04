@@ -24,7 +24,7 @@
         .text-left { text-align: left; }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-        .font-bold { font-weight: bold; }
+        . { font-weight: bold; }
         .font-mono { font-family: 'Courier New', Courier, monospace; }
         .uppercase { text-transform: uppercase; }
         .text-muted { color: #555; }
@@ -67,7 +67,7 @@
         }
         .items-table th {
             padding: 5px 6px;
-            font-weight: bold;
+            font-weight: normal;
             font-size: 8.5pt;
             border-top: 1.5px solid #222;
             border-bottom: 1.5px solid #222;
@@ -90,7 +90,7 @@
             padding-top: 3px;
             display: inline-block;
             min-width: 140px;
-            font-weight: bold;
+            font-weight: normal;
             font-size: 8.5pt;
         }
 
@@ -102,7 +102,7 @@
             border-top: 1.5px solid #222;
             padding-top: 4px;
             font-size: 10pt;
-            font-weight: bold;
+            font-weight: normal;
         }
 
         .warranty-box {
@@ -157,19 +157,19 @@
             <td style="width: 50%; padding-left: 10px;">
                 <table class="w-full" style="font-size: 8pt;">
                     <tr>
-                        <td class="text-muted font-bold uppercase" style="width: 40%; font-size: 7.5pt;">Tanggal Selesai</td>
+                        <td class="text-muted  uppercase" style="width: 40%; font-size: 7.5pt;">Tanggal Selesai</td>
                         <td style="width: 4%;">:</td>
-                        <td class="font-bold font-mono">{{ $tglSelesaiFormatted }}</td>
+                        <td class=" font-mono">{{ $tglSelesaiFormatted }}</td>
                     </tr>
                     <tr>
-                        <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">Pelanggan</td>
+                        <td class="text-muted  uppercase" style="font-size: 7.5pt;">Pelanggan</td>
                         <td>:</td>
-                        <td class="font-bold">{{ $customerName }}</td>
+                        <td class="">{{ $customerName }}</td>
                     </tr>
                     <tr>
-                        <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">NO. FAKTUR SERVIS</td>
+                        <td class="text-muted  uppercase" style="font-size: 7.5pt;">NO. FAKTUR SERVIS</td>
                         <td>:</td>
-                        <td class="font-bold font-mono" style="font-size: 9pt; color: #5E17EB;">
+                        <td class=" font-mono" style="font-size: 9pt; color: #5E17EB;">
                             {{ $servis->no_servis_frontend ?? $servis->no_servis }}
                         </td>
                     </tr>
@@ -187,11 +187,11 @@
     <table class="w-full spec-bar table-layout">
         <tr>
             <td style="width: 60%; vertical-align: middle;">
-                <span class="text-muted font-bold uppercase">PERANGKAT :</span>
+                <span class="text-muted  uppercase">PERANGKAT :</span>
                 <strong style="color: #000;">{{ $servis->tipe_unit ?: $servis->kategori_perangkat_label }}</strong>
             </td>
             <td style="width: 40%; vertical-align: middle; text-align: right;">
-                <span class="text-muted font-bold uppercase">Petugas Kasir :</span>
+                <span class="text-muted  uppercase">Petugas Kasir :</span>
                 <strong>{{ $servis->kasir?->name ?? ($servis->teknisi?->name ?? 'Soulmate Komputer') }}</strong>
             </td>
         </tr>
@@ -214,14 +214,14 @@
                 <tr>
                     <td class="text-center font-mono text-muted">{{ $idx + 1 }}</td>
                     <td>
-                        <span class="font-bold">{{ $det->nama_item }}</span>
+                        <span class="">{{ $det->nama_item }}</span>
                     </td>
                     <td class="text-center font-mono" style="font-size: 7.5pt;">
                         {{ $det->garansi_label }}
                     </td>
-                    <td class="text-center font-mono font-bold">{{ $det->qty }}</td>
+                    <td class="text-center font-mono ">{{ $det->qty }}</td>
                     <td class="text-right font-mono">Rp {{ number_format($det->harga, 0, ',', '.') }}</td>
-                    <td class="text-right font-mono font-bold">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
+                    <td class="text-right font-mono ">Rp {{ number_format($det->subtotal, 0, ',', '.') }}</td>
                 </tr>
             @empty
                 <tr>
@@ -254,19 +254,19 @@
             <td style="width: 48%; vertical-align: top; padding-left: 8px;">
                 <table class="w-full totals-table">
                     <tr class="grandtotal-row">
-                        <td class="text-left font-bold">Grandtotal</td>
-                        <td class="text-right font-mono font-bold" style="color: #5E17EB;">
+                        <td class="text-left ">Grandtotal</td>
+                        <td class="text-right font-mono " style="color: #5E17EB;">
                             Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}
                         </td>
                     </tr>
                     @if($servis->bayar > 0)
                         <tr>
                             <td class="text-left text-muted">Bayar ({{ strtoupper($servis->metode_pembayaran ?: 'Tunai') }})</td>
-                            <td class="text-right font-mono font-bold">Rp {{ number_format($servis->bayar, 0, ',', '.') }}</td>
+                            <td class="text-right font-mono ">Rp {{ number_format($servis->bayar, 0, ',', '.') }}</td>
                         </tr>
                         <tr>
                             <td class="text-left text-muted">Kembalian</td>
-                            <td class="text-right font-mono font-bold">Rp {{ number_format($servis->kembalian, 0, ',', '.') }}</td>
+                            <td class="text-right font-mono ">Rp {{ number_format($servis->kembalian, 0, ',', '.') }}</td>
                         </tr>
                     @endif
                 </table>
@@ -274,8 +274,8 @@
         </tr>
     </table>
 
-    <!-- Warranty Box -->
-    <div class="warranty-box">
+    <!-- Warranty Box (Non aktif) -->
+    {{-- <div class="warranty-box">
         @php
             $hasGaransi = $servis->details->where('garansi_hari', '>', 0)->count() > 0;
         @endphp
@@ -295,7 +295,7 @@
                 Barang yang telah diambil telah dicek dan berfungsi normal di depan pelanggan (Non-Garansi).
             </div>
         @endif
-    </div>
+    </div> --}}
 
 </body>
 </html>

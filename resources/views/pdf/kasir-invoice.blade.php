@@ -24,7 +24,7 @@
         .text-left { text-align: left; }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-        .font-bold { font-weight: bold; }
+        . { font-weight: bold; }
         .font-mono { font-family: 'Courier New', Courier, monospace; }
         .uppercase { text-transform: uppercase; }
         .text-muted { color: #555; }
@@ -58,7 +58,7 @@
         }
         .items-table th {
             padding: 5px 6px;
-            font-weight: bold;
+            font-weight: normal;
             font-size: 8.5pt;
             border-top: 1.5px solid #222;
             border-bottom: 1.5px solid #222;
@@ -81,7 +81,7 @@
             padding-top: 3px;
             display: inline-block;
             min-width: 140px;
-            font-weight: bold;
+            font-weight: normal;
             font-size: 8.5pt;
         }
 
@@ -93,7 +93,7 @@
             border-top: 1.5px solid #222;
             padding-top: 4px;
             font-size: 10pt;
-            font-weight: bold;
+            font-weight: normal;
         }
     </style>
 </head>
@@ -136,24 +136,24 @@
             <td style="width: 50%; padding-left: 10px;">
                 <table class="w-full" style="font-size: 8pt;">
                     <tr>
-                        <td class="text-muted font-bold uppercase" style="width: 38%; font-size: 7.5pt;">Tanggal</td>
+                        <td class="text-muted  uppercase" style="width: 38%; font-size: 7.5pt;">Tanggal</td>
                         <td style="width: 4%;">:</td>
-                        <td class="font-bold font-mono">{{ $penjualan->tanggal->format('d/m/Y H:i:s') }}</td>
+                        <td class=" font-mono">{{ $penjualan->tanggal->format('d/m/Y H:i:s') }}</td>
                     </tr>
                     <tr>
-                        <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">Pelanggan</td>
+                        <td class="text-muted  uppercase" style="font-size: 7.5pt;">Pelanggan</td>
                         <td>:</td>
-                        <td class="font-bold">{{ $customerName }}</td>
+                        <td class="">{{ $customerName }}</td>
                     </tr>
                     <tr>
-                        <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">Pembayaran</td>
+                        <td class="text-muted  uppercase" style="font-size: 7.5pt;">Pembayaran</td>
                         <td>:</td>
-                        <td class="font-bold uppercase" style="{{ $penjualan->status === 'bon' ? 'color: #b45309;' : '' }}">{{ $penjualan->status === 'bon' ? 'BON (BELUM LUNAS)' : $metodeBayar }}</td>
+                        <td class=" uppercase" style="{{ $penjualan->status === 'bon' ? 'color: #b45309;' : '' }}">{{ $penjualan->status === 'bon' ? 'BON (BELUM LUNAS)' : $metodeBayar }}</td>
                     </tr>
                     <tr>
-                        <td class="text-muted font-bold uppercase" style="font-size: 7.5pt;">NO. PENJUALAN</td>
+                        <td class="text-muted  uppercase" style="font-size: 7.5pt;">NO. PENJUALAN</td>
                         <td>:</td>
-                        <td class="font-bold font-mono" style="font-size: 9pt; color: #5E17EB;">
+                        <td class=" font-mono" style="font-size: 9pt; color: #5E17EB;">
                             {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}
                         </td>
                     </tr>
@@ -185,15 +185,15 @@
                         {{ $d->produk?->barcode ?: 'BRG-' . str_pad((string)$d->produk_id, 4, '0', STR_PAD_LEFT) }}
                     </td>
                     <td>
-                        <span class="font-bold">{{ $d->nama_item }}</span>
+                        <span class="">{{ $d->nama_item }}</span>
                     </td>
-                    <td class="text-center font-bold font-mono">
+                    <td class="text-center  font-mono">
                         {{ $d->qty }} UNIT
                     </td>
                     <td class="text-right font-mono">
                         {{ number_format($d->harga, 0, ',', '.') }}
                     </td>
-                    <td class="text-right font-bold font-mono">
+                    <td class="text-right  font-mono">
                         {{ number_format($d->subtotal, 0, ',', '.') }}
                     </td>
                 </tr>
@@ -226,24 +226,24 @@
                     @if($penjualan->details->count() > 1)
                         <tr>
                             <td class="text-left text-muted">Subtotal</td>
-                            <td class="text-right font-mono font-bold">Rp {{ number_format($penjualan->subtotal, 0, ',', '.') }}</td>
+                            <td class="text-right font-mono ">Rp {{ number_format($penjualan->subtotal, 0, ',', '.') }}</td>
                         </tr>
                     @endif
                     @if($penjualan->diskon > 0)
                         <tr>
                             <td class="text-left text-muted">Potongan</td>
-                            <td class="text-right font-mono font-bold" style="color: #b91c1c;">- Rp {{ number_format($penjualan->diskon, 0, ',', '.') }}</td>
+                            <td class="text-right font-mono " style="color: #b91c1c;">- Rp {{ number_format($penjualan->diskon, 0, ',', '.') }}</td>
                         </tr>
                     @endif
                     @if($penjualan->ppn_nominal > 0)
                         <tr>
                             <td class="text-left text-muted">PPN {{ (int)$penjualan->ppn_persen }}%</td>
-                            <td class="text-right font-mono font-bold">Rp {{ number_format($penjualan->ppn_nominal, 0, ',', '.') }}</td>
+                            <td class="text-right font-mono ">Rp {{ number_format($penjualan->ppn_nominal, 0, ',', '.') }}</td>
                         </tr>
                     @endif
                     <tr class="grandtotal-row">
-                        <td class="text-left font-bold">Grandtotal</td>
-                        <td class="text-right font-mono font-bold" style="color: #000;">
+                        <td class="text-left ">Grandtotal</td>
+                        <td class="text-right font-mono " style="color: #000;">
                             Rp {{ number_format($penjualan->total, 0, ',', '.') }}
                         </td>
                     </tr>
@@ -252,10 +252,10 @@
         </tr>
     </table>
 
-    <!-- Footer Note -->
-    <div class="text-center text-muted" style="margin-top: 6px; border-top: 1px dotted #ccc; padding-top: 3px; font-size: 7pt;">
+    <!-- Footer Note (Non aktif) -->
+    {{-- <div class="text-center text-muted" style="margin-top: 6px; border-top: 1px dotted #ccc; padding-top: 3px; font-size: 7pt;">
         Terimakasih Telah Berbelanja di Soulmate Komputer &bull; Barang yang sudah dibeli tidak dapat ditukar/dikembalikan tanpa perjanjian sebelumnya
-    </div>
+    </div> --}}
 
 </body>
 </html>
