@@ -118,7 +118,7 @@
         </div>
 
         <!-- Divider Strip -->
-        <div class="border-t-4 border-b-4 border-dashed border-gray-900 py-1 text-center font-bold tracking-widest text-[11px] uppercase text-gray-700 select-none">
+        <div class="border-t-2 border-b-2 border-dashed border-gray-900 py-1 text-center font-bold tracking-widest text-[11px] uppercase text-gray-700 select-none">
             &middot;&middot;&middot;&middot;&middot; TANDA TERIMA BARANG SERVIS &middot;&middot;&middot;&middot;&middot;
         </div>
 
@@ -127,7 +127,7 @@
 
             <!-- Row 1: Nama Barang / Unit & Keluhan -->
             <div class="border-b border-dashed border-gray-200 pb-2">
-                <span class="text-[11px] font-bold text-gray-900 uppercase block leading-none">Unit Perangkat :</span>
+                <span class="text-[11px] font-bold text-gray-700 uppercase block leading-none">Unit Perangkat :</span>
                 <span class="text-[13px] font-bold text-gray-900 mt-1 block">
                     {{ $servis->tipe_unit ?? ($servis->kategori_perangkat_label . ' (Tanpa Tipe)') }}
                 </span>
@@ -137,7 +137,7 @@
             </div>
 
             <div class="border-b border-dashed border-gray-200 pb-2">
-                <span class="text-[11px] font-bold text-gray-900 uppercase block leading-none">Keluhan Kerusakan :</span>
+                <span class="text-[11px] font-bold text-gray-700 uppercase block leading-none">Keluhan Kerusakan :</span>
                 <span class="text-xs font-semibold text-gray-800 mt-1 block whitespace-pre-line leading-relaxed">
                     {{ $servis->keluhan ?: '-' }}
                 </span>
@@ -145,14 +145,14 @@
 
             <!-- Row 2: Kelengkapan & Catatan / Kondisi Fisik -->
             <div class="pt-1">
-                <span class="text-[11px] font-bold text-gray-900 uppercase block leading-none">Kelengkapan Unit :</span>
+                <span class="text-[11px] font-bold text-gray-700 uppercase block leading-none">Kelengkapan Unit :</span>
                 <span class="text-xs font-medium text-gray-800 mt-1 block whitespace-pre-line leading-relaxed">
                     {{ $servis->kelengkapan ?: 'Hanya Unit' }}
                 </span>
             </div>
 
             <div class="pt-1">
-                <span class="text-[11px] font-bold text-gray-900 uppercase block leading-none">Kondisi Fisik :</span>
+                <span class="text-[11px] font-bold text-gray-700 uppercase block leading-none">Kondisi Fisik :</span>
                 <span class="text-xs font-medium text-gray-800 mt-1 block whitespace-pre-line leading-relaxed">
                     {{ $servis->kondisi_barang ?: ($servis->catatan ?: '-') }}
                 </span>
