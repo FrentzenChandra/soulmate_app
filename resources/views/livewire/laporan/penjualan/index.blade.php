@@ -549,6 +549,42 @@
                                             title="Cetak Nota">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                     </button>
+
+                                    <!-- Tombol Hapus Transaksi (Owner & Superadmin Only) -->
+                                    @if(auth()->user()->isOwner() || auth()->user()->hasRole('Superadmin'))
+                                        <button type="button"
+                                                x-on:click="
+                                                    if (window.swalConfirm) {
+                                                        window.swalConfirm('Hapus Transaksi?', 'Yakin ingin menghapus riwayat transaksi \'{{ $pj->no_transaksi_frontend }}\'? Tindakan ini tidak dapat dibatalkan.', {
+                                                            danger: true,
+                                                            confirmText: 'Ya, Hapus',
+                                                            cancelText: 'Batal'
+                                                        }).then((res) => {
+                                                            if (res.isConfirmed) {
+                                                                $wire.deletePenjualan({{ $pj->id }});
+                                                            }
+                                                        });
+                                                    } else {
+                                                        if (confirm('Yakin ingin menghapus transaksi ini?')) {
+                                                            $wire.deletePenjualan({{ $pj->id }});
+                                                        }
+                                                    }
+                                                "
+                                                wire:loading.attr="disabled"
+                                                wire:target="deletePenjualan({{ $pj->id }})"
+                                                class="p-2 rounded-xl text-gray-700 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
+                                                title="Hapus Transaksi">
+                                            <!-- Spinner loading state -->
+                                            <svg wire:loading wire:target="deletePenjualan({{ $pj->id }})" class="animate-spin w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                            </svg>
+                                            <!-- Static trash icon -->
+                                            <svg wire:loading.remove wire:target="deletePenjualan({{ $pj->id }})" class="w-4 h-4 text-gray-500 group-hover:text-rose-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    @endif
                                 </div>
                             </td>
 
@@ -763,19 +799,56 @@
                     </div>
 
                     <!-- Footer Modal Action -->
-                    <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-3 rounded-b-3xl border-t border-gray-100 mt-3">
-                        <button type="button"
-                                wire:click="closeDetailModal"
-                                class="px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
-                            Tutup
-                        </button>
+                    <div class="bg-gray-50 px-6 py-4 flex items-center justify-between rounded-b-3xl border-t border-gray-100 mt-3">
+                        <div>
+                            @if(auth()->user()->isOwner() || auth()->user()->hasRole('Superadmin'))
+                                <button type="button"
+                                        x-on:click="
+                                            if (window.swalConfirm) {
+                                                window.swalConfirm('Hapus Transaksi Ini?', 'Yakin ingin menghapus riwayat transaksi \'{{ $selectedPenjualan->no_transaksi_frontend }}\'? Tindakan ini tidak dapat dibatalkan.', {
+                                                    danger: true,
+                                                    confirmText: 'Ya, Hapus Transaksi',
+                                                    cancelText: 'Batal'
+                                                }).then((res) => {
+                                                    if (res.isConfirmed) {
+                                                        $wire.deletePenjualan({{ $selectedPenjualan->id }});
+                                                    }
+                                                });
+                                            } else {
+                                                if (confirm('Yakin ingin menghapus transaksi ini?')) {
+                                                    $wire.deletePenjualan({{ $selectedPenjualan->id }});
+                                                }
+                                            }
+                                        "
+                                        wire:loading.attr="disabled"
+                                        wire:target="deletePenjualan({{ $selectedPenjualan->id }})"
+                                        class="inline-flex items-center space-x-1.5 px-3.5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white text-xs font-bold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group">
+                                    <svg wire:loading wire:target="deletePenjualan({{ $selectedPenjualan->id }})" class="animate-spin w-4 h-4 text-rose-600 group-hover:text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                    <svg wire:loading.remove wire:target="deletePenjualan({{ $selectedPenjualan->id }})" class="w-4 h-4 text-rose-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    <span>Hapus Transaksi</span>
+                                </button>
+                            @endif
+                        </div>
 
-                        <button type="button"
-                                onclick="window.printDocument('{{ route('kasir.produk.invoice', $selectedPenjualan->id) }}')"
-                                class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#0052FF] hover:bg-blue-700 text-xs font-bold text-white transition-all shadow-md shadow-blue-600/20 cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                            <span>Cetak Nota</span>
-                        </button>
+                        <div class="flex items-center space-x-3">
+                            <button type="button"
+                                    wire:click="closeDetailModal"
+                                    class="px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
+                                Tutup
+                            </button>
+
+                            <button type="button"
+                                    onclick="window.printDocument('{{ route('kasir.produk.invoice', $selectedPenjualan->id) }}')"
+                                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#0052FF] hover:bg-blue-700 text-xs font-bold text-white transition-all shadow-md shadow-blue-600/20 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                <span>Cetak Nota</span>
+                            </button>
+                        </div>
                     </div>
 
                 </div>

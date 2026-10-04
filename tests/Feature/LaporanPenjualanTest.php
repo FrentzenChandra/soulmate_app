@@ -382,4 +382,167 @@ class LaporanPenjualanTest extends TestCase
         $this->assertEquals(100000, (float) $sale->fresh()->jumlah_bayar);
         $this->assertEquals('tunai', $sale->fresh()->metode_bayar);
     }
+
+    public function test_owner_can_delete_real_penjualan_without_altering_stock(): void
+    {
+        $stokAwal = 20;
+        $stok = \App\Models\Stok::create([
+            'produk_id' => $this->produk1->id,
+            'cabang_id' => $this->cabangA->id,
+            'jumlah' => $stokAwal,
+            'min_stok' => 2,
+            'is_aktif' => true,
+        ]);
+
+        $sale = Penjualan::create([
+            'cabang_id' => $this->cabangA->id,
+            'kasir_id' => $this->adminBranchA->id,
+            'customer_id' => $this->customer->id,
+            'no_transaksi' => 'INV-PJ-CB-PKP-260915-00301',
+            'tipe_transaksi' => 'penjualan_barang',
+            'tanggal' => Carbon::now(),
+            'subtotal' => 100000,
+            'total' => 100000,
+            'is_real' => true,
+            'status' => 'lunas',
+        ]);
+
+        PenjualanDetail::create([
+            'penjualan_id' => $sale->id,
+            'produk_id' => $this->produk1->id,
+            'tipe_item' => 'barang',
+            'nama_item' => $this->produk1->nama_produk,
+            'qty' => 5,
+            'harga' => 20000,
+            'subtotal' => 100000,
+        ]);
+
+        $this->actingAs($this->owner);
+
+        Livewire::test(LaporanPenjualanIndex::class)
+            ->call('deletePenjualan', $sale->id)
+            ->assertDispatched('swal:toast');
+
+        $this->assertDatabaseMissing('penjualans', ['id' => $sale->id]);
+        $this->assertDatabaseMissing('penjualan_details', ['penjualan_id' => $sale->id]);
+
+        // Pastikan stok fisik TIDAK berubah/tidak dikembalikan (sesuai aturan permintaan user)
+        $this->assertEquals($stokAwal, $stok->fresh()->jumlah);
+    }
+
+    public function test_superadmin_can_delete_non_real_penjualan_without_altering_stock(): void
+    {
+        $superadmin = User::create([
+            'name' => 'Superadmin PKP',
+            'username' => 'superadmin_pkp',
+            'email' => 'superpkp@soulmate.test',
+            'password' => bcrypt('password'),
+            'cabang_id' => $this->cabangA->id,
+            'status' => 'aktif',
+        ]);
+        $superadmin->assignRole('Superadmin');
+
+        $stokAwal = 15;
+        $stok = \App\Models\Stok::create([
+            'produk_id' => $this->produk1->id,
+            'cabang_id' => $this->cabangA->id,
+            'jumlah' => $stokAwal,
+            'min_stok' => 2,
+            'is_aktif' => true,
+        ]);
+
+        $sale = Penjualan::create([
+            'cabang_id' => $this->cabangA->id,
+            'kasir_id' => $superadmin->id,
+            'customer_id' => $this->customer->id,
+            'no_transaksi' => 'INV-PJ-CB-PKP-260915-00302',
+            'tipe_transaksi' => 'penjualan_barang',
+            'tanggal' => Carbon::now(),
+            'subtotal' => 80000,
+            'total' => 80000,
+            'is_real' => false,
+            'status' => 'lunas',
+        ]);
+
+        PenjualanDetail::create([
+            'penjualan_id' => $sale->id,
+            'produk_id' => $this->produk1->id,
+            'tipe_item' => 'barang',
+            'nama_item' => $this->produk1->nama_produk,
+            'qty' => 4,
+            'harga' => 20000,
+            'subtotal' => 80000,
+        ]);
+
+        $this->actingAs($superadmin);
+
+        Livewire::test(LaporanPenjualanIndex::class)
+            ->call('deletePenjualan', $sale->id)
+            ->assertDispatched('swal:toast');
+
+        $this->assertDatabaseMissing('penjualans', ['id' => $sale->id]);
+        $this->assertDatabaseMissing('penjualan_details', ['penjualan_id' => $sale->id]);
+
+        // Sisa stok fisik tetap tidak berubah
+        $this->assertEquals($stokAwal, $stok->fresh()->jumlah);
+    }
+
+    public function test_superadmin_cannot_delete_penjualan_from_another_branch(): void
+    {
+        $superadmin = User::create([
+            'name' => 'Superadmin PKP',
+            'username' => 'superadmin_pkp2',
+            'email' => 'superpkp2@soulmate.test',
+            'password' => bcrypt('password'),
+            'cabang_id' => $this->cabangA->id,
+            'status' => 'aktif',
+        ]);
+        $superadmin->assignRole('Superadmin');
+
+        $saleBranchB = Penjualan::create([
+            'cabang_id' => $this->cabangB->id,
+            'kasir_id' => $this->adminBranchB->id,
+            'customer_id' => $this->customer->id,
+            'no_transaksi' => 'INV-PJ-CB-SKB-260915-00303',
+            'tipe_transaksi' => 'penjualan_barang',
+            'tanggal' => Carbon::now(),
+            'subtotal' => 50000,
+            'total' => 50000,
+            'is_real' => true,
+            'status' => 'lunas',
+        ]);
+
+        $this->actingAs($superadmin);
+
+        Livewire::test(LaporanPenjualanIndex::class)
+            ->call('deletePenjualan', $saleBranchB->id)
+            ->assertDispatched('swal:modal');
+
+        $this->assertDatabaseHas('penjualans', ['id' => $saleBranchB->id]);
+    }
+
+    public function test_admin_and_kasir_cannot_delete_penjualan(): void
+    {
+        $sale = Penjualan::create([
+            'cabang_id' => $this->cabangA->id,
+            'kasir_id' => $this->adminBranchA->id,
+            'customer_id' => $this->customer->id,
+            'no_transaksi' => 'INV-PJ-CB-PKP-260915-00304',
+            'tipe_transaksi' => 'penjualan_barang',
+            'tanggal' => Carbon::now(),
+            'subtotal' => 50000,
+            'total' => 50000,
+            'is_real' => true,
+            'status' => 'lunas',
+        ]);
+
+        // Admin biasa (bukan superadmin / owner) mencoba menghapus
+        $this->actingAs($this->adminBranchA);
+
+        Livewire::test(LaporanPenjualanIndex::class)
+            ->call('deletePenjualan', $sale->id)
+            ->assertDispatched('swal:modal');
+
+        $this->assertDatabaseHas('penjualans', ['id' => $sale->id]);
+    }
 }

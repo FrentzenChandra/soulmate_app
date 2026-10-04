@@ -8,6 +8,7 @@ use App\Models\Penjualan;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
@@ -191,6 +192,68 @@ class Index extends Component
         $this->modalDetailOpen = false;
         $this->selectedPenjualanId = null;
         $this->selectedPenjualan = null;
+    }
+
+    public function deletePenjualan(int $id): void
+    {
+        $user = Auth::user();
+        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin'))) {
+            $this->dispatch('swal:modal', [
+                'type' => 'error',
+                'title' => 'Akses Ditolak',
+                'text' => 'Hanya Owner dan Superadmin yang memiliki hak akses untuk menghapus riwayat transaksi.',
+            ]);
+
+            return;
+        }
+
+        $penjualan = Penjualan::with(['details'])->find($id);
+        if (! $penjualan) {
+            $this->dispatch('swal:toast', [
+                'type' => 'error',
+                'title' => 'Gagal',
+                'text' => 'Data transaksi tidak ditemukan.',
+            ]);
+
+            return;
+        }
+
+        // Isolasi Cabang untuk Superadmin (non-owner)
+        $isOwner = $user->isOwner();
+        $activeBranchSession = session('active_branch_id', 'hq');
+        $isHQ = $isOwner && ($activeBranchSession === 'hq' || ! $activeBranchSession);
+
+        if (! $isHQ) {
+            $targetCabangId = $isOwner ? (int) $activeBranchSession : (int) $user->cabang_id;
+            if ($targetCabangId && (int) $penjualan->cabang_id !== (int) $targetCabangId) {
+                $this->dispatch('swal:modal', [
+                    'type' => 'error',
+                    'title' => 'Akses Dibatasi',
+                    'text' => 'Anda hanya berhak menghapus transaksi di cabang Anda sendiri.',
+                ]);
+
+                return;
+            }
+        }
+
+        $noTransaksi = $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi;
+
+        DB::transaction(function () use ($penjualan) {
+            // Hapus rincian item & nota penjualan (stok fisik tidak diubah)
+            $penjualan->details()->delete();
+            $penjualan->delete();
+        });
+
+        if ($this->modalDetailOpen && $this->selectedPenjualanId === $id) {
+            $this->closeDetailModal();
+        }
+
+        $this->dispatch('swal:toast', [
+            'type' => 'success',
+            'title' => 'Transaksi Dihapus',
+            'text' => "Riwayat transaksi {$noTransaksi} berhasil dihapus.",
+        ]);
+        session()->flash('success', "Transaksi {$noTransaksi} berhasil dihapus.");
     }
 
     public function render()
