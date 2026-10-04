@@ -900,32 +900,39 @@ class Full extends Component
         $totalBon = (float) (clone $cardBulanBerjalanQ)->whereRaw('LOWER(status) = ?', ['bon'])->sum('total_jual');
         $totalTransaksiCount = (int) (clone $cardBulanBerjalanQ)->count();
 
-        // Hitung Uang Cash - Full Akumulasi Sepanjang Masa (All-Time, Zero Date Constraint)
-        $modalAwalQ = ModalAwal::query();
-        $kasKeluarQ = KasKeluar::query();
+        // Hitung Uang Cash - Terkunci ke Bulan Berjalan (Tanggal 1 s/d Hari Ini) & Pelunasan Lintas Bulan
+        $startBulan = now()->startOfMonth()->startOfDay();
+        $endBulan = now()->endOfDay();
+
+        $modalAwalQ = ModalAwal::query()->whereBetween('tanggal', [$startBulan, $endBulan]);
+        $kasKeluarQ = KasKeluar::query()->whereBetween('tanggal', [$startBulan, $endBulan]);
         $cashMasukQ = TransaksiFull::query()
-            ->where('status', 'Lunas')
+            ->where('transaksi_fulls.status', 'Lunas')
             ->where(function ($q) {
-                $q->whereRaw('LOWER(metode_pembayaran) LIKE ?', ['%cash%'])
-                    ->orWhereRaw('LOWER(metode_pembayaran) LIKE ?', ['%tunai%']);
-            });
+                $q->whereRaw('LOWER(transaksi_fulls.metode_pembayaran) LIKE ?', ['%cash%'])
+                    ->orWhereRaw('LOWER(transaksi_fulls.metode_pembayaran) LIKE ?', ['%tunai%']);
+            })
+            ->whereRaw('COALESCE(transaksi_fulls.tanggal_lunas, transaksi_fulls.tanggal) BETWEEN ? AND ?', [
+                $startBulan->toDateTimeString(),
+                $endBulan->toDateTimeString(),
+            ]);
 
         if (! $isHQ) {
             $targetCabangId = $isOwner ? (int) $activeBranchSession : (int) $user->cabang_id;
             if ($targetCabangId) {
                 $modalAwalQ->where('cabang_id', $targetCabangId);
                 $kasKeluarQ->where('cabang_id', $targetCabangId);
-                $cashMasukQ->where('cabang_id', $targetCabangId);
+                $cashMasukQ->where('transaksi_fulls.cabang_id', $targetCabangId);
             }
         } elseif ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
             $modalAwalQ->where('cabang_id', (int) $this->cabangFilter);
             $kasKeluarQ->where('cabang_id', (int) $this->cabangFilter);
-            $cashMasukQ->where('cabang_id', (int) $this->cabangFilter);
+            $cashMasukQ->where('transaksi_fulls.cabang_id', (int) $this->cabangFilter);
         }
 
         $totalModalAwal = (float) $modalAwalQ->sum('nominal');
 
-        // Kas Keluar Cash Sepanjang Masa
+        // Kas Keluar Cash Bulan Berjalan
         $totalKasKeluarCash = (float) $kasKeluarQ->where(function ($q) {
             $q->whereHas('sumberDana', function ($sq) {
                 $sq->whereRaw('LOWER(nama) LIKE ?', ['%cash%'])

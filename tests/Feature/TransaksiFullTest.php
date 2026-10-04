@@ -487,4 +487,110 @@ class TransaksiFullTest extends TestCase
         $this->assertNull($trxBonAgain->pelunas_user_id);
         $this->assertNull($trxBonAgain->tanggal_lunas);
     }
+
+    public function test_uang_cash_metric_scoped_to_running_month_and_includes_cross_month_bon_settlement()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        // Ambil baseline cash dari seeder
+        $initialCash = 0;
+        Livewire::test(TransaksiFull::class)->assertViewHas('totalUangCash', function ($val) use (&$initialCash) {
+            $initialCash = (float) $val;
+            return true;
+        });
+
+        // 1. Modal awal bulan berjalan (500.000)
+        \App\Models\ModalAwal::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'user_id' => $superadmin->id,
+            'nominal' => 500000,
+            'tanggal' => now(),
+            'catatan' => 'Modal kasir hari ini',
+        ]);
+
+        // 2. Kas keluar cash bulan berjalan (50.000)
+        \App\Models\KasKeluar::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'user_id' => $superadmin->id,
+            'nominal' => 50000,
+            'tanggal' => now(),
+            'keterangan' => 'Beli ATK Cash',
+        ]);
+
+        // 3. Transaksi Cash Lunas Bulan Berjalan (100.000)
+        TransaksiFullModel::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'user_id' => $superadmin->id,
+            'nama_pelanggan' => 'Pelanggan Cash Oktober',
+            'no_transaksi' => 'PJ-OKT-001',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => now(),
+            'tanggal_lunas' => now(),
+            'metode_pembayaran' => 'Tunai',
+            'total_modal' => 60000,
+            'total_jual' => 100000,
+            'grand_total' => 100000,
+            'total_laba' => 40000,
+            'status' => 'Lunas',
+        ]);
+
+        // 4. Transaksi BON Bulan Lalu yang Dilunasi Tunai di Bulan Berjalan (75.000)
+        TransaksiFullModel::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'user_id' => $superadmin->id,
+            'nama_pelanggan' => 'Pelanggan Bon September Lunas Oktober',
+            'no_transaksi' => 'PJ-SEP-002',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => now()->subMonth(),
+            'tanggal_lunas' => now(),
+            'pelunas_user_id' => $superadmin->id,
+            'metode_pembayaran' => 'Cash',
+            'total_modal' => 40000,
+            'total_jual' => 75000,
+            'grand_total' => 75000,
+            'total_laba' => 35000,
+            'status' => 'Lunas',
+        ]);
+
+        // 5. Transaksi BON Bulan Lalu yang Masih Belum Lunas (200.000 -> Tidak boleh masuk cash)
+        TransaksiFullModel::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'user_id' => $superadmin->id,
+            'nama_pelanggan' => 'Pelanggan Masih Bon',
+            'no_transaksi' => 'PJ-SEP-003',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => now()->subMonth(),
+            'tanggal_lunas' => null,
+            'metode_pembayaran' => 'Bon',
+            'total_modal' => 100000,
+            'total_jual' => 200000,
+            'grand_total' => 200000,
+            'total_laba' => 100000,
+            'status' => 'Bon',
+        ]);
+
+        // 6. Transaksi Cash Bulan Lalu yang Selesai di Bulan Lalu (300.000 -> Tidak boleh masuk cash bulan ini)
+        TransaksiFullModel::create([
+            'cabang_id' => $superadmin->cabang_id,
+            'user_id' => $superadmin->id,
+            'nama_pelanggan' => 'Pelanggan Cash September',
+            'no_transaksi' => 'PJ-SEP-004',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => now()->subMonth(),
+            'tanggal_lunas' => now()->subMonth(),
+            'metode_pembayaran' => 'Cash',
+            'total_modal' => 150000,
+            'total_jual' => 300000,
+            'grand_total' => 300000,
+            'total_laba' => 150000,
+            'status' => 'Lunas',
+        ]);
+
+        // Expected Cash = Initial + Modal Awal (500.000) + Cash Okt (100.000) + Pelunasan Bon Okt (75.000) - Kas Keluar (50.000) = Initial + 625.000
+        Livewire::test(TransaksiFull::class)
+            ->assertViewHas('totalUangCash', function ($totalUangCash) use ($initialCash) {
+                return (float) $totalUangCash === ($initialCash + 625000.0);
+            });
+    }
 }
