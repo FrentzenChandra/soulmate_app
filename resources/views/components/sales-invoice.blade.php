@@ -10,7 +10,7 @@
     $metodeBayar = strtoupper($penjualan->metode_bayar ?? 'CASH');
 @endphp
 
-<div id="salesInvoicePrintArea" class="sales-invoice-container max-w-4xl mx-auto bg-white p-5 sm:p-7 rounded-2xl border border-gray-200 shadow-md space-y-3 text-gray-900" style="font-family: Arial, Helvetica, sans-serif;">
+<div id="salesInvoicePrintArea" class="sales-invoice-container max-w-4xl mx-auto bg-white p-5 sm:p-7 rounded-2xl border border-gray-200 shadow-md space-y-1.5 text-gray-900" style="font-family: Arial, Helvetica, sans-serif;">
 
     <!-- Header: Store Identity & Sales Invoice Info -->
     <div class="grid grid-cols-12 gap-3 items-start ">
