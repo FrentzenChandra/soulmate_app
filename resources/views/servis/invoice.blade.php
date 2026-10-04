@@ -132,7 +132,7 @@
         </div>
 
         <!-- Info Unit -->
-        <div class="grid grid-cols-2 gap-2 pb-1 border-b border-dashed border-gray-200 text-xs">
+        <div class="grid grid-cols-2 gap-2 border-b border-dashed border-gray-200 text-xs">
             <div>
                 <span class="text-[11px]  text-black-500 uppercase block leading-none">PERANGKAT :</span>
                 <span class="text-xs  text-gray-900 mt-1 inline-block">{{ $servis->tipe_unit ?: $servis->kategori_perangkat_label }}</span>
