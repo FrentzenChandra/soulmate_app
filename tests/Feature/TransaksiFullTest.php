@@ -171,7 +171,7 @@ class TransaksiFullTest extends TestCase
             ->assertSet('endDate', now()->toDateString());
     }
 
-    public function test_filter_ppn_and_type_updates_metrics_dynamically()
+    public function test_card_metrics_locked_to_current_month_to_date()
     {
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
@@ -218,21 +218,24 @@ class TransaksiFullTest extends TestCase
             'status' => 'Lunas',
         ]);
 
-        // Test Filter PPN
+        // Test Filter PPN (5 Card tetap terkunci ke total bulan berjalan 150k, 90k, 60k)
         Livewire::test(TransaksiFull::class)
             ->set('ppnFilter', 'ppn')
-            ->assertViewHas('totalPendapatan', 100000.0)
-            ->assertViewHas('totalModal', 70000.0)
-            ->assertViewHas('totalLaba', 30000.0)
+            ->assertViewHas('totalPendapatan', 150000.0)
+            ->assertViewHas('totalModal', 90000.0)
+            ->assertViewHas('totalLaba', 60000.0)
+            ->assertViewHas('totalLunas', 150000.0)
             // Test Filter Non-PPN
             ->set('ppnFilter', 'non_ppn')
-            ->assertViewHas('totalPendapatan', 50000.0)
-            ->assertViewHas('totalModal', 20000.0)
-            ->assertViewHas('totalLaba', 30000.0)
+            ->assertViewHas('totalPendapatan', 150000.0)
+            ->assertViewHas('totalModal', 90000.0)
+            ->assertViewHas('totalLaba', 60000.0)
             // Test Filter Servis saja
             ->set('ppnFilter', 'semua')
             ->set('tipeFilter', 'servis')
-            ->assertViewHas('totalPendapatan', 50000.0);
+            ->assertViewHas('totalPendapatan', 150000.0)
+            ->assertViewHas('totalModal', 90000.0)
+            ->assertViewHas('totalLaba', 60000.0);
     }
 
     public function test_can_create_and_edit_servis_transaksi_with_device_category()

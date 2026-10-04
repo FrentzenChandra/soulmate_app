@@ -880,14 +880,25 @@ class Full extends Component
             });
         }
 
-        // Hitung 6 Ringkasan Finansial Utama via direct SQL aggregation (Zero RAM Overhead)
-        $summaryBase = clone $query;
-        $totalPendapatan = (float) (clone $summaryBase)->sum('total_jual');
-        $totalModal = (float) (clone $summaryBase)->sum('total_modal');
-        $totalLaba = (float) (clone $summaryBase)->sum('total_laba');
-        $totalLunas = (float) (clone $summaryBase)->where('status', 'Lunas')->sum('total_jual');
-        $totalBon = (float) (clone $summaryBase)->whereRaw('LOWER(status) = ?', ['bon'])->sum('total_jual');
-        $totalTransaksiCount = (int) (clone $summaryBase)->count();
+        // Query Khusus 5 Card Finansial: Terkunci ke Bulan Berjalan (Tanggal 1 s/d Hari Ini)
+        $cardBulanBerjalanQ = TransaksiFull::query()
+            ->whereBetween('transaksi_fulls.tanggal', [now()->startOfMonth()->startOfDay(), now()->endOfDay()]);
+
+        if (! $isHQ) {
+            $targetCabangId = $isOwner ? (int) $activeBranchSession : (int) $user->cabang_id;
+            if ($targetCabangId) {
+                $cardBulanBerjalanQ->where('transaksi_fulls.cabang_id', $targetCabangId);
+            }
+        } elseif ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
+            $cardBulanBerjalanQ->where('transaksi_fulls.cabang_id', (int) $this->cabangFilter);
+        }
+
+        $totalPendapatan = (float) (clone $cardBulanBerjalanQ)->sum('total_jual');
+        $totalModal = (float) (clone $cardBulanBerjalanQ)->sum('total_modal');
+        $totalLaba = (float) (clone $cardBulanBerjalanQ)->sum('total_laba');
+        $totalLunas = (float) (clone $cardBulanBerjalanQ)->where('status', 'Lunas')->sum('total_jual');
+        $totalBon = (float) (clone $cardBulanBerjalanQ)->whereRaw('LOWER(status) = ?', ['bon'])->sum('total_jual');
+        $totalTransaksiCount = (int) (clone $cardBulanBerjalanQ)->count();
 
         // Hitung Uang Cash - Full Akumulasi Sepanjang Masa (All-Time, Zero Date Constraint)
         $modalAwalQ = ModalAwal::query();
@@ -936,7 +947,7 @@ class Full extends Component
         // Ultra-Fast toBase() query payload for Tabulator (Zero Eloquent Model Hydration, ~85% RAM reduction)
         $tableData = [];
         if (! $this->modalFormOpen && ! $this->modalDetailOpen && ! $this->modalDeleteOpen) {
-            $allCurrent = (clone $summaryBase)
+            $allCurrent = (clone $query)
                 ->toBase()
                 ->leftJoin('users as u', 'u.id', '=', 'transaksi_fulls.user_id')
                 ->leftJoin('users as p', 'p.id', '=', 'transaksi_fulls.pelunas_user_id')
