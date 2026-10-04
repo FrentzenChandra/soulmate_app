@@ -654,54 +654,6 @@
     @endif
 
     <!-- ============================================== -->
-    <!-- MODAL SUKSES & CETAK TANDA TERIMA SERVIS       -->
-    <!-- ============================================== -->
-    @if($modalSuccessOpen && $lastCreatedServis)
-        <div wire:key="modal-success-servis" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-            <div class="fixed inset-0 bg-gray-950/80 backdrop-blur-xs transition-opacity" wire:click="$set('modalSuccessOpen', false)"></div>
-
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 text-xs p-6 space-y-4">
-
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100 shadow-sm">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                    </div>
-
-                    <div class="text-center space-y-1">
-                        <h3 class="text-lg font-black text-gray-900">Unit Servis Berhasil Diterima!</h3>
-                        <p class="text-xs text-gray-500">Nomor tiket servis resmi berhasil dibuat ke dalam sistem.</p>
-                    </div>
-
-                    <div class="p-4 bg-purple-50 rounded-2xl border border-purple-100 text-center space-y-1">
-                        <span class="text-[10px] font-bold text-purple-600 uppercase tracking-wider block">KODE TIKET SERVIS</span>
-                        <span class="text-xl font-black text-[#5E17EB] font-mono tracking-wider block">
-                            {{ $lastCreatedServis->no_servis_frontend }}
-                        </span>
-                        <span class="text-[11px] font-bold text-gray-700 block">
-                            {{ $lastCreatedServis->tipe_unit }} &bull; {{ $lastCreatedServis->customer?->nama }}
-                        </span>
-                    </div>
-
-                    <div class="pt-2 flex flex-col sm:flex-row gap-2">
-                        <button type="button"
-                                onclick="window.printDocument('{{ route('servis.tanda-terima', $lastCreatedServis->id) }}')"
-                                class="flex-1 py-3 px-4 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-bold text-xs text-center shadow-md shadow-purple-600/20 transition-all flex items-center justify-center space-x-2 cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                            <span>Cetak Tanda Terima</span>
-                        </button>
-                        <button type="button"
-                                wire:click="$set('modalSuccessOpen', false)"
-                                class="py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition-colors cursor-pointer">
-                            Tutup
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <!-- ============================================== -->
     <!-- MODAL 2: DETAIL UNIT & SUB-ACTIONS             -->
     <!-- ============================================== -->
     @if($modalDetailOpen && $selectedServis)

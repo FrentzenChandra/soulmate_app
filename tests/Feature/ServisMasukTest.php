@@ -117,7 +117,8 @@ class ServisMasukTest extends TestCase
             ->set('kondisiBarang', 'Mulus, baret pemakaian normal')
             ->call('simpanServisMasuk')
             ->assertHasNoErrors()
-            ->assertSet('modalSuccessOpen', true);
+            ->assertSet('modalCreateOpen', false)
+            ->assertDispatched('open-print-receipt');
 
         // Verifikasi Customer baru dibuat
         $customer = Customer::where('nama', 'Andi Pratama')->first();

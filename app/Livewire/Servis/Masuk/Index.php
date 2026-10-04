@@ -110,10 +110,6 @@ class Index extends Component
     public int $itemGaransiHari = 30;
     public ?int $selectedStokTersedia = null;
 
-    // State Modal Konfirmasi Sukses & Cetak Tanda Terima Baru
-    public bool $modalSuccessOpen = false;
-    public ?ServisMasuk $lastCreatedServis = null;
-
     public function mount(): void
     {
         $user = Auth::user();
@@ -349,11 +345,7 @@ class Index extends Component
             }
 
             $this->modalCreateOpen = false;
-            $this->lastCreatedServis = $servis->fresh(['customer', 'cabang', 'pembuat']);
-            $this->modalSuccessOpen = true;
-
             $this->dispatch('open-print-receipt', url: route('servis.tanda-terima', $servis->id) . '?autoprint=1');
-
             $this->resetCreateForm();
             session()->flash('success', "Unit servis {$servis->no_servis_frontend} berhasil diterima!");
         } catch (\Exception $e) {
