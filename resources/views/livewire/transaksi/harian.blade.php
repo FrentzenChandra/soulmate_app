@@ -43,6 +43,25 @@
     @endif
 
     <!-- ============================================== -->
+    <!-- CARD METRIK TUNGGAL: UANG CASH (BULAN BERJALAN)-->
+    <!-- ============================================== -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-3.5 rounded-2xl border border-teal-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between pb-2 border-b border-teal-100/80">
+                <span class="text-[10px] font-black text-teal-950 uppercase tracking-wider">Uang Cash</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-teal-50 text-teal-700 border border-teal-200/60">
+                    Bulan Berjalan
+                </span>
+            </div>
+            <div class="mt-3">
+                <span class="text-lg sm:text-xl font-mono font-black {{ $totalUangCash >= 0 ? 'text-teal-700' : 'text-rose-600' }} tracking-tight block">
+                    Rp {{ number_format($totalUangCash, 0, ',', '.') }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
     <!-- FILTER BAR, PERIODE & PENCARIAN                -->
     <!-- ============================================== -->
     <div class="card-custom bg-white p-5 space-y-4 border border-gray-100/90 shadow-sm">

@@ -5,9 +5,11 @@ namespace App\Livewire\Transaksi;
 use App\Livewire\Traits\WithSorting;
 use App\Models\Cabang;
 use App\Models\Customer;
+use App\Models\KasKeluar;
 use App\Models\MasterPpn;
 use App\Models\MasterServis;
 use App\Models\MetodePembayaran;
+use App\Models\ModalAwal;
 use App\Models\Pegawai;
 use App\Models\Produk;
 use App\Models\TransaksiFull;
@@ -848,6 +850,47 @@ class Harian extends Component
         $sortColumn = in_array($this->sortField, $allowedSorts) ? 'transaksi_fulls.' . $this->sortField : 'transaksi_fulls.tanggal';
         $query->orderBy($sortColumn, $sortDir)->orderByDesc('transaksi_fulls.id');
 
+        // Hitung Uang Cash - Terkunci ke Bulan Berjalan (Tanggal 1 s/d Hari Ini) & Pelunasan Lintas Bulan
+        $startBulan = now()->startOfMonth()->startOfDay();
+        $endBulan = now()->endOfDay();
+
+        $modalAwalQ = ModalAwal::query()->whereBetween('tanggal', [$startBulan, $endBulan]);
+        $kasKeluarQ = KasKeluar::query()->whereBetween('tanggal', [$startBulan, $endBulan]);
+        $cashMasukQ = TransaksiFull::query()
+            ->where('transaksi_fulls.status', 'Lunas')
+            ->where(function ($q) {
+                $q->whereRaw('LOWER(transaksi_fulls.metode_pembayaran) LIKE ?', ['%cash%'])
+                    ->orWhereRaw('LOWER(transaksi_fulls.metode_pembayaran) LIKE ?', ['%tunai%']);
+            })
+            ->whereRaw('COALESCE(transaksi_fulls.tanggal_lunas, transaksi_fulls.tanggal) BETWEEN ? AND ?', [
+                $startBulan->toDateTimeString(),
+                $endBulan->toDateTimeString(),
+            ]);
+
+        if (! $isHQ) {
+            $targetCabangId = $isOwner ? (int) $activeBranchSession : (int) $user->cabang_id;
+            if ($targetCabangId) {
+                $modalAwalQ->where('cabang_id', $targetCabangId);
+                $kasKeluarQ->where('cabang_id', $targetCabangId);
+                $cashMasukQ->where('transaksi_fulls.cabang_id', $targetCabangId);
+            }
+        }
+
+        $totalModalAwal = (float) $modalAwalQ->sum('nominal');
+
+        // Kas Keluar Cash Bulan Berjalan
+        $totalKasKeluarCash = (float) $kasKeluarQ->where(function ($q) {
+            $q->whereHas('sumberDana', function ($sq) {
+                $sq->whereRaw('LOWER(nama) LIKE ?', ['%cash%'])
+                    ->orWhereRaw('LOWER(nama) LIKE ?', ['%tunai%'])
+                    ->orWhereRaw('LOWER(nama) LIKE ?', ['%kasir%']);
+            })->orWhereDoesntHave('sumberDana');
+        })->sum('nominal');
+
+        $transaksiCashMasuk = (float) $cashMasukQ->sum('total_jual');
+
+        $totalUangCash = $totalModalAwal + $transaksiCashMasuk - $totalKasKeluarCash;
+
         // Ultra-Fast toBase() query payload for Tabulator (Zero Eloquent Model Hydration, ~85% RAM reduction)
         $tableData = [];
         if (! $this->modalFormOpen && ! $this->modalDetailOpen && ! $this->modalDeleteOpen) {
@@ -989,6 +1032,7 @@ class Harian extends Component
         }
 
         return view('livewire.transaksi.harian', [
+            'totalUangCash' => $totalUangCash,
             'tableData' => $tableData,
             'ppnList' => $ppnList,
             'metodeList' => $metodeList,
