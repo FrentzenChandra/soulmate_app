@@ -24,7 +24,7 @@
         .text-left { text-align: left; }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-        . { font-weight: bold; }
+        /* . { font-weight: bold; } */
         .font-mono { font-family: 'Courier New', Courier, monospace; }
         .uppercase { text-transform: uppercase; }
         .text-muted { color: #555; }
