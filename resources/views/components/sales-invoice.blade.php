@@ -82,11 +82,11 @@
             </colgroup>
             <thead>
                 <tr class="border-b-2 border-gray-800 text-xs  uppercase text-gray-800">
-                    <th class="py-2 text-left">Kode Barang</th>
-                    <th class="py-2 text-left">Nama Barang</th>
-                    <th class="py-2 text-center">Jumlah</th>
-                    <th class="py-2 text-right">Harga (Rp)</th>
-                    <th class="py-2 text-right">Total (Rp)</th>
+                    <th class="text-left">Kode Barang</th>
+                    <th class="text-left">Nama Barang</th>
+                    <th class="text-center">Jumlah</th>
+                    <th class="text-right">Harga (Rp)</th>
+                    <th class="text-right">Total (Rp)</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">

@@ -85,7 +85,7 @@
 
             <!-- Left: Logo & Toko -->
             <div class="col-span-7 flex items-start space-x-3.5">
-                <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-16 h-16 rounded-2xl object-cover shrink-0 border border-gray-100">
+                <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-16 h-16 rounded-2xl object-cover shrink-0">
                 <div>
                     <h1 class="text-[19px] text-gray-900 tracking-tight leading-tight">Soulmate Komputer</h1>
                     <p class="text-[11px] text-gray-600 mt-1 leading-snug">
@@ -148,12 +148,12 @@
             <table class="w-full text-left border-collapse text-xs table-fixed">
                 <thead>
                     <tr class="border-b border-gray-800 text-xs  uppercase text-gray-700">
-                        <th class="py-1.5 w-[5%]">No</th>
-                        <th class="py-1.5 w-[35%]">Nama Barang / Jasa</th>
-                        <th class="py-1.5 text-center w-[13%]">Garansi</th>
-                        <th class="py-1.5 text-center w-[9%]">Qty</th>
-                        <th class="py-1.5 text-right w-[19%]">Harga</th>
-                        <th class="py-1.5 text-right w-[19%]">Subtotal</th>
+                        <th class="w-[5%]">No</th>
+                        <th class="w-[35%]">Nama Barang / Jasa</th>
+                        <th class="text-center w-[13%]">Garansi</th>
+                        <th class="text-center w-[9%]">Qty</th>
+                        <th class="text-right w-[19%]">Harga</th>
+                        <th class="text-right w-[19%]">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
