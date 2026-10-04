@@ -191,7 +191,6 @@
                                     {{ number_format($d['total_ytd'], 0, ',', '.') }}
                                 </span>
                                 @if($d['total_target_ytd'] > 0)
-                                    <span class="text-[9px] font-bold text-purple-700 font-mono leading-none">/ {{ number_format($d['total_target_ytd'], 0, ',', '.') }}</span>
                                     <div class="mt-1">
                                         @if($d['ytd_percent'] >= 150)
                                             <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-[#0052FF] text-white">
