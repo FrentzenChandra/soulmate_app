@@ -71,8 +71,8 @@ class Index extends Component
             abort(403, 'Akses modul Servis Keluar dibatasi.');
         }
 
-        $this->sortField = 'tanggal_ambil';
-        $this->sortDirection = 'desc';
+        $this->sortField = 'default';
+        $this->sortDirection = 'asc';
     }
 
     #[On('echo:servis-updates,.ServisStatusUpdated')]
@@ -458,9 +458,21 @@ class Index extends Component
 
         // Sorting
         $sortDir = strtolower($this->sortDirection) === 'asc' ? 'asc' : 'desc';
-        $allowedSorts = ['tanggal_masuk', 'tanggal_selesai', 'tanggal_ambil', 'no_servis', 'tipe_unit', 'total_biaya', 'status', 'id'];
-        $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'tanggal_ambil';
-        $query->orderBy($sortColumn, $sortDir)->orderByDesc('id');
+        if ($this->sortField === 'default') {
+            $query->orderByRaw("CASE WHEN status = 'selesai' THEN 0 ELSE 1 END")
+                  ->orderByRaw("CASE WHEN status = 'selesai' THEN COALESCE(tanggal_selesai, tanggal_masuk) ELSE COALESCE(tanggal_ambil, tanggal_selesai) END DESC")
+                  ->orderByDesc('id');
+        } elseif ($this->sortField === 'status') {
+            if ($sortDir === 'asc') {
+                $query->orderByRaw("CASE WHEN status = 'selesai' THEN 0 ELSE 1 END")->orderByDesc('id');
+            } else {
+                $query->orderByRaw("CASE WHEN status = 'selesai' THEN 1 ELSE 0 END")->orderByDesc('id');
+            }
+        } else {
+            $allowedSorts = ['tanggal_masuk', 'tanggal_selesai', 'tanggal_ambil', 'no_servis', 'tipe_unit', 'total_biaya', 'id'];
+            $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'tanggal_ambil';
+            $query->orderBy($sortColumn, $sortDir)->orderByDesc('id');
+        }
 
         $totalItems = (clone $query)->count();
         $servisList = $query->take($this->perPage)->get();

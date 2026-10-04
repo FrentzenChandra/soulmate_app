@@ -123,7 +123,8 @@ class ServisKeluarTest extends TestCase
             ->assertSee('Asus ROG Strix')
             ->assertSee('Epson L3110')
             ->assertSee('Belum Diambil')
-            ->assertSee('Sudah Diambil');
+            ->assertSee('Sudah Diambil')
+            ->assertSeeInOrder(['Asus ROG Strix', 'Epson L3110']);
     }
 
     public function test_selesai_without_cetak_nota_is_not_displayed_in_servis_keluar(): void
