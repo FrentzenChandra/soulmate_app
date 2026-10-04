@@ -156,7 +156,7 @@
                         <th class="pb-1 text-right w-[19%]">Subtotal</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-dashed divide-gray-200">
                     @forelse($servis->details as $idx => $det)
                         <tr>
                             <td class="py-1 font-mono text-gray-500 text-xs align-top">{{ $idx + 1 }}</td>

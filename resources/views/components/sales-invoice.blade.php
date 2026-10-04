@@ -89,7 +89,7 @@
                     <th class="pb-1 text-right">Total (Rp)</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-dashed divide-gray-200">
                 @foreach($penjualan->details as $d)
                     <tr>
                         <td class="py-1 font-mono text-gray-600 text-xs align-top truncate pr-2">
