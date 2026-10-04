@@ -523,4 +523,60 @@ class ProductAndStockTest extends TestCase
             ->assertSet('totalAlerts', 1)
             ->assertSee('Speaker Bluetooth Non Aktif');
     }
+
+    public function test_stock_management_displays_correct_total_modal_excluding_inactive_products()
+    {
+        // 1. Produk Aktif Dijual: 10 unit @ Rp 50.000 = Rp 500.000
+        $prod1 = Produk::create([
+            'nama_produk' => 'Mouse Wireless Logitech',
+            'barcode' => '899999000111',
+            'harga_beli' => 50000,
+            'harga_jual' => 75000,
+        ]);
+        Stok::create([
+            'produk_id' => $prod1->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 10,
+            'min_stok' => 3,
+            'is_aktif' => true,
+        ]);
+
+        // 2. Produk Aktif Dijual: 5 unit @ Rp 200.000 = Rp 1.000.000
+        $prod2 = Produk::create([
+            'nama_produk' => 'Keyboard Mechanical RGB',
+            'barcode' => '899999000222',
+            'harga_beli' => 200000,
+            'harga_jual' => 300000,
+        ]);
+        Stok::create([
+            'produk_id' => $prod2->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 5,
+            'min_stok' => 2,
+            'is_aktif' => true,
+        ]);
+
+        // 3. Produk NON-AKTIF: 20 unit @ Rp 100.000 = Rp 2.000.000 (TIDAK BOLEH MASUK TOTAL MODAL)
+        $prodInactive = Produk::create([
+            'nama_produk' => 'Barang Non Aktif Gudang',
+            'barcode' => '899999000333',
+            'harga_beli' => 100000,
+            'harga_jual' => 150000,
+        ]);
+        Stok::create([
+            'produk_id' => $prodInactive->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 20,
+            'min_stok' => 3,
+            'is_aktif' => false,
+        ]);
+
+        $this->actingAs($this->superadmin);
+
+        // Total modal yang diharapkan: 500.000 + 1.000.000 = 1.500.000
+        Livewire::test(\App\Livewire\Cabang\Stok\Index::class)
+            ->assertViewHas('totalModal', 1500000.0)
+            ->assertSee('Total Modal')
+            ->assertSee('Rp 1.500.000');
+    }
 }

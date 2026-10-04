@@ -8,6 +8,7 @@ use App\Models\KategoriProduk;
 use App\Models\Produk;
 use App\Models\Stok;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -197,10 +198,12 @@ class Index extends Component
                 'totalItems' => 0,
                 'totalSku' => 0,
                 'totalUnit' => 0,
+                'totalModal' => 0,
                 'totalKritis' => 0,
                 'totalHabis' => 0,
             ]);
         }
+
 
         // Query produk beserta stok spesifik cabang ini
         $query = Produk::with(['kategori', 'stoks' => function ($q) use ($cabang) {
@@ -292,6 +295,15 @@ class Index extends Component
         $totalKritis = $allStoksCabang->filter(fn ($s) => $s->jumlah > 0 && $s->jumlah <= $s->min_stok)->count();
         $totalHabis = $allStoksCabang->where('jumlah', '<=', 0)->count();
 
+        // Hitung Total Modal Aset Stok (Hanya Produk Aktif Dijual: stoks.is_aktif = true)
+        $totalModal = (float) DB::table('stoks')
+            ->join('produks', 'produks.id', '=', 'stoks.produk_id')
+            ->where('stoks.cabang_id', $cabang->id)
+            ->where('stoks.is_aktif', true)
+            ->whereNull('produks.deleted_at')
+            ->selectRaw('COALESCE(SUM(stoks.jumlah * produks.harga_beli), 0) as total_modal')
+            ->value('total_modal') ?? 0;
+
         return view('livewire.cabang.stok.index', [
             'cabang' => $cabang,
             'kategoris' => $kategoris,
@@ -300,6 +312,7 @@ class Index extends Component
             'totalItems' => $totalItems,
             'totalSku' => $totalSku,
             'totalUnit' => $totalUnit,
+            'totalModal' => $totalModal,
             'totalKritis' => $totalKritis,
             'totalHabis' => $totalHabis,
         ]);

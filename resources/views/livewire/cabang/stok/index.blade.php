@@ -24,47 +24,58 @@
     </div>
 
     <!-- Metric Cards Ringkasan Stok Cabang -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Metric 1: Total SKU -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <!-- Metric 1: Total Modal Aset (Signature Soulmate Purple #5E17EB) -->
+        <div class="bg-white card-custom p-4 rounded-2xl border border-purple-100 flex items-center justify-between">
+            <div>
+                <span class="text-[11px] font-bold text-purple-950 uppercase tracking-wider block">Total Modal</span>
+                <span class="text-lg md:text-xl font-black text-[#5E17EB] font-mono mt-0.5 block">Rp {{ number_format($totalModal, 0, ',', '.') }}</span>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-purple-50 text-[#5E17EB] flex items-center justify-center shrink-0 border border-purple-200/60">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+        </div>
+
+        <!-- Metric 2: Total SKU -->
         <div class="bg-white card-custom p-4 rounded-2xl border border-gray-100 flex items-center justify-between">
             <div>
                 <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Total Jenis Barang</span>
                 <span class="text-xl md:text-2xl font-extrabold text-gray-900 mt-0.5 block">{{ $totalSku }} <span class="text-xs font-medium text-gray-400">SKU</span></span>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-purple-50 text-[#5E17EB] flex items-center justify-center">
+            <div class="w-10 h-10 rounded-xl bg-gray-50 text-gray-700 flex items-center justify-center shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
             </div>
         </div>
 
-        <!-- Metric 2: Total Unit Fisik -->
+        <!-- Metric 3: Total Unit Fisik -->
         <div class="bg-white card-custom p-4 rounded-2xl border border-gray-100 flex items-center justify-between">
             <div>
                 <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Total Fisik Unit</span>
                 <span class="text-xl md:text-2xl font-extrabold text-[#0052FF] mt-0.5 block">{{ number_format($totalUnit, 0, ',', '.') }} <span class="text-xs font-medium text-gray-400">Pcs</span></span>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#0052FF] flex items-center justify-center">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#0052FF] flex items-center justify-center shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
             </div>
         </div>
 
-        <!-- Metric 3: Stok Kritis -->
+        <!-- Metric 4: Stok Kritis -->
         <div class="bg-white card-custom p-4 rounded-2xl border border-gray-100 flex items-center justify-between">
             <div>
                 <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Stok Kritis (&le; 3)</span>
                 <span class="text-xl md:text-2xl font-extrabold text-amber-600 mt-0.5 block">{{ $totalKritis }} <span class="text-xs font-medium text-gray-400">SKU</span></span>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             </div>
         </div>
 
-        <!-- Metric 4: Stok Habis -->
+        <!-- Metric 5: Stok Habis -->
         <div class="bg-white card-custom p-4 rounded-2xl border border-gray-100 flex items-center justify-between">
             <div>
                 <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Stok Kosong</span>
                 <span class="text-xl md:text-2xl font-extrabold text-rose-600 mt-0.5 block">{{ $totalHabis }} <span class="text-xs font-medium text-gray-400">SKU</span></span>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
             </div>
         </div>
