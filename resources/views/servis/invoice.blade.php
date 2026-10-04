@@ -122,7 +122,7 @@
         </div>
 
         <!-- Divider Strip -->
-        <div class="border-t border-b border-dashed border-gray-400 py-1 text-center font-bold tracking-widest text-[11px] uppercase text-gray-700 select-none">
+        <div class="border-b border-dashed border-gray-400 pt-1 text-center font-bold tracking-widest text-[11px] uppercase text-gray-700 select-none">
             &middot;&middot;&middot;&middot;&middot; FAKTUR SERVIS &middot;&middot;&middot;&middot;&middot;
         </div>
 

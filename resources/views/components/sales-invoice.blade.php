@@ -13,7 +13,7 @@
 <div id="salesInvoicePrintArea" class="sales-invoice-container max-w-4xl mx-auto bg-white p-5 sm:p-7 rounded-2xl border border-gray-200 shadow-md space-y-3 text-gray-900" style="font-family: Arial, Helvetica, sans-serif;">
 
     <!-- Header: Store Identity & Sales Invoice Info -->
-    <div class="grid grid-cols-12 gap-3 items-start pb-1">
+    <div class="grid grid-cols-12 gap-3 items-start ">
 
         <!-- Left: Logo & Toko -->
         <div class="col-span-7 flex items-start space-x-3.5">
@@ -66,12 +66,12 @@
     </div>
 
     <!-- Divider Strip -->
-    <div class="border-t-2 border-b-2 border-dashed border-gray-400 py-1 text-center  tracking-widest text-xs uppercase text-gray-800 select-none">
+    <div class="border-b-2 border-dashed border-gray-400 text-center  tracking-widest text-xs uppercase text-gray-800 select-none">
         &middot;&middot;&middot;&middot;&middot; S A L E S &nbsp;&nbsp; I N V O I C E &middot;&middot;&middot;&middot;&middot;
     </div>
 
     <!-- Items Table -->
-    <div class="pt-0.5">
+    <div class="">
         <table class="w-full text-left border-collapse text-xs table-fixed">
             <colgroup>
                 <col style="width: 16%;">
