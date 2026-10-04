@@ -19,11 +19,11 @@
         <div class="col-span-7 flex items-start space-x-3.5">
             <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-16 h-16 rounded-2xl object-cover shrink-0 border border-gray-100 shadow-xs">
             <div>
-                <h1 class="text-lg font-black text-gray-900 tracking-tight leading-none font-bold" style="font-family: Arial, Helvetica, sans-serif;">Soulmate Komputer</h1>
+                <h1 class="text-lg  text-gray-900 tracking-tight leading-none " style="font-family: Arial, Helvetica, sans-serif;">Soulmate Komputer</h1>
                 <p class="text-xs font-medium text-gray-600 mt-1.5 leading-snug">
                     {{ $address }}
                 </p>
-                <p class="text-xs font-bold text-gray-800 mt-1">
+                <p class="text-xs  text-gray-800 mt-1">
                     WhatsApp: {{ $phone }}
                 </p>
             </div>
@@ -49,14 +49,14 @@
                 <tr>
                     <td class="text-xs  text-gray-500 uppercase py-0.5 whitespace-nowrap">Pembayaran</td>
                     <td class="px-1.5 text-gray-400 ">:</td>
-                    <td class=" uppercase text-xs py-0.5 {{ $penjualan->status === 'bon' ? 'text-amber-700 font-black' : 'text-gray-900' }}">
+                    <td class=" uppercase text-xs py-0.5 {{ $penjualan->status === 'bon' ? 'text-amber-700 ' : 'text-gray-900' }}">
                         {{ $penjualan->status === 'bon' ? 'BON (BELUM LUNAS)' : $metodeBayar }}
                     </td>
                 </tr>
                 <tr>
                     <td class="text-xs  text-gray-500 uppercase py-0.5 whitespace-nowrap">NO. PENJUALAN</td>
                     <td class="px-1.5 text-gray-400 ">:</td>
-                    <td class="font-black text-[#5E17EB] font-mono text-sm py-0.5">
+                    <td class=" text-[#5E17EB] font-mono text-sm py-0.5">
                         {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}
                     </td>
                 </tr>
@@ -66,7 +66,7 @@
     </div>
 
     <!-- Divider Strip -->
-    <div class="border-b-2 border-dashed border-gray-400 text-center  tracking-widest text-xs uppercase text-gray-800 select-none">
+    <div class="border-b-2 border-dashed border-gray-400 text-center tracking-widest text-xs uppercase text-gray-800 select-none">
         &middot;&middot;&middot;&middot;&middot; S A L E S &nbsp;&nbsp; I N V O I C E &middot;&middot;&middot;&middot;&middot;
     </div>
 
@@ -126,7 +126,7 @@
                     </tr>
                 @endif
                 <tr class="{{ ($penjualan->details->count() <= 1 && $penjualan->diskon <= 0 && $penjualan->ppn_nominal <= 0) ? 'border-t-2 border-gray-800 ' : 'border-t-2 border-gray-400 ' }}">
-                    <td colspan="4" class="py-2 text-right text-xs sm:text-sm font-black text-gray-900 pr-2">Grandtotal :</td>
+                    <td colspan="4" class="py-2 text-right text-xs sm:text-sm  text-gray-900 pr-2">Grandtotal :</td>
                     <td class="py-2 text-right font-mono text-xs sm:text-sm text-[#5E17EB] whitespace-nowrap">Rp {{ number_format($penjualan->total, 0, ',', '.') }}</td>
                 </tr>
             </tfoot>

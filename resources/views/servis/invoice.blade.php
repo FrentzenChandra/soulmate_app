@@ -31,6 +31,11 @@
             .no-print {
                 display: none !important;
             }
+
+            th {
+                font-style: normal !important;
+            }
+
             .servis-invoice-container {
                 box-shadow: none !important;
                 border: none !important;
@@ -76,17 +81,17 @@
         @endphp
 
         <!-- Header: Store Identity & Service Invoice Info -->
-        <div class="grid grid-cols-12 gap-3 items-start pb-1">
+        <div class="grid grid-cols-12 gap-3 items-start">
 
             <!-- Left: Logo & Toko -->
             <div class="col-span-7 flex items-start space-x-3.5">
-                <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-16 h-16 rounded-2xl object-cover shrink-0 border border-gray-100 shadow-xs">
+                <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-16 h-16 rounded-2xl object-cover shrink-0 border border-gray-100">
                 <div>
-                    <h1 class="text-[19px] font-black text-gray-900 tracking-tight leading-tight">Soulmate Komputer</h1>
-                    <p class="text-[11px] font-medium text-gray-600 mt-1 leading-snug">
+                    <h1 class="text-[19px] text-gray-900 tracking-tight leading-tight">Soulmate Komputer</h1>
+                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">
                         {{ $servis->cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang' }}
                     </p>
-                    <p class="text-[11px] font-semibold text-gray-700 mt-0.5">
+                    <p class="text-[11px] text-gray-700 mt-0.5">
                         WhatsApp: {{ format_whatsapp($servis->cabang?->no_wa ?? '081995466255') }}
                     </p>
                 </div>
@@ -112,7 +117,7 @@
                     <tr>
                         <td class="text-[11px]  text-gray-500 uppercase py-0.5 whitespace-nowrap">NO. FAKTUR SERVIS</td>
                         <td class="px-1 text-gray-400 ">:</td>
-                        <td class="font-black text-[#5E17EB] font-mono text-[13px] py-0.5">
+                        <td class="text-[#5E17EB] font-mono text-[13px] py-0.5">
                             {{ $servis->no_servis_frontend ?? $servis->no_servis }}
                         </td>
                     </tr>
@@ -122,18 +127,18 @@
         </div>
 
         <!-- Divider Strip -->
-        <div class="border-b border-dashed border-gray-400 pt-1 text-center font-bold tracking-widest text-[11px] uppercase text-gray-700 select-none">
+        <div class="border-b border-dashed border-gray-400 pt-1 text-center tracking-widest text-[11px] uppercase text-gray-700 select-none">
             &middot;&middot;&middot;&middot;&middot; FAKTUR SERVIS &middot;&middot;&middot;&middot;&middot;
         </div>
 
         <!-- Info Unit -->
         <div class="grid grid-cols-2 gap-2 pb-1 border-b border-dashed border-gray-200 text-xs">
             <div>
-                <span class="text-[11px]  text-gray-500 uppercase block leading-none">PERANGKAT :</span>
+                <span class="text-[11px]  text-black-500 uppercase block leading-none">PERANGKAT :</span>
                 <span class="text-xs  text-gray-900 mt-1 inline-block">{{ $servis->tipe_unit ?: $servis->kategori_perangkat_label }}</span>
             </div>
             <div class="text-right">
-                <span class="text-[11px]  text-gray-400 uppercase block leading-none">Petugas Kasir :</span>
+                <span class="text-[11px] text-black-500 uppercase block leading-none">Petugas Kasir :</span>
                 <span class=" text-gray-800 text-xs mt-1 inline-block">{{ $servis->kasir?->name ?? ($servis->teknisi?->name ?? 'Soulmate Komputer') }}</span>
             </div>
         </div>
@@ -172,8 +177,8 @@
                     @endforelse
                 </tbody>
                 <tfoot>
-                    <tr class="border-t border-gray-800  text-xs">
-                        <td colspan="5" class="py-2 text-right text-xs sm:text-sm font-black text-gray-900 pr-2">Grandtotal :</td>
+                    <tr class="border-t border-gray-800 text-xs">
+                        <td colspan="5" class="py-2 text-right text-xs sm:text-sm  text-gray-900 pr-2">Grandtotal :</td>
                         <td class="py-2 text-right font-mono text-[#5E17EB] text-xs sm:text-sm whitespace-nowrap">Rp {{ number_format($servis->total_biaya, 0, ',', '.') }}</td>
                     </tr>
                 </tfoot>
