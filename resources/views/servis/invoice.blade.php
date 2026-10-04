@@ -74,7 +74,7 @@
     </div>
 
     <!-- Faktur Container (Strict 1-Page on 24x14 cm continuous form) -->
-    <div id="invoicePrintArea" class="servis-invoice-container max-w-4xl mx-auto bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-md space-y-3.5 text-gray-900 text-xs">
+    <div id="invoicePrintArea" class="servis-invoice-container max-w-4xl mx-auto bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-md text-gray-900 text-xs">
 
         @php
             $tglSelesai = $servis->tanggal_selesai ?? ($servis->tanggal_ambil ?? $servis->updated_at);
