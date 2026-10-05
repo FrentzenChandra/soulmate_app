@@ -5,6 +5,7 @@ namespace App\Livewire\Master\Kategori;
 use App\Livewire\Traits\WithSorting;
 use App\Models\KategoriProduk;
 use App\Models\Produk;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;

@@ -4,6 +4,7 @@ namespace App\Livewire\Saldo;
 
 use App\Models\SaldoRekening;
 use App\Models\SumberSaldo;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Index extends Component
