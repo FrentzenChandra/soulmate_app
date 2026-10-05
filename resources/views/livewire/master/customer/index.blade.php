@@ -180,20 +180,16 @@
             </table>
         </div>
 
-        <!-- Infinite Scroll / Load More -->
-        @if($hasMore)
-            <div class="p-4 border-t border-gray-100 flex items-center justify-center bg-gray-50/50">
-                <button wire:click="loadMore" 
-                        wire:loading.attr="disabled"
-                        class="px-5 py-2 rounded-xl bg-white border border-gray-200 text-xs font-extrabold text-[#5E17EB] hover:bg-purple-50 transition-all shadow-2xs cursor-pointer flex items-center space-x-2">
-                    <svg wire:loading wire:target="loadMore" class="animate-spin w-3.5 h-3.5 text-[#5E17EB]" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                    </svg>
-                    <span>Muat Lebih Banyak Pelanggan ({{ $totalCustomers - $customers->count() }} tersisa)</span>
-                </button>
-            </div>
-        @endif
+        <!-- Infinite Scroll Sentinel & Status -->
+        <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
+            <x-infinite-scroll-sentinel
+                :has-more="$hasMore"
+                target="loadMore"
+                label="pelanggan"
+                :current="$customers->count()"
+                :total="$totalCustomers"
+                color="purple" />
+        </div>
     </div>
 
     <!-- Modal Form Tambah / Edit Pelanggan -->
