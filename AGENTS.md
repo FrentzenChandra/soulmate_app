@@ -198,4 +198,18 @@
 - **Input Bagian Baru Fleksibel:** Form modal menyediakan opsi `+ Tambah Bagian Baru...` dengan input teks tambahan. Saat disimpan, bagian baru tersebut otomatis masuk ke opsi pilihan dan filter.
 - **Pewarnaan Badge Cerdas:** Badge bagian otomatis memiliki styling warna Tailwind berbasis kata kunci (Laptop: Biru, Printer: Amber, Komputer: Purple, Bendahara: Emerald, Pajak: Rose, Stok: Cyan, Konten: Indigo, default: Slate/Gray).
 
+## 26. Dynamic Role Permission Matrix Standard (Atur Akses)
+- **Modul Eksklusif Owner HQ:** Pengaturan hak akses (`/master/hak-akses`) HANYA boleh diakses oleh akun **Owner** dalam konteks Kantor Pusat (HQ) dan muncul di sidebar menu "Master & Organisasi" dengan badge "Role".
+- **6 Role Staf Operasional:** `Superadmin`, `Teknisi`, `Admin`, `Bendahara`, `Operasional`, `Magang`.
+- **Owner 100% Global Bypass:** Akun Owner di-bypass otomatis melalui `Gate::before(fn($user) => $user->isOwner() ? true : null)` di `AppServiceProvider` tanpa perlu assignment manual di database.
+- **Relasi Database Spatie:** Menggunakan schema tabel Spatie (`roles`, `permissions`, `role_has_permissions`). Saat Owner menyimpan izin:
+  * Backend memanggil `$role->syncPermissions($this->selectedPermissions)`.
+  * Spatie cache wajib dibersihkan seketika via `app()[PermissionRegistrar::class]->forgetCachedPermissions()`.
+- **Dynamic Route Security:** Seluruh route operasional di `routes/web.php` WAJIB diproteksi menggunakan `middleware('can:<permission_name>')`. Percobaan akses langsung via URL yang tidak diizinkan otomatis menghasilkan status `403 Forbidden`.
+- **Granular UI Authorization:**
+  * Sidebar operasional menggunakan `@canany(...)` untuk grup dan `@can(...)` untuk masing-masing tautan menu.
+  * Tombol aksi CRUD & fitur spesifik (Detail, POST, Edit, Delete, Cetak Nota/Tanda Terima, Tindakan Servis, Ubah Status) di Blade view WAJIB dibungkus `@can(...)` dan dilindungi `abort_if(!can(...), 403)` pada method Livewire terkait.
+- **Master Switch & Sub-Action Matrix:** Form Atur Akses menyediakan master toggle per modul (mengaktifkan/menonaktifkan seluruh izin modul) serta checklist individu untuk setiap tombol aksi.
+
+
 
