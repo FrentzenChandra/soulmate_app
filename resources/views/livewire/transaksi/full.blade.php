@@ -1307,7 +1307,7 @@ window.tabulatorTransaksiFullTable = function(config) {
                         hozAlign: "left",
                         headerHozAlign: "left",
                         headerFilter: "list",
-                        headerFilterParams: { values: ["PPN", "Non PPN"], clearable: true },
+                        headerFilterParams: { values: ["PPN", "NON"], clearable: true },
                         headerFilterFunc: multiSelectFilterFunc,
                         formatter: (cell) => {
                             const d = cell.getData();
@@ -1317,14 +1317,14 @@ window.tabulatorTransaksiFullTable = function(config) {
                             if (items.length === 0 || !isMulti) {
                                 const it = items[0] || {};
                                 const itemHasPpn = it.has_ppn !== undefined ? it.has_ppn : d.has_ppn;
-                                const taxLabel = itemHasPpn ? 'PPN' : 'NON PPN';
+                                const taxLabel = itemHasPpn ? 'PPN' : 'NON';
                                 const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
                                 return `<span class="text-[8px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</span>`;
                             }
 
                             const html = items.map(it => {
                                 const itemHasPpn = it.has_ppn !== undefined ? it.has_ppn : d.has_ppn;
-                                const taxLabel = itemHasPpn ? 'PPN' : 'NON PPN';
+                                const taxLabel = itemHasPpn ? 'PPN' : 'NON';
                                 const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
                                 return `
                                     <div class="leading-tight py-0.5 min-h-[18px] text-[8px] font-black ${taxColor} uppercase tracking-wider">
