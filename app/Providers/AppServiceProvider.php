@@ -32,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
             URL::forceRootUrl(config('app.url'));
         }
 
+        Gate::before(function (User $user, string $ability) {
+            return $user->isOwner() ? true : null;
+        });
+
         Gate::define('viewPulse', function (User $user) {
             return $user->isOwner() || $user->hasRole('Owner');
         });
