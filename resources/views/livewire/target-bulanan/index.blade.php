@@ -542,9 +542,9 @@
                                        min="0"
                                        wire:model="formRealisasiDivisi"
                                        class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
-                                <span class="text-[10px] text-gray-500 font-medium block mt-1">
+                                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
                                     Kosongkan / masukkan 0 jika ingin mengikuti tarikan otomatis dari Transaksi FULL.
-                                </span>
+                                </span> --}}
                                 @error('formRealisasiDivisi')
                                     <span class="text-rose-500 font-bold text-[10px] block mt-1">{{ $message }}</span>
                                 @enderror
