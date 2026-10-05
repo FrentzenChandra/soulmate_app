@@ -76,6 +76,8 @@
                     <option value="Bendahara">Bendahara</option>
                     <option value="Teknisi">Teknisi</option>
                     <option value="Admin">Admin</option>
+                    <option value="Operasional">Operasional</option>
+                    <option value="Magang">Magang</option>
                 </select>
             </div>
 
@@ -127,7 +129,7 @@
                             <!-- User Name & Avatar -->
                             <td class="py-4 px-5">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-9 h-9 rounded-xl overflow-hidden {{ $u->isOwner() ? 'bg-purple-100 text-purple-700' : ($userRole === 'Superadmin' ? 'bg-blue-100 text-blue-700' : ($userRole === 'Teknisi' ? 'bg-teal-100 text-teal-700' : 'bg-pink-100 text-pink-700')) }} font-extrabold flex items-center justify-center text-xs shadow-xs shrink-0 border border-gray-100">
+                                    <div class="w-9 h-9 rounded-xl overflow-hidden {{ $u->isOwner() ? 'bg-purple-100 text-purple-700' : ($userRole === 'Superadmin' ? 'bg-blue-100 text-blue-700' : ($userRole === 'Teknisi' ? 'bg-teal-100 text-teal-700' : ($userRole === 'Bendahara' ? 'bg-amber-100 text-amber-700' : ($userRole === 'Operasional' ? 'bg-cyan-100 text-cyan-700' : ($userRole === 'Magang' ? 'bg-indigo-100 text-indigo-700' : 'bg-pink-100 text-pink-700'))))) }} font-extrabold flex items-center justify-center text-xs shadow-xs shrink-0 border border-gray-100">
                                         @if($u->profile_photo_url || $u->foto_url)
                                             <img src="{{ $u->profile_photo_url }}"
                                                  loading="lazy"
@@ -144,7 +146,7 @@
                                         <span class="font-extrabold text-sm text-gray-900 block leading-tight">
                                             {{ $u->name }}
                                             @if($u->id === auth()->id())
-                                                <span class="ml-1 text-[10px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded-full">Anda</span>
+                                                 <span class="ml-1 text-[10px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded-full">Anda</span>
                                             @endif
                                         </span>
                                         <span class="text-[10px] text-gray-400">ID: #{{ $u->id }}</span>
@@ -175,6 +177,14 @@
                                 @elseif($userRole === 'Teknisi')
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 font-extrabold text-[11px] border border-teal-200">
                                         <span>Teknisi</span>
+                                    </span>
+                                @elseif($userRole === 'Operasional')
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-cyan-50 text-cyan-700 font-extrabold text-[11px] border border-cyan-200">
+                                        <span>Operasional</span>
+                                    </span>
+                                @elseif($userRole === 'Magang')
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 font-extrabold text-[11px] border border-indigo-200">
+                                        <span>Magang</span>
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-pink-50 text-pink-700 font-extrabold text-[11px] border border-pink-200">
@@ -290,19 +300,19 @@
             <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-xs transition-opacity" wire:click="closeModal"></div>
 
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-gray-100">
 
                     <!-- Header Modal -->
-                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                    <div class="{{ $isOwner ? 'bg-[#5E17EB]' : 'bg-[#0052FF]' }} px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
                         <div class="flex items-center gap-3.5 min-w-0">
                             <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0 shadow-xs p-2.5">
                                 <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
                             </div>
                             <div class="min-w-0">
-                                <h3 class="text-base font-bold text-white tracking-tight leading-snug" id="modal-title">
+                                <h3 class="text-base font-extrabold text-white tracking-tight leading-snug" id="modal-title">
                                     {{ $isEditMode ? 'Edit Akun Pengguna' : 'Tambah Pengguna Baru' }}
                                 </h3>
-                                <p class="text-xs text-purple-200 font-medium mt-0.5">Tentukan role dan informasi login pengguna</p>
+                                <p class="text-xs {{ $isOwner ? 'text-purple-200' : 'text-blue-200' }} font-medium mt-0.5">Tentukan role, hak akses, dan informasi login akun pengguna</p>
                             </div>
                         </div>
                         <button wire:click="closeModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
@@ -312,92 +322,121 @@
 
                     <!-- Form Body -->
                     <form wire:submit.prevent="save">
-                        <div class="p-6 space-y-4">
+                        <div class="p-6 sm:p-7 space-y-6 max-h-[calc(100vh-14rem)] overflow-y-auto no-scrollbar">
 
-                            <!-- Pilihan Role -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                                    Pilih Peran Akun (Role) <span class="text-rose-500">*</span>
-                                </label>
-                                <div class="grid grid-cols-2 md:grid-cols-{{ $isOwner ? '3' : '2' }} lg:grid-cols-{{ $isOwner ? '5' : '4' }} gap-2.5">
+                            <!-- Section 1: Pilihan Peran Akun (Role) -->
+                            <div class="space-y-2.5">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-xs font-extrabold text-gray-800 uppercase tracking-wider">
+                                        Pilih Peran Akun (Role) <span class="text-rose-500 font-bold">*</span>
+                                    </label>
+                                    <span class="text-[11px] font-bold text-gray-500">Tentukan tingkat kewenangan</span>
+                                </div>
+
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-{{ $isOwner ? '4' : '3' }} gap-2.5">
                                     @if($isOwner)
                                         <!-- Role Owner Card -->
-                                        <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Owner' ? 'border-[#5E17EB] bg-purple-50/50' : 'border-gray-200 hover:border-gray-300' }}">
+                                        <label class="relative flex flex-col p-3 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Owner' ? 'border-[#5E17EB] bg-purple-50/70 shadow-xs' : 'border-gray-200 hover:border-gray-300 bg-white' }}">
                                             <input type="radio" wire:model.live="role_name" value="Owner" class="sr-only">
-                                            <div class="flex items-center space-x-1.5">
-                                                <span class="w-5 h-5 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
                                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
                                                 </span>
                                                 <span class="text-xs font-extrabold text-gray-900">Owner</span>
                                             </div>
-                                            <span class="text-[9px] text-gray-500 mt-1 leading-tight">Akses penuh seluruh cabang</span>
+                                            <span class="text-[10px] text-gray-500 mt-1.5 leading-tight">Akses penuh seluruh cabang</span>
                                         </label>
                                     @endif
 
                                     <!-- Role Superadmin Card -->
-                                    <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Superadmin' ? 'border-[#0052FF] bg-blue-50/50' : 'border-gray-200 hover:border-gray-300' }}">
+                                    <label class="relative flex flex-col p-3 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Superadmin' ? 'border-[#0052FF] bg-blue-50/70 shadow-xs' : 'border-gray-200 hover:border-gray-300 bg-white' }}">
                                         <input type="radio" wire:model.live="role_name" value="Superadmin" class="sr-only">
-                                        <div class="flex items-center space-x-1.5">
-                                            <span class="w-5 h-5 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                                             </span>
                                             <span class="text-xs font-extrabold text-gray-900">Superadmin</span>
                                         </div>
-                                        <span class="text-[9px] text-gray-500 mt-1 leading-tight">Admin operasional sistem</span>
+                                        <span class="text-[10px] text-gray-500 mt-1.5 leading-tight">Admin operasional toko</span>
                                     </label>
 
                                     <!-- Role Bendahara Card -->
-                                    <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Bendahara' ? 'border-amber-500 bg-amber-50/50' : 'border-gray-200 hover:border-gray-300' }}">
+                                    <label class="relative flex flex-col p-3 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Bendahara' ? 'border-amber-500 bg-amber-50/70 shadow-xs' : 'border-gray-200 hover:border-gray-300 bg-white' }}">
                                         <input type="radio" wire:model.live="role_name" value="Bendahara" class="sr-only">
-                                        <div class="flex items-center space-x-1.5">
-                                            <span class="w-5 h-5 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                             </span>
                                             <span class="text-xs font-extrabold text-gray-900">Bendahara</span>
                                         </div>
-                                        <span class="text-[9px] text-gray-500 mt-1 leading-tight">Kas, saldo & keuangan</span>
+                                        <span class="text-[10px] text-gray-500 mt-1.5 leading-tight">Kas, saldo & keuangan</span>
                                     </label>
 
                                     <!-- Role Teknisi Card -->
-                                    <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Teknisi' ? 'border-teal-500 bg-teal-50/50' : 'border-gray-200 hover:border-gray-300' }}">
+                                    <label class="relative flex flex-col p-3 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Teknisi' ? 'border-teal-500 bg-teal-50/70 shadow-xs' : 'border-gray-200 hover:border-gray-300 bg-white' }}">
                                         <input type="radio" wire:model.live="role_name" value="Teknisi" class="sr-only">
-                                        <div class="flex items-center space-x-1.5">
-                                            <span class="w-5 h-5 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center shrink-0">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="w-6 h-6 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center shrink-0">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                             </span>
                                             <span class="text-xs font-extrabold text-gray-900">Teknisi</span>
                                         </div>
-                                        <span class="text-[9px] text-gray-500 mt-1 leading-tight">Pengerjaan & status servis</span>
+                                        <span class="text-[10px] text-gray-500 mt-1.5 leading-tight">Pengerjaan & unit servis</span>
                                     </label>
 
                                     <!-- Role Admin (Staf / Kasir POS) Card -->
-                                    <label class="relative flex flex-col p-2.5 rounded-2xl border-2 cursor-pointer transition-all {{ in_array($role_name, ['Admin', 'Kasir']) ? 'border-pink-500 bg-pink-50/50' : 'border-gray-200 hover:border-gray-300' }}">
+                                    <label class="relative flex flex-col p-3 rounded-2xl border-2 cursor-pointer transition-all {{ in_array($role_name, ['Admin', 'Kasir']) ? 'border-pink-500 bg-pink-50/70 shadow-xs' : 'border-gray-200 hover:border-gray-300 bg-white' }}">
                                         <input type="radio" wire:model.live="role_name" value="Admin" class="sr-only">
-                                        <div class="flex items-center space-x-1.5">
-                                            <span class="w-5 h-5 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center shrink-0">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="w-6 h-6 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center shrink-0">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                             </span>
                                             <span class="text-xs font-extrabold text-gray-900">Admin</span>
                                         </div>
-                                        <span class="text-[9px] text-gray-500 mt-1 leading-tight">POS penjualan & tagihan</span>
+                                        <span class="text-[10px] text-gray-500 mt-1.5 leading-tight">POS kasir & penjualan</span>
+                                    </label>
+
+                                    <!-- Role Operasional Card -->
+                                    <label class="relative flex flex-col p-3 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Operasional' ? 'border-cyan-500 bg-cyan-50/70 shadow-xs' : 'border-gray-200 hover:border-gray-300 bg-white' }}">
+                                        <input type="radio" wire:model.live="role_name" value="Operasional" class="sr-only">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="w-6 h-6 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                            </span>
+                                            <span class="text-xs font-extrabold text-gray-900">Operasional</span>
+                                        </div>
+                                        <span class="text-[10px] text-gray-500 mt-1.5 leading-tight">Staf operasional toko</span>
+                                    </label>
+
+                                    <!-- Role Magang Card -->
+                                    <label class="relative flex flex-col p-3 rounded-2xl border-2 cursor-pointer transition-all {{ $role_name === 'Magang' ? 'border-indigo-500 bg-indigo-50/70 shadow-xs' : 'border-gray-200 hover:border-gray-300 bg-white' }}">
+                                        <input type="radio" wire:model.live="role_name" value="Magang" class="sr-only">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>
+                                            </span>
+                                            <span class="text-xs font-extrabold text-gray-900">Magang</span>
+                                        </div>
+                                        <span class="text-[10px] text-gray-500 mt-1.5 leading-tight">Staf PKL / magang</span>
                                     </label>
                                 </div>
+                                @error('role_name') <span class="text-[11px] text-rose-500 font-bold block">{{ $message }}</span> @enderror
                             </div>
 
                             <!-- Assignment Cabang -->
                             @if($role_name === 'Owner')
-                                <div class="p-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center space-x-2">
-                                    <svg class="w-4 h-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <span>Akun <strong>Owner</strong> memiliki akses lintas cabang secara global (HQ).</span>
+                                <div class="p-3.5 rounded-2xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center space-x-3 shadow-xs">
+                                    <svg class="w-5 h-5 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span>Akun <strong>Owner</strong> memiliki akses lintas cabang secara global (Kantor Pusat / HQ).</span>
                                 </div>
                             @elseif($isOwner)
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Pilih Cabang Penugasan <span class="text-rose-500">*</span>
+                                    <label class="block text-xs font-extrabold text-gray-800 uppercase tracking-wider mb-1.5">
+                                        Pilih Cabang Penugasan <span class="text-rose-500 font-bold">*</span>
                                     </label>
                                     <select wire:model="cabang_id"
                                             class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('cabang_id') border-rose-500 @enderror">
-                                        <option value="">-- Pilih Cabang --</option>
+                                        <option value="">-- Pilih Cabang Penugasan --</option>
                                         @foreach($cabangs as $c)
                                             <option value="{{ $c->id }}">{{ $c->nama_cabang }} ({{ $c->kode_cabang }})</option>
                                         @endforeach
@@ -406,165 +445,178 @@
                                 </div>
                             @endif
 
-                            <!-- Upload Foto Profil User & Live Preview -->
-                            <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80">
-                                <div class="flex items-center justify-between mb-2">
-                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                        Foto Profil (Opsional)
-                                    </label>
-                                    <span class="text-[10px] font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
-                                        WebP Otomatis (&le;40 KB)
-                                    </span>
-                                </div>
+                            <!-- Section 2: Identitas & Foto Profil -->
+                            <div class="pt-4 border-t border-gray-100 space-y-4">
+                                <p class="text-xs font-extrabold text-gray-800 uppercase tracking-wider">Identitas Pengguna</p>
 
-                                <!-- Upload Foto Loading State -->
-                                <x-photo-upload-loading target="foto" color="purple" />
-
-                                <div wire:loading.remove wire:target="foto">
-                                    @if($foto)
-                                        <div class="p-3.5 bg-white rounded-2xl border-2 border-[#5E17EB]/30 shadow-xs flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-                                            <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-gray-100 border border-purple-200 shrink-0 shadow-inner group">
-                                                <img src="{{ $foto->temporaryUrl() }}" alt="Preview Foto Baru" class="w-full h-full object-cover">
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="flex items-center space-x-2">
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                                        Foto Profil Baru Terpilih
-                                                    </span>
-                                                    <span class="text-[10px] text-gray-400 font-mono">
-                                                        {{ round($foto->getSize() / 1024, 1) }} KB
-                                                    </span>
-                                                </div>
-                                                <p class="text-xs font-bold text-gray-900 truncate mt-1">
-                                                    {{ $foto->getClientOriginalName() }}
-                                                </p>
-                                                <div class="mt-2 flex items-center space-x-2">
-                                                    <button type="button"
-                                                            wire:click="cancelUploadFoto"
-                                                            class="text-[11px] font-bold text-rose-600 hover:text-rose-800 hover:underline cursor-pointer">
-                                                        Batal / Pilih Ulang
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @elseif($existing_foto_url)
-                                        <div class="p-3.5 bg-white rounded-2xl border border-gray-200 shadow-xs flex items-center space-x-4">
-                                            <div class="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
-                                                <img src="{{ asset($existing_foto_url) }}" alt="Foto Saat Ini" class="w-full h-full object-cover">
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700">
-                                                    Foto Profil Tersimpan
-                                                </span>
-                                                <div class="mt-1 flex items-center space-x-3">
-                                                    <label class="text-[11px] font-bold text-purple-600 hover:text-purple-800 hover:underline cursor-pointer">
-                                                        Ganti Foto
-                                                        <input type="file" wire:model="foto" accept="image/*" class="sr-only">
-                                                    </label>
-                                                    <button type="button"
-                                                            wire:click="removeExistingFoto"
-                                                            class="text-[11px] font-bold text-rose-600 hover:text-rose-800 hover:underline cursor-pointer">
-                                                        Hapus Foto
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <label class="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 hover:border-purple-400 rounded-2xl cursor-pointer bg-white transition-all group">
-                                            <svg class="w-8 h-8 text-gray-400 group-hover:text-purple-500 transition-colors mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                            <span class="text-xs font-bold text-gray-700 group-hover:text-purple-600">Klik untuk upload foto profil</span>
-                                            <span class="text-[10px] text-gray-400">JPG, PNG, WEBP hingga 4MB</span>
-                                            <input type="file" wire:model="foto" accept="image/*" class="sr-only">
+                                <!-- Upload Foto Profil User & Live Preview -->
+                                <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80">
+                                    <div class="flex items-center justify-between mb-2.5">
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                            Foto Profil (Opsional)
                                         </label>
-                                    @endif
+                                        <span class="text-[10px] font-bold text-purple-700 bg-purple-100/80 px-2 py-0.5 rounded-full border border-purple-200">
+                                            WebP Otomatis (&le;40 KB)
+                                        </span>
+                                    </div>
+
+                                    <!-- Upload Foto Loading State -->
+                                    <x-photo-upload-loading target="foto" color="purple" />
+
+                                    <div wire:loading.remove wire:target="foto">
+                                        @if($foto)
+                                            <div class="p-3.5 bg-white rounded-2xl border-2 border-[#5E17EB]/40 shadow-xs flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                                                <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-gray-100 border border-purple-200 shrink-0 shadow-inner">
+                                                    <img src="{{ $foto->temporaryUrl() }}" alt="Preview Foto Baru" class="w-full h-full object-cover">
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="flex items-center space-x-2">
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                            Foto Baru Terpilih
+                                                        </span>
+                                                        <span class="text-[10px] text-gray-400 font-mono">
+                                                            {{ round($foto->getSize() / 1024, 1) }} KB
+                                                        </span>
+                                                    </div>
+                                                    <p class="text-xs font-bold text-gray-900 truncate mt-1">
+                                                        {{ $foto->getClientOriginalName() }}
+                                                    </p>
+                                                    <div class="mt-2 flex items-center space-x-2">
+                                                        <button type="button"
+                                                                wire:click="cancelUploadFoto"
+                                                                class="text-[11px] font-bold text-rose-600 hover:text-rose-800 hover:underline cursor-pointer">
+                                                            Batal / Pilih Ulang
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @elseif($existing_foto_url)
+                                            <div class="p-3.5 bg-white rounded-2xl border border-gray-200 shadow-xs flex items-center space-x-4">
+                                                <div class="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+                                                    <img src="{{ asset($existing_foto_url) }}" alt="Foto Saat Ini" class="w-full h-full object-cover">
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700 border border-gray-200">
+                                                        Foto Profil Tersimpan
+                                                    </span>
+                                                    <div class="mt-1.5 flex items-center space-x-3">
+                                                        <label class="text-[11px] font-bold text-purple-600 hover:text-purple-800 hover:underline cursor-pointer">
+                                                            Ganti Foto
+                                                            <input type="file" wire:model="foto" accept="image/*" class="sr-only">
+                                                        </label>
+                                                        <button type="button"
+                                                                wire:click="removeExistingFoto"
+                                                                class="text-[11px] font-bold text-rose-600 hover:text-rose-800 hover:underline cursor-pointer">
+                                                            Hapus Foto
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <label class="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 hover:border-purple-400 rounded-2xl cursor-pointer bg-white transition-all group">
+                                                <svg class="w-8 h-8 text-gray-400 group-hover:text-purple-500 transition-colors mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                <span class="text-xs font-bold text-gray-700 group-hover:text-purple-600">Klik untuk upload foto profil</span>
+                                                <span class="text-[10px] text-gray-400">JPG, PNG, WEBP hingga 4MB</span>
+                                                <input type="file" wire:model="foto" accept="image/*" class="sr-only">
+                                            </label>
+                                        @endif
+                                    </div>
+                                    @error('foto') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
-                                @error('foto') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+
+                                <!-- Input Nama Lengkap & No WhatsApp -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            Nama Lengkap <span class="text-rose-500 font-bold">*</span>
+                                        </label>
+                                        <input type="text"
+                                               wire:model="name"
+                                               class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 {{ $isOwner ? 'focus:ring-[#5E17EB] focus:border-[#5E17EB]' : 'focus:ring-[#0052FF] focus:border-[#0052FF]' }} @error('name') border-rose-500 @enderror">
+                                        @error('name') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            No. WhatsApp / HP
+                                        </label>
+                                        <input type="text"
+                                               wire:model="no_hp"
+                                               class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 {{ $isOwner ? 'focus:ring-[#5E17EB] focus:border-[#5E17EB]' : 'focus:ring-[#0052FF] focus:border-[#0052FF]' }} @error('no_hp') border-rose-500 @enderror">
+                                        @error('no_hp') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Input Nama Lengkap -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Nama Lengkap <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="text"
-                                       wire:model="name"
-                                       class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('name') border-rose-500 @enderror">
-                                @error('name') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-                            </div>
+                            <!-- Section 3: Kredensial Login & Status Akun -->
+                            <div class="pt-4 border-t border-gray-100 space-y-4">
+                                <p class="text-xs font-extrabold text-gray-800 uppercase tracking-wider">Kredensial Login & Akses</p>
 
-                            <!-- Input Username & Email -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Username Login <span class="text-rose-500">*</span>
-                                    </label>
-                                    <input type="text"
-                                           wire:model="username"
-                                           class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('username') border-rose-500 @enderror">
-                                    @error('username') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                <!-- Input Username & Email -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            Username Login <span class="text-rose-500 font-bold">*</span>
+                                        </label>
+                                        <input type="text"
+                                               wire:model="username"
+                                               class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 {{ $isOwner ? 'focus:ring-[#5E17EB] focus:border-[#5E17EB]' : 'focus:ring-[#0052FF] focus:border-[#0052FF]' }} @error('username') border-rose-500 @enderror">
+                                        @error('username') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            Alamat Email <span class="text-rose-500 font-bold">*</span>
+                                        </label>
+                                        <input type="email"
+                                               wire:model="email"
+                                               class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 {{ $isOwner ? 'focus:ring-[#5E17EB] focus:border-[#5E17EB]' : 'focus:ring-[#0052FF] focus:border-[#0052FF]' }} @error('email') border-rose-500 @enderror">
+                                        @error('email') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    </div>
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Alamat Email <span class="text-rose-500">*</span>
-                                    </label>
-                                    <input type="email"
-                                           wire:model="email"
-                                           class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('email') border-rose-500 @enderror">
-                                    @error('email') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-                                </div>
-                            </div>
 
-                            <!-- Input Password & No HP -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Password @if(!$isEditMode)<span class="text-rose-500">*</span>@endif
-                                    </label>
-                                    <input type="password"
-                                           wire:model="password"
-                                           class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('password') border-rose-500 @enderror">
-                                    @error('password') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                <!-- Input Password & Status Akun -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            Password @if(!$isEditMode)<span class="text-rose-500 font-bold">*</span>@else<span class="text-[10px] text-gray-400 font-normal lowercase">(kosongkan jika tidak diubah)</span>@endif
+                                        </label>
+                                        <input type="password"
+                                               wire:model="password"
+                                               class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 {{ $isOwner ? 'focus:ring-[#5E17EB] focus:border-[#5E17EB]' : 'focus:ring-[#0052FF] focus:border-[#0052FF]' }} @error('password') border-rose-500 @enderror">
+                                        @error('password') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            Status Akun <span class="text-rose-500 font-bold">*</span>
+                                        </label>
+                                        <select wire:model="status"
+                                                class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 {{ $isOwner ? 'focus:ring-[#5E17EB] focus:border-[#5E17EB]' : 'focus:ring-[#0052FF] focus:border-[#0052FF]' }}">
+                                            <option value="aktif">Aktif (Dapat Login)</option>
+                                            <option value="nonaktif">Non-Aktif (Diblokir)</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        No. WhatsApp / HP
-                                    </label>
-                                    <input type="text"
-                                           wire:model="no_hp"
-                                           class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('no_hp') border-rose-500 @enderror">
-                                    @error('no_hp') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-                                </div>
-                            </div>
-
-                            <!-- Input Status Akun -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Status Akun <span class="text-rose-500">*</span>
-                                </label>
-                                <select wire:model="status"
-                                        class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]">
-                                    <option value="aktif">Aktif (Dapat Login)</option>
-                                    <option value="nonaktif">Non-Aktif (Diblokir)</option>
-                                </select>
                             </div>
 
                         </div>
 
                         <!-- Footer Modal -->
-                        <div class="bg-gray-50 px-6 py-4 rounded-b-3xl border-t border-gray-100 flex items-center justify-end space-x-3">
+                        <div class="bg-gray-50 px-6 sm:px-7 py-4 rounded-b-3xl border-t border-gray-100 flex items-center justify-end space-x-3">
                             <button type="button"
                                     wire:click="closeModal"
-                                    class="px-4 py-2 text-xs font-bold text-gray-600 hover:text-gray-800 rounded-xl hover:bg-gray-200/60 transition-colors cursor-pointer">
+                                    class="px-4 py-2.5 text-xs font-bold text-gray-600 hover:text-gray-800 rounded-xl hover:bg-gray-200/60 transition-colors cursor-pointer">
                                 Batal
                             </button>
                             <button type="submit"
                                     wire:loading.attr="disabled"
-                                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl {{ $isOwner ? 'bg-[#5E17EB] hover:bg-purple-700 shadow-purple-900/30' : 'bg-[#0052FF] hover:bg-blue-700 shadow-blue-900/30' }} disabled:opacity-50 text-white font-bold text-xs shadow-md transition-all cursor-pointer">
+                                    wire:target="save, foto"
+                                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl {{ $isOwner ? 'bg-[#5E17EB] hover:bg-purple-700 shadow-purple-900/30' : 'bg-[#0052FF] hover:bg-blue-700 shadow-blue-900/30' }} disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs shadow-md transition-all cursor-pointer">
                                 <svg wire:loading wire:target="save, foto" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                 </svg>
-                                <span>{{ $isEditMode ? 'Simpan Perubahan' : 'Buat Akun' }}</span>
+                                <span wire:loading.remove wire:target="save, foto">{{ $isEditMode ? 'Simpan Perubahan' : 'Buat Akun' }}</span>
+                                <span wire:loading wire:target="save, foto">Menyimpan...</span>
                             </button>
                         </div>
                     </form>

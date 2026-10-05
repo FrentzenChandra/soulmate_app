@@ -22,6 +22,8 @@ class RoleAndUserSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => 'Admin']);
         $bendaharaRole = Role::firstOrCreate(['name' => 'Bendahara']);
         $kasirRole = Role::firstOrCreate(['name' => 'Kasir']);
+        $magangRole = Role::firstOrCreate(['name' => 'Magang']);
+        $operasionalRole = Role::firstOrCreate(['name' => 'Operasional']);
 
         $cabangPkp = Cabang::where('kode_cabang', 'CB-PKP')->first();
         $cabangSgl = Cabang::where('kode_cabang', 'CB-SGL')->first();
@@ -198,6 +200,84 @@ class RoleAndUserSeeder extends Seeder
         foreach ($bendaharaUsers as $data) {
             $user = User::withTrashed()->updateOrCreate(['email' => $data['email']], $data);
             $user->syncRoles([$bendaharaRole]);
+        }
+
+        // 7. Akun Operasional per Cabang
+        $operasionalUsers = [
+            [
+                'name' => 'Rizky Operasional PKP',
+                'email' => 'operasional.pkp@soulmate.test',
+                'username' => 'operasional_pkp',
+                'password' => Hash::make('password'),
+                'cabang_id' => $cabangPkp?->id,
+                'no_hp' => '08127444001',
+                'status' => 'aktif',
+                'deleted_at' => null,
+            ],
+            [
+                'name' => 'Fajar Operasional SGL',
+                'email' => 'operasional.sgl@soulmate.test',
+                'username' => 'operasional_sgl',
+                'password' => Hash::make('password'),
+                'cabang_id' => $cabangSgl?->id,
+                'no_hp' => '08127444002',
+                'status' => 'aktif',
+                'deleted_at' => null,
+            ],
+            [
+                'name' => 'Bayu Operasional KBA',
+                'email' => 'operasional.kba@soulmate.test',
+                'username' => 'operasional_kba',
+                'password' => Hash::make('password'),
+                'cabang_id' => $cabangKba?->id,
+                'no_hp' => '08127444003',
+                'status' => 'aktif',
+                'deleted_at' => null,
+            ],
+        ];
+
+        foreach ($operasionalUsers as $data) {
+            $user = User::withTrashed()->updateOrCreate(['email' => $data['email']], $data);
+            $user->syncRoles([$operasionalRole]);
+        }
+
+        // 8. Akun Magang (Staf PKL) per Cabang
+        $magangUsers = [
+            [
+                'name' => 'Dimas Magang PKP',
+                'email' => 'magang.pkp@soulmate.test',
+                'username' => 'magang_pkp',
+                'password' => Hash::make('password'),
+                'cabang_id' => $cabangPkp?->id,
+                'no_hp' => '08127555001',
+                'status' => 'aktif',
+                'deleted_at' => null,
+            ],
+            [
+                'name' => 'Kevin Magang SGL',
+                'email' => 'magang.sgl@soulmate.test',
+                'username' => 'magang_sgl',
+                'password' => Hash::make('password'),
+                'cabang_id' => $cabangSgl?->id,
+                'no_hp' => '08127555002',
+                'status' => 'aktif',
+                'deleted_at' => null,
+            ],
+            [
+                'name' => 'Aldi Magang KBA',
+                'email' => 'magang.kba@soulmate.test',
+                'username' => 'magang_kba',
+                'password' => Hash::make('password'),
+                'cabang_id' => $cabangKba?->id,
+                'no_hp' => '08127555003',
+                'status' => 'aktif',
+                'deleted_at' => null,
+            ],
+        ];
+
+        foreach ($magangUsers as $data) {
+            $user = User::withTrashed()->updateOrCreate(['email' => $data['email']], $data);
+            $user->syncRoles([$magangRole]);
         }
     }
 }

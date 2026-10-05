@@ -114,6 +114,16 @@ class User extends Authenticatable
         return $this->hasRole('Admin') || $this->hasRole('Kasir');
     }
 
+    public function isMagang(): bool
+    {
+        return $this->hasRole('Magang');
+    }
+
+    public function isOperasional(): bool
+    {
+        return $this->hasRole('Operasional');
+    }
+
     public function getProfilePhotoUrlAttribute(): string
     {
         if ($this->profile_photo_path) {

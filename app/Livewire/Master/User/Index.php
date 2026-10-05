@@ -135,6 +135,7 @@ class Index extends Component
         // RBAC Check for Superadmin
         if (! $currentUser->isOwner()) {
             if ($user->isOwner() || (int) $user->cabang_id !== (int) $currentUser->cabang_id) {
+                $this->dispatch('swal:error', ['title' => 'Akses Ditolak', 'text' => 'Anda tidak memiliki otoritas untuk mengelola akun pengguna ini.']);
                 session()->flash('error', 'Anda tidak memiliki otoritas untuk mengelola akun pengguna ini.');
 
                 return;
@@ -232,8 +233,8 @@ class Index extends Component
     {
         $currentUser = Auth::user();
         $allowedRoles = $currentUser->isOwner()
-            ? ['Owner', 'Superadmin', 'Teknisi', 'Bendahara', 'Admin', 'Kasir']
-            : ['Superadmin', 'Teknisi', 'Bendahara', 'Admin', 'Kasir'];
+            ? ['Owner', 'Superadmin', 'Teknisi', 'Bendahara', 'Admin', 'Kasir', 'Magang', 'Operasional']
+            : ['Superadmin', 'Teknisi', 'Bendahara', 'Admin', 'Kasir', 'Magang', 'Operasional'];
 
         $rules = [
             'name' => 'required|string|max:255',
@@ -297,6 +298,7 @@ class Index extends Component
             // RBAC Check for edit
             if (! $currentUser->isOwner()) {
                 if ($user->isOwner() || (int) $user->cabang_id !== (int) $currentUser->cabang_id) {
+                    $this->dispatch('swal:error', ['title' => 'Akses Ditolak', 'text' => 'Anda tidak memiliki otoritas untuk memperbarui akun ini.']);
                     session()->flash('error', 'Anda tidak memiliki otoritas untuk memperbarui akun ini.');
 
                     return;
@@ -305,6 +307,7 @@ class Index extends Component
 
             // Proteksi agar tidak menonaktifkan akun sendiri
             if ($user->id === Auth::id() && $validated['status'] === 'nonaktif') {
+                $this->dispatch('swal:warning', ['title' => 'Peringatan', 'text' => 'Anda tidak dapat menonaktifkan akun yang sedang Anda gunakan.']);
                 session()->flash('error', 'Anda tidak dapat menonaktifkan akun yang sedang Anda gunakan.');
 
                 return;
@@ -343,6 +346,7 @@ class Index extends Component
             $role = Role::firstOrCreate(['name' => $this->role_name]);
             $user->syncRoles([$role]);
 
+            $this->dispatch('swal:success', ['title' => 'Berhasil!', 'text' => "Akun pengguna {$user->name} berhasil diperbarui."]);
             session()->flash('success', "Akun pengguna {$user->name} berhasil diperbarui.");
         } else {
             $userData = [
@@ -360,6 +364,7 @@ class Index extends Component
             $role = Role::firstOrCreate(['name' => $this->role_name]);
             $newUser->syncRoles([$role]);
 
+            $this->dispatch('swal:success', ['title' => 'Berhasil!', 'text' => "Akun {$this->role_name} baru atas nama {$newUser->name} berhasil dibuat."]);
             session()->flash('success', "Akun {$this->role_name} baru atas nama {$newUser->name} berhasil dibuat.");
         }
 
@@ -374,6 +379,7 @@ class Index extends Component
         // RBAC check
         if (! $currentUser->isOwner()) {
             if ($user->isOwner() || (int) $user->cabang_id !== (int) $currentUser->cabang_id) {
+                $this->dispatch('swal:error', ['title' => 'Akses Ditolak', 'text' => 'Anda tidak memiliki otoritas untuk mengubah status akun ini.']);
                 session()->flash('error', 'Anda tidak memiliki otoritas untuk mengubah status akun ini.');
 
                 return;
@@ -382,6 +388,7 @@ class Index extends Component
 
         // Self-lockout check
         if ($user->id === Auth::id()) {
+            $this->dispatch('swal:warning', ['title' => 'Peringatan', 'text' => 'Anda tidak dapat menonaktifkan akun yang sedang Anda gunakan.']);
             session()->flash('error', 'Anda tidak dapat menonaktifkan akun yang sedang Anda gunakan.');
 
             return;
@@ -391,6 +398,7 @@ class Index extends Component
         if ($user->isOwner() && $user->status === 'aktif') {
             $activeOwnersCount = User::role('Owner')->where('status', 'aktif')->count();
             if ($activeOwnersCount <= 1) {
+                $this->dispatch('swal:error', ['title' => 'Aksi Ditolak', 'text' => 'Minimal harus ada 1 akun Owner yang aktif di sistem.']);
                 session()->flash('error', 'Minimal harus ada 1 akun Owner yang aktif di sistem.');
 
                 return;
@@ -400,6 +408,7 @@ class Index extends Component
         $newStatus = $user->status === 'aktif' ? 'nonaktif' : 'aktif';
         $user->update(['status' => $newStatus]);
 
+        $this->dispatch('swal:success', ['title' => 'Status Diperbarui', 'text' => "Status akun {$user->name} diubah menjadi ".ucfirst($newStatus).'.']);
         session()->flash('success', "Status akun {$user->name} diubah menjadi ".ucfirst($newStatus).'.');
     }
 
@@ -411,6 +420,7 @@ class Index extends Component
         // RBAC check
         if (! $currentUser->isOwner()) {
             if ($user->isOwner() || (int) $user->cabang_id !== (int) $currentUser->cabang_id) {
+                $this->dispatch('swal:error', ['title' => 'Akses Ditolak', 'text' => 'Anda tidak memiliki otoritas untuk menghapus akun ini.']);
                 session()->flash('error', 'Anda tidak memiliki otoritas untuk menghapus akun ini.');
 
                 return;
@@ -419,6 +429,7 @@ class Index extends Component
 
         // Self-lockout check
         if ($user->id === Auth::id()) {
+            $this->dispatch('swal:warning', ['title' => 'Peringatan', 'text' => 'Anda tidak dapat menghapus akun yang sedang Anda gunakan.']);
             session()->flash('error', 'Anda tidak dapat menghapus akun yang sedang Anda gunakan.');
 
             return;
@@ -428,6 +439,7 @@ class Index extends Component
         if ($user->isOwner()) {
             $activeOwnersCount = User::role('Owner')->where('status', 'aktif')->count();
             if ($activeOwnersCount <= 1) {
+                $this->dispatch('swal:error', ['title' => 'Aksi Ditolak', 'text' => 'Minimal harus ada 1 akun Owner di sistem.']);
                 session()->flash('error', 'Minimal harus ada 1 akun Owner di sistem.');
 
                 return;
@@ -437,6 +449,7 @@ class Index extends Component
         $namaUser = $user->name;
         $user->delete();
 
+        $this->dispatch('swal:success', ['title' => 'Dihapus!', 'text' => "Akun pengguna {$namaUser} berhasil dihapus."]);
         session()->flash('success', "Akun pengguna {$namaUser} berhasil dihapus.");
     }
 
@@ -448,9 +461,9 @@ class Index extends Component
         $query = User::with(['cabang', 'roles'])
             ->whereHas('roles', function ($q) use ($isOwner) {
                 if (! $isOwner) {
-                    // Superadmin hanya mengelola Superadmin, Teknisi, Bendahara, Admin (dan Kasir untuk kompatibilitas) di cabangnya
+                    // Superadmin hanya mengelola Superadmin, Teknisi, Bendahara, Admin, Magang, Operasional (dan Kasir untuk kompatibilitas) di cabangnya
                     if ($this->roleFilter === 'semua') {
-                        $q->whereIn('name', ['Superadmin', 'Teknisi', 'Bendahara', 'Admin', 'Kasir']);
+                        $q->whereIn('name', ['Superadmin', 'Teknisi', 'Bendahara', 'Admin', 'Kasir', 'Magang', 'Operasional']);
                     } else {
                         if ($this->roleFilter === 'Admin') {
                             $q->whereIn('name', ['Admin', 'Kasir']);
