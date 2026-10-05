@@ -126,7 +126,7 @@
         <div class="grid grid-cols-2 gap-x-6 gap-y-3 pt-1 text-xs">
 
             <!-- Row 1: Nama Barang / Unit & Keluhan -->
-            <div class="border-b border border-gray-700 pb-2">
+            <div class="border-b border-solid border-gray-700 pb-2">
                 <span class="text-[11px] font-bold text-gray-700 uppercase block leading-none">Unit Perangkat :</span>
                 <span class="text-[13px] font-bold text-gray-900 mt-1 block">
                     {{ $servis->tipe_unit ?? ($servis->kategori_perangkat_label . ' (Tanpa Tipe)') }}
@@ -136,7 +136,7 @@
                 </span>
             </div>
 
-            <div class="border-b border border-gray-700 pb-2">
+            <div class="border-b border-solid border-gray-700 pb-2">
                 <span class="text-[11px] font-bold text-gray-700 uppercase block leading-none">Keluhan Kerusakan :</span>
                 <span class="text-xs font-semibold text-gray-800 mt-1 block whitespace-pre-line leading-relaxed">
                     {{ $servis->keluhan ?: '-' }}
