@@ -42,7 +42,7 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || ! ($user->isOwner() || $user->isSuperadmin() || $user->isAdmin())) {
+        if (! $user || (! $user->isOwner() && ! $user->can('master.settings.view'))) {
             abort(403, 'Akses terbatas untuk pengelolaan sumber dana.');
         }
 

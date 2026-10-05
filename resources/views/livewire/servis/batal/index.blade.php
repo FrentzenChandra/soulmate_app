@@ -300,7 +300,7 @@
                                     @endcan
 
                                     <!-- Aksi 3: Cetak Tanda Terima / Bukti Batal -->
-                                    @can('servis.batal.cetak_nota')
+                                    @can('servis.batal.print')
                                     <button type="button"
                                             onclick="window.printDocument('{{ route('servis.tanda-terima', $item->id) }}')"
                                             class="p-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#5E17EB] transition-colors cursor-pointer"

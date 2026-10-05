@@ -42,6 +42,11 @@ class Index extends Component
 
     public function mount(): void
     {
+        $user = Auth::user();
+        if (! $user || (! $user->isOwner() && ! $user->can('master.settings.view'))) {
+            abort(403, 'Akses terbatas untuk pengelolaan kategori produk.');
+        }
+
         $this->sortField = 'nama_kategori';
         $this->sortDirection = 'asc';
     }

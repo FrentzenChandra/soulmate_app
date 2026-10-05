@@ -69,7 +69,7 @@ class Index extends Component
     public function mount()
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->can('master.user.view'))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('master.users.view'))) {
             abort(403, 'Anda tidak memiliki akses ke halaman manajemen pengguna.');
         }
 
@@ -110,7 +110,7 @@ class Index extends Component
     public function openCreateModal()
     {
         $currentUser = Auth::user();
-        abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.user.create'), 403, 'Akses tambah pengguna dibatasi.');
+        abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.users.create'), 403, 'Akses tambah pengguna dibatasi.');
 
         $this->resetValidation();
         $this->reset(['userId', 'name', 'email', 'username', 'password', 'no_hp', 'foto', 'existing_foto_url']);
@@ -131,7 +131,7 @@ class Index extends Component
     public function openEditModal(int $id)
     {
         $currentUser = Auth::user();
-        abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.user.edit'), 403, 'Akses edit pengguna dibatasi.');
+        abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.users.edit'), 403, 'Akses edit pengguna dibatasi.');
 
         $this->resetValidation();
         $user = User::with('roles')->findOrFail($id);
@@ -237,9 +237,9 @@ class Index extends Component
     {
         $currentUser = Auth::user();
         if ($this->isEditMode) {
-            abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.user.edit'), 403, 'Akses edit pengguna dibatasi.');
+            abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.users.edit'), 403, 'Akses edit pengguna dibatasi.');
         } else {
-            abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.user.create'), 403, 'Akses tambah pengguna dibatasi.');
+            abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.users.create'), 403, 'Akses tambah pengguna dibatasi.');
         }
 
         $allowedRoles = $currentUser->isOwner()
@@ -384,7 +384,7 @@ class Index extends Component
     public function toggleStatus(int $id)
     {
         $currentUser = Auth::user();
-        abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.user.edit'), 403, 'Akses edit pengguna dibatasi.');
+        abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.users.edit'), 403, 'Akses edit pengguna dibatasi.');
 
         $user = User::findOrFail($id);
 
@@ -427,7 +427,7 @@ class Index extends Component
     public function deleteUser(int $id): void
     {
         $currentUser = Auth::user();
-        abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.user.delete'), 403, 'Akses hapus pengguna dibatasi.');
+        abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.users.delete'), 403, 'Akses hapus pengguna dibatasi.');
 
         $user = User::findOrFail($id);
 

@@ -80,7 +80,7 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin') && ! $user->hasRole('Kasir'))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('serial_number.view'))) {
             abort(403, 'Akses menu Serial Number dibatasi.');
         }
 

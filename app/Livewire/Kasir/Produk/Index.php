@@ -94,6 +94,11 @@ class Index extends Component
 
     public function mount()
     {
+        $user = Auth::user();
+        if (! $user || (! $user->isOwner() && ! $user->can('kasir.produk.view'))) {
+            abort(403, 'Akses modul Kasir POS dibatasi.');
+        }
+
         $defaultPpn = MasterPpn::where('is_aktif', true)->where('persen', 0)->first()
                    ?? MasterPpn::where('is_aktif', true)->orderBy('persen', 'asc')->first();
         $this->selectedPpnId = $defaultPpn?->id;

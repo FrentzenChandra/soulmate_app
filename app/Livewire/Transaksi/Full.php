@@ -94,7 +94,7 @@ class Full extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin'))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('transaksi.full.view'))) {
             abort(403, 'Akses modul Transaksi FULL dibatasi.');
         }
 

@@ -85,7 +85,7 @@ class Harian extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin') && ! $user->hasRole('Teknisi') && ! $user->hasRole('Kasir'))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('transaksi.harian.view'))) {
             abort(403, 'Akses modul Transaksi Harian dibatasi.');
         }
 

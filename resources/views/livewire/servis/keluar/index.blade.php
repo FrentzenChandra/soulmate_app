@@ -331,7 +331,7 @@
                                     @endcan
 
                                     <!-- Aksi 3: Cetak Faktur Nota -->
-                                    @can('servis.keluar.cetak_nota')
+                                    @can('servis.keluar.print')
                                     <button type="button"
                                             onclick="window.printDocument('{{ route('servis.invoice', $item->id) }}')"
                                             class="p-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#5E17EB] transition-colors cursor-pointer"

@@ -41,6 +41,11 @@ class Index extends Component
 
     public function mount(): void
     {
+        $user = Auth::user();
+        if (! $user || (! $user->isOwner() && ! $user->can('saldo.view'))) {
+            abort(403, 'Akses modul Saldo dibatasi.');
+        }
+
         // Auto-seed default categories if empty
         if (SumberSaldo::count() === 0) {
             SumberSaldo::create(['nama' => 'PRIBADI', 'deskripsi' => 'Rekening Tabungan & Pribadi']);

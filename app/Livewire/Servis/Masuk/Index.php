@@ -113,7 +113,7 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin') && ! $user->hasRole('Teknisi') && ! $user->hasRole('Kasir'))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('servis.masuk.view'))) {
             abort(403, 'Akses modul Servis Masuk dibatasi.');
         }
 
@@ -165,6 +165,8 @@ class Index extends Component
 
     public function openCreateModal(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.masuk.create'), 403, 'Akses tambah servis dibatasi.');
+
         $this->resetCreateForm();
         $this->modalCreateOpen = true;
     }
@@ -220,6 +222,8 @@ class Index extends Component
 
     public function simpanServisMasuk(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.masuk.create'), 403, 'Akses tambah servis dibatasi.');
+
         $user = Auth::user();
         $isOwner = $user->isOwner();
         $activeBranchSession = session('active_branch_id', 'hq');
@@ -360,6 +364,8 @@ class Index extends Component
 
     public function openDetailModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.masuk.detail'), 403, 'Akses detail servis dibatasi.');
+
         $this->selectedServis = ServisMasuk::with(['customer', 'cabang', 'pembuat', 'statusLogs.user', 'details.produk', 'details.masterServis'])->findOrFail($id);
         $this->modalDetailOpen = true;
     }
@@ -372,6 +378,8 @@ class Index extends Component
 
     public function openEditModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.masuk.edit'), 403, 'Akses edit servis dibatasi.');
+
         $servis = ServisMasuk::findOrFail($id);
         $this->editServisId = $servis->id;
         $this->editTipeUnit = $servis->tipe_unit;
@@ -396,6 +404,8 @@ class Index extends Component
 
     public function simpanEditServis(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.masuk.edit'), 403, 'Akses edit servis dibatasi.');
+
         if (! $this->editServisId) return;
 
         $this->validate([
@@ -428,6 +438,8 @@ class Index extends Component
 
     public function openCatatanTeknisiModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.masuk.tindakan'), 403, 'Akses catatan teknisi dibatasi.');
+
         $servis = ServisMasuk::findOrFail($id);
         $this->catatanServisId = $servis->id;
         $this->catatanTeknisiText = $servis->catatan ?? '';
@@ -444,6 +456,8 @@ class Index extends Component
 
     public function simpanCatatanTeknisi(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.masuk.tindakan'), 403, 'Akses catatan teknisi dibatasi.');
+
         if (! $this->catatanServisId) return;
 
         $servis = ServisMasuk::findOrFail($this->catatanServisId);
@@ -465,6 +479,8 @@ class Index extends Component
 
     public function openDeleteModal(int $id, string $kode): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.masuk.delete'), 403, 'Akses hapus servis dibatasi.');
+
         $this->deleteServisId = $id;
         $this->deleteServisKode = $kode;
         $this->modalDetailOpen = false;
@@ -480,6 +496,8 @@ class Index extends Component
 
     public function konfirmasiHapusServis(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.masuk.delete'), 403, 'Akses hapus servis dibatasi.');
+
         if (! $this->deleteServisId) return;
 
         $servis = ServisMasuk::with('details')->findOrFail($this->deleteServisId);
@@ -515,6 +533,8 @@ class Index extends Component
 
     public function openStatusModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.masuk.status'), 403, 'Akses ubah status servis dibatasi.');
+
         $this->servisToUpdate = ServisMasuk::findOrFail($id);
         $this->updateStatus = $this->servisToUpdate->status;
         $this->updateCatatan = '';
@@ -530,6 +550,8 @@ class Index extends Component
 
     public function simpanUpdateStatus(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.masuk.status'), 403, 'Akses ubah status servis dibatasi.');
+
         if (! $this->servisToUpdate) return;
 
         $this->validate([
@@ -599,6 +621,8 @@ class Index extends Component
 
     public function openTindakanModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.masuk.tindakan'), 403, 'Akses tindakan servis dibatasi.');
+
         $this->activeServisId = $id;
         $this->activeServis = ServisMasuk::with(['details.masterServis', 'details.produk', 'customer', 'cabang'])->findOrFail($id);
         $this->itemType = 'jasa';

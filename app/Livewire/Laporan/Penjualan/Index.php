@@ -57,8 +57,8 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin') && ! $user->hasRole('Kasir'))) {
-            abort(403, 'Akses dibatasi.');
+        if (! $user || (! $user->isOwner() && ! $user->can('laporan.penjualan.view'))) {
+            abort(403, 'Akses laporan penjualan dibatasi.');
         }
 
         if (request()->has('tipeTransaksiFilter') && in_array(request('tipeTransaksiFilter'), ['real', 'non_real', 'semua'])) {
