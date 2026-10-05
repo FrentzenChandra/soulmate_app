@@ -204,6 +204,9 @@ class Harian extends Component
 
     public function openCreateModal(): void
     {
+        $user = Auth::user();
+        abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.harian.create')), 403, 'Akses input transaksi dibatasi.');
+
         $this->resetForm();
         $this->transaksiId = null;
         $this->formTanggal = now()->format('Y-m-d\TH:i');
@@ -233,6 +236,9 @@ class Harian extends Component
 
     public function openEditModal(int $id): void
     {
+        $user = Auth::user();
+        abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.harian.edit')), 403, 'Akses edit transaksi dibatasi.');
+
         $transaksi = TransaksiFull::with(['details', 'customer'])->findOrFail($id);
         $this->resetForm();
 
@@ -512,6 +518,12 @@ class Harian extends Component
         ]);
 
         $user = Auth::user();
+        if ($this->transaksiId) {
+            abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.harian.edit')), 403, 'Akses edit transaksi dibatasi.');
+        } else {
+            abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.harian.create')), 403, 'Akses input transaksi dibatasi.');
+        }
+
         $isOwner = $user->isOwner();
         $activeBranchSession = session('active_branch_id', 'hq');
         $cabangId = $isOwner && $activeBranchSession !== 'hq' ? (int) $activeBranchSession : ($user->cabang_id ?: 1);
@@ -648,6 +660,9 @@ class Harian extends Component
 
     public function updateStatusDirect(int $id, string $newStatus): void
     {
+        $user = Auth::user();
+        abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.harian.edit')), 403, 'Akses ubah status transaksi dibatasi.');
+
         $statusNormalized = strtolower($newStatus) === 'bon' ? 'Bon' : 'Lunas';
         $transaksi = TransaksiFull::find($id);
         if ($transaksi) {
@@ -671,6 +686,9 @@ class Harian extends Component
 
     public function updateMetodeDirect(int $id, ?int $metodeId): void
     {
+        $user = Auth::user();
+        abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.harian.edit')), 403, 'Akses ubah metode pembayaran dibatasi.');
+
         $transaksi = TransaksiFull::find($id);
         if ($transaksi) {
             $metode = $metodeId ? MetodePembayaran::find($metodeId) : null;
@@ -695,6 +713,9 @@ class Harian extends Component
 
     public function confirmDelete(int $id, string $code): void
     {
+        $user = Auth::user();
+        abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.harian.delete')), 403, 'Akses hapus transaksi dibatasi.');
+
         $this->deleteId = $id;
         $this->deleteCode = $code;
         $this->modalDeleteOpen = true;
@@ -702,6 +723,9 @@ class Harian extends Component
 
     public function deleteTransaksi(): void
     {
+        $user = Auth::user();
+        abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.harian.delete')), 403, 'Akses hapus transaksi dibatasi.');
+
         if (! $this->deleteId) return;
 
         $transaksi = TransaksiFull::find($this->deleteId);

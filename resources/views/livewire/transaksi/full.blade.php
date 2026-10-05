@@ -18,6 +18,7 @@
             </p>
         </div>
 
+        @can('transaksi.full.create')
         <div class="flex items-center space-x-2">
             <button type="button"
                     wire:click="openCreateModal"
@@ -27,6 +28,7 @@
                 <span>Input Transaksi Baru</span>
             </button>
         </div>
+        @endcan
     </div>
 
     <!-- Alert Flash Message -->
@@ -287,7 +289,10 @@
     <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs"
          x-data="tabulatorTransaksiFullTable({
              tableData: @js($tableData),
-             metodeList: @js($metodeList->map(fn($m) => ['id' => $m->id, 'nama' => $m->nama]))
+             metodeList: @js($metodeList->map(fn($m) => ['id' => $m->id, 'nama' => $m->nama])),
+             canCreate: @js(auth()->user()->isOwner() || auth()->user()->can('transaksi.full.create')),
+             canEdit: @js(auth()->user()->isOwner() || auth()->user()->can('transaksi.full.edit')),
+             canDelete: @js(auth()->user()->isOwner() || auth()->user()->can('transaksi.full.delete')),
          })"
          x-init="initTable()"
          wire:ignore>
@@ -1352,14 +1357,31 @@ window.tabulatorTransaksiFullTable = function(config) {
                             const id = d.id;
                             const pelunasNama = (d.pelunas_nama || '').trim();
                             const hasPelunas = isLunas && pelunasNama !== '' && pelunasNama !== '-';
+                            const badgeStyle = isLunas ? 'bg-emerald-50 text-emerald-800 border-emerald-400' : 'bg-rose-50 text-rose-800 border-rose-400';
+
+                            if (config.canEdit) {
+                                return `
+                                    <div class="py-0.2 flex flex-col items-center justify-center min-h-[30px]">
+                                        <select class="w-[54px] py-0 px-0.5 rounded text-[8.5px] font-black border transition-all cursor-pointer text-center focus:ring-1 focus:ring-purple-200 ${badgeStyle}" onchange="window.updateStatusFullDirect(${id}, this.value)">
+                                            <option value="Lunas" ${isLunas ? 'selected' : ''}>Lunas</option>
+                                            <option value="Bon" ${!isLunas ? 'selected' : ''}>Bon</option>
+                                        </select>
+                                        ${hasPelunas ? `
+                                            <div class="text-[7.5px] font-bold leading-tight mt-0.5 truncate max-w-[58px] text-center text-emerald-700" title="Dilunasi oleh: ${pelunasNama}">
+                                                ${pelunasNama}
+                                            </div>
+                                        ` : `
+                                            <div class="text-[7.5px] leading-tight mt-0.5 opacity-0 select-none">-</div>
+                                        `}
+                                    </div>
+                                `;
+                            }
+
                             return `
                                 <div class="py-0.2 flex flex-col items-center justify-center min-h-[30px]">
-                                    <select class="w-[54px] py-0 px-0.5 rounded text-[8.5px] font-black border transition-all cursor-pointer text-center focus:ring-1 focus:ring-purple-200 ${
-                                        isLunas ? 'bg-emerald-50 text-emerald-800 border-emerald-400' : 'bg-rose-50 text-rose-800 border-rose-400'
-                                    }" onchange="window.updateStatusFullDirect(${id}, this.value)">
-                                        <option value="Lunas" ${isLunas ? 'selected' : ''}>Lunas</option>
-                                        <option value="Bon" ${!isLunas ? 'selected' : ''}>Bon</option>
-                                    </select>
+                                    <span class="inline-block w-[54px] py-0.5 px-0.5 rounded text-[8.5px] font-black border text-center ${badgeStyle}">
+                                        ${isLunas ? 'Lunas' : 'Bon'}
+                                    </span>
                                     ${hasPelunas ? `
                                         <div class="text-[7.5px] font-bold leading-tight mt-0.5 truncate max-w-[58px] text-center text-emerald-700" title="Dilunasi oleh: ${pelunasNama}">
                                             ${pelunasNama}
@@ -1396,17 +1418,27 @@ window.tabulatorTransaksiFullTable = function(config) {
                                 colorStyle = 'bg-gray-100 text-gray-500 border-gray-300';
                             }
 
-                            const options = (config.metodeList || []).map(m => {
-                                const selected = (currentId && m.id == currentId) || (m.nama.toLowerCase() === val.toLowerCase()) ? 'selected' : '';
-                                return `<option value="${m.id}" ${selected}>${m.nama}</option>`;
-                            }).join('');
+                            if (config.canEdit) {
+                                const options = (config.metodeList || []).map(m => {
+                                    const selected = (currentId && m.id == currentId) || (m.nama.toLowerCase() === val.toLowerCase()) ? 'selected' : '';
+                                    return `<option value="${m.id}" ${selected}>${m.nama}</option>`;
+                                }).join('');
+
+                                return `
+                                    <div class="py-0.2 flex items-center justify-center">
+                                        <select class="w-[68px] py-0 px-0.5 rounded text-[8.5px] font-bold border transition-all cursor-pointer text-center focus:ring-1 focus:ring-purple-200 ${colorStyle}"
+                                                onchange="window.updateMetodeFullDirect(${id}, parseInt(this.value, 10))">
+                                            ${options}
+                                        </select>
+                                    </div>
+                                `;
+                            }
 
                             return `
                                 <div class="py-0.2 flex items-center justify-center">
-                                    <select class="w-[68px] py-0 px-0.5 rounded text-[8.5px] font-bold border transition-all cursor-pointer text-center focus:ring-1 focus:ring-purple-200 ${colorStyle}"
-                                            onchange="window.updateMetodeFullDirect(${id}, parseInt(this.value, 10))">
-                                        ${options}
-                                    </select>
+                                    <span class="inline-block w-[68px] py-0.5 px-0.5 rounded text-[8.5px] font-bold border text-center ${colorStyle}">
+                                        ${val || '-'}
+                                    </span>
                                 </div>
                             `;
                         }
@@ -1424,17 +1456,26 @@ window.tabulatorTransaksiFullTable = function(config) {
                             const id = cell.getValue();
                             const data = cell.getData();
                             const noTrx = (data.no_transaksi || '').replace(/'/g, "\\'");
+
+                            const editBtn = config.canEdit ? `
+                                <button type="button" onclick="window.editTransaksiFull(${id})" class="p-0.5 rounded bg-blue-50 hover:bg-blue-100 text-[#0052FF] transition-colors cursor-pointer" title="Edit Transaksi">
+                                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </button>
+                            ` : '';
+
+                            const deleteBtn = config.canDelete ? `
+                                <button type="button" onclick="window.deleteTransaksiFullConfirm(${id}, '${noTrx}')" class="p-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer" title="Hapus Transaksi">
+                                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            ` : '';
+
                             return `
                                 <div class="flex items-center justify-center space-x-0.5">
                                     <button type="button" onclick="window.viewTransaksiFullDetail(${id})" class="p-0.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer" title="Lihat Detail Transaksi">
                                         <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </button>
-                                    <button type="button" onclick="window.editTransaksiFull(${id})" class="p-0.5 rounded bg-blue-50 hover:bg-blue-100 text-[#0052FF] transition-colors cursor-pointer" title="Edit Transaksi">
-                                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </button>
-                                    <button type="button" onclick="window.deleteTransaksiFullConfirm(${id}, '${noTrx}')" class="p-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer" title="Hapus Transaksi">
-                                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                    </button>
+                                    ${editBtn}
+                                    ${deleteBtn}
                                 </div>
                             `;
                         }

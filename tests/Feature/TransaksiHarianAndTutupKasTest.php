@@ -230,4 +230,57 @@ class TransaksiHarianAndTutupKasTest extends TestCase
                 return (float) $totalUangCash === ($initialCash + 625000.0);
             });
     }
+
+    public function test_user_without_edit_or_delete_permission_is_blocked_from_mutations()
+    {
+        $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
+        // Give only view permission
+        $admin->syncPermissions(['transaksi.harian.view']);
+        $this->actingAs($admin);
+
+        $transaksi = TransaksiFullModel::create([
+            'cabang_id' => $admin->cabang_id,
+            'user_id' => $admin->id,
+            'nama_pelanggan' => 'Pelanggan Test Perm',
+            'no_transaksi' => 'PJ-PERM-001',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => now(),
+            'metode_pembayaran' => 'Cash',
+            'total_modal' => 10000,
+            'total_jual' => 20000,
+            'grand_total' => 20000,
+            'status' => 'Lunas',
+        ]);
+
+        // Create blocked
+        Livewire::test(TransaksiHarian::class)
+            ->call('openCreateModal')
+            ->assertStatus(403);
+
+        // Edit blocked
+        Livewire::test(TransaksiHarian::class)
+            ->call('openEditModal', $transaksi->id)
+            ->assertStatus(403);
+
+        // Update status blocked
+        Livewire::test(TransaksiHarian::class)
+            ->call('updateStatusDirect', $transaksi->id, 'Bon')
+            ->assertStatus(403);
+
+        // Update metode blocked
+        Livewire::test(TransaksiHarian::class)
+            ->call('updateMetodeDirect', $transaksi->id, 1)
+            ->assertStatus(403);
+
+        // Delete blocked
+        Livewire::test(TransaksiHarian::class)
+            ->call('confirmDelete', $transaksi->id, 'PJ-PERM-001')
+            ->assertStatus(403);
+
+        Livewire::test(TransaksiHarian::class)
+            ->set('deleteId', $transaksi->id)
+            ->call('deleteTransaksi')
+            ->assertStatus(403);
+    }
 }
+
