@@ -12,7 +12,7 @@
             <p class="text-xs sm:text-sm text-gray-500 font-medium">Pengelolaan transaksi servis cepat untuk keperluan administrasi dan pencetakan faktur tanpa memotong stok fisik.</p>
         </div>
 
-        @can('servis.nonreal.create')
+        @can('servis.non_real.create')
         <div class="flex items-center space-x-3">
             <button type="button"
                     wire:click="openCreateModal"
@@ -217,7 +217,7 @@
                             <td class="py-2.5 px-3 text-center whitespace-nowrap">
                                 <div class="flex items-center justify-center space-x-1">
                                     <!-- 1. Cetak Faktur -->
-                                    @can('servis.nonreal.cetak_nota')
+                                    @can('servis.non_real.print')
                                     <button type="button"
                                             onclick="window.printDocument('{{ route('servis.invoice', $item->id) }}')"
                                             title="Cetak Faktur Servis"
@@ -227,7 +227,7 @@
                                     @endcan
 
                                     <!-- 2. Lihat Detail -->
-                                    @can('servis.nonreal.detail')
+                                    @can('servis.non_real.detail')
                                     <button type="button"
                                             wire:click="openDetailModal({{ $item->id }})"
                                             title="Lihat Rincian Detail"
@@ -237,7 +237,7 @@
                                     @endcan
 
                                     <!-- 3. Update Servis Non Real -->
-                                    @can('servis.nonreal.edit')
+                                    @can('servis.non_real.edit')
                                     <button type="button"
                                             wire:click="openEditModal({{ $item->id }})"
                                             title="Edit / Update Servis Non Real"
@@ -247,7 +247,7 @@
                                     @endcan
 
                                     <!-- 4. Hapus Servis -->
-                                    @can('servis.nonreal.delete')
+                                    @can('servis.non_real.delete')
                                     <button type="button"
                                             wire:click="confirmDelete({{ $item->id }})"
                                             title="Hapus Servis Non Real"

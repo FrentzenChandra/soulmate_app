@@ -57,6 +57,7 @@ class PermissionService
                         'main_permission' => 'servis.non_real.view',
                         'description' => 'Pencatatan nota servis khusus non-real',
                         'actions' => [
+                            'servis.non_real.detail' => 'Detail Servis Non-Real',
                             'servis.non_real.create' => 'Tambah Servis Non-Real',
                             'servis.non_real.edit' => 'Edit Data Servis Non-Real',
                             'servis.non_real.delete' => 'Hapus Servis Non-Real',
@@ -298,6 +299,7 @@ class PermissionService
                 'servis.batal.view',
                 'servis.batal.detail',
                 'servis.non_real.view',
+                'servis.non_real.detail',
                 'servis.non_real.create',
                 'servis.non_real.edit',
                 'servis.non_real.print',
