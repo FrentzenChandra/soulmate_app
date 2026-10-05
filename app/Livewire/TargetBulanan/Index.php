@@ -54,7 +54,7 @@ class Index extends Component
     public function getCanManageTargetProperty(): bool
     {
         $user = Auth::user();
-        return $user && ($user->isOwner() || $user->hasRole('Superadmin'));
+        return $user && ($user->isOwner() || $user->hasRole('Superadmin') || $user->can('target.bulanan.edit'));
     }
 
     private function getTargetCabangId(): int
@@ -83,7 +83,7 @@ class Index extends Component
     public function openSetTargetTahunanDivisi(): void
     {
         if (! $this->canManageTarget) {
-            abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
+            abort(403, 'Akses mengatur target dibatasi.');
         }
 
         $this->formTahunTargetDivisi = $this->filterTahun;
@@ -119,7 +119,7 @@ class Index extends Component
     public function simpanTargetTahunanDivisi(): void
     {
         if (! $this->canManageTarget) {
-            abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
+            abort(403, 'Akses mengatur target dibatasi.');
         }
 
         $this->validate([
@@ -179,7 +179,7 @@ class Index extends Component
     public function openEditCellDivisi(string $divisiKey, int $bulan): void
     {
         if (! $this->canManageTarget) {
-            abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
+            abort(403, 'Akses mengatur target dibatasi.');
         }
 
         $this->editDivisiKey = $divisiKey;
@@ -210,7 +210,7 @@ class Index extends Component
     public function simpanEditCellDivisi(): void
     {
         if (! $this->canManageTarget) {
-            abort(403, 'Hanya Owner dan Superadmin yang diizinkan mengatur target.');
+            abort(403, 'Akses mengatur target dibatasi.');
         }
 
         $this->validate([

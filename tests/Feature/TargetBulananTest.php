@@ -216,4 +216,56 @@ class TargetBulananTest extends TestCase
                     && $divisiMatrix['printer']['months'][5]['status'] === 'tercapai';
             });
     }
+
+    public function test_teknisi_with_target_edit_permission_can_manage_targets()
+    {
+        $teknisi = User::role('Teknisi')->first();
+        $teknisi->givePermissionTo(['target.bulanan.view', 'target.bulanan.edit']);
+        $this->actingAs($teknisi);
+
+        // Can view page
+        $this->get(route('target.bulanan'))->assertStatus(200);
+
+        // Can open and save annual target
+        Livewire::test(TargetBulananIndex::class)
+            ->set('filterTahun', 2026)
+            ->assertSet('canManageTarget', true)
+            ->call('openSetTargetTahunanDivisi')
+            ->assertSet('modalSetTargetTahunanDivisiOpen', true)
+            ->set('formTargetTahunanLaptop', 50)
+            ->set('formTargetTahunanPrinter', 30)
+            ->set('formTargetTahunanKomputer', 20)
+            ->set('formTargetTahunanAdmin', 40)
+            ->call('simpanTargetTahunanDivisi')
+            ->assertHasNoErrors()
+            ->assertSet('modalSetTargetTahunanDivisiOpen', false);
+
+        // Can edit cell realization
+        Livewire::test(TargetBulananIndex::class)
+            ->set('filterTahun', 2026)
+            ->call('openEditCellDivisi', 'laptop', 1)
+            ->assertSet('modalEditCellDivisiOpen', true)
+            ->set('formRealisasiDivisi', 15)
+            ->call('simpanEditCellDivisi')
+            ->assertHasNoErrors()
+            ->assertSet('modalEditCellDivisiOpen', false);
+    }
+
+    public function test_user_with_only_view_permission_cannot_manage_targets()
+    {
+        $admin = User::role('Admin')->first();
+        $admin->givePermissionTo('target.bulanan.view');
+        $this->actingAs($admin);
+
+        // Can view page
+        $this->get(route('target.bulanan'))->assertStatus(200);
+
+        // canManageTarget is false
+        Livewire::test(TargetBulananIndex::class)
+            ->set('filterTahun', 2026)
+            ->assertSet('canManageTarget', false)
+            ->call('openSetTargetTahunanDivisi')
+            ->assertStatus(403);
+    }
 }
+
