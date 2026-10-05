@@ -67,7 +67,7 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin') && ! $user->hasRole('Teknisi') && ! $user->hasRole('Kasir'))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('servis.keluar.view'))) {
             abort(403, 'Akses modul Servis Keluar dibatasi.');
         }
 
@@ -113,6 +113,8 @@ class Index extends Component
 
     public function openDetailModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.keluar.detail'), 403, 'Akses detail servis dibatasi.');
+
         $this->selectedServis = ServisMasuk::with(['customer', 'cabang', 'pembuat', 'teknisi', 'kasir', 'statusLogs.user', 'details.masterServis'])->findOrFail($id);
         $this->modalDetailOpen = true;
     }
@@ -129,6 +131,8 @@ class Index extends Component
 
     public function openEditNotaModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.keluar.edit_nota'), 403, 'Akses edit nota servis dibatasi.');
+
         $servis = ServisMasuk::with(['details.masterServis', 'customer', 'cabang'])->findOrFail($id);
 
         if ($servis->status !== 'selesai') {
@@ -307,6 +311,8 @@ class Index extends Component
 
     public function openAmbilModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.keluar.ambil'), 403, 'Akses penyerahan/pelunasan unit dibatasi.');
+
         $this->servisToAmbil = ServisMasuk::with(['details', 'customer', 'cabang'])->findOrFail($id);
         $this->nominalBayar = (float) $this->servisToAmbil->total_biaya;
         $this->metodePembayaran = 'cash';
@@ -322,6 +328,8 @@ class Index extends Component
 
     public function prosesPenyerahanUnit(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.keluar.ambil'), 403, 'Akses penyerahan/pelunasan unit dibatasi.');
+
         if (! $this->servisToAmbil) return;
 
         if (is_string($this->nominalBayar)) {

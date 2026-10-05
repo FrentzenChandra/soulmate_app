@@ -51,8 +51,8 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user) {
-            abort(403);
+        if (! $user || (! $user->isOwner() && ! $user->can('master.customer.view'))) {
+            abort(403, 'Akses modul Master Pelanggan dibatasi.');
         }
 
         $this->sortField = 'nama';
@@ -87,10 +87,12 @@ class Index extends Component
 
     public function openCreateModal(): void
     {
+        $user = Auth::user();
+        abort_if(! $user->isOwner() && ! $user->can('master.customer.create'), 403, 'Akses tambah pelanggan dibatasi.');
+
         $this->resetValidation();
         $this->reset(['customerId', 'nama', 'no_hp']);
 
-        $user = Auth::user();
         if (! $user->isOwner()) {
             $this->cabang_id = $user->cabang_id;
         } else {
@@ -104,8 +106,10 @@ class Index extends Component
 
     public function openEditModal(int $id): void
     {
-        $this->resetValidation();
         $user = Auth::user();
+        abort_if(! $user->isOwner() && ! $user->can('master.customer.edit'), 403, 'Akses edit pelanggan dibatasi.');
+
+        $this->resetValidation();
         $customer = Customer::findOrFail($id);
 
         if (! $user->isOwner() && (int) $customer->cabang_id !== (int) $user->cabang_id) {
@@ -149,6 +153,12 @@ class Index extends Component
     public function save(): void
     {
         $user = Auth::user();
+        if ($this->isEditMode) {
+            abort_if(! $user->isOwner() && ! $user->can('master.customer.edit'), 403, 'Akses edit pelanggan dibatasi.');
+        } else {
+            abort_if(! $user->isOwner() && ! $user->can('master.customer.create'), 403, 'Akses tambah pelanggan dibatasi.');
+        }
+
         if (! $user->isOwner()) {
             $this->cabang_id = $user->cabang_id;
         }
@@ -184,6 +194,8 @@ class Index extends Component
     public function deleteCustomer(int $id): void
     {
         $user = Auth::user();
+        abort_if(! $user->isOwner() && ! $user->can('master.customer.delete'), 403, 'Akses hapus pelanggan dibatasi.');
+
         $customer = Customer::findOrFail($id);
 
         if (! $user->isOwner() && (int) $customer->cabang_id !== (int) $user->cabang_id) {

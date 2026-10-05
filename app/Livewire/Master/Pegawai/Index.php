@@ -77,7 +77,7 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole(['Superadmin', 'Admin']))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('master.pegawai.view'))) {
             abort(403, 'Akses modul Master Pegawai dibatasi.');
         }
 
@@ -126,6 +126,8 @@ class Index extends Component
 
     public function openCreateModal(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.pegawai.create'), 403, 'Akses tambah pegawai dibatasi.');
+
         $this->resetValidation();
         $this->isEditMode = false;
         $this->pegawaiId = null;
@@ -138,6 +140,8 @@ class Index extends Component
 
     public function openEditModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.pegawai.edit'), 403, 'Akses edit pegawai dibatasi.');
+
         $pegawai = Pegawai::findOrFail($id);
         $this->resetValidation();
         $this->isEditMode = true;
@@ -158,6 +162,12 @@ class Index extends Component
 
     public function simpanPegawai(): void
     {
+        if ($this->isEditMode) {
+            abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.pegawai.edit'), 403, 'Akses edit pegawai dibatasi.');
+        } else {
+            abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.pegawai.create'), 403, 'Akses tambah pegawai dibatasi.');
+        }
+
         $isCustom = $this->bagian === '__custom__';
 
         if ($isCustom) {
@@ -207,6 +217,8 @@ class Index extends Component
 
     public function toggleStatus(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.pegawai.edit'), 403, 'Akses edit pegawai dibatasi.');
+
         $pegawai = Pegawai::findOrFail($id);
         $pegawai->is_aktif = ! $pegawai->is_aktif;
         $pegawai->save();
@@ -217,6 +229,8 @@ class Index extends Component
 
     public function openDeleteModal(int $id, string $nama): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.pegawai.delete'), 403, 'Akses hapus pegawai dibatasi.');
+
         $this->deleteId = $id;
         $this->deleteNama = $nama;
         $this->modalDeleteOpen = true;
@@ -231,6 +245,8 @@ class Index extends Component
 
     public function konfirmasiHapus(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.pegawai.delete'), 403, 'Akses hapus pegawai dibatasi.');
+
         if (! $this->deleteId) {
             return;
         }

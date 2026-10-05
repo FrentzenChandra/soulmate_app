@@ -68,7 +68,7 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || ! ($user->isOwner() || $user->isSuperadmin() || $user->isAdmin())) {
+        if (! $user || (! $user->isOwner() && ! $user->can('kas.keluar.view'))) {
             abort(403, 'Akses kas keluar dibatasi.');
         }
 
@@ -174,6 +174,9 @@ class Index extends Component
 
     public function openCreateModal(): void
     {
+        $user = Auth::user();
+        abort_if(! $user->isOwner() && ! $user->can('kas.keluar.create'), 403, 'Akses tambah kas keluar dibatasi.');
+
         $this->resetValidation();
         $this->reset(['kasKeluarId', 'keterangan', 'nominal']);
         $firstSumber = SumberDana::where('is_aktif', true)->first();
@@ -186,6 +189,9 @@ class Index extends Component
 
     public function openEditModal(int $id): void
     {
+        $user = Auth::user();
+        abort_if(! $user->isOwner() && ! $user->can('kas.keluar.edit'), 403, 'Akses edit kas keluar dibatasi.');
+
         $this->resetValidation();
         $kas = KasKeluar::findOrFail($id);
 
@@ -207,6 +213,13 @@ class Index extends Component
 
     public function save(): void
     {
+        $user = Auth::user();
+        if ($this->isEditMode) {
+            abort_if(! $user->isOwner() && ! $user->can('kas.keluar.edit'), 403, 'Akses edit kas keluar dibatasi.');
+        } else {
+            abort_if(! $user->isOwner() && ! $user->can('kas.keluar.create'), 403, 'Akses tambah kas keluar dibatasi.');
+        }
+
         if (is_string($this->nominal)) {
             $this->nominal = (float) preg_replace('/[^\d]/', '', $this->nominal);
         }
@@ -255,6 +268,9 @@ class Index extends Component
 
     public function delete(int $id): void
     {
+        $user = Auth::user();
+        abort_if(! $user->isOwner() && ! $user->can('kas.keluar.delete'), 403, 'Akses hapus kas keluar dibatasi.');
+
         $kas = KasKeluar::findOrFail($id);
         $kas->delete();
 

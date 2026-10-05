@@ -12,6 +12,7 @@
             <p class="text-xs text-gray-500 font-medium mt-1">Catat dan pantau seluruh pengeluaran operasional kas toko.</p>
         </div>
 
+        @can('kas.keluar.create')
         <button type="button"
                 wire:click="openCreateModal"
                 wire:loading.attr="disabled"
@@ -19,6 +20,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             <span>Catat Kas Keluar</span>
         </button>
+        @endcan
     </div>
 
     <!-- Summary Metrics -->
@@ -155,7 +157,9 @@
     <!-- ============================================== -->
     <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs"
          x-data="tabulatorKasKeluarTable({
-             tableData: @js($tableData)
+             tableData: @js($tableData),
+             canEdit: @js(auth()->user()->isOwner() || auth()->user()->can('kas.keluar.edit')),
+             canDelete: @js(auth()->user()->isOwner() || auth()->user()->can('kas.keluar.delete'))
          })"
          x-init="initTable()"
          wire:ignore>
@@ -471,16 +475,19 @@ window.tabulatorKasKeluarTable = function(config) {
                         resizable: false,
                         formatter: (cell) => {
                             const id = cell.getValue();
-                            return `
-                                <div class="flex items-center justify-center space-x-1">
-                                    <button type="button" onclick="window.editKasKeluar(${id})" class="p-1 rounded bg-purple-50 hover:bg-purple-100 text-[#5E17EB] transition-colors cursor-pointer" title="Edit Catatan">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </button>
-                                    <button type="button" onclick="window.deleteKasKeluarConfirm(${id})" class="p-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer" title="Hapus Catatan">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                    </button>
-                                </div>
-                            `;
+                            let html = '<div class="flex items-center justify-center space-x-1">';
+                            if (config.canEdit) {
+                                html += `<button type="button" onclick="window.editKasKeluar(${id})" class="p-1 rounded bg-purple-50 hover:bg-purple-100 text-[#5E17EB] transition-colors cursor-pointer" title="Edit Catatan">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </button>`;
+                            }
+                            if (config.canDelete) {
+                                html += `<button type="button" onclick="window.deleteKasKeluarConfirm(${id})" class="p-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer" title="Hapus Catatan">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>`;
+                            }
+                            html += '</div>';
+                            return html;
                         }
                     }
                 ]

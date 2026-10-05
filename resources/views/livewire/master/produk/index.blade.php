@@ -29,11 +29,13 @@
                 </button>
             @endif
 
+            @can('master.produk.create')
             <button wire:click="openCreateModal"
                     class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-bold text-xs shadow-lg shadow-purple-900/30 transition-all cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 <span>Tambah Produk Baru</span>
             </button>
+            @endcan
         </div>
     </div>
 
@@ -214,12 +216,15 @@
                             <!-- Aksi -->
                             <td class="py-4 px-5 text-right">
                                 <div class="flex items-center justify-end space-x-1">
+                                    @can('master.produk.edit')
                                     <button wire:click="openEditModal({{ $p->id }})"
                                             class="p-2 rounded-xl text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
                                             title="Edit Produk">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
+                                    @endcan
 
+                                    @can('master.produk.delete')
                                     @if($isHQ)
                                         <button wire:click="openDeleteConfirmation({{ $p->id }})"
                                                 class="p-2 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
@@ -233,6 +238,7 @@
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                         </button>
                                     @endif
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

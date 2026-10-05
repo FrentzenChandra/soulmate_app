@@ -69,7 +69,7 @@ class Index extends Component
     public function mount()
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin'))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('master.user.view'))) {
             abort(403, 'Anda tidak memiliki akses ke halaman manajemen pengguna.');
         }
 
@@ -109,10 +109,12 @@ class Index extends Component
 
     public function openCreateModal()
     {
+        $currentUser = Auth::user();
+        abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.user.create'), 403, 'Akses tambah pengguna dibatasi.');
+
         $this->resetValidation();
         $this->reset(['userId', 'name', 'email', 'username', 'password', 'no_hp', 'foto', 'existing_foto_url']);
 
-        $currentUser = Auth::user();
         if (! $currentUser->isOwner()) {
             $this->cabang_id = $currentUser->cabang_id;
             $this->role_name = 'Admin';
@@ -128,8 +130,10 @@ class Index extends Component
 
     public function openEditModal(int $id)
     {
-        $this->resetValidation();
         $currentUser = Auth::user();
+        abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.user.edit'), 403, 'Akses edit pengguna dibatasi.');
+
+        $this->resetValidation();
         $user = User::with('roles')->findOrFail($id);
 
         // RBAC Check for Superadmin
@@ -232,6 +236,12 @@ class Index extends Component
     public function save()
     {
         $currentUser = Auth::user();
+        if ($this->isEditMode) {
+            abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.user.edit'), 403, 'Akses edit pengguna dibatasi.');
+        } else {
+            abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.user.create'), 403, 'Akses tambah pengguna dibatasi.');
+        }
+
         $allowedRoles = $currentUser->isOwner()
             ? ['Owner', 'Superadmin', 'Teknisi', 'Bendahara', 'Admin', 'Kasir', 'Magang', 'Operasional']
             : ['Superadmin', 'Teknisi', 'Bendahara', 'Admin', 'Kasir', 'Magang', 'Operasional'];
@@ -374,6 +384,8 @@ class Index extends Component
     public function toggleStatus(int $id)
     {
         $currentUser = Auth::user();
+        abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.user.edit'), 403, 'Akses edit pengguna dibatasi.');
+
         $user = User::findOrFail($id);
 
         // RBAC check
@@ -415,6 +427,8 @@ class Index extends Component
     public function deleteUser(int $id): void
     {
         $currentUser = Auth::user();
+        abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.user.delete'), 403, 'Akses hapus pengguna dibatasi.');
+
         $user = User::findOrFail($id);
 
         // RBAC check

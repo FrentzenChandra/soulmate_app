@@ -25,6 +25,7 @@
             </p>
         </div>
 
+        @can('master.pegawai.create')
         <div class="flex items-center space-x-3">
             <button type="button"
                     wire:click="openCreateModal"
@@ -33,6 +34,7 @@
                 <span>Tambah Pegawai</span>
             </button>
         </div>
+        @endcan
     </div>
 
     <!-- Alert Flash Message -->
@@ -175,27 +177,38 @@
                                 </td>
                             @endif
                             <td class="py-3 px-4 text-center whitespace-nowrap">
+                                @can('master.pegawai.edit')
                                 <button type="button"
                                         wire:click="toggleStatus({{ $pegawai->id }})"
                                         class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-black transition-all cursor-pointer {{ $pegawai->is_aktif ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-200' }}">
                                     <span class="w-1.5 h-1.5 rounded-full {{ $pegawai->is_aktif ? 'bg-emerald-500' : 'bg-gray-400' }} mr-1.5"></span>
                                     <span>{{ $pegawai->is_aktif ? 'Aktif' : 'Nonaktif' }}</span>
                                 </button>
+                                @else
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-black {{ $pegawai->is_aktif ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-500 border border-gray-200' }}">
+                                    <span class="w-1.5 h-1.5 rounded-full {{ $pegawai->is_aktif ? 'bg-emerald-500' : 'bg-gray-400' }} mr-1.5"></span>
+                                    <span>{{ $pegawai->is_aktif ? 'Aktif' : 'Nonaktif' }}</span>
+                                </span>
+                                @endcan
                             </td>
                             <td class="py-3 px-4 text-center whitespace-nowrap">
                                 <div class="flex items-center justify-center space-x-1.5">
+                                    @can('master.pegawai.edit')
                                     <button type="button"
                                             wire:click="openEditModal({{ $pegawai->id }})"
                                             class="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#0052FF] transition-colors cursor-pointer"
                                             title="Edit Pegawai">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
+                                    @endcan
+                                    @can('master.pegawai.delete')
                                     <button type="button"
                                             wire:click="openDeleteModal({{ $pegawai->id }}, '{{ $pegawai->nama }}')"
                                             class="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer"
                                             title="Hapus Pegawai">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

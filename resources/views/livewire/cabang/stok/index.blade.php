@@ -263,47 +263,47 @@
                             <!-- Tombol Aksi Penyesuaian & Hapus -->
                             <td class="py-4 px-5 text-right">
                                 <div class="inline-flex items-center space-x-1.5 justify-end">
+                                    @can('cabang.stok.adjust')
                                     <button wire:click="openAdjustModal({{ $item->id }})"
                                             class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-[#0052FF] text-[#0052FF] hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer group">
                                         <svg class="w-3.5 h-3.5 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                                         <span>Penyesuaian</span>
                                     </button>
 
-                                    @if(auth()->user()->isOwner() || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin'))
-                                        <button type="button"
-                                                x-on:click="
-                                                    if (window.swalConfirm) {
-                                                        window.swalConfirm('Hapus Produk?', 'Yakin ingin menghapus produk \'{{ addslashes($item->nama_produk) }}\' dari sistem? Tindakan ini tidak dapat dibatalkan.', {
-                                                            danger: true,
-                                                            confirmText: 'Ya, Hapus',
-                                                            cancelText: 'Batal'
-                                                        }).then((res) => {
-                                                            if (res.isConfirmed) {
-                                                                $wire.deleteProduk({{ $item->id }});
-                                                            }
-                                                        });
-                                                    } else {
-                                                        if (confirm('Yakin ingin menghapus produk ini?')) {
+                                    <button type="button"
+                                            x-on:click="
+                                                if (window.swalConfirm) {
+                                                    window.swalConfirm('Hapus Produk?', 'Yakin ingin menghapus produk \'{{ addslashes($item->nama_produk) }}\' dari sistem? Tindakan ini tidak dapat dibatalkan.', {
+                                                        danger: true,
+                                                        confirmText: 'Ya, Hapus',
+                                                        cancelText: 'Batal'
+                                                    }).then((res) => {
+                                                        if (res.isConfirmed) {
                                                             $wire.deleteProduk({{ $item->id }});
                                                         }
+                                                    });
+                                                } else {
+                                                    if (confirm('Yakin ingin menghapus produk ini?')) {
+                                                        $wire.deleteProduk({{ $item->id }});
                                                     }
-                                                "
-                                                wire:loading.attr="disabled"
-                                                wire:target="deleteProduk({{ $item->id }})"
-                                                class="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
-                                                title="Hapus Produk">
-                                            <!-- Spinner loading state -->
-                                            <svg wire:loading wire:target="deleteProduk({{ $item->id }})" class="animate-spin w-3.5 h-3.5 text-rose-600 group-hover:text-white" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                                            </svg>
-                                            <!-- Static trash icon -->
-                                            <svg wire:loading.remove wire:target="deleteProduk({{ $item->id }})" class="w-3.5 h-3.5 text-rose-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                            <span>Hapus</span>
-                                        </button>
-                                    @endif
+                                                }
+                                            "
+                                            wire:loading.attr="disabled"
+                                            wire:target="deleteProduk({{ $item->id }})"
+                                            class="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
+                                            title="Hapus Produk">
+                                        <!-- Spinner loading state -->
+                                        <svg wire:loading wire:target="deleteProduk({{ $item->id }})" class="animate-spin w-3.5 h-3.5 text-rose-600 group-hover:text-white" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                        </svg>
+                                        <!-- Static trash icon -->
+                                        <svg wire:loading.remove wire:target="deleteProduk({{ $item->id }})" class="w-3.5 h-3.5 text-rose-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                        <span>Hapus</span>
+                                    </button>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

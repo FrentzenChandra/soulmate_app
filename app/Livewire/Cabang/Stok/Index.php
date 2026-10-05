@@ -64,7 +64,7 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin') && ! $user->hasRole('Kasir'))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('cabang.stok.view'))) {
             abort(403, 'Akses modul Stok Cabang dibatasi.');
         }
 
@@ -113,6 +113,9 @@ class Index extends Component
 
     public function openAdjustModal(int $produkId): void
     {
+        $user = Auth::user();
+        abort_if(! $user->isOwner() && ! $user->can('cabang.stok.adjust'), 403, 'Akses penyesuaian stok dibatasi.');
+
         $this->resetValidation();
         $cabang = $this->activeCabang;
         if (! $cabang) {
@@ -148,6 +151,9 @@ class Index extends Component
 
     public function saveAdjustment(): void
     {
+        $user = Auth::user();
+        abort_if(! $user->isOwner() && ! $user->can('cabang.stok.adjust'), 403, 'Akses penyesuaian stok dibatasi.');
+
         $this->validate([
             'newStock' => ['required', 'integer', 'min:0'],
             'minStok' => ['required', 'integer', 'min:0'],
@@ -187,7 +193,7 @@ class Index extends Component
     public function deleteProduk(int $id): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin'))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('cabang.stok.adjust'))) {
             $this->dispatch('swal:modal', [
                 'type' => 'error',
                 'title' => 'Akses Ditolak',

@@ -80,7 +80,7 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin') && ! $user->hasRole('Teknisi') && ! $user->hasRole('Kasir'))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('servis.nonreal.view'))) {
             abort(403, 'Akses modul Servis Non Real dibatasi.');
         }
 
@@ -235,6 +235,8 @@ class Index extends Component
 
     public function openCreateModal(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.nonreal.create'), 403, 'Akses tambah servis non real dibatasi.');
+
         $this->resetCreateForm();
         $this->modalCreateOpen = true;
     }
@@ -282,6 +284,8 @@ class Index extends Component
 
     public function simpanServisMasuk(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.nonreal.create'), 403, 'Akses tambah servis non real dibatasi.');
+
         $user = Auth::user();
         $isOwner = $user->isOwner();
         $activeBranchSession = session('active_branch_id', 'hq');
@@ -424,6 +428,8 @@ class Index extends Component
 
     public function openEditModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.nonreal.edit'), 403, 'Akses edit servis non real dibatasi.');
+
         $servis = ServisMasuk::with(['customer', 'details'])->findOrFail($id);
 
         $this->editServisId = $servis->id;
@@ -487,6 +493,8 @@ class Index extends Component
 
     public function simpanEditServis(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.nonreal.edit'), 403, 'Akses edit servis non real dibatasi.');
+
         $servis = ServisMasuk::findOrFail($this->editServisId);
 
         $rules = [
@@ -582,6 +590,8 @@ class Index extends Component
 
     public function openDetailModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.nonreal.detail'), 403, 'Akses detail servis non real dibatasi.');
+
         $this->selectedServis = ServisMasuk::with(['customer', 'cabang', 'pembuat', 'details.masterServis', 'details.produk'])->findOrFail($id);
         $this->modalDetailOpen = true;
     }
@@ -594,6 +604,8 @@ class Index extends Component
 
     public function confirmDelete(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.nonreal.delete'), 403, 'Akses hapus servis non real dibatasi.');
+
         $servis = ServisMasuk::findOrFail($id);
         $this->deleteServisId = $servis->id;
         $this->deleteServisKode = $servis->no_servis_frontend;
@@ -602,6 +614,8 @@ class Index extends Component
 
     public function deleteServis(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.nonreal.delete'), 403, 'Akses hapus servis non real dibatasi.');
+
         if (! $this->deleteServisId) {
             return;
         }

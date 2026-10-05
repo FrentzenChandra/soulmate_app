@@ -67,7 +67,7 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin'))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('master.servis.view'))) {
             abort(403, 'Akses modul Master Servis dibatasi.');
         }
 
@@ -152,6 +152,8 @@ class Index extends Component
 
     public function openCreateModal(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.servis.create'), 403, 'Akses tambah servis dibatasi.');
+
         $this->resetForm();
         $this->isEditMode = false;
         $this->selectedItemId = null;
@@ -172,6 +174,8 @@ class Index extends Component
 
     public function editItem(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.servis.edit'), 403, 'Akses edit servis dibatasi.');
+
         $item = MasterServis::with('stoks')->findOrFail($id);
         $this->selectedItemId = $item->id;
         $this->isEditMode = true;
@@ -223,6 +227,12 @@ class Index extends Component
 
     public function save(): void
     {
+        if ($this->isEditMode) {
+            abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.servis.edit'), 403, 'Akses edit servis dibatasi.');
+        } else {
+            abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.servis.create'), 403, 'Akses tambah servis dibatasi.');
+        }
+
         $rules = [
             'nama_item' => 'required|string|min:2|max:200',
             'jenis' => 'required|in:jasa,sparepart',
@@ -300,6 +310,8 @@ class Index extends Component
 
     public function toggleAktif(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.servis.edit'), 403, 'Akses edit servis dibatasi.');
+
         $item = MasterServis::findOrFail($id);
         $item->is_aktif = ! $item->is_aktif;
         $item->save();
@@ -310,6 +322,8 @@ class Index extends Component
 
     public function confirmDelete(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.servis.delete'), 403, 'Akses hapus servis dibatasi.');
+
         $item = MasterServis::withCount('details')->findOrFail($id);
         $this->deleteItemId = $item->id;
         $this->deleteItemNama = $item->nama_item;
@@ -329,6 +343,8 @@ class Index extends Component
 
     public function deleteItem(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.servis.delete'), 403, 'Akses hapus servis dibatasi.');
+
         if (! $this->deleteItemId) return;
 
         $item = MasterServis::withCount('details')->findOrFail($this->deleteItemId);

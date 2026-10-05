@@ -55,7 +55,7 @@ class Index extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        if (! $user || (! $user->isOwner() && ! $user->hasRole('Superadmin') && ! $user->hasRole('Admin') && ! $user->hasRole('Teknisi') && ! $user->hasRole('Kasir'))) {
+        if (! $user || (! $user->isOwner() && ! $user->can('servis.batal.view'))) {
             abort(403, 'Akses modul Servis Batal dibatasi.');
         }
 
@@ -101,6 +101,8 @@ class Index extends Component
 
     public function openDetailModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.batal.detail'), 403, 'Akses detail servis batal dibatasi.');
+
         $this->selectedServis = ServisMasuk::with(['customer', 'cabang', 'pembuat', 'statusLogs.user', 'details'])->findOrFail($id);
         $this->modalDetailOpen = true;
     }
@@ -113,6 +115,8 @@ class Index extends Component
 
     public function openAmbilBatalModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.batal.ambil'), 403, 'Akses serah terima unit batal dibatasi.');
+
         $this->servisToAmbilBatal = ServisMasuk::with(['customer', 'cabang'])->findOrFail($id);
         $this->catatanSerahTerima = '';
         $this->modalAmbilBatalOpen = true;
@@ -126,6 +130,8 @@ class Index extends Component
 
     public function openUbahStatusModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.batal.ubah_status'), 403, 'Akses pulihkan status dibatasi.');
+
         $this->servisToUbahStatus = ServisMasuk::with(['customer', 'cabang'])->findOrFail($id);
         $this->targetStatus = 'pengecekan';
         $this->catatanUbahStatus = '';
@@ -141,6 +147,8 @@ class Index extends Component
 
     public function simpanUbahStatus(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.batal.ubah_status'), 403, 'Akses pulihkan status dibatasi.');
+
         if (! $this->servisToUbahStatus) return;
 
         $this->validate([
@@ -205,6 +213,8 @@ class Index extends Component
 
     public function serahkanUnitBatal(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('servis.batal.ambil'), 403, 'Akses serah terima unit batal dibatasi.');
+
         if (! $this->servisToAmbilBatal) return;
 
         try {

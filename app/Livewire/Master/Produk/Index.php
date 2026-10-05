@@ -108,6 +108,11 @@ class Index extends Component
 
     public function mount(): void
     {
+        $user = Auth::user();
+        if (! $user || (! $user->isOwner() && ! $user->can('master.produk.view'))) {
+            abort(403, 'Akses modul Master Produk dibatasi.');
+        }
+
         $this->sortField = 'nama_produk';
         $this->sortDirection = 'asc';
     }
@@ -249,6 +254,8 @@ class Index extends Component
 
     public function openCreateModal(): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.produk.create'), 403, 'Akses tambah produk dibatasi.');
+
         $this->resetValidation();
         $this->reset(['produkId', 'kategori_id', 'barcode', 'nama_produk', 'deskripsi', 'foto', 'existing_foto_url', 'duplicateMasterProductId', 'duplicateMasterProduct', 'duplicateMasterProducts']);
         $this->harga_beli = 0;
@@ -275,6 +282,8 @@ class Index extends Component
 
     public function openEditModal(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.produk.edit'), 403, 'Akses edit produk dibatasi.');
+
         $this->resetValidation();
         $this->reset(['duplicateMasterProductId', 'duplicateMasterProduct']);
         $this->foto = null;
@@ -389,6 +398,8 @@ class Index extends Component
         }
 
         if ($this->isEditMode && $this->produkId) {
+            abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.produk.edit'), 403, 'Akses edit produk dibatasi.');
+
             $produk = Produk::findOrFail($this->produkId);
 
             // Hapus file lama jika foto diubah atau dihapus
@@ -416,6 +427,8 @@ class Index extends Component
 
             session()->flash('success', "Produk \"{$produk->nama_produk}\" berhasil diperbarui.");
         } else {
+            abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.produk.create'), 403, 'Akses tambah produk dibatasi.');
+
             $produk = Produk::create($data);
 
             // Simpan stok awal tiap cabang
@@ -442,6 +455,8 @@ class Index extends Component
 
     public function openDeleteConfirmation(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.produk.delete'), 403, 'Akses hapus produk dibatasi.');
+
         $user = Auth::user();
         $activeBranchId = session('active_branch_id', 'hq');
         $this->deleteIsHQ = $user->isOwner() && ($activeBranchId === 'hq' || ! $activeBranchId);
@@ -484,6 +499,7 @@ class Index extends Component
 
     public function deleteProduk(int $id): void
     {
+        abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.produk.delete'), 403, 'Akses hapus produk dibatasi.');
         $user = Auth::user();
         $activeBranchId = session('active_branch_id', 'hq');
         $isHQ = $user->isOwner() && ($activeBranchId === 'hq' || ! $activeBranchId);

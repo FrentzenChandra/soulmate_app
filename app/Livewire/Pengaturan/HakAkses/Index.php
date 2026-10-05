@@ -97,6 +97,24 @@ class Index extends Component
         }
     }
 
+    public function updatedSelectedPermissions(): void
+    {
+        $schema = PermissionService::getModuleSchema();
+        foreach ($schema as $group) {
+            foreach ($group['modules'] as $mod) {
+                $mainPerm = $mod['main_permission'];
+                $actionPerms = array_keys($mod['actions'] ?? []);
+
+                // Jika ada salah satu sub-action yang aktif tapi main_permission belum, aktifkan main_permission
+                $hasActiveSubAction = ! empty(array_intersect($actionPerms, $this->selectedPermissions));
+                if ($hasActiveSubAction && ! in_array($mainPerm, $this->selectedPermissions)) {
+                    $this->selectedPermissions[] = $mainPerm;
+                }
+            }
+        }
+        $this->selectedPermissions = array_values(array_unique($this->selectedPermissions));
+    }
+
     public function selectAll(): void
     {
         $this->selectedPermissions = PermissionService::getAllPermissionNames();
