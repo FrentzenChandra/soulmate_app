@@ -571,7 +571,7 @@
             <div class="absolute -left-12 -top-12 w-64 h-64 bg-[#0052FF]/20 rounded-full blur-3xl pointer-events-none"></div>
         </div>
 
-        <!-- 2. Quick Action Shortcuts Grid (Berdasarkan Menu Sidebar & Spatie @can) -->
+        {{-- 2. Quick Action Shortcuts Grid (Berdasarkan Menu Sidebar & Spatie Permission) --}}
         <div class="space-y-4">
             <div class="flex items-center justify-between">
                 <div>
