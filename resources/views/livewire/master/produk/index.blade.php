@@ -116,26 +116,28 @@
                         <tr class="hover:bg-gray-50/80 transition-colors">
                             <!-- Foto Thumbnail Modern & Elegan -->
                             <td class="py-3.5 px-3 text-center align-middle">
-                                <div class="relative w-12 h-12 rounded-2xl overflow-hidden bg-gray-50 border border-gray-200/80 shadow-2xs mx-auto flex items-center justify-center group/img">
-                                    @if($p->foto_url)
-                                        <img src="{{ str_starts_with($p->foto_url, 'http') ? $p->foto_url : asset($p->foto_url) }}"
-                                             alt="{{ $p->nama_produk }}"
-                                             loading="lazy"
-                                             decoding="async"
-                                             class="w-full h-full object-cover transition-transform duration-300 group-hover/img:scale-110"
-                                             onerror="this.onerror=null;this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden');">
-                                        <div class="hidden w-full h-full bg-purple-50 flex items-center justify-center text-[#5E17EB]">
-                                            <span class="font-black text-xs uppercase tracking-tight">{{ strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $p->nama_produk) ?: 'SK', 0, 2)) }}</span>
-                                        </div>
-                                    @else
-                                        <div class="w-full h-full bg-gradient-to-br from-purple-50 via-purple-50/80 to-purple-100/60 flex items-center justify-center text-[#5E17EB] transition-colors group-hover/img:bg-purple-100">
-                                            <span class="font-black text-xs uppercase tracking-tight text-[#5E17EB]">
-                                                {{ strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $p->nama_produk) ?: 'PR', 0, 2)) }}
-                                            </span>
-                                        </div>
-                                    @endif
+                                <div class="relative w-12 h-12 mx-auto flex items-center justify-center group/img shrink-0">
+                                    <div class="w-full h-full rounded-2xl overflow-hidden bg-gray-50 border border-gray-200/80 shadow-2xs flex items-center justify-center">
+                                        @if($p->foto_url)
+                                            <img src="{{ str_starts_with($p->foto_url, 'http') ? $p->foto_url : asset($p->foto_url) }}"
+                                                 alt="{{ $p->nama_produk }}"
+                                                 loading="lazy"
+                                                 decoding="async"
+                                                 class="w-full h-full object-cover transition-transform duration-300 group-hover/img:scale-110"
+                                                 onerror="this.onerror=null;this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden');">
+                                            <div class="hidden w-full h-full bg-purple-50 flex items-center justify-center text-[#5E17EB]">
+                                                <span class="font-black text-xs uppercase tracking-tight">{{ strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $p->nama_produk) ?: 'SK', 0, 2)) }}</span>
+                                            </div>
+                                        @else
+                                            <div class="w-full h-full bg-gradient-to-br from-purple-50 via-purple-50/80 to-purple-100/60 flex items-center justify-center text-[#5E17EB] transition-colors group-hover/img:bg-purple-100">
+                                                <span class="font-black text-xs uppercase tracking-tight text-[#5E17EB]">
+                                                    {{ strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $p->nama_produk) ?: 'PR', 0, 2)) }}
+                                                </span>
+                                            </div>
+                                        @endif
+                                    </div>
                                     @if($p->ready_marketplace)
-                                        <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-xs flex items-center justify-center" title="Ready di Marketplace Online">
+                                        <div class="absolute -bottom-1 -right-1 z-10 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-xs flex items-center justify-center ring-1 ring-emerald-500/20" title="Ready di Marketplace Online">
                                             <span class="w-1 h-1 rounded-full bg-white"></span>
                                         </div>
                                     @endif
