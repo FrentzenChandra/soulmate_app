@@ -1,7 +1,8 @@
 <div class="space-y-6">
 
-    <!-- Welcome & Header Banner -->
-    <div class="card-custom bg-cover bg-center text-white p-6 md:p-8 rounded-3xl relative z-0 overflow-hidden shadow-xl shadow-purple-950/20"
+    @if($isManagement)
+        <!-- Welcome & Header Banner -->
+        <div class="card-custom bg-cover bg-center text-white p-6 md:p-8 rounded-3xl relative z-0 overflow-hidden shadow-xl shadow-purple-950/20"
          style="background-image: url('{{ asset('images/hero_display.jpeg') }}');">
         
         <!-- Dark Brand Gradient Overlay -->
@@ -516,6 +517,265 @@
                 </div>
             </div>
         @endif
+    @endif
+    @else
+        <!-- ========================================================================= -->
+        <!-- STAFF WELCOME & VISION DASHBOARD: TEKNISI, ADMIN, KASIR, BENDAHARA, DLL   -->
+        <!-- ========================================================================= -->
+
+        <!-- 1. Hero Vision & Welcome Banner -->
+        <div class="card-custom bg-cover bg-center text-white p-6 sm:p-8 md:p-10 rounded-3xl relative z-0 overflow-hidden shadow-xl shadow-purple-950/20"
+             style="background-image: url('{{ asset('images/hero_display.jpeg') }}');">
+
+            <!-- Dark Brand Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-r from-[#0E1726]/95 via-[#0E1726]/85 to-[#5E17EB]/75"></div>
+
+            <div class="relative z-10 max-w-3xl">
+                <!-- Brand Badge, Date & Role -->
+                <div class="flex flex-wrap items-center gap-2 mb-4">
+                    <div class="inline-flex items-center space-x-2 bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-bold text-white border border-white/20">
+                        <img src="{{ asset('images/logo.jpeg') }}" alt="Logo" class="w-4 h-4 rounded object-contain">
+                        <span>Soulmate Komputer</span>
+                    </div>
+                    <span class="inline-flex items-center space-x-1.5 bg-purple-500/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-purple-200 border border-purple-400/30">
+                        <svg class="w-3.5 h-3.5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span>{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</span>
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-200 border border-blue-400/30">
+                        {{ auth()->user()->roles->first()?->name ?? 'Staff Operasional' }}
+                    </span>
+                </div>
+
+                <!-- Main Greeting -->
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                    {{ $salamWaktu }}, <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-100 to-pink-200">{{ auth()->user()->name }}</span>!
+                </h1>
+
+                <!-- Vision Message -->
+                <p class="text-purple-100/90 text-sm sm:text-base mt-3 leading-relaxed">
+                    Selamat datang di sistem operasional <strong>Soulmate Komputer</strong>. Bersama kita wujudkan visi menjadi pusat layanan servis &amp; retail IT terbesar, modern, dan terpercaya!
+                </p>
+
+                <!-- Status Indicator -->
+                <div class="mt-5 flex items-center space-x-3 text-xs text-purple-200/90">
+                    <span class="inline-flex items-center space-x-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>Sistem Aktif &amp; Terhubung</span>
+                    </span>
+                    <span class="text-purple-300/70 hidden sm:inline">&bull; Siap melayani pelanggan dengan sepenuh hati</span>
+                </div>
+            </div>
+
+            <!-- Decorative Glow Elements -->
+            <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-[#5E17EB]/30 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-12 -top-12 w-64 h-64 bg-[#0052FF]/20 rounded-full blur-3xl pointer-events-none"></div>
+        </div>
+
+        <!-- 2. Quick Action Shortcuts Grid (Berdasarkan Menu Sidebar & Spatie @can) -->
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-extrabold text-gray-900 tracking-tight flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full bg-[#5E17EB]"></span>
+                        <span>Menu &amp; Aksi Cepat Operasional</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Pilih modul tugas harian sesuai dengan wewenang tugas Anda</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                <!-- 1. Kasir POS -->
+                @can('kasir.produk.view')
+                <a href="{{ route('kasir.produk') }}"
+                   class="group bg-white card-custom p-5 rounded-2xl border border-gray-100 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/5 transition-all flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-[#0052FF] group-hover:bg-[#0052FF] group-hover:text-white transition-all flex items-center justify-center shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">POS</span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-sm font-extrabold text-gray-900 group-hover:text-[#0052FF] transition-colors">Kasir POS</h3>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">Buka kasir untuk transaksi penjualan produk, aksesoris, &amp; sparepart</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs font-bold text-[#0052FF]">
+                        <span>Buka Kasir</span>
+                        <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+                @endcan
+
+                <!-- 2. Servis Masuk -->
+                @can('servis.masuk.view')
+                <a href="{{ route('servis.masuk') }}"
+                   class="group bg-white card-custom p-5 rounded-2xl border border-gray-100 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-500/5 transition-all flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-50 text-[#5E17EB] group-hover:bg-[#5E17EB] group-hover:text-white transition-all flex items-center justify-center shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">Tiket</span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-sm font-extrabold text-gray-900 group-hover:text-[#5E17EB] transition-colors">Servis Masuk</h3>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">Penerimaan unit servis baru, diagnosa awal kerusakan, &amp; kelengkapan</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs font-bold text-[#5E17EB]">
+                        <span>Input Servis</span>
+                        <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+                @endcan
+
+                <!-- 3. Servis Selesai / Keluar -->
+                @can('servis.keluar.view')
+                <a href="{{ route('servis.keluar') }}"
+                   class="group bg-white card-custom p-5 rounded-2xl border border-gray-100 hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-500/5 transition-all flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-[#10B981] group-hover:bg-[#10B981] group-hover:text-white transition-all flex items-center justify-center shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Selesai</span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-sm font-extrabold text-gray-900 group-hover:text-[#10B981] transition-colors">Servis Selesai</h3>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">Penyerahan unit servis kepada pelanggan &amp; cetak nota pengambilan</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs font-bold text-[#10B981]">
+                        <span>Lihat Unit Siap</span>
+                        <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+                @endcan
+
+                <!-- 4. Transaksi Harian -->
+                @can('transaksi.harian.view')
+                <a href="{{ route('transaksi.harian') }}"
+                   class="group bg-white card-custom p-5 rounded-2xl border border-gray-100 hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-500/5 transition-all flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all flex items-center justify-center shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">Harian</span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-sm font-extrabold text-gray-900 group-hover:text-indigo-600 transition-colors">Transaksi Harian</h3>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">Pencatatan nota kasir &amp; transaksi operasional harian toko</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs font-bold text-indigo-600">
+                        <span>Buka Transaksi</span>
+                        <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+                @endcan
+
+                <!-- 5. Manajemen Stok Cabang -->
+                @can('cabang.stok.view')
+                <a href="{{ route('cabang.stok') }}"
+                   class="group bg-white card-custom p-5 rounded-2xl border border-gray-100 hover:border-amber-300 hover:shadow-lg hover:shadow-amber-500/5 transition-all flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all flex items-center justify-center shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Stok</span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-sm font-extrabold text-gray-900 group-hover:text-amber-600 transition-colors">Manajemen Stok</h3>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">Cek stok fisik sparepart, unit, dan aksesoris di toko</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs font-bold text-amber-600">
+                        <span>Cek Stok</span>
+                        <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+                @endcan
+
+                <!-- 6. Kas Keluar -->
+                @can('kas.keluar.view')
+                <a href="{{ route('kas-keluar') }}"
+                   class="group bg-white card-custom p-5 rounded-2xl border border-gray-100 hover:border-rose-300 hover:shadow-lg hover:shadow-rose-500/5 transition-all flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white transition-all flex items-center justify-center shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">Kas</span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-sm font-extrabold text-gray-900 group-hover:text-rose-600 transition-colors">Kas Keluar</h3>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">Pencatatan biaya operasional, belanja sparepart, dan logistik</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs font-bold text-rose-600">
+                        <span>Catat Kas Keluar</span>
+                        <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+                @endcan
+
+                <!-- 7. Data Pelanggan -->
+                @can('master.customer.view')
+                <a href="{{ route('master.customer') }}"
+                   class="group bg-white card-custom p-5 rounded-2xl border border-gray-100 hover:border-teal-300 hover:shadow-lg hover:shadow-teal-500/5 transition-all flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-all flex items-center justify-center shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-teal-600 bg-teal-50 px-2 py-0.5 rounded-full">Pelanggan</span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-sm font-extrabold text-gray-900 group-hover:text-teal-600 transition-colors">Data Pelanggan</h3>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">Pencarian nomor WhatsApp dan riwayat pelanggan toko</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs font-bold text-teal-600">
+                        <span>Buka Pelanggan</span>
+                        <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+                @endcan
+
+                <!-- 8. Serial Number -->
+                @can('serial_number.view')
+                <a href="{{ route('serial-number') }}"
+                   class="group bg-white card-custom p-5 rounded-2xl border border-gray-100 hover:border-pink-300 hover:shadow-lg hover:shadow-pink-500/5 transition-all flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-12 h-12 rounded-2xl bg-pink-50 text-[#E6007A] group-hover:bg-[#E6007A] group-hover:text-white transition-all flex items-center justify-center shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-pink-600 bg-pink-50 px-2 py-0.5 rounded-full">SN</span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-sm font-extrabold text-gray-900 group-hover:text-[#E6007A] transition-colors">Serial Number</h3>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">Pencarian nomor seri unit barang &amp; status masa garansi</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs font-bold text-[#E6007A]">
+                        <span>Cari SN</span>
+                        <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+                @endcan
+
+            </div>
+        </div>
+
+        <!-- 3. SOP Standar Pelayanan Prima -->
+        <div class="bg-gradient-to-r from-purple-900 to-indigo-950 text-white card-custom p-6 rounded-2xl border border-purple-800/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-start space-x-4">
+                <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center shrink-0 text-purple-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-extrabold text-white">Standar Operasional Pelayanan Prima</h3>
+                    <p class="text-xs text-purple-200/80 mt-1 leading-relaxed">
+                        Pastikan kondisi fisik, kelengkapan unit servis, dan nomor WhatsApp aktif pelanggan dicatat dengan cermat saat penerimaan unit.
+                    </p>
+                </div>
+            </div>
+            <div class="shrink-0 flex items-center space-x-2">
+                <span class="text-xs font-bold bg-white/10 px-3 py-1.5 rounded-xl border border-white/15 text-purple-200">
+                    Soulmate Quality First
+                </span>
+            </div>
+        </div>
+
     @endif
 
 </div>

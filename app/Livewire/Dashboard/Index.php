@@ -39,6 +39,24 @@ class Index extends Component
     {
         $user = Auth::user();
         $isOwner = $user->isOwner();
+        $isSuperadmin = $user->isSuperadmin();
+        $isManagement = $isOwner || $isSuperadmin;
+
+        // Salam waktu berdasarkan jam lokal
+        $hour = (int) Carbon::now()->format('H');
+        $salamWaktu = $hour < 11 ? 'Selamat Pagi' : ($hour < 15 ? 'Selamat Siang' : ($hour < 18 ? 'Selamat Sore' : 'Selamat Malam'));
+
+        if (! $isManagement) {
+            return view('livewire.dashboard.index', [
+                'isManagement' => false,
+                'isHQ' => false,
+                'isOwner' => false,
+                'isSuperadmin' => false,
+                'salamWaktu' => $salamWaktu,
+                'activeCabang' => $user->cabang,
+            ]);
+        }
+
         $activeBranchSession = session('active_branch_id', 'hq');
         $isHQ = $isOwner && ($activeBranchSession === 'hq' || ! $activeBranchSession);
 
@@ -220,8 +238,10 @@ class Index extends Component
             ->get();
 
         return view('livewire.dashboard.index', array_merge($metrics, [
+            'isManagement' => true,
             'isHQ' => $isHQ,
             'isOwner' => $isOwner,
+            'salamWaktu' => $salamWaktu,
             'activeCabang' => $activeCabang,
             'recentServis' => $recentServis,
             'recentPenjualan' => $recentPenjualan,
