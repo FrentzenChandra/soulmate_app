@@ -282,5 +282,43 @@ class TransaksiHarianAndTutupKasTest extends TestCase
             ->call('deleteTransaksi')
             ->assertStatus(403);
     }
+
+    public function test_user_with_status_permission_can_pelunasan_but_blocked_from_edit_modal()
+    {
+        \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'transaksi.harian.status', 'guard_name' => 'web']);
+        \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'transaksi.harian.view', 'guard_name' => 'web']);
+
+        $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
+        // Give view and status permissions only (no edit permission)
+        $admin->syncPermissions(['transaksi.harian.view', 'transaksi.harian.status']);
+        $this->actingAs($admin);
+
+        $transaksi = TransaksiFullModel::create([
+            'cabang_id' => $admin->cabang_id,
+            'user_id' => $admin->id,
+            'nama_pelanggan' => 'Pelanggan Bon Test',
+            'no_transaksi' => 'PJ-BON-001',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => now(),
+            'metode_pembayaran' => 'Cash',
+            'total_modal' => 10000,
+            'total_jual' => 20000,
+            'grand_total' => 20000,
+            'status' => 'Bon',
+        ]);
+
+        // Edit modal must be blocked (403)
+        Livewire::test(TransaksiHarian::class)
+            ->call('openEditModal', $transaksi->id)
+            ->assertStatus(403);
+
+        // Pelunasan / update status direct must SUCCEED
+        Livewire::test(TransaksiHarian::class)
+            ->call('updateStatusDirect', $transaksi->id, 'Lunas')
+            ->assertStatus(200);
+
+        $this->assertEquals('Lunas', $transaksi->fresh()->status);
+        $this->assertNotNull($transaksi->fresh()->tanggal_lunas);
+    }
 }
 

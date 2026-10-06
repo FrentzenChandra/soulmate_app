@@ -678,7 +678,7 @@ class Full extends Component
     public function updateStatusDirect(int $id, string $newStatus): void
     {
         $user = Auth::user();
-        abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.full.edit')), 403, 'Akses ubah status transaksi dibatasi.');
+        abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.full.status') && ! $user->can('transaksi.full.edit')), 403, 'Akses ubah status transaksi dibatasi.');
 
         $statusNormalized = strtolower($newStatus) === 'bon' ? 'Bon' : 'Lunas';
         $transaksi = TransaksiFull::find($id);
@@ -704,7 +704,7 @@ class Full extends Component
     public function updateMetodeDirect(int $id, ?int $metodeId): void
     {
         $user = Auth::user();
-        abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.full.edit')), 403, 'Akses ubah metode pembayaran dibatasi.');
+        abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.full.status') && ! $user->can('transaksi.full.edit')), 403, 'Akses ubah metode pembayaran dibatasi.');
 
         $transaksi = TransaksiFull::find($id);
         if ($transaksi) {

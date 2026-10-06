@@ -292,6 +292,7 @@
              metodeList: @js($metodeList->map(fn($m) => ['id' => $m->id, 'nama' => $m->nama])),
              canCreate: @js(auth()->user()->isOwner() || auth()->user()->can('transaksi.full.create')),
              canEdit: @js(auth()->user()->isOwner() || auth()->user()->can('transaksi.full.edit')),
+             canUpdateStatus: @js(auth()->user()->isOwner() || auth()->user()->can('transaksi.full.status') || auth()->user()->can('transaksi.full.edit')),
              canDelete: @js(auth()->user()->isOwner() || auth()->user()->can('transaksi.full.delete')),
          })"
          x-init="initTable()"
@@ -1359,7 +1360,7 @@ window.tabulatorTransaksiFullTable = function(config) {
                             const hasPelunas = isLunas && pelunasNama !== '' && pelunasNama !== '-';
                             const badgeStyle = isLunas ? 'bg-emerald-50 text-emerald-800 border-emerald-400' : 'bg-rose-50 text-rose-800 border-rose-400';
 
-                            if (config.canEdit) {
+                            if (config.canUpdateStatus) {
                                 return `
                                     <div class="py-0.2 flex flex-col items-center justify-center min-h-[30px]">
                                         <select class="w-[54px] py-0 px-0.5 rounded text-[8.5px] font-black border transition-all cursor-pointer text-center focus:ring-1 focus:ring-purple-200 ${badgeStyle}" onchange="window.updateStatusFullDirect(${id}, this.value)">
@@ -1418,7 +1419,7 @@ window.tabulatorTransaksiFullTable = function(config) {
                                 colorStyle = 'bg-gray-100 text-gray-500 border-gray-300';
                             }
 
-                            if (config.canEdit) {
+                            if (config.canUpdateStatus || config.canEdit) {
                                 const options = (config.metodeList || []).map(m => {
                                     const selected = (currentId && m.id == currentId) || (m.nama.toLowerCase() === val.toLowerCase()) ? 'selected' : '';
                                     return `<option value="${m.id}" ${selected}>${m.nama}</option>`;

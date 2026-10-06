@@ -109,6 +109,7 @@ class PermissionService
                         'actions' => [
                             'transaksi.harian.create' => 'Tambah Transaksi (POST)',
                             'transaksi.harian.edit' => 'Edit Transaksi (PUT)',
+                            'transaksi.harian.status' => 'Pelunasan / Ubah Status BON',
                             'transaksi.harian.delete' => 'Hapus Transaksi (DELETE)',
                         ],
                     ],
@@ -120,6 +121,7 @@ class PermissionService
                         'actions' => [
                             'transaksi.full.create' => 'Tambah Transaksi FULL',
                             'transaksi.full.edit' => 'Edit Transaksi FULL',
+                            'transaksi.full.status' => 'Pelunasan / Ubah Status BON',
                             'transaksi.full.delete' => 'Hapus Transaksi FULL',
                         ],
                     ],
@@ -329,6 +331,7 @@ class PermissionService
                 'transaksi.harian.view',
                 'transaksi.harian.create',
                 'transaksi.harian.edit',
+                'transaksi.harian.status',
                 'servis.masuk.view',
                 'servis.masuk.detail',
                 'servis.masuk.create',
@@ -366,6 +369,7 @@ class PermissionService
                 'transaksi.harian.view',
                 'transaksi.harian.create',
                 'transaksi.harian.edit',
+                'transaksi.harian.status',
                 'laporan.penjualan.view',
                 'laporan.penjualan.detail',
                 'laporan.penjualan.print',
