@@ -180,7 +180,7 @@
                 <!-- Skeleton Loader saat Query/Filter/Search/Sort/Pagination -->
                 <tbody wire:key="servis-batal-skeleton-body"
                        wire:loading.delay
-                       wire:target="search, statusPengambilan, tipeFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
+                       wire:target="search, statusPengambilan, tipeFilter, cabangFilter, sortBy, sortField, sortDirection"
                        class="divide-y divide-gray-100 bg-white">
                     @for($i = 0; $i < 6; $i++)
                         <tr class="animate-pulse">
@@ -197,7 +197,7 @@
 
                 <tbody wire:key="servis-batal-data-body"
                        wire:loading.remove
-                       wire:target="search, statusPengambilan, tipeFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
+                       wire:target="search, statusPengambilan, tipeFilter, cabangFilter, sortBy, sortField, sortDirection"
                        class="divide-y divide-gray-100 text-xs">
                     @forelse($servisList as $item)
                         <tr wire:key="servis-batal-row-{{ $item->id }}" class="hover:bg-purple-50/30 transition-colors group {{ is_null($item->tanggal_ambil) ? 'bg-rose-50/20' : '' }}">

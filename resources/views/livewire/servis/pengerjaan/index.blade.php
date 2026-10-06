@@ -215,7 +215,7 @@
                 <!-- Skeleton Loader saat Query/Filter/Search/Sort/Pagination -->
                 <tbody wire:key="servis-keluar-skeleton-body"
                        wire:loading 
-                       wire:target="search, statusFilter, ambilFilter, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore" 
+                       wire:target="search, statusFilter, ambilFilter, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection" 
                        class="divide-y divide-gray-100 bg-white">
                     @for($i = 0; $i < 6; $i++)
                         <tr class="animate-pulse">
@@ -237,7 +237,7 @@
                 <!-- Data Rows -->
                 <tbody wire:key="servis-keluar-data-body"
                        wire:loading.remove 
-                       wire:target="search, statusFilter, ambilFilter, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore" 
+                       wire:target="search, statusFilter, ambilFilter, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection" 
                        class="divide-y divide-gray-100 text-xs">
                     @forelse($servisList as $sv)
                         <tr wire:key="pengerjaan-row-{{ $sv->id }}" class="hover:bg-gray-50/70 transition-colors {{ $sv->status === 'selesai' ? 'bg-emerald-50/20' : '' }}">

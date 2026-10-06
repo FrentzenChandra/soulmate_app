@@ -182,7 +182,7 @@
                 <!-- Skeleton Loader saat Query/Filter/Search/Sort/Pagination -->
                 <tbody wire:key="servis-keluar-skeleton-body"
                        wire:loading.delay
-                       wire:target="search, statusFilter, tipeFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
+                       wire:target="search, statusFilter, tipeFilter, cabangFilter, sortBy, sortField, sortDirection"
                        class="divide-y divide-gray-100 bg-white">
                     @for($i = 0; $i < 6; $i++)
                         <tr class="animate-pulse">
@@ -200,7 +200,7 @@
 
                 <tbody wire:key="servis-keluar-data-body"
                        wire:loading.remove
-                       wire:target="search, statusFilter, tipeFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
+                       wire:target="search, statusFilter, tipeFilter, cabangFilter, sortBy, sortField, sortDirection"
                        class="divide-y divide-gray-100 text-xs">
                     @forelse($servisList as $item)
                         <tr wire:key="servis-keluar-row-{{ $item->id }}" class="hover:bg-purple-50/30 transition-colors group {{ $item->status === 'selesai' ? 'bg-amber-50/20' : '' }}">

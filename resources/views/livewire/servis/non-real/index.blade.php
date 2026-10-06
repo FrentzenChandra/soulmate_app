@@ -131,7 +131,7 @@
                 <!-- Skeleton Loader saat Query/Filter/Search/Sort/Pagination -->
                 <tbody wire:key="servis-skeleton-body"
                        wire:loading.delay
-                       wire:target="search, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
+                       wire:target="search, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection"
                        class="divide-y divide-gray-100 bg-white">
                     @for($i = 0; $i < 6; $i++)
                         <tr class="animate-pulse">
@@ -150,7 +150,7 @@
 
                 <tbody wire:key="servis-data-body"
                        wire:loading.remove
-                       wire:target="search, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
+                       wire:target="search, kategoriFilter, cabangFilter, sortBy, sortField, sortDirection"
                        class="divide-y divide-gray-100">
                     @forelse($servisList as $item)
                         <tr wire:key="servis-non-real-{{ $item->id }}" class="hover:bg-purple-50/30 transition-colors group">
