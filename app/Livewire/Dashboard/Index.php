@@ -47,26 +47,6 @@ class Index extends Component
         $salamWaktu = $hour < 11 ? 'Selamat Pagi' : ($hour < 15 ? 'Selamat Siang' : ($hour < 18 ? 'Selamat Sore' : 'Selamat Malam'));
 
         if (! $isManagement) {
-            $cabangId = $user->cabang_id;
-            
-            // Antrian TV Display ringan khusus cabang staf
-            $servisQuery = ServisMasuk::query()->when($cabangId, fn ($q) => $q->where('cabang_id', $cabangId));
-            $antrianLaptop = [
-                'cek' => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'pengecekan')->count(),
-                'prg' => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'pengerjaan')->count(),
-                'ok' => (clone $servisQuery)->where('kategori_perangkat', 'laptop')->where('status', 'selesai')->count(),
-            ];
-            $antrianPrinter = [
-                'cek' => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'pengecekan')->count(),
-                'prg' => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'pengerjaan')->count(),
-                'ok' => (clone $servisQuery)->where('kategori_perangkat', 'printer')->where('status', 'selesai')->count(),
-            ];
-            $antrianKomputer = [
-                'cek' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'pengecekan')->count(),
-                'prg' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'pengerjaan')->count(),
-                'ok' => (clone $servisQuery)->where('kategori_perangkat', 'komputer')->where('status', 'selesai')->count(),
-            ];
-
             return view('livewire.dashboard.index', [
                 'isManagement' => false,
                 'isHQ' => false,
@@ -74,9 +54,6 @@ class Index extends Component
                 'isSuperadmin' => false,
                 'salamWaktu' => $salamWaktu,
                 'activeCabang' => $user->cabang,
-                'antrianLaptop' => $antrianLaptop,
-                'antrianPrinter' => $antrianPrinter,
-                'antrianKomputer' => $antrianKomputer,
             ]);
         }
 
