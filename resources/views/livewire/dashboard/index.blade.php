@@ -168,58 +168,7 @@
 
             <!-- 7 Days Comparison Chart HQ (ApexCharts) -->
             <div class="bg-white card-custom rounded-2xl p-6 border border-gray-100 shadow-sm" 
-                 x-data="{
-                    initChart() {
-                        let series = @json($chartSeries);
-                        let categories = @json($chartCategories);
-                        let options = {
-                            chart: {
-                                type: 'area',
-                                height: 320,
-                                fontFamily: 'Plus Jakarta Sans, sans-serif',
-                                toolbar: { show: false }
-                            },
-                            colors: ['#5E17EB', '#0052FF', '#E6007A', '#10B981'],
-                            dataLabels: { enabled: false },
-                            stroke: { curve: 'smooth', width: 2.5 },
-                            fill: {
-                                type: 'gradient',
-                                gradient: {
-                                    shadeIntensity: 1,
-                                    opacityFrom: 0.35,
-                                    opacityTo: 0.05,
-                                    stops: [0, 90, 100]
-                                }
-                            },
-                            series: series,
-                            xaxis: {
-                                categories: categories,
-                                axisBorder: { show: false },
-                                axisTicks: { show: false }
-                            },
-                            yaxis: {
-                                labels: {
-                                    formatter: function(val) {
-                                        return 'Rp ' + (val / 1000).toLocaleString('id-ID') + 'k';
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                y: {
-                                    formatter: function(val) {
-                                        return 'Rp ' + val.toLocaleString('id-ID');
-                                    }
-                                }
-                            },
-                            grid: {
-                                borderColor: '#f1f5f9',
-                                strokeDashArray: 4,
-                            }
-                        };
-                        let chart = new ApexCharts(this.$refs.hqChart, options);
-                        chart.render();
-                    }
-                 }"
+                 x-data="hqComparisonChart(@js($chartSeries), @js($chartCategories))"
                  x-init="initChart()">
                 <div class="flex items-center justify-between mb-4">
                     <div>
@@ -520,95 +469,8 @@
             <!-- BARIS 4: PENDAPATAN REAL NET HARIAN (BULAN BERJALAN) - APEXCHARTS         -->
             <!-- ========================================================================= -->
             <div class="bg-white card-custom rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm"
-                 x-data="{
-                    chart: null,
-                    renderChart() {
-                        let categories = @json($chartCategories);
-                        let seriesData = @json($chartSeriesData);
-
-                        let options = {
-                            chart: {
-                                type: 'bar',
-                                height: 320,
-                                fontFamily: 'Plus Jakarta Sans, sans-serif',
-                                toolbar: { show: false }
-                            },
-                            plotOptions: {
-                                bar: {
-                                    borderRadius: 6,
-                                    columnWidth: '50%',
-                                    dataLabels: {
-                                        position: 'top'
-                                    }
-                                }
-                            },
-                            colors: ['#5E17EB'],
-                            dataLabels: {
-                                enabled: true,
-                                formatter: function (val) {
-                                    if (val >= 1000000) {
-                                        return (val / 1000000).toFixed(1) + ' Jt';
-                                    } else if (val >= 1000) {
-                                        return (val / 1000).toFixed(0) + 'k';
-                                    }
-                                    return val > 0 ? val : '';
-                                },
-                                offsetY: -20,
-                                style: {
-                                    fontSize: '10px',
-                                    fontWeight: 700,
-                                    colors: ['#5E17EB']
-                                }
-                            },
-                            series: [{
-                                name: 'Real Net Harian',
-                                data: seriesData
-                            }],
-                            xaxis: {
-                                categories: categories,
-                                axisBorder: { show: false },
-                                axisTicks: { show: false },
-                                labels: {
-                                    style: {
-                                        fontSize: '11px',
-                                        fontWeight: 600,
-                                        colors: '#64748b'
-                                    }
-                                }
-                            },
-                            yaxis: {
-                                labels: {
-                                    formatter: function(val) {
-                                        return 'Rp ' + (val / 1000000).toFixed(0) + ' Jt';
-                                    },
-                                    style: {
-                                        fontSize: '11px',
-                                        fontWeight: 600,
-                                        colors: '#64748b'
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                y: {
-                                    formatter: function(val) {
-                                        return 'Rp ' + Number(val).toLocaleString('id-ID');
-                                    }
-                                }
-                            },
-                            grid: {
-                                borderColor: '#f1f5f9',
-                                strokeDashArray: 4
-                            }
-                        };
-
-                        if (this.chart) {
-                            this.chart.destroy();
-                        }
-                        this.chart = new ApexCharts(this.$refs.dailyChart, options);
-                        this.chart.render();
-                    }
-                 }"
-                 x-init="renderChart()">
+                 x-data="dailyNettChart(@js($chartCategories), @js($chartSeriesData))"
+                 x-init="initChart()">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2 mb-4">
                     <div class="flex items-center space-x-3">
                         <div class="w-9 h-9 rounded-xl bg-purple-50 text-[#5E17EB] flex items-center justify-center shrink-0 border border-purple-100">
@@ -750,3 +612,161 @@
     @endif
 
 </div>
+
+@push('scripts')
+<script>
+    function hqComparisonChart(series, categories) {
+        return {
+            chart: null,
+            initChart() {
+                this.$nextTick(() => {
+                    if (typeof ApexCharts === 'undefined' || !this.$refs.hqChart) return;
+                    const options = {
+                        chart: {
+                            type: 'area',
+                            height: 320,
+                            fontFamily: 'Plus Jakarta Sans, sans-serif',
+                            toolbar: { show: false }
+                        },
+                        colors: ['#5E17EB', '#0052FF', '#E6007A', '#10B981'],
+                        dataLabels: { enabled: false },
+                        stroke: { curve: 'smooth', width: 2.5 },
+                        fill: {
+                            type: 'gradient',
+                            gradient: {
+                                shadeIntensity: 1,
+                                opacityFrom: 0.35,
+                                opacityTo: 0.05,
+                                stops: [0, 90, 100]
+                            }
+                        },
+                        series: series,
+                        xaxis: {
+                            categories: categories,
+                            axisBorder: { show: false },
+                            axisTicks: { show: false }
+                        },
+                        yaxis: {
+                            labels: {
+                                formatter: function(val) {
+                                    return 'Rp ' + (val / 1000).toLocaleString('id-ID') + 'k';
+                                }
+                            }
+                        },
+                        tooltip: {
+                            y: {
+                                formatter: function(val) {
+                                    return 'Rp ' + Number(val).toLocaleString('id-ID');
+                                }
+                            }
+                        },
+                        grid: {
+                            borderColor: '#f1f5f9',
+                            strokeDashArray: 4
+                        }
+                    };
+
+                    if (this.chart) {
+                        this.chart.destroy();
+                    }
+                    this.chart = new ApexCharts(this.$refs.hqChart, options);
+                    this.chart.render();
+                });
+            }
+        };
+    }
+
+    function dailyNettChart(categories, seriesData) {
+        return {
+            chart: null,
+            initChart() {
+                this.$nextTick(() => {
+                    if (typeof ApexCharts === 'undefined' || !this.$refs.dailyChart) return;
+                    const options = {
+                        chart: {
+                            type: 'bar',
+                            height: 320,
+                            fontFamily: 'Plus Jakarta Sans, sans-serif',
+                            toolbar: { show: false }
+                        },
+                        plotOptions: {
+                            bar: {
+                                borderRadius: 6,
+                                columnWidth: '50%',
+                                dataLabels: {
+                                    position: 'top'
+                                }
+                            }
+                        },
+                        colors: ['#5E17EB'],
+                        dataLabels: {
+                            enabled: true,
+                            formatter: function (val) {
+                                if (!val || val === 0) return '';
+                                const absVal = Math.abs(val);
+                                if (absVal >= 1000000) {
+                                    return (val / 1000000).toFixed(1) + ' Jt';
+                                } else if (absVal >= 1000) {
+                                    return (val / 1000).toFixed(0) + 'k';
+                                }
+                                return val;
+                            },
+                            offsetY: -20,
+                            style: {
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                colors: ['#5E17EB']
+                            }
+                        },
+                        series: [{
+                            name: 'Real Net Harian',
+                            data: seriesData
+                        }],
+                        xaxis: {
+                            categories: categories,
+                            axisBorder: { show: false },
+                            axisTicks: { show: false },
+                            labels: {
+                                style: {
+                                    fontSize: '11px',
+                                    fontWeight: 600,
+                                    colors: '#64748b'
+                                }
+                            }
+                        },
+                        yaxis: {
+                            labels: {
+                                formatter: function(val) {
+                                    return 'Rp ' + (val / 1000000).toFixed(0) + ' Jt';
+                                },
+                                style: {
+                                    fontSize: '11px',
+                                    fontWeight: 600,
+                                    colors: '#64748b'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            y: {
+                                formatter: function(val) {
+                                    return 'Rp ' + Number(val).toLocaleString('id-ID');
+                                }
+                            }
+                        },
+                        grid: {
+                            borderColor: '#f1f5f9',
+                            strokeDashArray: 4
+                        }
+                    };
+
+                    if (this.chart) {
+                        this.chart.destroy();
+                    }
+                    this.chart = new ApexCharts(this.$refs.dailyChart, options);
+                    this.chart.render();
+                });
+            }
+        };
+    }
+</script>
+@endpush
