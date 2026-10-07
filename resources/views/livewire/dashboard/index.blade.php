@@ -520,114 +520,116 @@
     @endif
     @else
         <!-- ========================================================================= -->
-        <!-- STAFF PURE WELCOME & VISION DASHBOARD: TEKNISI, ADMIN, KASIR, DLL         -->
+        <!-- STAFF PURE WELCOME & SERVICE EXCELLENCE DASHBOARD                         -->
         <!-- ========================================================================= -->
 
-        <!-- 1. Hero Vision & Welcome Banner -->
-        <div class="card-custom bg-cover bg-center text-white p-6 sm:p-8 md:p-12 rounded-3xl relative z-0 overflow-hidden shadow-xl shadow-purple-950/20"
-             style="background-image: url('{{ asset('images/hero_display.jpeg') }}');">
+        <!-- 1. Hero Vision & Welcome Banner (Solid Clean Anti-AI Slop) -->
+        <div class="card-custom bg-slate-900 text-white p-6 sm:p-8 md:p-10 rounded-3xl relative z-0 overflow-hidden shadow-lg border border-slate-800"
+             style="background-image: url('{{ asset('images/hero_display.jpeg') }}'); background-size: cover; background-position: center;">
 
-            <!-- Dark Brand Gradient Overlay -->
-            <div class="absolute inset-0 bg-gradient-to-r from-[#0E1726]/95 via-[#0E1726]/85 to-[#5E17EB]/75"></div>
+            <!-- Solid Clean Dark Overlay (Anti-AI Slop) -->
+            <div class="absolute inset-0 bg-slate-950/85"></div>
 
             <div class="relative z-10 max-w-3xl">
                 <!-- Brand Badge, Date & Role -->
                 <div class="flex flex-wrap items-center gap-2 mb-4">
-                    <div class="inline-flex items-center space-x-2 bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-bold text-white border border-white/20">
+                    <div class="inline-flex items-center space-x-2 bg-slate-800/90 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white border border-slate-700">
                         <img src="{{ asset('images/logo.jpeg') }}" alt="Logo" class="w-4 h-4 rounded object-contain">
                         <span>Soulmate Komputer</span>
                     </div>
-                    <span class="inline-flex items-center space-x-1.5 bg-purple-500/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-purple-200 border border-purple-400/30">
-                        <svg class="w-3.5 h-3.5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span class="inline-flex items-center space-x-1.5 bg-slate-800/90 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 border border-slate-700">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         <span>{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</span>
                     </span>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-200 border border-blue-400/30">
+                    <span class="inline-flex items-center px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#5E17EB] text-white">
                         {{ auth()->user()->roles->first()?->name ?? 'Staff Operasional' }}
                     </span>
                 </div>
 
                 <!-- Main Greeting -->
-                <h1 class="text-2xl sm:text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                    {{ $salamWaktu }}, <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-100 to-pink-200">{{ auth()->user()->name }}</span>!
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                    {{ $salamWaktu }}, {{ auth()->user()->name }}!
                 </h1>
 
-                <!-- Vision Message -->
-                <p class="text-purple-100/90 text-sm sm:text-base md:text-lg mt-3.5 leading-relaxed font-medium">
-                    Selamat datang di sistem operasional <strong>Soulmate Komputer</strong>. Bersama kita wujudkan visi menjadi pusat layanan servis &amp; retail IT terbesar, modern, dan terpercaya!
+                <!-- Service Excellence Tag -->
+                <div class="mt-3 inline-flex items-center space-x-2 px-3 py-1 rounded-lg bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-bold">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <span>Standar Layanan: Pelayanan Nomor 1 &amp; Kepuasan Pelanggan</span>
+                </div>
+
+                <!-- Mission Description -->
+                <p class="text-slate-300 text-sm sm:text-base mt-3.5 leading-relaxed font-normal max-w-2xl">
+                    Setiap pelanggan adalah prioritas utama kita. Sambut dengan ramah, berikan diagnosa yang jujur dan transparan, serta pastikan setiap solusi selesai tepat waktu dengan kualitas terbaik.
                 </p>
 
-                <!-- Status Indicator -->
-                <div class="mt-6 flex flex-wrap items-center gap-3 text-xs text-purple-200/90">
-                    <span class="inline-flex items-center space-x-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3.5 py-1.5 rounded-full font-bold">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <!-- Status Indicator & Operational Tip -->
+                <div class="mt-6 flex flex-wrap items-center gap-3 text-xs">
+                    <span class="inline-flex items-center space-x-2 bg-emerald-950/80 text-emerald-400 border border-emerald-800 px-3.5 py-1.5 rounded-xl font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                         <span>Sistem Aktif &amp; Terhubung</span>
                     </span>
-                    <span class="text-purple-200/80 bg-white/10 px-3.5 py-1.5 rounded-full border border-white/10 font-medium">
-                        Gunakan menu sidebar di sebelah kiri untuk navigasi tugas harian Anda
+                    <span class="text-slate-400 bg-slate-800/90 px-3.5 py-1.5 rounded-xl border border-slate-700 font-medium">
+                        Pilih menu di sidebar sebelah kiri untuk navigasi tugas harian Anda
                     </span>
                 </div>
             </div>
-
-            <!-- Decorative Glow Elements -->
-            <div class="absolute -right-12 -bottom-12 w-72 h-72 bg-[#5E17EB]/30 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -left-12 -top-12 w-72 h-72 bg-[#0052FF]/20 rounded-full blur-3xl pointer-events-none"></div>
         </div>
 
-        <!-- 2. Core Operational Pillars / Nilai Budaya Pelayanan -->
+        <!-- 2. 3 Pilar Utama "Pelayanan Nomor 1" (Solid White Cards) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div class="bg-white card-custom p-6 rounded-2xl border border-gray-100 flex items-start space-x-4">
-                <div class="w-12 h-12 rounded-2xl bg-purple-50 text-[#5E17EB] flex items-center justify-center shrink-0 shadow-sm">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                </div>
-                <div>
-                    <h3 class="text-sm font-extrabold text-gray-900">Integritas &amp; Kejujuran</h3>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">
-                        Kejujuran dalam diagnosa servis dan transparansi biaya adalah pondasi kepercayaan pelanggan kita.
-                    </p>
-                </div>
-            </div>
-
-            <div class="bg-white card-custom p-6 rounded-2xl border border-gray-100 flex items-start space-x-4">
-                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-[#0052FF] flex items-center justify-center shrink-0 shadow-sm">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                </div>
-                <div>
-                    <h3 class="text-sm font-extrabold text-gray-900">Ketelitian &amp; Kualitas</h3>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">
-                        Periksa kondisi fisik dan kelengkapan unit servis dengan teliti sebelum dan sesudah pengerjaan.
-                    </p>
-                </div>
-            </div>
-
-            <div class="bg-white card-custom p-6 rounded-2xl border border-gray-100 flex items-start space-x-4">
-                <div class="w-12 h-12 rounded-2xl bg-pink-50 text-[#E6007A] flex items-center justify-center shrink-0 shadow-sm">
+            <div class="bg-white card-custom p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start space-x-4">
+                <div class="w-12 h-12 rounded-2xl bg-purple-50 text-[#5E17EB] flex items-center justify-center shrink-0 border border-purple-100">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 <div>
-                    <h3 class="text-sm font-extrabold text-gray-900">Keramahan &amp; Kecepatan</h3>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">
-                        Berikan sambutan hangat dan layanan responsif demi kepuasan dan kenyamanan setiap pelanggan.
+                    <h3 class="text-sm font-extrabold text-slate-900">Senyum, Salam &amp; Sapa</h3>
+                    <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                        Sambut setiap pelanggan dengan ramah dan tulus. Dengarkan setiap keluhan perangkat dengan penuh perhatian dan empati.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white card-custom p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start space-x-4">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-[#0052FF] flex items-center justify-center shrink-0 border border-blue-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-extrabold text-slate-900">Diagnosa Teliti &amp; Jujur</h3>
+                    <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                        Cek fisik dan fungsi unit dengan teliti. Berikan transparansi biaya dan solusi yang tepat tanpa manipulasi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white card-custom p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start space-x-4">
+                <div class="w-12 h-12 rounded-2xl bg-pink-50 text-[#E6007A] flex items-center justify-center shrink-0 border border-pink-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-extrabold text-slate-900">Solutif &amp; Tuntas Cepat</h3>
+                    <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                        Selesaikan perbaikan dengan standar mutu terbaik dan berikan update status pengerjaan yang jelas kepada pelanggan.
                     </p>
                 </div>
             </div>
         </div>
 
-        <!-- 3. SOP Standar Pelayanan Prima -->
-        <div class="bg-gradient-to-r from-purple-900 to-indigo-950 text-white card-custom p-6 rounded-2xl border border-purple-800/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <!-- 3. Komitmen 5S Standar Pelayanan Soulmate (Solid Dark Slate Card) -->
+        <div class="bg-slate-900 text-white card-custom p-6 rounded-2xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-start space-x-4">
-                <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center shrink-0 text-purple-300">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-amber-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
                 </div>
                 <div>
-                    <h3 class="text-sm font-extrabold text-white">Standar Operasional Pelayanan Prima</h3>
-                    <p class="text-xs text-purple-200/80 mt-1 leading-relaxed">
-                        Pastikan kondisi fisik, kelengkapan unit servis, dan nomor WhatsApp aktif pelanggan dicatat dengan cermat saat penerimaan unit.
+                    <h3 class="text-sm font-extrabold text-white">Budaya 5S Pelayanan Soulmate</h3>
+                    <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                        <span class="font-bold text-amber-300">Senyum &bull; Salam &bull; Sapa &bull; Sopan &bull; Solutif</span> &mdash; Jadikan setiap interaksi pelanggan sebagai pengalaman yang memuaskan dan berkesan.
                     </p>
                 </div>
             </div>
             <div class="shrink-0 flex items-center space-x-2">
-                <span class="text-xs font-bold bg-white/10 px-3 py-1.5 rounded-xl border border-white/15 text-purple-200">
-                    Soulmate Quality First
+                <span class="text-xs font-bold bg-[#5E17EB] text-white px-3.5 py-1.5 rounded-xl border border-purple-400/20">
+                    Pelayanan Nomor 1
                 </span>
             </div>
         </div>
