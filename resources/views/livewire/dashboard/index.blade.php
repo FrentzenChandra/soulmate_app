@@ -227,7 +227,7 @@
             <!-- ========================================================================= -->
             <!-- BARIS 1: FINANSIAL BULAN BERJALAN (1 s/d Hari Ini) - EXACT TRANSAKSI FULL -->
             <!-- ========================================================================= -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+            <div wire:ignore class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
                 <!-- 1. Pendapatan (Ungu) -->
                 <div class="bg-white p-4 rounded-2xl border border-purple-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between pb-2 border-b border-purple-100/80">
@@ -319,7 +319,7 @@
                         <h2 class="text-sm font-extrabold text-slate-900 tracking-tight">Statistik Servis Toko</h2>
                     </div>
 
-                    <!-- Filter Dropdown Bulan & Tahun -->
+                    <!-- Filter Dropdown Bulan & Tahun Khusus Servis -->
                     <div class="flex items-center space-x-2">
                         <select wire:model.live="filterBulanServis" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 shadow-xs focus:ring-1 focus:ring-[#5E17EB] focus:border-[#5E17EB]">
                             @for($m = 1; $m <= 12; $m++)
@@ -389,7 +389,7 @@
             <!-- ========================================================================= -->
             <!-- BARIS 3: SALDO REKENING (GROUPED PER SUMBER SALDO) + TOTAL SALDO BANNER   -->
             <!-- ========================================================================= -->
-            <div class="bg-white card-custom p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+            <div wire:ignore class="bg-white card-custom p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
                 <!-- Header Saldo -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                     <div class="flex items-center space-x-3">
@@ -468,7 +468,7 @@
             <!-- ========================================================================= -->
             <!-- BARIS 4: PENDAPATAN REAL NET HARIAN (BULAN BERJALAN) - APEXCHARTS         -->
             <!-- ========================================================================= -->
-            <div class="bg-white card-custom rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm"
+            <div wire:ignore class="bg-white card-custom rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm"
                  x-data="dailyNettChart(@js($chartCategories), @js($chartSeriesData))"
                  x-init="initChart()">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2 mb-4">
