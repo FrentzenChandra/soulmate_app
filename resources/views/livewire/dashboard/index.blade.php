@@ -184,15 +184,15 @@
             <!-- BRANCH VIEW (SUPERADMIN & OWNER IN BRANCH MODE) - 4 ROW ULTRA FAST        -->
             <!-- ========================================================================= -->
 
-            <!-- Header Banner Cabang -->
+            <!-- Header Banner Dashboard Pure Soulmate -->
             <div class="bg-white card-custom p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex items-center space-x-3.5">
-                    <div class="w-12 h-12 rounded-2xl bg-purple-50 text-[#5E17EB] border border-purple-100 flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
-                        {{ $activeCabang?->kode_cabang ?? 'POS' }}
+                    <div class="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-xs p-1.5">
+                        <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-full h-full object-contain">
                     </div>
                     <div>
                         <div class="flex items-center space-x-2">
-                            <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">{{ $activeCabang?->nama_cabang ?? 'Dashboard Cabang' }}</h1>
+                            <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Soulmate Komputer</h1>
                             <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px] border border-emerald-200/60">
                                 Aktif
                             </span>
