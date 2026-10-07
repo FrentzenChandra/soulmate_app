@@ -167,7 +167,7 @@
             </div>
 
             <!-- 7 Days Comparison Chart HQ (ApexCharts) -->
-            <div class="bg-white card-custom rounded-2xl p-6 border border-gray-100 shadow-sm" 
+            <div class="bg-white card-custom rounded-2xl p-6 border border-gray-100 shadow-sm"
                  x-data="hqComparisonChart(@js($chartSeries), @js($chartCategories))"
                  x-init="initChart()">
                 <div class="flex items-center justify-between mb-4">

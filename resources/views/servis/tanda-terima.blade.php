@@ -152,9 +152,9 @@
             </div>
 
             <div class="pt-1">
-                <span class="text-[11px] font-bold text-gray-700 uppercase block leading-none">Kondisi Fisik :</span>
+                <span class="text-[11px] font-bold text-gray-700 uppercase block leading-none">Catatan Servis :</span>
                 <span class="text-xs font-medium text-gray-800 mt-1 block whitespace-pre-line leading-relaxed">
-                    {{ $servis->kondisi_barang ?: ('-') }}
+                    {{ $servis->catatan ?: ('-') }}
                 </span>
             </div>
 
