@@ -21,7 +21,7 @@ class Login extends Component
 
     public bool $remember = false;
 
-    public ?string $turnstileToken = null;
+    public ?string $recaptchaToken = null;
 
     public function rules(): array
     {
@@ -52,33 +52,33 @@ class Login extends Component
             ]);
         }
 
-        // 2. Optional Captcha Verification (Cloudflare Turnstile)
-        $secretKey = config('services.turnstile.secret_key');
+        // 2. Optional Captcha Verification (Google reCAPTCHA v2)
+        $secretKey = config('services.recaptcha.secret_key');
         if (! empty($secretKey)) {
-            $token = request()->input('cf-turnstile-response') ?? $this->turnstileToken;
+            $token = request()->input('g-recaptcha-response') ?? $this->recaptchaToken;
             if (empty($token)) {
                 throw ValidationException::withMessages([
-                    'turnstileToken' => 'Silakan selesaikan verifikasi captcha terlebih dahulu.',
+                    'recaptchaToken' => 'Silakan centang kotak verifikasi captcha (Saya bukan robot).',
                 ]);
             }
 
             try {
-                $verify = Http::asForm()->timeout(5)->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                $verify = Http::asForm()->timeout(5)->post('https://www.google.com/recaptcha/api/siteverify', [
                     'secret' => $secretKey,
                     'response' => $token,
                     'remoteip' => request()->ip(),
                 ]);
 
                 if (! $verify->json('success')) {
-                    $this->turnstileToken = null;
+                    $this->recaptchaToken = null;
                     throw ValidationException::withMessages([
-                        'turnstileToken' => 'Verifikasi captcha tidak valid atau sudah kedaluwarsa. Silakan coba lagi.',
+                        'recaptchaToken' => 'Verifikasi captcha tidak valid atau sudah kedaluwarsa. Silakan centang ulang.',
                     ]);
                 }
             } catch (ValidationException $ve) {
                 throw $ve;
             } catch (\Throwable $e) {
-                // If Turnstile verification network timeout or offline, log and proceed gracefully
+                // If Google verification network timeout or offline, log and proceed gracefully
             }
         }
 
