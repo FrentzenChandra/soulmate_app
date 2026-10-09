@@ -154,15 +154,17 @@
                 </label>
             </div>
 
-            <!-- Google reCAPTCHA v2 Widget (Only renders if site key is configured) -->
-            @if(config('services.recaptcha.site_key'))
-                <div wire:ignore class="flex justify-center my-3 min-h-[78px]">
-                    <div class="g-recaptcha"
-                         data-sitekey="{{ config('services.recaptcha.site_key') }}"
-                         data-callback="onRecaptchaResponse"
-                         data-expired-callback="onRecaptchaExpired"></div>
+            <!-- Cloudflare Turnstile Captcha Widget (Only renders if site key is configured) -->
+            @if(config('services.turnstile.site_key'))
+                <div wire:ignore class="flex justify-center my-3 min-h-[65px]">
+                    <div class="cf-turnstile"
+                         data-sitekey="{{ config('services.turnstile.site_key') }}"
+                         data-callback="onTurnstileSuccess"
+                         data-expired-callback="onTurnstileExpired"
+                         data-error-callback="onTurnstileError"
+                         data-theme="light"></div>
                 </div>
-                @error('recaptchaToken')
+                @error('turnstileToken')
                     <p class="text-rose-500 text-xs font-semibold text-center mt-1">{{ $message }}</p>
                 @enderror
             @endif
@@ -177,14 +179,17 @@
             </button>
         </form>
 
-        @if(config('services.recaptcha.site_key'))
+        @if(config('services.turnstile.site_key'))
             @script
             <script>
-                window.onRecaptchaResponse = function(token) {
-                    $wire.set('recaptchaToken', token);
+                window.onTurnstileSuccess = function(token) {
+                    $wire.set('turnstileToken', token);
                 };
-                window.onRecaptchaExpired = function() {
-                    $wire.set('recaptchaToken', null);
+                window.onTurnstileExpired = function() {
+                    $wire.set('turnstileToken', null);
+                };
+                window.onTurnstileError = function() {
+                    $wire.set('turnstileToken', null);
                 };
             </script>
             @endscript
