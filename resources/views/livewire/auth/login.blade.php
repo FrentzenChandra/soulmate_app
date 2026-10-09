@@ -154,6 +154,19 @@
                 </label>
             </div>
 
+            <!-- Google reCAPTCHA Widget (Only renders if site key is configured) -->
+            @if(config('services.recaptcha.site_key'))
+                <div wire:ignore class="flex justify-center my-3 min-h-[78px]">
+                    <div class="g-recaptcha"
+                         data-sitekey="{{ config('services.recaptcha.site_key') }}"
+                         data-callback="onRecaptchaResponse"
+                         data-expired-callback="onRecaptchaExpired"></div>
+                </div>
+                @error('recaptchaToken')
+                    <p class="text-rose-500 text-xs font-semibold text-center mt-1">{{ $message }}</p>
+                @enderror
+            @endif
+
             <!-- Submit Button -->
             <button type="submit"
                     wire:loading.attr="disabled"
@@ -163,6 +176,26 @@
                 <span wire:loading wire:target="authenticate">Memverifikasi Akun...</span>
             </button>
         </form>
+
+        @if(config('services.recaptcha.site_key'))
+            @script
+            <script>
+                window.onRecaptchaResponse = function(token) {
+                    $wire.set('recaptchaToken', token);
+                };
+                window.onRecaptchaExpired = function() {
+                    $wire.set('recaptchaToken', null);
+                };
+
+                // Auto-reset captcha jika terjadi validasi error
+                Livewire.hook('morph.updated', () => {
+                    if (window.grecaptcha && typeof grecaptcha.reset === 'function') {
+                        // grecaptcha.reset();
+                    }
+                });
+            </script>
+            @endscript
+        @endif
 
     </div>
 </div>

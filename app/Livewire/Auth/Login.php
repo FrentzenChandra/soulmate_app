@@ -58,7 +58,7 @@ class Login extends Component
             $token = request()->input('g-recaptcha-response') ?? $this->recaptchaToken;
             if (empty($token)) {
                 throw ValidationException::withMessages([
-                    'identity' => 'Verifikasi captcha diperlukan.',
+                    'recaptchaToken' => 'Silakan centang kotak verifikasi captcha (Saya bukan robot).',
                 ]);
             }
 
@@ -70,12 +70,15 @@ class Login extends Component
                 ]);
 
                 if (! $verify->json('success')) {
+                    $this->recaptchaToken = null;
                     throw ValidationException::withMessages([
-                        'identity' => 'Verifikasi captcha tidak valid. Silakan coba lagi.',
+                        'recaptchaToken' => 'Verifikasi captcha tidak valid atau sudah kedaluwarsa. Silakan centang ulang.',
                     ]);
                 }
+            } catch (ValidationException $ve) {
+                throw $ve;
             } catch (\Throwable $e) {
-                // If Google verification network timeout, log and proceed or reject gracefully
+                // If Google verification network timeout or offline, log and proceed gracefully
             }
         }
 
