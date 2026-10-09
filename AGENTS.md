@@ -211,15 +211,16 @@
   * Tombol aksi CRUD & fitur spesifik (Detail, POST, Edit, Delete, Cetak Nota/Tanda Terima, Tindakan Servis, Ubah Status) di Blade view WAJIB dibungkus `@can(...)` dan dilindungi `abort_if(!can(...), 403)` pada method Livewire terkait.
 - **Master Switch & Sub-Action Matrix:** Form Atur Akses menyediakan master toggle per modul (mengaktifkan/menonaktifkan seluruh izin modul) serta checklist individu untuk setiap tombol aksi.
 
-## 27. Captcha & Rate Limiting Standard (Zero Friction & Env Driven)
+## 27. Cloudflare Turnstile Captcha & Rate Limiting Standard (Zero Friction & Env Driven)
 - **Konfigurasi Lingkungan (`.env.example` & `config/services.php`):**
-  * Parameter Captcha (`RECAPTCHA_SITE_KEY` & `RECAPTCHA_SECRET_KEY`) bersifat opsional.
+  * Parameter Captcha (`TURNSTILE_SITE_KEY` & `TURNSTILE_SECRET_KEY`) bersifat opsional (dengan fallback backward-compatible ke `RECAPTCHA_*`).
   * Dilarang keras menaruh kunci rahasia (*secret key*) secara langsung di dalam kode Blade atau controller.
 - **Graceful Conditional Activation (`/ponytail`):**
-  * Script Google reCAPTCHA (`<script src="https://www.google.com/recaptcha/api.js" async defer></script>`) HANYA dimuat jika `RECAPTCHA_SITE_KEY` terisi di `.env`.
-  * Jika kunci di `.env` kosong, sistem otomatis membypass verifikasi Google tanpa error atau interupsi pada environment lokal/development.
+  * Script Cloudflare Turnstile (`<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>`) HANYA dimuat jika `TURNSTILE_SITE_KEY` terisi di `.env`.
+  * Widget Turnstile (`<div class="cf-turnstile" ...></div>`) di-render di dalam form login dengan `wire:ignore` dan terhubung via Livewire JavaScript API.
+  * Jika kunci di `.env` kosong, sistem otomatis membypass verifikasi captcha tanpa error atau interupsi pada environment lokal/development.
 - **Bedrock Defense (Native Rate Limiting):**
-  * Form autentikasi wajib dilengkapi proteksi brute-force native Laravel (`RateLimiter::attempt(...)` / `RateLimiter::tooManyAttempts(...)`) dengan ambang batas 5x kesalahan login per 60 detik per IP/identitas.
+  * Form autentikasi wajib dilengkapi proteksi brute-force native Laravel (`RateLimiter::tooManyAttempts(...)`) dengan ambang batas 5x kesalahan login per 60 detik per IP/identitas.
 
 
 
