@@ -154,21 +154,6 @@
                 </label>
             </div>
 
-            <!-- Cloudflare Turnstile Captcha Widget (Only renders if site key is configured) -->
-            @if(config('services.turnstile.site_key'))
-                <div wire:ignore class="flex justify-center my-3 min-h-[65px]">
-                    <div class="cf-turnstile"
-                         data-sitekey="{{ config('services.turnstile.site_key') }}"
-                         data-callback="onTurnstileSuccess"
-                         data-expired-callback="onTurnstileExpired"
-                         data-error-callback="onTurnstileError"
-                         data-theme="light"></div>
-                </div>
-                @error('turnstileToken')
-                    <p class="text-rose-500 text-xs font-semibold text-center mt-1">{{ $message }}</p>
-                @enderror
-            @endif
-
             <!-- Submit Button -->
             <button type="submit"
                     wire:loading.attr="disabled"
@@ -178,22 +163,6 @@
                 <span wire:loading wire:target="authenticate">Memverifikasi Akun...</span>
             </button>
         </form>
-
-        @if(config('services.turnstile.site_key'))
-            @script
-            <script>
-                window.onTurnstileSuccess = function(token) {
-                    $wire.set('turnstileToken', token);
-                };
-                window.onTurnstileExpired = function() {
-                    $wire.set('turnstileToken', null);
-                };
-                window.onTurnstileError = function() {
-                    $wire.set('turnstileToken', null);
-                };
-            </script>
-            @endscript
-        @endif
 
     </div>
 </div>

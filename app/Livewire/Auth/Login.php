@@ -3,7 +3,6 @@
 namespace App\Livewire\Auth;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -20,8 +19,6 @@ class Login extends Component
     public string $password = '';
 
     public bool $remember = false;
-
-    public ?string $turnstileToken = null;
 
     public function rules(): array
     {
@@ -52,37 +49,7 @@ class Login extends Component
             ]);
         }
 
-        // 2. Optional Captcha Verification (Cloudflare Turnstile)
-        $secretKey = config('services.turnstile.secret_key');
-        if (! empty($secretKey)) {
-            $token = request()->input('cf-turnstile-response') ?? $this->turnstileToken;
-            if (empty($token)) {
-                throw ValidationException::withMessages([
-                    'turnstileToken' => 'Silakan selesaikan verifikasi captcha terlebih dahulu.',
-                ]);
-            }
-
-            try {
-                $verify = Http::asForm()->timeout(5)->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-                    'secret' => $secretKey,
-                    'response' => $token,
-                    'remoteip' => request()->ip(),
-                ]);
-
-                if (! $verify->json('success')) {
-                    $this->turnstileToken = null;
-                    throw ValidationException::withMessages([
-                        'turnstileToken' => 'Verifikasi captcha tidak valid atau sudah kedaluwarsa. Silakan coba lagi.',
-                    ]);
-                }
-            } catch (ValidationException $ve) {
-                throw $ve;
-            } catch (\Throwable $e) {
-                // If Cloudflare verification network timeout or offline, log and proceed gracefully
-            }
-        }
-
-        // 3. Cek login via email atau username
+        // 2. Cek login via email atau username
         $loginField = filter_var($this->identity, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         $credentials = [

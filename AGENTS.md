@@ -211,16 +211,12 @@
   * Tombol aksi CRUD & fitur spesifik (Detail, POST, Edit, Delete, Cetak Nota/Tanda Terima, Tindakan Servis, Ubah Status) di Blade view WAJIB dibungkus `@can(...)` dan dilindungi `abort_if(!can(...), 403)` pada method Livewire terkait.
 - **Master Switch & Sub-Action Matrix:** Form Atur Akses menyediakan master toggle per modul (mengaktifkan/menonaktifkan seluruh izin modul) serta checklist individu untuk setiap tombol aksi.
 
-## 27. Cloudflare Turnstile Captcha & Rate Limiting Standard (Zero Friction & Env Driven)
-- **Konfigurasi Lingkungan (`.env.example` & `config/services.php`):**
-  * Parameter Captcha (`TURNSTILE_SITE_KEY` & `TURNSTILE_SECRET_KEY`) bersifat opsional (dengan fallback backward-compatible ke `RECAPTCHA_*`).
-  * Dilarang keras menaruh kunci rahasia (*secret key*) secara langsung di dalam kode Blade atau controller.
-- **Graceful Conditional Activation (`/ponytail`):**
-  * Script Cloudflare Turnstile (`<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>`) HANYA dimuat jika `TURNSTILE_SITE_KEY` terisi di `.env`.
-  * Widget Turnstile (`<div class="cf-turnstile" ...></div>`) di-render di dalam form login dengan `wire:ignore` dan terhubung via Livewire JavaScript API.
-  * Jika kunci di `.env` kosong, sistem otomatis membypass verifikasi captcha tanpa error atau interupsi pada environment lokal/development.
-- **Bedrock Defense (Native Rate Limiting):**
-  * Form autentikasi wajib dilengkapi proteksi brute-force native Laravel (`RateLimiter::tooManyAttempts(...)`) dengan ambang batas 20x kesalahan login per 60 detik per IP/identitas.
+## 27. Native Authentication & Rate Limiting Standard (Captcha-Free & Zero Friction)
+- **Zero Friction Authentication (/ponytail):**
+  * Halaman login bebas dari widget captcha pihak ketiga (Google reCAPTCHA / Cloudflare Turnstile ditiadakan penuh) untuk mencegah issue HTTP 429 Too Many Requests, false positive bot fight mode, network roundtrip eksternal, dan hambatan login staf toko.
+- **Bedrock Defense (Native Laravel Rate Limiting):**
+  * Keamanan form autentikasi dilindungi langsung di level backend oleh mekanisme native Laravel (`RateLimiter::tooManyAttempts(...)`).
+  * Batas keamanan: 20x toleransi percobaan gagal per 60 detik per identitas/IP (`Str::transliterate(Str::lower($identity) . '|' . request()->ip())`), memberikan ruang toleransi yang aman dan ramah bagi staf saat mengetik tanpa risiko brute-force.
 
 
 
