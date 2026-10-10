@@ -7,6 +7,9 @@
 
     RewriteEngine On
 
+    # Disable LiteSpeed Per-Client Throttling (Anti HTTP 429 for Livewire & POS)
+    RewriteRule .* - [E=nothrottle:1]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
