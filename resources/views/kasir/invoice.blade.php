@@ -18,9 +18,16 @@
             box-sizing: border-box;
         }
         @media print {
+            * {
+                color: #000000 !important;
+                text-shadow: none !important;
+                filter: none !important;
+                -webkit-font-smoothing: none !important;
+                font-smooth: never !important;
+            }
             html, body {
                 background: white !important;
-                color: black !important;
+                color: #000000 !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 overflow: visible !important;
@@ -37,30 +44,34 @@
                 margin: 0 !important;
                 width: 100% !important;
                 max-width: 230mm !important;
+                background: white !important;
             }
             .sales-invoice-container tr,
             .sales-invoice-container .avoid-break {
                 page-break-inside: avoid !important;
             }
-
             th {
                 font-style: normal !important;
+            }
+            /* Semua teks dipaksa hitam pekat 100% */
+            p, span, td, th, h1, h2, h3, div, a, b, strong {
+                color: #000000 !important;
             }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen py-6 px-4 font-sans antialiased text-gray-900 selection:bg-purple-500 selection:text-white" style="font-family: Arial, Helvetica, sans-serif !important;">
+<body class="bg-gray-100 min-h-screen py-6 px-4 font-sans antialiased text-black selection:bg-purple-500 selection:text-white" style="font-family: Arial, Helvetica, sans-serif !important;">
 
     <!-- Action Bar (Hidden on Print) -->
     <div class="max-w-4xl mx-auto mb-4 flex items-center justify-between no-print bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm">
         <div class="flex items-center space-x-2">
             <button type="button"
                     onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = '{{ route('kasir.produk') }}'; }"
-                    class="px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-all inline-flex items-center space-x-1 cursor-pointer">
+                    class="px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-black text-xs font-bold transition-all inline-flex items-center space-x-1 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 <span>Kembali</span>
             </button>
-            <span class="text-xs font-mono text-gray-500 ">| {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}</span>
+            <span class="text-xs font-mono text-black ">| {{ $penjualan->no_transaksi_frontend ?? $penjualan->no_transaksi }}</span>
         </div>
 
         <div class="flex items-center space-x-2">
