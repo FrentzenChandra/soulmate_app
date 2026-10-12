@@ -400,8 +400,13 @@
                              class="p-2.5 sm:p-3 bg-white hover:bg-purple-50/20 border {{ !empty($item['is_custom_price']) ? 'border-purple-300 ring-1 ring-purple-100 bg-purple-50/10' : 'border-gray-200/80' }} rounded-2xl transition-all shadow-2xs space-y-2"
                              x-data="{
                                  subtotal: {{ (float) $item['subtotal'] }},
+                                 qty: {{ max(1, (int) $item['qty']) }},
                                  display: '',
                                  humanHelper: '',
+                                 debounceTimer: null,
+                                 get unitPrice() {
+                                     return Math.round(this.subtotal / Math.max(1, this.qty));
+                                 },
                                  formatRupiah(val) {
                                      if (val === null || val === undefined || val === '' || isNaN(val)) return '0';
                                      let num = parseInt(val.toString().replace(/[^0-9]/g, ''), 10);
@@ -439,8 +444,18 @@
                                      this.display = num ? num.toLocaleString('id-ID') : '';
                                      this.humanHelper = this.calcHelper(num);
                                      e.target.value = this.display;
+
+                                     // 1. Seketika (0ms) update Subtotal Belanja & Grand Total di footer
+                                     $dispatch('cart-item-subtotal-changed', { id: {{ $item['id'] }}, subtotal: num });
+
+                                     // 2. Debounce auto-commit ke Livewire (250ms)
+                                     clearTimeout(this.debounceTimer);
+                                     this.debounceTimer = setTimeout(() => {
+                                         this.onCommit();
+                                     }, 250);
                                  },
                                  onCommit() {
+                                     clearTimeout(this.debounceTimer);
                                      $wire.updateItemSubtotal({{ $item['id'] }}, this.subtotal);
                                  }
                              }">
@@ -523,7 +538,7 @@
                                     @endif
                                 </div>
                                 <div class="text-right truncate">
-                                    <span>@ Rp {{ number_format($item['harga'], 0, ',', '.') }} / unit</span>
+                                    <span x-text="'@ Rp ' + formatRupiah(unitPrice) + ' / unit'">@ Rp {{ number_format($item['harga'], 0, ',', '.') }} / unit</span>
                                 </div>
                             </div>
                         </div>
@@ -537,12 +552,49 @@
                 </div>
 
                 <!-- Financial Calculation & PPN Section (Pinned Bottom) -->
-                <div class="p-3.5 bg-gray-50 border-t border-gray-100 space-y-2 shrink-0">
+                <div class="p-3.5 bg-gray-50 border-t border-gray-100 space-y-2 shrink-0"
+                     x-data="{
+                         diskon: @entangle('diskon').live,
+                         ppnPersen: {{ (float) $this->ppnPersen }},
+                         itemsMap: {
+                             @foreach($cart as $c)
+                                 {{ $c['id'] }}: {{ (float) $c['subtotal'] }},
+                             @endforeach
+                         },
+                         get currentSubtotal() {
+                             let total = 0;
+                             for (let key in this.itemsMap) {
+                                 total += Number(this.itemsMap[key] || 0);
+                             }
+                             return total;
+                         },
+                         get currentPpnNominal() {
+                             let sub = this.currentSubtotal;
+                             let d = Number(this.diskon || 0);
+                             let afterDiskon = Math.max(0, sub - d);
+                             return (afterDiskon * (this.ppnPersen || 0)) / 100;
+                         },
+                         get currentGrandTotal() {
+                             let sub = this.currentSubtotal;
+                             let d = Number(this.diskon || 0);
+                             let afterDiskon = Math.max(0, sub - d);
+                             return afterDiskon + this.currentPpnNominal;
+                         },
+                         formatRp(val) {
+                             let num = Math.round(Number(val || 0));
+                             return isNaN(num) ? '0' : num.toLocaleString('id-ID');
+                         }
+                     }"
+                     @cart-item-subtotal-changed.window="itemsMap[$event.detail.id] = $event.detail.subtotal">
 
                     <!-- Subtotal -->
                     <div class="flex items-center justify-between text-xs text-gray-600">
                         <span>Subtotal Belanja</span>
-                        <span class="font-extrabold text-gray-900">Rp {{ number_format($this->subtotal, 0, ',', '.') }}</span>
+                        <span class="font-extrabold text-gray-900">
+                            <span x-text="'Rp ' + formatRp(currentSubtotal)">
+                                Rp {{ number_format($this->subtotal, 0, ',', '.') }}
+                            </span>
+                        </span>
                     </div>
 
                     <!-- Diskon Input -->
@@ -567,7 +619,7 @@
                     @if($this->ppnNominal > 0)
                         <div class="flex items-center justify-between text-purple-700 font-semibold text-xs">
                             <span>Nominal PPN ({{ $this->ppnPersen }}%)</span>
-                            <span>+ Rp {{ number_format($this->ppnNominal, 0, ',', '.') }}</span>
+                            <span x-text="'+ Rp ' + formatRp(currentPpnNominal)">+ Rp {{ number_format($this->ppnNominal, 0, ',', '.') }}</span>
                         </div>
                     @endif
 
@@ -576,7 +628,9 @@
                         <div>
                             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Grand Total</span>
                             <span class="text-xl font-black text-[#5E17EB]">
-                                Rp {{ number_format($this->grandTotal, 0, ',', '.') }}
+                                <span x-text="'Rp ' + formatRp(currentGrandTotal)">
+                                    Rp {{ number_format($this->grandTotal, 0, ',', '.') }}
+                                </span>
                             </span>
                         </div>
                         <span class="text-[11px] font-bold px-2 py-1 rounded-md bg-purple-100 text-[#5E17EB]">
