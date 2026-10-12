@@ -243,7 +243,7 @@
         <!-- ============================================== -->
         <!-- KOLOM KANAN: KERANJANG BELANJA & CHECKOUT (5/12)-->
         <!-- ============================================== -->
-        <div class="lg:col-span-5 xl:col-span-4 flex flex-col gap-3 lg:sticky lg:top-4">
+        <div class="lg:col-span-5 xl:col-span-4 flex flex-col gap-3 lg:sticky lg:top-4 lg:max-h-[calc(100vh-1.5rem)] lg:overflow-y-auto custom-scrollbar pr-0.5">
 
             <!-- Customer Selector Widget -->
             <div class="bg-white card-custom p-3.5 rounded-2xl border border-gray-100 shadow-xs space-y-2.5 shrink-0">
@@ -394,7 +394,7 @@
                 @endif
 
                 <!-- List Items Scrollable (Bounded Height: Never pushes Checkout button down) -->
-                <div class="space-y-2.5 max-h-[290px] overflow-y-auto custom-scrollbar p-2.5">
+                <div class="space-y-2.5 min-h-[140px] max-h-[340px] xl:max-h-[420px] overflow-y-auto overscroll-contain custom-scrollbar p-2.5">
                     @forelse($cart as $item)
                         <div wire:key="cart-item-{{ $item['id'] }}"
                              class="p-2.5 sm:p-3 bg-white hover:bg-purple-50/20 border {{ !empty($item['is_custom_price']) ? 'border-purple-300 ring-1 ring-purple-100 bg-purple-50/10' : 'border-gray-200/80' }} rounded-2xl transition-all shadow-2xs space-y-2"
