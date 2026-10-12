@@ -400,6 +400,7 @@
                              class="p-2.5 sm:p-3 bg-white hover:bg-purple-50/20 border {{ !empty($item['is_custom_price']) ? 'border-purple-300 ring-1 ring-purple-100 bg-purple-50/10' : 'border-gray-200/80' }} rounded-2xl transition-all shadow-2xs space-y-2"
                              x-data="{
                                  subtotal: {{ (float) $item['subtotal'] }},
+                                 lastCommitted: {{ (float) $item['subtotal'] }},
                                  qty: {{ max(1, (int) $item['qty']) }},
                                  display: '',
                                  humanHelper: '',
@@ -429,13 +430,16 @@
                                      }
                                      return '';
                                  },
+                                 syncFromServer(val) {
+                                     if (document.activeElement === this.$refs.inputEl) return;
+                                     this.subtotal = val;
+                                     this.lastCommitted = val;
+                                     this.display = this.formatRupiah(val);
+                                     this.humanHelper = this.calcHelper(val);
+                                 },
                                  init() {
                                      this.display = this.formatRupiah(this.subtotal);
                                      this.humanHelper = this.calcHelper(this.subtotal);
-                                     this.$watch('subtotal', (v) => {
-                                         this.display = this.formatRupiah(v);
-                                         this.humanHelper = this.calcHelper(v);
-                                     });
                                  },
                                  onInput(e) {
                                      let clean = e.target.value.replace(/[^0-9]/g, '');
@@ -445,20 +449,22 @@
                                      this.humanHelper = this.calcHelper(num);
                                      e.target.value = this.display;
 
-                                     // 1. Seketika (0ms) update Subtotal Belanja & Grand Total di footer
-                                     $dispatch('cart-item-subtotal-changed', { id: {{ $item['id'] }}, subtotal: num });
-
-                                     // 2. Debounce auto-commit ke Livewire (250ms)
                                      clearTimeout(this.debounceTimer);
-                                     this.debounceTimer = setTimeout(() => {
-                                         this.onCommit();
-                                     }, 250);
+                                     if (num > 0) {
+                                         this.debounceTimer = setTimeout(() => {
+                                             this.onCommit();
+                                         }, 500);
+                                     }
                                  },
                                  onCommit() {
                                      clearTimeout(this.debounceTimer);
+                                     if (!this.subtotal || this.subtotal <= 0) return;
+                                     if (this.subtotal === this.lastCommitted) return;
+                                     this.lastCommitted = this.subtotal;
                                      $wire.updateItemSubtotal({{ $item['id'] }}, this.subtotal);
                                  }
-                             }">
+                             }"
+                             x-effect="syncFromServer({{ (float) $item['subtotal'] }})">
                             <!-- Item Title (Full Width Single Line) & Delete Button -->
                             <div class="flex items-start justify-between gap-2">
                                 <div class="flex items-center gap-1.5 min-w-0 flex-1">
@@ -510,11 +516,12 @@
                                     <div class="relative w-36 sm:w-40">
                                         <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-[10px] font-bold text-gray-400 select-none pointer-events-none">Rp</span>
                                         <input type="text"
+                                               x-ref="inputEl"
                                                inputmode="numeric"
                                                :value="display"
                                                @input="onInput($event)"
                                                @blur="onCommit()"
-                                               @keydown.enter.prevent="$event.target.blur()"
+                                               @keydown.enter.prevent="onCommit(); $event.target.blur()"
                                                @focus="$event.target.select()"
                                                class="w-full pl-7 pr-2.5 py-1 text-xs sm:text-sm font-black font-mono tabular-nums text-right rounded-xl border {{ !empty($item['is_custom_price']) ? 'border-purple-300 bg-purple-50/30 text-[#5E17EB]' : 'border-gray-200 bg-white text-[#0052FF]' }} focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-all shadow-2xs">
                                     </div>
@@ -552,49 +559,12 @@
                 </div>
 
                 <!-- Financial Calculation & PPN Section (Pinned Bottom) -->
-                <div class="p-3.5 bg-gray-50 border-t border-gray-100 space-y-2 shrink-0"
-                     x-data="{
-                         diskon: @entangle('diskon').live,
-                         ppnPersen: {{ (float) $this->ppnPersen }},
-                         itemsMap: {
-                             @foreach($cart as $c)
-                                 {{ $c['id'] }}: {{ (float) $c['subtotal'] }},
-                             @endforeach
-                         },
-                         get currentSubtotal() {
-                             let total = 0;
-                             for (let key in this.itemsMap) {
-                                 total += Number(this.itemsMap[key] || 0);
-                             }
-                             return total;
-                         },
-                         get currentPpnNominal() {
-                             let sub = this.currentSubtotal;
-                             let d = Number(this.diskon || 0);
-                             let afterDiskon = Math.max(0, sub - d);
-                             return (afterDiskon * (this.ppnPersen || 0)) / 100;
-                         },
-                         get currentGrandTotal() {
-                             let sub = this.currentSubtotal;
-                             let d = Number(this.diskon || 0);
-                             let afterDiskon = Math.max(0, sub - d);
-                             return afterDiskon + this.currentPpnNominal;
-                         },
-                         formatRp(val) {
-                             let num = Math.round(Number(val || 0));
-                             return isNaN(num) ? '0' : num.toLocaleString('id-ID');
-                         }
-                     }"
-                     @cart-item-subtotal-changed.window="itemsMap[$event.detail.id] = $event.detail.subtotal">
+                <div class="p-3.5 bg-gray-50 border-t border-gray-100 space-y-2 shrink-0">
 
                     <!-- Subtotal -->
                     <div class="flex items-center justify-between text-xs text-gray-600">
                         <span>Subtotal Belanja</span>
-                        <span class="font-extrabold text-gray-900">
-                            <span x-text="'Rp ' + formatRp(currentSubtotal)">
-                                Rp {{ number_format($this->subtotal, 0, ',', '.') }}
-                            </span>
-                        </span>
+                        <span class="font-extrabold text-gray-900">Rp {{ number_format($this->subtotal, 0, ',', '.') }}</span>
                     </div>
 
                     <!-- Diskon Input -->
@@ -619,7 +589,7 @@
                     @if($this->ppnNominal > 0)
                         <div class="flex items-center justify-between text-purple-700 font-semibold text-xs">
                             <span>Nominal PPN ({{ $this->ppnPersen }}%)</span>
-                            <span x-text="'+ Rp ' + formatRp(currentPpnNominal)">+ Rp {{ number_format($this->ppnNominal, 0, ',', '.') }}</span>
+                            <span>+ Rp {{ number_format($this->ppnNominal, 0, ',', '.') }}</span>
                         </div>
                     @endif
 
@@ -628,9 +598,7 @@
                         <div>
                             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Grand Total</span>
                             <span class="text-xl font-black text-[#5E17EB]">
-                                <span x-text="'Rp ' + formatRp(currentGrandTotal)">
-                                    Rp {{ number_format($this->grandTotal, 0, ',', '.') }}
-                                </span>
+                                Rp {{ number_format($this->grandTotal, 0, ',', '.') }}
                             </span>
                         </div>
                         <span class="text-[11px] font-bold px-2 py-1 rounded-md bg-purple-100 text-[#5E17EB]">

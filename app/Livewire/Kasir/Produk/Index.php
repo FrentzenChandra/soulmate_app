@@ -391,7 +391,7 @@ class Index extends Component
         }
 
         $cleanSubtotal = (float) preg_replace('/[^0-9]/', '', (string) $newSubtotal);
-        if ($cleanSubtotal < 0) {
+        if ($cleanSubtotal <= 0) {
             return;
         }
 
