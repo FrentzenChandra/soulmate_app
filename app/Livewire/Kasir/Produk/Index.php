@@ -322,6 +322,8 @@ class Index extends Component
                 $this->cart[$pId]['stok_max'] = 99999;
             }
         }
+
+        $this->recalculateTotals();
     }
 
     public function addToCart(int $produkId): void
@@ -371,11 +373,51 @@ class Index extends Component
                 'barcode' => $produk->barcode ?? '-',
                 'foto_url' => $produk->foto_url,
                 'harga' => (float) $produk->harga_jual,
+                'harga_katalog' => (float) $produk->harga_jual,
+                'is_custom_price' => false,
                 'qty' => 1,
                 'stok_max' => $effectiveMax,
                 'subtotal' => (float) $produk->harga_jual,
             ];
         }
+
+        $this->recalculateTotals();
+    }
+
+    public function updateItemSubtotal(int $produkId, float|string|int $newSubtotal): void
+    {
+        if (! isset($this->cart[$produkId])) {
+            return;
+        }
+
+        $cleanSubtotal = (float) preg_replace('/[^0-9]/', '', (string) $newSubtotal);
+        if ($cleanSubtotal < 0) {
+            return;
+        }
+
+        $qty = max(1, (int) $this->cart[$produkId]['qty']);
+        $katalog = (float) ($this->cart[$produkId]['harga_katalog'] ?? $this->cart[$produkId]['harga']);
+
+        $this->cart[$produkId]['subtotal'] = $cleanSubtotal;
+        $this->cart[$produkId]['harga'] = round($cleanSubtotal / $qty, 2);
+        $this->cart[$produkId]['is_custom_price'] = (abs($this->cart[$produkId]['harga'] - $katalog) > 0.01);
+
+        $this->recalculateTotals();
+    }
+
+    public function resetItemPrice(int $produkId): void
+    {
+        if (! isset($this->cart[$produkId])) {
+            return;
+        }
+
+        $katalog = (float) ($this->cart[$produkId]['harga_katalog'] ?? $this->cart[$produkId]['harga']);
+        $qty = max(1, (int) $this->cart[$produkId]['qty']);
+        $this->cart[$produkId]['harga'] = $katalog;
+        $this->cart[$produkId]['subtotal'] = $qty * $katalog;
+        $this->cart[$produkId]['is_custom_price'] = false;
+
+        $this->recalculateTotals();
     }
 
     public function updateQty(int $produkId, int|string $qty): void
@@ -403,6 +445,7 @@ class Index extends Component
 
         $this->cart[$produkId]['qty'] = $qty;
         $this->cart[$produkId]['subtotal'] = $qty * $this->cart[$produkId]['harga'];
+        $this->recalculateTotals();
     }
 
     public function adjustQty(int $produkId, int $delta): void
@@ -418,12 +461,14 @@ class Index extends Component
     public function removeFromCart(int $produkId): void
     {
         unset($this->cart[$produkId]);
+        $this->recalculateTotals();
     }
 
     public function clearCart(): void
     {
         $this->cart = [];
         $this->diskon = 0;
+        $this->recalculateTotals();
     }
 
     // Kalkulasi Finansial

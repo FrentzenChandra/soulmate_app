@@ -394,23 +394,77 @@
                 @endif
 
                 <!-- List Items Scrollable (Bounded Height: Never pushes Checkout button down) -->
-                <div class="space-y-2 max-h-[210px] overflow-y-auto custom-scrollbar p-2.5">
+                <div class="space-y-2.5 max-h-[290px] overflow-y-auto custom-scrollbar p-2.5">
                     @forelse($cart as $item)
-                        <div class="p-2.5 bg-white hover:bg-purple-50/30 border border-gray-100 rounded-2xl transition-all shadow-2xs space-y-2">
+                        <div wire:key="cart-item-{{ $item['id'] }}"
+                             class="p-2.5 sm:p-3 bg-white hover:bg-purple-50/20 border {{ !empty($item['is_custom_price']) ? 'border-purple-300 ring-1 ring-purple-100 bg-purple-50/10' : 'border-gray-200/80' }} rounded-2xl transition-all shadow-2xs space-y-2"
+                             x-data="{
+                                 subtotal: {{ (float) $item['subtotal'] }},
+                                 display: '',
+                                 humanHelper: '',
+                                 formatRupiah(val) {
+                                     if (val === null || val === undefined || val === '' || isNaN(val)) return '0';
+                                     let num = parseInt(val.toString().replace(/[^0-9]/g, ''), 10);
+                                     return isNaN(num) ? '0' : num.toLocaleString('id-ID');
+                                 },
+                                 calcHelper(val) {
+                                     let num = parseInt((val || 0).toString().replace(/[^0-9]/g, ''), 10);
+                                     if (isNaN(num) || num <= 0) return '';
+                                     if (num >= 1000000000) {
+                                         let b = (num / 1000000000).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+                                         return b + ' Miliar';
+                                     }
+                                     if (num >= 1000000) {
+                                         let m = (num / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+                                         return m + ' Juta';
+                                     }
+                                     if (num >= 10000) {
+                                         let k = (num / 1000).toLocaleString('id-ID', { maximumFractionDigits: 0 });
+                                         return k + ' Ribu';
+                                     }
+                                     return '';
+                                 },
+                                 init() {
+                                     this.display = this.formatRupiah(this.subtotal);
+                                     this.humanHelper = this.calcHelper(this.subtotal);
+                                     this.$watch('subtotal', (v) => {
+                                         this.display = this.formatRupiah(v);
+                                         this.humanHelper = this.calcHelper(v);
+                                     });
+                                 },
+                                 onInput(e) {
+                                     let clean = e.target.value.replace(/[^0-9]/g, '');
+                                     let num = clean ? parseInt(clean, 10) : 0;
+                                     this.subtotal = num;
+                                     this.display = num ? num.toLocaleString('id-ID') : '';
+                                     this.humanHelper = this.calcHelper(num);
+                                     e.target.value = this.display;
+                                 },
+                                 onCommit() {
+                                     $wire.updateItemSubtotal({{ $item['id'] }}, this.subtotal);
+                                 }
+                             }">
                             <!-- Item Title (Full Width Single Line) & Delete Button -->
-                            <div class="flex items-center justify-between gap-2">
-                                <h4 class="text-xs font-black text-gray-900 truncate leading-snug flex-1" title="{{ $item['nama'] }}">{{ $item['nama'] }}</h4>
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <h4 class="text-xs font-black text-gray-900 truncate leading-snug" title="{{ $item['nama'] }}">{{ $item['nama'] }}</h4>
+                                    @if(!empty($item['is_custom_price']))
+                                        <span class="px-1.5 py-0.2 rounded-md bg-purple-100 text-[#5E17EB] text-[9px] font-black uppercase tracking-wider shrink-0 border border-purple-200">
+                                            Kustom
+                                        </span>
+                                    @endif
+                                </div>
                                 <button type="button"
                                         wire:click="removeFromCart({{ $item['id'] }})"
                                         wire:loading.attr="disabled"
-                                        class="text-gray-300 hover:text-rose-600 transition-colors p-1 cursor-pointer shrink-0"
+                                        class="text-gray-300 hover:text-rose-600 transition-colors p-0.5 cursor-pointer shrink-0"
                                         title="Hapus dari keranjang">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
                             </div>
 
-                            <!-- Item Qty Stepper & Subtotal Underneath -->
-                            <div class="flex items-center justify-between pt-1.5 border-t border-gray-100">
+                            <!-- Item Qty Stepper & Editable Subtotal -->
+                            <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-gray-100">
                                 <!-- Stepper Qty -->
                                 <div class="flex items-center space-x-1 bg-gray-100/90 p-1 rounded-xl border border-gray-200/80 shrink-0">
                                     <button type="button"
@@ -426,7 +480,7 @@
                                                wire:change="updateQty({{ $item['id'] }}, $event.target.value)"
                                                min="1"
                                                max="{{ $item['stok_max'] }}"
-                                               class="w-14 text-center text-xs font-black py-0.5 px-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900 shadow-2xs">
+                                               class="w-12 text-center text-xs font-black py-0.5 px-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5E17EB] bg-white text-gray-900 shadow-2xs">
                                     </div>
                                     <button type="button"
                                             wire:click="adjustQty({{ $item['id'] }}, 1)"
@@ -436,14 +490,40 @@
                                     </button>
                                 </div>
 
-                                <!-- Subtotal & Unit Price Item -->
-                                <div class="text-right">
-                                    <span class="text-[10px] text-gray-400 font-medium block leading-none mb-0.5">
-                                        {{ $item['qty'] }} &times; Rp {{ number_format($item['harga'], 0, ',', '.') }}
-                                    </span>
-                                    <span class="text-xs font-black text-[#0052FF] block leading-none">
-                                        Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
-                                    </span>
+                                <!-- Subtotal Item Input -->
+                                <div class="flex flex-col items-end min-w-0">
+                                    <div class="relative w-36 sm:w-40">
+                                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-[10px] font-bold text-gray-400 select-none pointer-events-none">Rp</span>
+                                        <input type="text"
+                                               inputmode="numeric"
+                                               :value="display"
+                                               @input="onInput($event)"
+                                               @blur="onCommit()"
+                                               @keydown.enter.prevent="$event.target.blur()"
+                                               @focus="$event.target.select()"
+                                               class="w-full pl-7 pr-2.5 py-1 text-xs sm:text-sm font-black font-mono tabular-nums text-right rounded-xl border {{ !empty($item['is_custom_price']) ? 'border-purple-300 bg-purple-50/30 text-[#5E17EB]' : 'border-gray-200 bg-white text-[#0052FF]' }} focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-all shadow-2xs">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Baris Helper Angka Besar & Rincian Harga Per Unit -->
+                            <div class="flex items-center justify-between text-[10px] text-gray-500 font-bold px-0.5">
+                                <div class="flex items-center gap-1.5">
+                                    <template x-if="humanHelper">
+                                        <span class="px-1.5 py-0.5 rounded-md bg-purple-100 text-[#5E17EB] font-black text-[10px]" x-text="humanHelper"></span>
+                                    </template>
+                                    @if(!empty($item['is_custom_price']))
+                                        <button type="button"
+                                                wire:click="resetItemPrice({{ $item['id'] }})"
+                                                wire:loading.attr="disabled"
+                                                title="Kembalikan ke harga katalog: Rp {{ number_format($item['harga_katalog'], 0, ',', '.') }}"
+                                                class="text-[10px] text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-1.5 py-0.5 rounded-md border border-amber-200 transition-colors cursor-pointer inline-flex items-center space-x-1">
+                                            <span>Reset</span>
+                                        </button>
+                                    @endif
+                                </div>
+                                <div class="text-right truncate">
+                                    <span>@ Rp {{ number_format($item['harga'], 0, ',', '.') }} / unit</span>
                                 </div>
                             </div>
                         </div>

@@ -46,6 +46,10 @@ class KasirPosTest extends TestCase
         $superadminRole = Role::firstOrCreate(['name' => 'Superadmin']);
         $kasirRole = Role::firstOrCreate(['name' => 'Kasir']);
 
+        $viewPerm = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'kasir.produk.view']);
+        $kasirRole->givePermissionTo($viewPerm);
+        $superadminRole->givePermissionTo($viewPerm);
+
         $this->cabangPkp = Cabang::create([
             'kode_cabang' => 'CB-PKP',
             'nama_cabang' => 'Cabang Pangkalpinang',
@@ -555,5 +559,54 @@ class KasirPosTest extends TestCase
             'kembalian' => 0,
             'metode_bayar' => 'QRIS',
         ]);
+    }
+
+    public function test_kasir_can_edit_item_subtotal_and_recalculate_unit_price(): void
+    {
+        $this->actingAs($this->kasir);
+
+        // Produk 1 harga 175.000, tambah ke keranjang lalu ubah qty jadi 2 (subtotal awal 350.000)
+        // Kasir menawar / negosiasi subtotal menjadi 320.000
+        Livewire::test(Index::class)
+            ->call('addToCart', $this->produk1->id)
+            ->call('updateQty', $this->produk1->id, 2)
+            ->call('updateItemSubtotal', $this->produk1->id, '320.000')
+            ->assertSet('cart.' . $this->produk1->id . '.subtotal', 320000)
+            ->assertSet('cart.' . $this->produk1->id . '.harga', 160000)
+            ->assertSet('cart.' . $this->produk1->id . '.is_custom_price', true)
+            ->assertSet('grandTotal', 320000)
+            ->call('openPaymentModal')
+            ->call('prosesPembayaran')
+            ->assertDispatched('open-print-invoice');
+
+        $this->assertDatabaseHas('penjualans', [
+            'cabang_id' => $this->cabangPkp->id,
+            'subtotal' => 320000,
+            'total' => 320000,
+        ]);
+
+        $this->assertDatabaseHas('penjualan_details', [
+            'produk_id' => $this->produk1->id,
+            'qty' => 2,
+            'harga' => 160000,
+            'subtotal' => 320000,
+        ]);
+    }
+
+    public function test_kasir_can_reset_custom_item_price_to_catalog_price(): void
+    {
+        $this->actingAs($this->kasir);
+
+        // Produk 1 harga katalog 175.000
+        Livewire::test(Index::class)
+            ->call('addToCart', $this->produk1->id)
+            ->call('updateQty', $this->produk1->id, 2)
+            ->call('updateItemSubtotal', $this->produk1->id, 320000)
+            ->assertSet('cart.' . $this->produk1->id . '.is_custom_price', true)
+            ->call('resetItemPrice', $this->produk1->id)
+            ->assertSet('cart.' . $this->produk1->id . '.harga', 175000)
+            ->assertSet('cart.' . $this->produk1->id . '.subtotal', 350000)
+            ->assertSet('cart.' . $this->produk1->id . '.is_custom_price', false)
+            ->assertSet('grandTotal', 350000);
     }
 }
