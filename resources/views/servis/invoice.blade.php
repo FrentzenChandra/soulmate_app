@@ -231,7 +231,7 @@
                     <span class="block text-[10px] text-black mt-0.5">Garansi tidak berlaku jika nota hilang, segel rusak, terkena cairan, atau akibat kelalaian pemakaian/kelistrikan.</span>
                 @else
                     <strong class="text-black  block text-xs">KETENTUAN LAYANAN</strong>
-                    Barang yang telah diambil telah dicek dan berfungsi normal di depan pelanggan (Non-Garansi).
+\                    Barang yang telah diambil telah dicek dan berfungsi normal di depan pelanggan (Non-Garansi).
                 @endif
             </div>
         </div> --}}
