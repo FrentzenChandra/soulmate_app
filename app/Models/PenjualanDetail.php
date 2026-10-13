@@ -17,12 +17,14 @@ class PenjualanDetail extends Model
         'produk_id',
         'nama_item',
         'qty',
+        'qty_retur',
         'harga',
         'subtotal',
     ];
 
     protected $casts = [
         'qty' => 'integer',
+        'qty_retur' => 'integer',
         'harga' => 'decimal:2',
         'subtotal' => 'decimal:2',
     ];
@@ -35,5 +37,10 @@ class PenjualanDetail extends Model
     public function produk()
     {
         return $this->belongsTo(Produk::class, 'produk_id');
+    }
+
+    public function returs()
+    {
+        return $this->hasMany(PenjualanRetur::class, 'penjualan_detail_id');
     }
 }

@@ -7,14 +7,14 @@
         <div>
             <div class="flex items-center space-x-3">
                 <h1 class="text-2xl font-black tracking-tight text-gray-900">
-                    Laporan &amp; Riwayat Penjualan
+                    Riwayat Penjualan
                 </h1>
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black {{ $isHQ ? 'bg-purple-100 text-[#5E17EB] border border-purple-200' : 'bg-blue-100 text-[#0052FF] border border-blue-200' }}">
                     {{ $isHQ ? 'Konteks HQ (Semua Cabang)' : 'Soulmate Komputer' }}
                 </span>
             </div>
             <p class="text-sm font-medium text-gray-500 mt-1">
-                Histori transaksi kasir POS, audit nota non-real, dan rincian omzet harian/bulanan toko.
+                Histori transaksi kasir POS, retur pengembalian stok fisik, dan rincian omzet toko.
             </p>
         </div>
 
@@ -52,22 +52,22 @@
     <!-- ============================================== -->
     @if($tipeTransaksiFilter === 'real')
         <!-- ============================================== -->
-        <!-- VIEW METRIK: KHUSUS TRANSAKSI REAL             -->
+        <!-- VIEW METRIK: KHUSUS TRANSAKSI REAL (5 CARDS)   -->
         <!-- ============================================== -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <!-- Card 1: Omzet Bersih Real -->
             <div class="card-custom bg-white p-5 flex items-center justify-between border border-gray-100/90 shadow-sm">
                 <div>
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Omzet Bersih (Real)</span>
-                    <span class="text-xl sm:text-2xl font-black text-gray-900 mt-1.5 block font-mono">
+                    <span class="text-lg sm:text-xl font-black text-gray-900 mt-1.5 block font-mono">
                         Rp {{ number_format($totalOmzetReal, 0, ',', '.') }}
                     </span>
                     <span class="text-[11px] font-semibold text-emerald-600 mt-0.5 inline-block">
                         &bull; 100% Masuk Pembukuan Kas
                     </span>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-purple-50 text-[#5E17EB] flex items-center justify-center shrink-0 border border-purple-100 shadow-xs">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div class="w-11 h-11 rounded-2xl bg-purple-50 text-[#5E17EB] flex items-center justify-center shrink-0 border border-purple-100 shadow-xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
             </div>
 
@@ -75,15 +75,15 @@
             <div class="card-custom bg-white p-5 flex items-center justify-between border border-gray-100/90 shadow-sm">
                 <div>
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Jumlah Transaksi</span>
-                    <span class="text-xl sm:text-2xl font-black text-gray-900 mt-1.5 block font-mono">
+                    <span class="text-lg sm:text-xl font-black text-gray-900 mt-1.5 block font-mono">
                         {{ $totalTransaksiReal }}
                     </span>
                     <span class="text-[11px] font-semibold text-blue-600 mt-0.5 inline-block">
                         &bull; Transaksi Fisik Lunas
                     </span>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-[#0052FF] flex items-center justify-center shrink-0 border border-blue-100 shadow-xs">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div class="w-11 h-11 rounded-2xl bg-blue-50 text-[#0052FF] flex items-center justify-center shrink-0 border border-blue-100 shadow-xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
             </div>
 
@@ -91,22 +91,22 @@
             <div class="card-custom bg-white p-5 flex items-center justify-between border border-gray-100/90 shadow-sm">
                 <div>
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Total Produk Terjual</span>
-                    <span class="text-xl sm:text-2xl font-black text-gray-900 mt-1.5 block font-mono">
+                    <span class="text-lg sm:text-xl font-black text-gray-900 mt-1.5 block font-mono">
                         {{ number_format($totalQtyReal, 0, ',', '.') }} UNIT
                     </span>
                     <span class="text-[11px] font-semibold text-teal-600 mt-0.5 inline-block">
                         &bull; Stok Fisik Terpotong
                     </span>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 border border-teal-100 shadow-xs">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                <div class="w-11 h-11 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 border border-teal-100 shadow-xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                 </div>
             </div>
 
             <!-- Card 4: Diskon & PPN Real -->
             <div class="card-custom bg-white p-5 flex items-center justify-between border border-gray-100/90 shadow-sm">
                 <div>
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Diskon &amp; Pajak (Real)</span>
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Potongan &amp; Pajak</span>
                     <div class="mt-1.5 space-y-0.5">
                         <span class="text-xs font-extrabold text-rose-600 block">
                             Diskon: Rp {{ number_format($totalDiskonReal, 0, ',', '.') }}
@@ -116,8 +116,24 @@
                         </span>
                     </div>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-pink-50 text-[#E6007A] flex items-center justify-center shrink-0 border border-pink-100 shadow-xs">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                <div class="w-11 h-11 rounded-2xl bg-pink-50 text-[#E6007A] flex items-center justify-center shrink-0 border border-pink-100 shadow-xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                </div>
+            </div>
+
+            <!-- Card 5: Total Omzet Transaksi Batal -->
+            <div class="card-custom bg-white p-5 flex items-center justify-between border border-rose-100 shadow-sm">
+                <div>
+                    <span class="text-xs font-bold text-rose-500 uppercase tracking-wider block">Omzet Transaksi Batal</span>
+                    <span class="text-lg sm:text-xl font-black text-rose-600 mt-1.5 block font-mono">
+                        Rp {{ number_format($totalOmzetBatal, 0, ',', '.') }}
+                    </span>
+                    <span class="text-[11px] font-semibold text-gray-500 mt-0.5 inline-block">
+                        &bull; {{ $totalTransaksiBatal }} Nota Batal
+                    </span>
+                </div>
+                <div class="w-11 h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100 shadow-xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
             </div>
         </div>
@@ -196,22 +212,22 @@
 
     @else
         <!-- ============================================== -->
-        <!-- VIEW METRIK: SEMUA TIPE TRANSAKSI (DEFAULT)    -->
+        <!-- VIEW METRIK: SEMUA TIPE TRANSAKSI (5 CARDS)    -->
         <!-- ============================================== -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <!-- Card 1: Total Omzet Real -->
             <div class="card-custom bg-white p-5 flex items-center justify-between border border-gray-100/90 shadow-sm">
                 <div>
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Omzet Bersih (Real)</span>
-                    <span class="text-xl sm:text-2xl font-black text-gray-900 mt-1.5 block font-mono">
+                    <span class="text-lg sm:text-xl font-black text-gray-900 mt-1.5 block font-mono">
                         Rp {{ number_format($totalOmzetReal, 0, ',', '.') }}
                     </span>
                     <span class="text-[11px] font-semibold text-emerald-600 mt-0.5 inline-block">
                         &bull; {{ $totalTransaksiReal }} Transaksi Lunas
                     </span>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-purple-50 text-[#5E17EB] flex items-center justify-center shrink-0 border border-purple-100 shadow-xs">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div class="w-11 h-11 rounded-2xl bg-purple-50 text-[#5E17EB] flex items-center justify-center shrink-0 border border-purple-100 shadow-xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
             </div>
 
@@ -219,15 +235,15 @@
             <div class="card-custom bg-white p-5 flex items-center justify-between border border-gray-100/90 shadow-sm">
                 <div>
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Penjualan Real</span>
-                    <span class="text-xl sm:text-2xl font-black text-gray-900 mt-1.5 block font-mono">
+                    <span class="text-lg sm:text-xl font-black text-gray-900 mt-1.5 block font-mono">
                         {{ $totalTransaksiReal }}
                     </span>
                     <span class="text-[11px] font-semibold text-blue-600 mt-0.5 inline-block">
                         &bull; Memotong Stok Fisik
                     </span>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-[#0052FF] flex items-center justify-center shrink-0 border border-blue-100 shadow-xs">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div class="w-11 h-11 rounded-2xl bg-blue-50 text-[#0052FF] flex items-center justify-center shrink-0 border border-blue-100 shadow-xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
             </div>
 
@@ -235,22 +251,22 @@
             <div class="card-custom bg-white p-5 flex items-center justify-between border border-gray-100/90 shadow-sm">
                 <div>
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Transaksi Non-Real</span>
-                    <span class="text-xl sm:text-2xl font-black text-gray-900 mt-1.5 block font-mono">
+                    <span class="text-lg sm:text-xl font-black text-gray-900 mt-1.5 block font-mono">
                         {{ $totalNotaNonReal }}
                     </span>
                     <span class="text-[11px] font-semibold text-amber-600 mt-0.5 inline-block">
                         &bull; Tanpa Potong Stok
                     </span>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100 shadow-xs">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100 shadow-xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </div>
             </div>
 
             <!-- Card 4: Total Diskon & PPN -->
             <div class="card-custom bg-white p-5 flex items-center justify-between border border-gray-100/90 shadow-sm">
                 <div>
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Diskon &amp; Pajak</span>
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Potongan &amp; Pajak</span>
                     <div class="mt-1.5 space-y-0.5">
                         <span class="text-xs font-extrabold text-rose-600 block">
                             Diskon: Rp {{ number_format($totalDiskon, 0, ',', '.') }}
@@ -260,8 +276,24 @@
                         </span>
                     </div>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-pink-50 text-[#E6007A] flex items-center justify-center shrink-0 border border-pink-100 shadow-xs">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                <div class="w-11 h-11 rounded-2xl bg-pink-50 text-[#E6007A] flex items-center justify-center shrink-0 border border-pink-100 shadow-xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                </div>
+            </div>
+
+            <!-- Card 5: Total Omzet Transaksi Batal -->
+            <div class="card-custom bg-white p-5 flex items-center justify-between border border-rose-100 shadow-sm">
+                <div>
+                    <span class="text-xs font-bold text-rose-500 uppercase tracking-wider block">Omzet Transaksi Batal</span>
+                    <span class="text-lg sm:text-xl font-black text-rose-600 mt-1.5 block font-mono">
+                        Rp {{ number_format($totalOmzetBatal, 0, ',', '.') }}
+                    </span>
+                    <span class="text-[11px] font-semibold text-gray-500 mt-0.5 inline-block">
+                        &bull; {{ $totalTransaksiBatal }} Nota Batal
+                    </span>
+                </div>
+                <div class="w-11 h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100 shadow-xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
             </div>
         </div>
@@ -392,228 +424,408 @@
     </div>
 
     <!-- ============================================== -->
-    <!-- TABEL RIWAYAT TRANSAKSI PENJUALAN              -->
+    <!-- TAB SWITCHER: DAFTAR TRANSAKSI vs HISTORI RETUR-->
+    <!-- ============================================== -->
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="inline-flex items-center p-1 bg-white border border-gray-200 rounded-2xl shadow-2xs">
+            <button type="button"
+                    wire:click="switchTab('transaksi')"
+                    class="inline-flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer {{ $activeTab === 'transaksi' ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span>Daftar Transaksi</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ $activeTab === 'transaksi' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700' }}">
+                    {{ $totalItems }}
+                </span>
+            </button>
+
+            <button type="button"
+                    wire:click="switchTab('histori_retur')"
+                    class="inline-flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer {{ $activeTab === 'histori_retur' ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                <span>Histori Retur Stok</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ $activeTab === 'histori_retur' ? 'bg-white/20 text-white' : ($totalReturLogs > 0 ? 'bg-amber-100 text-amber-900' : 'bg-gray-100 text-gray-700') }}">
+                    {{ $totalReturLogs }} ({{ $totalUnitRetur }} Unit)
+                </span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TABEL RIWAYAT TRANSAKSI / HISTORI RETUR        -->
     <!-- ============================================== -->
     <div x-data="{ tableSize: localStorage.getItem('soulmate_table_size') || 'md' }"
          x-on:table-size-changed.window="tableSize = $event.detail"
          :class="'table-size-' + tableSize"
          class="card-custom bg-white overflow-hidden border border-gray-100/90 shadow-sm">
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="border-b border-gray-100 bg-gray-50/70 text-[11px] font-extrabold text-gray-900 uppercase tracking-wider">
-                        <x-th-sort field="no_transaksi" :sortField="$sortField" :sortDirection="$sortDirection" class="px-5">No. Invoice</x-th-sort>
-                        <x-th-sort field="tanggal" :sortField="$sortField" :sortDirection="$sortDirection" class="px-4">Waktu Transaksi</x-th-sort>
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Pelanggan</th>
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Kasir</th>
-                        @if($isHQ)
-                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Cabang</th>
-                        @endif
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900 text-center">Tipe Transaksi</th>
-                        <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900 text-center">Status</th>
-                        <x-th-sort field="total" :sortField="$sortField" :sortDirection="$sortDirection" align="right" class="px-4">Total Belanja</x-th-sort>
-                        <th class="py-3.5 px-5 font-extrabold text-[10px] tracking-wider uppercase text-gray-900 text-right">Aksi</th>
-                    </tr>
-                </thead>
-
-                <!-- Skeleton Loader saat Query/Filter/Search/Sort/Pagination -->
-                <x-table-skeleton
-                    :columns="$isHQ ? 9 : 8"
-                    :rows="8"
-                    target="search, periodeFilter, startDate, endDate, tipeTransaksiFilter, statusFilter, kasirFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore" />
-
-                <!-- Data Transaksi Penjualan -->
-                <tbody wire:loading.remove
-                       wire:target="search, periodeFilter, startDate, endDate, tipeTransaksiFilter, statusFilter, kasirFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore"
-                       class="divide-y divide-gray-100 text-xs">
-                    @forelse($penjualans as $pj)
-                        <tr class="hover:bg-gray-50/80 transition-colors {{ !$pj->is_real ? 'bg-amber-50/20' : '' }}">
-
-                            <!-- No. Invoice & Tipe Badge -->
-                            <td class="py-4 px-5 font-mono">
-                                <div class="flex flex-col">
-                                    <span class="font-extrabold text-gray-900 text-xs">
-                                        {{ $pj->no_transaksi_frontend }}
-                                    </span>
-                                    @if($isHQ)
-                                        <span class="text-[10px] text-gray-500 font-bold mt-0.5">{{ $pj->no_transaksi }}</span>
-                                    @endif
-                                </div>
-                            </td>
-
-                            <!-- Tanggal & Waktu -->
-                            <td class="py-4 px-4">
-                                <span class="font-bold text-gray-900 block">
-                                    {{ $pj->tanggal ? $pj->tanggal->format('d M Y') : '-' }}
-                                </span>
-                                <span class="text-[11px] text-gray-600 font-semibold block mt-0.5 font-mono">
-                                    {{ $pj->tanggal ? $pj->tanggal->format('H:i') . ' WIB' : '' }}
-                                </span>
-                            </td>
-
-                            <!-- Pelanggan -->
-                            <td class="py-4 px-4">
-                                <div class="flex flex-col">
-                                    <span class="font-extrabold text-gray-900 block">
-                                        {{ $pj->customer?->nama ?? 'Pelanggan Umum' }}
-                                    </span>
-                                    @if($pj->customer?->no_hp)
-                                        <a href="https://wa.me/{{ preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $pj->customer->no_hp)) }}"
-                                           target="_blank"
-                                           class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 inline-flex items-center space-x-1 mt-0.5">
-                                            <span>{{ $pj->customer->no_hp }}</span>
-                                        </a>
-                                    @endif
-                                </div>
-                            </td>
-
-                            <!-- Kasir -->
-                            <td class="py-4 px-4">
-                                <span class="font-bold text-gray-900 block">
-                                    {{ $pj->kasir?->name ?? 'Staf Kasir' }}
-                                </span>
-                                <span class="text-[10px] text-gray-600 font-bold block">
-                                    {{ $pj->kasir?->role_name ?? 'Admin' }}
-                                </span>
-                            </td>
-
-                            <!-- Cabang (Owner HQ Only) -->
+        @if($activeTab === 'transaksi')
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-100 bg-gray-50/70 text-[11px] font-extrabold text-gray-900 uppercase tracking-wider">
+                            <x-th-sort field="no_transaksi" :sortField="$sortField" :sortDirection="$sortDirection" class="px-5">No. Invoice</x-th-sort>
+                            <x-th-sort field="tanggal" :sortField="$sortField" :sortDirection="$sortDirection" class="px-4">Waktu Transaksi</x-th-sort>
+                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Pelanggan</th>
+                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Kasir</th>
                             @if($isHQ)
+                                <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Cabang</th>
+                            @endif
+                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900 text-center">Tipe Transaksi</th>
+                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900 text-center">Status</th>
+                            <x-th-sort field="total" :sortField="$sortField" :sortDirection="$sortDirection" align="right" class="px-4">Total Belanja</x-th-sort>
+                            <th class="py-3.5 px-5 font-extrabold text-[10px] tracking-wider uppercase text-gray-900 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <!-- Skeleton Loader saat Query/Filter/Search/Sort/Pagination -->
+                    <x-table-skeleton
+                        :columns="$isHQ ? 9 : 8"
+                        :rows="8"
+                        target="search, periodeFilter, startDate, endDate, tipeTransaksiFilter, statusFilter, kasirFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore, switchTab" />
+
+                    <!-- Data Transaksi Penjualan -->
+                    <tbody wire:loading.remove
+                           wire:target="search, periodeFilter, startDate, endDate, tipeTransaksiFilter, statusFilter, kasirFilter, cabangFilter, sortBy, sortField, sortDirection, loadMore, switchTab"
+                           class="divide-y divide-gray-100 text-xs">
+                        @forelse($penjualans as $pj)
+                            @php
+                                $totalReturnedOnInvoice = (int) ($pj->returs_sum_qty_retur ?? 0);
+                            @endphp
+                            <tr class="hover:bg-gray-50/80 transition-colors {{ !$pj->is_real ? 'bg-amber-50/20' : '' }}">
+
+                                <!-- No. Invoice & Badge Retur -->
+                                <td class="py-4 px-5 font-mono">
+                                    <div class="flex flex-col">
+                                        <span class="font-extrabold text-gray-900 text-xs">
+                                            {{ $pj->no_transaksi_frontend }}
+                                        </span>
+                                        @if($isHQ)
+                                            <span class="text-[10px] text-gray-500 font-bold mt-0.5">{{ $pj->no_transaksi }}</span>
+                                        @endif
+                                        @if($pj->is_real && $totalReturnedOnInvoice > 0)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300 mt-1 w-fit font-sans">
+                                                Diretur {{ $totalReturnedOnInvoice }} Unit
+                                            </span>
+                                        @endif
+                                    </div>
+                                </td>
+
+                                <!-- Tanggal & Waktu -->
                                 <td class="py-4 px-4">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                                        {{ $pj->cabang?->kode_cabang ?? 'CB' }} &bull; {{ $pj->cabang?->nama_cabang ?? 'Cabang' }}
+                                    <span class="font-bold text-gray-900 block">
+                                        {{ $pj->tanggal ? $pj->tanggal->format('d M Y') : '-' }}
+                                    </span>
+                                    <span class="text-[11px] text-gray-600 font-semibold block mt-0.5 font-mono">
+                                        {{ $pj->tanggal ? $pj->tanggal->format('H:i') . ' WIB' : '' }}
                                     </span>
                                 </td>
-                            @endif
 
-                            <!-- Tipe Transaksi (Real vs Non-Real) -->
-                            <td class="py-4 px-4 text-center">
-                                @if(!$pj->is_real)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs">
-                                        Non-Real
+                                <!-- Pelanggan -->
+                                <td class="py-4 px-4">
+                                    <div class="flex flex-col">
+                                        <span class="font-extrabold text-gray-900 block">
+                                            {{ $pj->customer?->nama ?? 'Pelanggan Umum' }}
+                                        </span>
+                                        @if($pj->customer?->no_hp)
+                                            <a href="https://wa.me/{{ preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $pj->customer->no_hp)) }}"
+                                               target="_blank"
+                                               class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 inline-flex items-center space-x-1 mt-0.5">
+                                                <span>{{ $pj->customer->no_hp }}</span>
+                                            </a>
+                                        @endif
+                                    </div>
+                                </td>
+
+                                <!-- Kasir -->
+                                <td class="py-4 px-4">
+                                    <span class="font-bold text-gray-900 block">
+                                        {{ $pj->kasir?->name ?? 'Staf Kasir' }}
                                     </span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
-                                        Real
+                                    <span class="text-[10px] text-gray-600 font-bold block">
+                                        {{ $pj->kasir?->role_name ?? 'Admin' }}
                                     </span>
+                                </td>
+
+                                <!-- Cabang (Owner HQ Only) -->
+                                @if($isHQ)
+                                    <td class="py-4 px-4">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                            {{ $pj->cabang?->kode_cabang ?? 'CB' }} &bull; {{ $pj->cabang?->nama_cabang ?? 'Cabang' }}
+                                        </span>
+                                    </td>
                                 @endif
-                            </td>
 
-                            <!-- Status Pembayaran (Inline Status Dropdown) -->
-                            <td class="py-4 px-4 text-center">
-                                @php
-                                    $statusVal = strtolower($pj->status ?? 'lunas');
-                                    $statusBg = match($statusVal) {
-                                        'lunas', 'selesai' => 'bg-emerald-50 text-emerald-900 border-emerald-400 font-black',
-                                        'bon', 'belum_lunas' => 'bg-amber-50 text-amber-900 border-amber-400 font-black',
-                                        'batal' => 'bg-rose-50 text-rose-900 border-rose-400 font-black',
-                                        default => 'bg-gray-50 text-gray-900 border-gray-300 font-bold',
-                                    };
-                                @endphp
-                                <select wire:change="updateStatusDirect({{ $pj->id }}, $event.target.value)"
-                                        wire:loading.attr="disabled"
-                                        class="text-xs rounded-xl px-2.5 py-1 font-black border transition-all cursor-pointer shadow-xs focus:ring-2 focus:ring-[#5E17EB] {{ $statusBg }}">
-                                    <option value="lunas" {{ in_array($statusVal, ['lunas', 'selesai']) ? 'selected' : '' }}>Lunas</option>
-                                    <option value="bon" {{ in_array($statusVal, ['bon', 'belum_lunas']) ? 'selected' : '' }}>BON</option>
-                                    <option value="batal" {{ $statusVal === 'batal' ? 'selected' : '' }}>Batal</option>
-                                </select>
-                            </td>
+                                <!-- Tipe Transaksi (Real vs Non-Real) -->
+                                <td class="py-4 px-4 text-center">
+                                    @if(!$pj->is_real)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs">
+                                            Non-Real
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                                            Real
+                                        </span>
+                                    @endif
+                                </td>
 
-                            <!-- Total Belanja -->
-                            <td class="py-4 px-4 text-right">
-                                <span class="text-sm font-black text-gray-900 block font-mono">
-                                    Rp {{ number_format($pj->total, 0, ',', '.') }}
-                                </span>
-                                @if($pj->diskon > 0)
-                                    <span class="text-[10px] font-bold text-rose-600 block">
-                                        Diskon -Rp {{ number_format($pj->diskon, 0, ',', '.') }}
+                                <!-- Status Pembayaran (Inline Status Dropdown) -->
+                                <td class="py-4 px-4 text-center">
+                                    @php
+                                        $statusVal = strtolower($pj->status ?? 'lunas');
+                                        $statusBg = match($statusVal) {
+                                            'lunas', 'selesai' => 'bg-emerald-50 text-emerald-900 border-emerald-400 font-black',
+                                            'bon', 'belum_lunas' => 'bg-amber-50 text-amber-900 border-amber-400 font-black',
+                                            'batal' => 'bg-rose-50 text-rose-900 border-rose-400 font-black',
+                                            default => 'bg-gray-50 text-gray-900 border-gray-300 font-bold',
+                                        };
+                                    @endphp
+                                    <select wire:change="updateStatusDirect({{ $pj->id }}, $event.target.value)"
+                                            wire:loading.attr="disabled"
+                                            class="text-xs rounded-xl px-2.5 py-1 font-black border transition-all cursor-pointer shadow-xs focus:ring-2 focus:ring-[#5E17EB] {{ $statusBg }}">
+                                        <option value="lunas" {{ in_array($statusVal, ['lunas', 'selesai']) ? 'selected' : '' }}>Lunas</option>
+                                        <option value="bon" {{ in_array($statusVal, ['bon', 'belum_lunas']) ? 'selected' : '' }}>BON</option>
+                                        <option value="batal" {{ $statusVal === 'batal' ? 'selected' : '' }}>Batal</option>
+                                    </select>
+                                </td>
+
+                                <!-- Total Belanja -->
+                                <td class="py-4 px-4 text-right">
+                                    <span class="text-sm font-black text-gray-900 block font-mono">
+                                        Rp {{ number_format($pj->total, 0, ',', '.') }}
                                     </span>
-                                @endif
-                            </td>
+                                    @if($pj->diskon > 0)
+                                        <span class="text-[10px] font-bold text-rose-600 block">
+                                            Diskon -Rp {{ number_format($pj->diskon, 0, ',', '.') }}
+                                        </span>
+                                    @endif
+                                </td>
 
-                            <!-- Aksi -->
-                            <td class="py-4 px-5 text-right">
-                                <div class="flex items-center justify-end space-x-1.5">
-                                    <!-- Tombol Detail Modal -->
-                                    <button wire:click="openDetailModal({{ $pj->id }})"
-                                            class="p-2 rounded-xl text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
-                                            title="Lihat Rincian Item">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    </button>
+                                <!-- Aksi -->
+                                <td class="py-4 px-5 text-right">
+                                    <div class="flex items-center justify-end space-x-1.5">
+                                        <!-- Tombol Detail Modal -->
+                                        <button wire:click="openDetailModal({{ $pj->id }})"
+                                                class="p-2 rounded-xl text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
+                                                title="Lihat Rincian Item">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        </button>
 
-                                    <!-- Tombol Cetak Struk -->
-                                    <button type="button"
-                                            onclick="window.printDocument('{{ route('kasir.produk.invoice', $pj->id) }}')"
-                                            class="p-2 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-                                            title="Cetak Nota">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                                    </button>
+                                        <!-- Tombol Retur Stok (HANYA MUNCUL PADA TRANSAKSI REAL & BERIZIN) -->
+                                        @if($pj->is_real)
+                                            @can('laporan.penjualan.retur')
+                                                <button type="button"
+                                                        wire:click="openReturModal({{ $pj->id }})"
+                                                        wire:loading.attr="disabled"
+                                                        wire:target="openReturModal({{ $pj->id }})"
+                                                        class="p-2 rounded-xl text-amber-700 hover:text-amber-900 hover:bg-amber-50 transition-colors cursor-pointer disabled:opacity-50"
+                                                        title="Retur Stok Barang">
+                                                    <svg wire:loading wire:target="openReturModal({{ $pj->id }})" class="animate-spin w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                                    </svg>
+                                                    <svg wire:loading.remove wire:target="openReturModal({{ $pj->id }})" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                                                    </svg>
+                                                </button>
+                                            @endcan
+                                        @endif
 
-                                    <!-- Tombol Hapus Transaksi (Owner & Superadmin Only) -->
-                                    @if(auth()->user()->isOwner() || auth()->user()->hasRole('Superadmin'))
+                                        <!-- Tombol Cetak Struk -->
                                         <button type="button"
-                                                x-on:click="
-                                                    if (window.swalConfirm) {
-                                                        window.swalConfirm('Hapus Transaksi?', 'Yakin ingin menghapus riwayat transaksi \'{{ $pj->no_transaksi_frontend }}\'? Tindakan ini tidak dapat dibatalkan.', {
-                                                            danger: true,
-                                                            confirmText: 'Ya, Hapus',
-                                                            cancelText: 'Batal'
-                                                        }).then((res) => {
-                                                            if (res.isConfirmed) {
+                                                onclick="window.printDocument('{{ route('kasir.produk.invoice', $pj->id) }}')"
+                                                class="p-2 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                                                title="Cetak Nota">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                        </button>
+
+                                        <!-- Tombol Hapus Transaksi (Owner & Superadmin Only) -->
+                                        @if(auth()->user()->isOwner() || auth()->user()->hasRole('Superadmin'))
+                                            <button type="button"
+                                                    x-on:click="
+                                                        if (window.swalConfirm) {
+                                                            window.swalConfirm('Hapus Transaksi?', 'Yakin ingin menghapus riwayat transaksi \'{{ $pj->no_transaksi_frontend }}\'? Tindakan ini tidak dapat dibatalkan.', {
+                                                                danger: true,
+                                                                confirmText: 'Ya, Hapus',
+                                                                cancelText: 'Batal'
+                                                            }).then((res) => {
+                                                                if (res.isConfirmed) {
+                                                                    $wire.deletePenjualan({{ $pj->id }});
+                                                                }
+                                                            });
+                                                        } else {
+                                                            if (confirm('Yakin ingin menghapus transaksi ini?')) {
                                                                 $wire.deletePenjualan({{ $pj->id }});
                                                             }
-                                                        });
-                                                    } else {
-                                                        if (confirm('Yakin ingin menghapus transaksi ini?')) {
-                                                            $wire.deletePenjualan({{ $pj->id }});
                                                         }
-                                                    }
-                                                "
-                                                wire:loading.attr="disabled"
-                                                wire:target="deletePenjualan({{ $pj->id }})"
-                                                class="p-2 rounded-xl text-gray-700 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
-                                                title="Hapus Transaksi">
-                                            <!-- Spinner loading state -->
-                                            <svg wire:loading wire:target="deletePenjualan({{ $pj->id }})" class="animate-spin w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                                            </svg>
-                                            <!-- Static trash icon -->
-                                            <svg wire:loading.remove wire:target="deletePenjualan({{ $pj->id }})" class="w-4 h-4 text-gray-500 group-hover:text-rose-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
+                                                    "
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="deletePenjualan({{ $pj->id }})"
+                                                    class="p-2 rounded-xl text-gray-700 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
+                                                    title="Hapus Transaksi">
+                                                <svg wire:loading wire:target="deletePenjualan({{ $pj->id }})" class="animate-spin w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                                </svg>
+                                                <svg wire:loading.remove wire:target="deletePenjualan({{ $pj->id }})" class="w-4 h-4 text-gray-500 group-hover:text-rose-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </td>
+
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="{{ $isHQ ? 9 : 8 }}" class="py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center text-gray-400">
+                                        <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        <p class="font-bold text-gray-600">Tidak ada riwayat transaksi ditemukan</p>
+                                        <p class="text-xs text-gray-400 mt-0.5">Coba sesuaikan kata kunci pencarian atau rentang tanggal filter.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Infinite Scroll Sentinel & Status -->
+            <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
+                <x-infinite-scroll-sentinel
+                    :has-more="$hasMore"
+                    target="loadMore"
+                    label="transaksi"
+                    :current="$penjualans->count()"
+                    :total="$totalItems"
+                    color="purple" />
+            </div>
+
+        @else
+            <!-- ============================================== -->
+            <!-- TAB 2: TABEL HISTORI RETUR STOK BARANG         -->
+            <!-- ============================================== -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-100 bg-gray-50/70 text-[11px] font-extrabold text-gray-900 uppercase tracking-wider">
+                            <th class="py-3.5 px-5 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Waktu Retur</th>
+                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">No. Invoice</th>
+                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Produk</th>
+                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900 text-center">Jumlah Retur</th>
+                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900 text-center">Mutasi Stok</th>
+                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Alasan Retur</th>
+                            <th class="py-3.5 px-4 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Petugas</th>
+                            @if($isHQ)
+                                <th class="py-3.5 px-5 font-extrabold text-[10px] tracking-wider uppercase text-gray-900">Cabang</th>
+                            @endif
+                        </tr>
+                    </thead>
+
+                    <x-table-skeleton
+                        :columns="$isHQ ? 8 : 7"
+                        :rows="6"
+                        target="search, periodeFilter, startDate, endDate, cabangFilter, loadMore, switchTab" />
+
+                    <tbody wire:loading.remove
+                           wire:target="search, periodeFilter, startDate, endDate, cabangFilter, loadMore, switchTab"
+                           class="divide-y divide-gray-100 text-xs">
+                        @forelse($returLogs as $log)
+                            <tr class="hover:bg-gray-50/80 transition-colors">
+                                <td class="py-4 px-5">
+                                    <span class="font-bold text-gray-900 block">
+                                        {{ $log->created_at ? $log->created_at->format('d M Y') : '-' }}
+                                    </span>
+                                    <span class="text-[11px] text-gray-600 font-semibold block mt-0.5 font-mono">
+                                        {{ $log->created_at ? $log->created_at->format('H:i') . ' WIB' : '' }}
+                                    </span>
+                                </td>
+
+                                <td class="py-4 px-4 font-mono">
+                                    @if($log->penjualan)
+                                        <button type="button"
+                                                wire:click="openDetailModal({{ $log->penjualan_id }})"
+                                                class="font-extrabold text-[#5E17EB] hover:underline cursor-pointer">
+                                            {{ $log->penjualan->no_transaksi_frontend }}
                                         </button>
+                                        <span class="text-[10px] text-gray-500 font-sans font-bold block mt-0.5">
+                                            {{ $log->penjualan->customer?->nama ?? 'Pelanggan Umum' }}
+                                        </span>
+                                    @else
+                                        <span class="text-gray-400">-</span>
                                     @endif
-                                </div>
-                            </td>
+                                </td>
 
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="{{ $isHQ ? 9 : 8 }}" class="py-12 text-center">
-                                <div class="flex flex-col items-center justify-center text-gray-400">
-                                    <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                    <p class="font-bold text-gray-600">Tidak ada riwayat transaksi ditemukan</p>
-                                    <p class="text-xs text-gray-400 mt-0.5">Coba sesuaikan kata kunci pencarian atau rentang tanggal filter.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                                <td class="py-4 px-4">
+                                    <span class="font-extrabold text-gray-900 block">
+                                        {{ $log->produk?->nama_produk ?? 'Produk' }}
+                                    </span>
+                                    @if($log->produk?->barcode)
+                                        <span class="text-[10px] font-mono text-gray-500 block">
+                                            {{ $log->produk->barcode }}
+                                        </span>
+                                    @endif
+                                </td>
 
-        <!-- Infinite Scroll Sentinel & Status -->
-        <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
-            <x-infinite-scroll-sentinel
-                :has-more="$hasMore"
-                target="loadMore"
-                label="transaksi"
-                :current="$penjualans->count()"
-                :total="$totalItems"
-                color="purple" />
-        </div>
+                                <td class="py-4 px-4 text-center">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">
+                                        +{{ $log->qty_retur }} UNIT
+                                    </span>
+                                </td>
+
+                                <td class="py-4 px-4 text-center font-mono">
+                                    <span class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-gray-100 text-gray-800 text-xs font-bold">
+                                        <span>{{ $log->stok_sebelum }}</span>
+                                        <span class="text-gray-400">&rarr;</span>
+                                        <span class="font-black text-emerald-700">{{ $log->stok_sesudah }} UNIT</span>
+                                    </span>
+                                </td>
+
+                                <td class="py-4 px-4">
+                                    <span class="font-bold text-gray-800 block max-w-xs">
+                                        {{ $log->alasan }}
+                                    </span>
+                                </td>
+
+                                <td class="py-4 px-4">
+                                    <span class="font-bold text-gray-900 block">
+                                        {{ $log->petugas?->name ?? 'Staf' }}
+                                    </span>
+                                </td>
+
+                                @if($isHQ)
+                                    <td class="py-4 px-5">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                            {{ $log->cabang?->kode_cabang ?? 'CB' }} &bull; {{ $log->cabang?->nama_cabang ?? 'Cabang' }}
+                                        </span>
+                                    </td>
+                                @endif
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="{{ $isHQ ? 8 : 7 }}" class="py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center text-gray-400">
+                                        <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                                        <p class="font-bold text-gray-600">Belum ada histori retur stok pada periode ini</p>
+                                        <p class="text-xs text-gray-400 mt-0.5">Setiap pengembalian stok dari transaksi Real akan tercatat di sini.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
+                <x-infinite-scroll-sentinel
+                    :has-more="$hasMore"
+                    target="loadMore"
+                    label="histori retur"
+                    :current="$returLogs->count()"
+                    :total="$totalReturLogs"
+                    color="purple" />
+            </div>
+        @endif
 
     </div>
 
@@ -731,8 +943,8 @@
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
                                     <tr class="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase border-b border-gray-200">
-                                        <th class="py-2.5 px-4">Item & Barcode</th>
-                                        <th class="py-2.5 px-3 text-center">Qty</th>
+                                        <th class="py-2.5 px-4">Item</th>
+                                        <th class="py-2.5 px-3 text-center">Jumlah</th>
                                         <th class="py-2.5 px-3 text-right">Harga Satuan</th>
                                         <th class="py-2.5 px-4 text-right">Subtotal</th>
                                     </tr>
@@ -745,8 +957,13 @@
                                                     {{ $d->produk?->nama_produk ?? $d->nama_item }}
                                                 </span>
                                                 @if($d->produk?->barcode)
-                                                    <span class="font-mono text-[10px] text-gray-400">
+                                                    <span class="font-mono text-[10px] text-gray-400 block">
                                                         {{ $d->produk->barcode }}
+                                                    </span>
+                                                @endif
+                                                @if((int) $d->qty_retur > 0)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300 mt-1">
+                                                        Diretur: {{ $d->qty_retur }} dari {{ $d->qty }} UNIT
                                                     </span>
                                                 @endif
                                             </td>
@@ -765,6 +982,41 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- Histori Retur Nota Ini (Jika Ada) -->
+                    @if($selectedPenjualan->is_real && $selectedPenjualan->returs && $selectedPenjualan->returs->isNotEmpty())
+                        <div class="px-6 py-2">
+                            <div class="p-3.5 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-2">
+                                <span class="text-[11px] font-black text-amber-950 uppercase tracking-wider block">
+                                    Histori Retur Stok pada Nota Ini
+                                </span>
+                                <div class="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar pr-1">
+                                    @foreach($selectedPenjualan->returs as $rLog)
+                                        <div class="p-2.5 bg-white rounded-xl border border-amber-200/80 flex items-center justify-between gap-2 text-xs">
+                                            <div>
+                                                <span class="font-extrabold text-gray-900 block">
+                                                    {{ $rLog->produk?->nama_produk ?? 'Produk' }}
+                                                    <span class="text-emerald-700 font-mono font-black">(+{{ $rLog->qty_retur }} UNIT)</span>
+                                                </span>
+                                                <span class="text-[11px] text-gray-600 font-semibold block">
+                                                    Alasan: {{ $rLog->alasan }}
+                                                </span>
+                                                <span class="text-[10px] text-gray-400 font-bold block mt-0.5">
+                                                    {{ $rLog->created_at ? $rLog->created_at->format('d M Y H:i') : '-' }} &bull; Petugas: {{ $rLog->petugas?->name ?? 'Staf' }}
+                                                </span>
+                                            </div>
+                                            <div class="text-right font-mono shrink-0">
+                                                <span class="text-[10px] text-gray-500 font-bold block uppercase">Mutasi Stok</span>
+                                                <span class="text-xs font-black text-gray-900">
+                                                    {{ $rLog->stok_sebelum }} &rarr; <span class="text-emerald-700">{{ $rLog->stok_sesudah }}</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- Ringkasan Perhitungan Finansial -->
                     <div class="px-6 py-2">
@@ -786,7 +1038,7 @@
                                 </div>
                             @endif
                             <div class="pt-2 border-t border-gray-200 flex justify-between items-center text-sm font-black text-gray-900">
-                                <span>Total Tagihan Akhir</span>
+                                <span>Grandtotal</span>
                                 <span class="text-base font-black text-[#5E17EB] font-mono">Rp {{ number_format($selectedPenjualan->total, 0, ',', '.') }}</span>
                             </div>
                             @if($selectedPenjualan->jumlah_bayar > 0)
@@ -799,8 +1051,8 @@
                     </div>
 
                     <!-- Footer Modal Action -->
-                    <div class="bg-gray-50 px-6 py-4 flex items-center justify-between rounded-b-3xl border-t border-gray-100 mt-3">
-                        <div>
+                    <div class="bg-gray-50 px-6 py-4 flex flex-wrap items-center justify-between gap-2 rounded-b-3xl border-t border-gray-100 mt-3">
+                        <div class="flex items-center space-x-2">
                             @if(auth()->user()->isOwner() || auth()->user()->hasRole('Superadmin'))
                                 <button type="button"
                                         x-on:click="
@@ -833,6 +1085,25 @@
                                     <span>Hapus Transaksi</span>
                                 </button>
                             @endif
+
+                            @if($selectedPenjualan->is_real)
+                                @can('laporan.penjualan.retur')
+                                    <button type="button"
+                                            wire:click="openReturModal({{ $selectedPenjualan->id }})"
+                                            wire:loading.attr="disabled"
+                                            wire:target="openReturModal({{ $selectedPenjualan->id }})"
+                                            class="inline-flex items-center space-x-1.5 px-3.5 py-2.5 rounded-xl bg-amber-100 hover:bg-amber-600 text-amber-900 hover:text-white text-xs font-bold transition-all cursor-pointer disabled:opacity-50">
+                                        <svg wire:loading wire:target="openReturModal({{ $selectedPenjualan->id }})" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                        </svg>
+                                        <svg wire:loading.remove wire:target="openReturModal({{ $selectedPenjualan->id }})" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                                        </svg>
+                                        <span>Retur Stok</span>
+                                    </button>
+                                @endcan
+                            @endif
                         </div>
 
                         <div class="flex items-center space-x-3">
@@ -850,6 +1121,159 @@
                             </button>
                         </div>
                     </div>
+
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- ============================================== -->
+    <!-- MODAL RETUR STOK BARANG (KHUSUS TRANSAKSI REAL)-->
+    <!-- ============================================== -->
+    @if($modalReturOpen)
+        <div class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="closeReturModal"></div>
+
+            <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-xl border border-gray-100">
+
+                    <!-- Header Modal Retur -->
+                    <div class="bg-[#5E17EB] px-6 py-5 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-sm">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-base font-extrabold text-white tracking-tight">
+                                        Retur Stok Barang
+                                    </h3>
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded-lg bg-emerald-400 text-emerald-950">
+                                        Transaksi Real
+                                    </span>
+                                </div>
+                                <p class="text-xs text-purple-200 font-mono font-bold mt-0.5">
+                                    Nota: {{ $returNoTransaksi }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <button type="button" wire:click="closeReturModal" class="w-8 h-8 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <form wire:submit.prevent="prosesReturStok">
+                        <div class="p-6 space-y-4">
+
+                            <!-- Toolbar Aksi Cepat Retur -->
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-xs font-extrabold text-gray-900 uppercase tracking-wider">
+                                    Pilih Jumlah Unit Diretur
+                                </span>
+                                <div class="flex items-center space-x-1.5">
+                                    <button type="button"
+                                            wire:click="setReturSemua"
+                                            class="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-[#5E17EB] text-[#5E17EB] hover:text-white text-[11px] font-extrabold transition-colors cursor-pointer">
+                                        Retur Semua Sisa
+                                    </button>
+                                    <button type="button"
+                                            wire:click="resetReturNol"
+                                            class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-[11px] font-bold transition-colors cursor-pointer">
+                                        Reset 0
+                                    </button>
+                                </div>
+                            </div>
+
+                            @error('returItems')
+                                <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+
+                            <!-- Daftar Item Nota untuk Diretur -->
+                            <div class="space-y-2.5 max-h-64 overflow-y-auto custom-scrollbar pr-1">
+                                @foreach($returItems as $detailId => $item)
+                                    <div class="p-3.5 rounded-2xl border {{ $item['sisa_qty'] > 0 && $item['input_qty'] > 0 ? 'border-purple-300 bg-purple-50/20' : 'border-gray-200 bg-gray-50/50' }} flex items-center justify-between gap-3">
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-xs font-extrabold text-gray-900 block truncate">
+                                                {{ $item['nama_item'] }}
+                                            </span>
+                                            <div class="flex flex-wrap items-center gap-2 mt-1 text-[11px] font-bold text-gray-600">
+                                                <span>Dibeli: <strong class="text-gray-900 font-mono">{{ $item['qty_beli'] }} UNIT</strong></span>
+                                                @if($item['qty_sudah_retur'] > 0)
+                                                    <span class="text-amber-700">&bull; Sudah Diretur: <strong class="font-mono">{{ $item['qty_sudah_retur'] }} UNIT</strong></span>
+                                                @endif
+                                                <span class="text-emerald-700">&bull; Sisa Bisa Diretur: <strong class="font-mono">{{ $item['sisa_qty'] }} UNIT</strong></span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Kontrol Input Qty Retur -->
+                                        <div class="shrink-0">
+                                            @if($item['sisa_qty'] > 0)
+                                                <div class="flex items-center space-x-1.5 bg-white p-1 rounded-xl border border-gray-200 shadow-2xs">
+                                                    <button type="button"
+                                                            wire:click="adjustReturQty({{ $detailId }}, -1)"
+                                                            class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-black flex items-center justify-center transition-colors cursor-pointer">
+                                                        -
+                                                    </button>
+                                                    <input type="number"
+                                                           min="0"
+                                                           max="{{ $item['sisa_qty'] }}"
+                                                           wire:model.live="returItems.{{ $detailId }}.input_qty"
+                                                           class="w-12 text-center text-xs font-black text-gray-900 border-0 focus:ring-0 p-0 font-mono">
+                                                    <button type="button"
+                                                            wire:click="adjustReturQty({{ $detailId }}, 1)"
+                                                            class="w-7 h-7 rounded-lg bg-[#5E17EB] hover:bg-purple-700 text-white font-black flex items-center justify-center transition-colors cursor-pointer">
+                                                        +
+                                                    </button>
+                                                </div>
+                                            @else
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-xl text-[10px] font-black bg-gray-200 text-gray-700">
+                                                    Sudah Diretur Penuh
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <!-- Input Alasan Retur (Wajib Isi, Zero Placeholder) -->
+                            <div>
+                                <label class="block text-xs font-extrabold text-gray-900 uppercase tracking-wider mb-1.5">
+                                    Alasan Retur Stok <span class="text-rose-500">*</span>
+                                </label>
+                                <input type="text"
+                                       wire:model="alasanRetur"
+                                       class="w-full px-3.5 py-2.5 text-xs font-bold text-gray-900 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]">
+                                @error('alasanRetur')
+                                    <span class="text-[11px] font-bold text-rose-600 mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                        <!-- Footer Modal Retur -->
+                        <div class="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-3 rounded-b-3xl border-t border-gray-100">
+                            <button type="button"
+                                    wire:click="closeReturModal"
+                                    class="px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
+                                Batal
+                            </button>
+
+                            <button type="submit"
+                                    wire:loading.attr="disabled"
+                                    wire:target="prosesReturStok"
+                                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-xs font-extrabold text-white shadow-md shadow-purple-900/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg wire:loading wire:target="prosesReturStok" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span wire:loading.remove wire:target="prosesReturStok">Kembalikan Stok</span>
+                                <span wire:loading wire:target="prosesReturStok">Memproses Retur...</span>
+                            </button>
+                        </div>
+                    </form>
 
                 </div>
             </div>

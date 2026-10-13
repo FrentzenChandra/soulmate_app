@@ -92,6 +92,7 @@ class PermissionService
                         'actions' => [
                             'laporan.penjualan.detail' => 'Lihat Detail Item Transaksi',
                             'laporan.penjualan.print' => 'Cetak Ulang Nota Penjualan',
+                            'laporan.penjualan.retur' => 'Retur Stok Barang (Transaksi Real)',
                         ],
                     ],
                 ],
@@ -328,6 +329,7 @@ class PermissionService
                 'laporan.penjualan.view',
                 'laporan.penjualan.detail',
                 'laporan.penjualan.print',
+                'laporan.penjualan.retur',
                 'transaksi.harian.view',
                 'transaksi.harian.create',
                 'transaksi.harian.edit',
