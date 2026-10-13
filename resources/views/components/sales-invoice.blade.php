@@ -20,10 +20,10 @@
             <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-16 h-16 rounded-2xl object-cover shrink-0 shadow-xs">
             <div>
                 <h1 class="text-lg  text-black tracking-tight leading-none " style="font-family: Arial, Helvetica, sans-serif;">Soulmate Komputer</h1>
-                <p class="text-xs font-medium text-black mt-1.5 leading-snug">
+                <p class="text-lg font-medium text-black mt-1.5 leading-snug">
                     {{ $address }}
                 </p>
-                <p class="text-xs  text-black mt-1">
+                <p class="text-lg  text-black mt-1">
                     WhatsApp: {{ $phone }}
                 </p>
             </div>

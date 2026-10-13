@@ -100,11 +100,11 @@
             <div class="col-span-7 flex items-start space-x-3.5">
                 <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-16 h-16 rounded-2xl object-cover shrink-0">
                 <div>
-                    <h1 class="text-[20px] text-black tracking-tight leading-tight">Soulmate Komputer</h1>
-                    <p class="text-[20px] text-black mt-1 leading-snug">
+                    <h1 class="text-lg text-black tracking-tight leading-tight">Soulmate Komputer</h1>
+                    <p class="text-lg text-black mt-1 leading-snug">
                         {{ $servis->cabang?->alamat ?? 'Jl. Masjid Jamik, Kel. Masjid Jamik, Kec Rangkui, Kota Pangkalpinang' }}
                     </p>
-                    <p class="text-[20px] text-black mt-0.5">
+                    <p class="text-lg text-black mt-0.5">
                         WhatsApp: {{ format_whatsapp($servis->cabang?->no_wa ?? '081995466255') }}
                     </p>
                 </div>
