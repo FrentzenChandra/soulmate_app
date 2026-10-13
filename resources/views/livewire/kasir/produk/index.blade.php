@@ -417,7 +417,7 @@
                 <!-- List Items Scrollable (~2.5 items visible: 240px height to keep Checkout visible on small laptop screens) -->
                 <div class="space-y-2.5 max-h-[240px] overflow-y-auto overscroll-contain custom-scrollbar p-2.5">
                     @forelse($cart as $item)
-                        <div wire:key="cart-item-{{ $item['id'] }}-{{ $isReal ? 'real' : 'nonreal' }}-{{ !empty($item['is_custom_price']) ? 'custom' : 'catalog' }}-{{ (int) $item['qty'] }}"
+                        <div wire:key="cart-item-{{ $item['id'] }}-{{ $isReal ? 'real' : 'nonreal' }}"
                              class="p-2.5 sm:p-3 bg-white hover:bg-purple-50/20 border {{ !empty($item['is_custom_price']) ? 'border-purple-300 ring-1 ring-purple-100 bg-purple-50/10' : 'border-gray-200/80' }} rounded-2xl transition-all shadow-2xs space-y-2"
                              @cart-price-reset.window="syncFromServer({{ (float) $item['subtotal'] }})"
                              x-data="{
@@ -459,6 +459,9 @@
                                      this.display = this.formatRupiah(val);
                                      this.humanHelper = this.calcHelper(val);
                                  },
+                                 syncQty(val) {
+                                     this.qty = Math.max(1, parseInt(val, 10) || 1);
+                                 },
                                  init() {
                                      this.display = this.formatRupiah(this.subtotal);
                                      this.humanHelper = this.calcHelper(this.subtotal);
@@ -486,7 +489,7 @@
                                      $wire.updateItemSubtotal({{ $item['id'] }}, this.subtotal);
                                  }
                              }"
-                             x-effect="syncFromServer({{ (float) $item['subtotal'] }})">
+                             x-effect="syncFromServer({{ (float) $item['subtotal'] }}); syncQty({{ (int) $item['qty'] }})">
                             <!-- Item Title (Full Width Single Line) & Delete Button -->
                             <div class="flex items-start justify-between gap-2">
                                 <div class="flex items-center gap-1.5 min-w-0 flex-1">
@@ -538,6 +541,7 @@
                                     <div class="relative w-36 sm:w-40">
                                         <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-[10px] font-bold text-gray-400 select-none pointer-events-none">Rp</span>
                                         <input type="text"
+                                               wire:key="cart-subtotal-input-{{ $item['id'] }}-{{ $isReal ? 'real' : 'nonreal' }}"
                                                x-ref="inputEl"
                                                inputmode="numeric"
                                                @if($isReal)
