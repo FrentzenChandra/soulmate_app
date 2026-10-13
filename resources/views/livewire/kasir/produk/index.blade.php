@@ -467,12 +467,29 @@
                                      this.humanHelper = this.calcHelper(this.subtotal);
                                  },
                                  onInput(e) {
-                                     let clean = e.target.value.replace(/[^0-9]/g, '');
+                                     let input = e.target;
+                                     let oldVal = input.value;
+                                     let cursorPos = input.selectionEnd || 0;
+                                     let digitsBeforeCursor = oldVal.slice(0, cursorPos).replace(/[^0-9]/g, '').length;
+
+                                     let clean = oldVal.replace(/[^0-9]/g, '');
                                      let num = clean ? parseInt(clean, 10) : 0;
                                      this.subtotal = num;
-                                     this.display = num ? num.toLocaleString('id-ID') : '';
+                                     let formatted = num ? num.toLocaleString('id-ID') : '';
+                                     this.display = formatted;
                                      this.humanHelper = this.calcHelper(num);
-                                     e.target.value = this.display;
+                                     input.value = formatted;
+
+                                     // Pertahankan posisi kursor tetap di posisi pengetikan, jangan lompat ke paling kanan
+                                     let newCursor = 0;
+                                     let digitCount = 0;
+                                     while (newCursor < formatted.length && digitCount < digitsBeforeCursor) {
+                                         if (/[0-9]/.test(formatted[newCursor])) {
+                                             digitCount++;
+                                         }
+                                         newCursor++;
+                                     }
+                                     input.setSelectionRange(newCursor, newCursor);
 
                                      clearTimeout(this.debounceTimer);
                                      if (num > 0) {
