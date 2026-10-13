@@ -82,6 +82,10 @@ class Index extends Component
             $this->tipeTransaksiFilter = (string) request('tipeTransaksiFilter');
         }
 
+        if ($this->tipeTransaksiFilter === 'non_real') {
+            $this->activeTab = 'transaksi';
+        }
+
         $this->sortField = 'tanggal';
         $this->sortDirection = 'desc';
 
@@ -95,6 +99,12 @@ class Index extends Component
 
     public function switchTab(string $tab): void
     {
+        if ($this->tipeTransaksiFilter === 'non_real' && $tab === 'histori_retur') {
+            $this->activeTab = 'transaksi';
+
+            return;
+        }
+
         if (in_array($tab, ['transaksi', 'histori_retur'])) {
             $this->activeTab = $tab;
             $this->perPage = 15;
@@ -119,8 +129,11 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function updatingTipeTransaksiFilter(): void
+    public function updatingTipeTransaksiFilter($value): void
     {
+        if ($value === 'non_real') {
+            $this->activeTab = 'transaksi';
+        }
         $this->perPage = 15;
         $this->resetPage();
     }
