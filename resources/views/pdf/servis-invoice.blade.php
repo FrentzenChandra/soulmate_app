@@ -192,7 +192,7 @@
             </td>
             <td style="width: 40%; vertical-align: middle; text-align: right;">
                 <span class="text-muted  uppercase">Petugas Kasir :</span>
-                <strong>{{ $servis->kasir?->name ?? ($servis->teknisi?->name ?? 'Soulmate Komputer') }}</strong>
+                <strong>{{ $servis->kasir?->name ?: ($servis->teknisi?->name ?: ($servis->pembuat?->name ?: ($servis->createdBy?->name ?: 'Soulmate Komputer'))) }}</strong>
             </td>
         </tr>
     </table>

@@ -93,6 +93,11 @@ class ServisMasuk extends Model
         return $this->belongsTo(User::class, 'created_by')->withTrashed();
     }
 
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by')->withTrashed();
+    }
+
     public function details(): HasMany
     {
         return $this->hasMany(ServisDetail::class, 'servis_id');

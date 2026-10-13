@@ -152,7 +152,7 @@
             </div>
             <div class="text-right">
                 <span class="text-[11px] text-black-500 uppercase block leading-none">Petugas Kasir :</span>
-                <span class=" text-black text-xs mt-1 inline-block">{{ $servis->kasir?->name ?? ($servis->teknisi?->name ?? 'Soulmate Komputer') }}</span>
+                <span class=" text-black text-xs mt-1 inline-block">{{ $servis->kasir?->name ?: ($servis->teknisi?->name ?: ($servis->pembuat?->name ?: ($servis->createdBy?->name ?: 'Soulmate Komputer'))) }}</span>
             </div>
         </div>
 

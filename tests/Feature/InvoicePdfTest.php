@@ -25,8 +25,13 @@ class InvoicePdfTest extends TestCase
     {
         parent::setUp();
 
-        Role::firstOrCreate(['name' => 'Admin']);
+        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
         Role::firstOrCreate(['name' => 'Kasir']);
+
+        \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'kasir.produk.print']);
+        \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'servis.masuk.print']);
+        \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'servis.keluar.print']);
+        $adminRole->givePermissionTo(['kasir.produk.print', 'servis.masuk.print', 'servis.keluar.print']);
 
         $this->cabang = Cabang::create([
             'kode_cabang' => 'CB01',
@@ -213,5 +218,85 @@ class InvoicePdfTest extends TestCase
         $this->assertEquals(1, $canvas->get_page_count(), 'Faktur servis must fit in exactly 1 page');
         $this->assertEqualsWithDelta(680.315, $canvas->get_width(), 0.01);
         $this->assertEqualsWithDelta(425.197, $canvas->get_height(), 0.01);
+    }
+
+    public function test_petugas_kasir_fallback_hierarchy_on_servis_invoice(): void
+    {
+        $this->actingAs($this->admin);
+
+        $customer = Customer::create([
+            'cabang_id' => $this->cabang->id,
+            'nama' => 'Joko Anwar',
+            'no_hp' => '0899999999',
+        ]);
+
+        $kasirUser = User::factory()->create(['name' => 'Staf Kasir Utama', 'cabang_id' => $this->cabang->id]);
+        $teknisiUser = User::factory()->create(['name' => 'Teknisi Laptop Handal', 'cabang_id' => $this->cabang->id]);
+        $creatorUser = User::factory()->create(['name' => 'Admin Pembuat Tiket', 'cabang_id' => $this->cabang->id]);
+
+        // Kasus 1: Ada kasir_id -> wajib tampil nama kasir
+        $sv1 = ServisMasuk::create([
+            'no_servis' => 'INV-SV-CB01-261013-00010',
+            'cabang_id' => $this->cabang->id,
+            'customer_id' => $customer->id,
+            'kategori_perangkat' => 'laptop',
+            'keluhan' => 'Mati total',
+            'tanggal_masuk' => now(),
+            'kasir_id' => $kasirUser->id,
+            'teknisi_id' => $teknisiUser->id,
+            'created_by' => $creatorUser->id,
+            'status' => 'selesai',
+            'is_real' => true,
+        ]);
+        $this->get(route('servis.invoice', $sv1->id))->assertSee('Staf Kasir Utama');
+
+        // Kasus 2: kasir_id null, ada teknisi_id -> wajib tampil nama teknisi
+        $sv2 = ServisMasuk::create([
+            'no_servis' => 'INV-SV-CB01-261013-00011',
+            'cabang_id' => $this->cabang->id,
+            'customer_id' => $customer->id,
+            'kategori_perangkat' => 'laptop',
+            'keluhan' => 'Mati total',
+            'tanggal_masuk' => now(),
+            'kasir_id' => null,
+            'teknisi_id' => $teknisiUser->id,
+            'created_by' => $creatorUser->id,
+            'status' => 'selesai',
+            'is_real' => true,
+        ]);
+        $this->get(route('servis.invoice', $sv2->id))->assertSee('Teknisi Laptop Handal');
+
+        // Kasus 3: kasir_id null & teknisi_id null, ada created_by -> wajib tampil nama creator/pembuat
+        $sv3 = ServisMasuk::create([
+            'no_servis' => 'INV-SV-CB01-261013-00012',
+            'cabang_id' => $this->cabang->id,
+            'customer_id' => $customer->id,
+            'kategori_perangkat' => 'laptop',
+            'keluhan' => 'Mati total',
+            'tanggal_masuk' => now(),
+            'kasir_id' => null,
+            'teknisi_id' => null,
+            'created_by' => $creatorUser->id,
+            'status' => 'selesai',
+            'is_real' => true,
+        ]);
+        $this->get(route('servis.invoice', $sv3->id))->assertSee('Admin Pembuat Tiket');
+
+        // Kasus 4: kasir null, teknisi null, creator ber-nama kosong -> wajib tampil Soulmate Komputer
+        $emptyUser = User::factory()->create(['name' => '', 'cabang_id' => $this->cabang->id]);
+        $sv4 = ServisMasuk::create([
+            'no_servis' => 'INV-SV-CB01-261013-00013',
+            'cabang_id' => $this->cabang->id,
+            'customer_id' => $customer->id,
+            'kategori_perangkat' => 'laptop',
+            'keluhan' => 'Mati total',
+            'tanggal_masuk' => now(),
+            'kasir_id' => null,
+            'teknisi_id' => null,
+            'created_by' => $emptyUser->id,
+            'status' => 'selesai',
+            'is_real' => true,
+        ]);
+        $this->get(route('servis.invoice', $sv4->id))->assertSee('Soulmate Komputer');
     }
 }
