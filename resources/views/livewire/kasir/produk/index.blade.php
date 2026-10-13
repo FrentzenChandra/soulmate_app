@@ -417,8 +417,9 @@
                 <!-- List Items Scrollable (~2.5 items visible: 240px height to keep Checkout visible on small laptop screens) -->
                 <div class="space-y-2.5 max-h-[240px] overflow-y-auto overscroll-contain custom-scrollbar p-2.5">
                     @forelse($cart as $item)
-                        <div wire:key="cart-item-{{ $item['id'] }}"
+                        <div wire:key="cart-item-{{ $item['id'] }}-{{ $isReal ? 'real' : 'nonreal' }}-{{ !empty($item['is_custom_price']) ? 'custom' : 'catalog' }}-{{ (int) $item['qty'] }}"
                              class="p-2.5 sm:p-3 bg-white hover:bg-purple-50/20 border {{ !empty($item['is_custom_price']) ? 'border-purple-300 ring-1 ring-purple-100 bg-purple-50/10' : 'border-gray-200/80' }} rounded-2xl transition-all shadow-2xs space-y-2"
+                             @cart-price-reset.window="syncFromServer({{ (float) $item['subtotal'] }})"
                              x-data="{
                                  subtotal: {{ (float) $item['subtotal'] }},
                                  lastCommitted: {{ (float) $item['subtotal'] }},
@@ -539,8 +540,10 @@
                                         <input type="text"
                                                x-ref="inputEl"
                                                inputmode="numeric"
-                                               :value="display"
-                                               @if(!$isReal)
+                                               @if($isReal)
+                                                   value="{{ number_format($item['subtotal'], 0, ',', '.') }}"
+                                               @else
+                                                   :value="display"
                                                    @input="onInput($event)"
                                                    @blur="onCommit()"
                                                    @keydown.enter.prevent="onCommit(); $event.target.blur()"
@@ -570,7 +573,11 @@
                                     @endif
                                 </div>
                                 <div class="text-right truncate">
-                                    <span x-text="'@ Rp ' + formatRupiah(unitPrice) + ' / unit'">@ Rp {{ number_format($item['harga'], 0, ',', '.') }} / unit</span>
+                                    @if($isReal)
+                                        <span>@ Rp {{ number_format($item['harga'], 0, ',', '.') }} / unit</span>
+                                    @else
+                                        <span x-text="'@ Rp ' + formatRupiah(unitPrice) + ' / unit'">@ Rp {{ number_format($item['harga'], 0, ',', '.') }} / unit</span>
+                                    @endif
                                 </div>
                             </div>
                         </div>

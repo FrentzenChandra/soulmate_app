@@ -310,9 +310,12 @@ class Index extends Component
             $this->customTanggal = null;
 
             // Reset seluruh harga item di keranjang ke harga katalog
+            $produkIds = array_keys($this->cart);
+            $katalogPrices = Produk::whereIn('id', $produkIds)->pluck('harga_jual', 'id');
             foreach ($this->cart as $pId => $item) {
-                $katalog = (float) ($item['harga_katalog'] ?? $item['harga']);
+                $katalog = (float) ($katalogPrices[$pId] ?? $item['harga_katalog'] ?? $item['harga']);
                 $this->cart[$pId]['harga'] = $katalog;
+                $this->cart[$pId]['harga_katalog'] = $katalog;
                 $this->cart[$pId]['is_custom_price'] = false;
                 $this->cart[$pId]['subtotal'] = $this->cart[$pId]['qty'] * $katalog;
             }
@@ -331,6 +334,8 @@ class Index extends Component
                     $this->cart[$pId]['stok_max'] = $stokFisik;
                 }
             }
+
+            $this->dispatch('cartPriceReset');
         } else {
             if (empty($this->customTanggal)) {
                 $this->customTanggal = now()->format('Y-m-d\TH:i');
@@ -432,13 +437,16 @@ class Index extends Component
             return;
         }
 
-        $katalog = (float) ($this->cart[$produkId]['harga_katalog'] ?? $this->cart[$produkId]['harga']);
+        $produk = Produk::find($produkId);
+        $katalog = $produk ? (float) $produk->harga_jual : (float) ($this->cart[$produkId]['harga_katalog'] ?? $this->cart[$produkId]['harga']);
         $qty = max(1, (int) $this->cart[$produkId]['qty']);
         $this->cart[$produkId]['harga'] = $katalog;
+        $this->cart[$produkId]['harga_katalog'] = $katalog;
         $this->cart[$produkId]['subtotal'] = $qty * $katalog;
         $this->cart[$produkId]['is_custom_price'] = false;
 
         $this->recalculateTotals();
+        $this->dispatch('cartPriceReset');
     }
 
     public function updateQty(int $produkId, int|string $qty): void

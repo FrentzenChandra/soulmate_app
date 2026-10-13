@@ -692,6 +692,8 @@ class KasirPosTest extends TestCase
             ->assertSet('customTanggal', null)
             ->assertSet('cart.' . $this->produk1->id . '.harga', 175000)
             ->assertSet('cart.' . $this->produk1->id . '.subtotal', 175000)
-            ->assertSet('cart.' . $this->produk1->id . '.is_custom_price', false);
+            ->assertSet('cart.' . $this->produk1->id . '.is_custom_price', false)
+            ->assertDispatched('cartPriceReset')
+            ->assertSeeHtml('value="175.000"');
     }
 }
