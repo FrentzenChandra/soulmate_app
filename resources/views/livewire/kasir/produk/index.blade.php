@@ -382,6 +382,27 @@
                     </div>
                 </div>
 
+                <!-- Kontrol Waktu Transaksi (Real: Terkunci Otomatis / Non-Real: Custom Tanggal) -->
+                <div class="px-3 py-2 bg-white border-b border-gray-100 flex items-center justify-between gap-2 shrink-0">
+                    <div class="flex items-center space-x-1.5 shrink-0">
+                        <svg class="w-3.5 h-3.5 {{ $isReal ? 'text-gray-400' : 'text-amber-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span class="text-[10px] font-bold text-gray-600 uppercase tracking-wider">Waktu:</span>
+                    </div>
+                    <div class="flex-1 max-w-[210px]">
+                        @if($isReal)
+                            <div class="w-full px-2 py-1 bg-gray-100 border border-gray-200 rounded-lg text-[11px] font-semibold text-gray-500 flex items-center justify-between select-none cursor-not-allowed" title="Transaksi Real terkunci pada waktu saat ini">
+                                <span class="truncate">Waktu Sekarang</span>
+                                <span class="text-[9px] uppercase font-bold text-gray-400 bg-gray-200/80 px-1 py-0.2 rounded">Terkunci</span>
+                            </div>
+                        @else
+                            <input type="datetime-local"
+                                   wire:model.live="customTanggal"
+                                   class="w-full px-2 py-1 bg-amber-50/50 border border-amber-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-lg text-[11px] font-bold text-amber-950 font-mono transition-all cursor-pointer shadow-2xs"
+                                   title="Sesuaikan tanggal & jam nota cetak">
+                        @endif
+                    </div>
+                </div>
+
                 @if(!$isReal)
                     <!-- Note Non-Real di Sidebar Kasir -->
                     <div class="mx-3 my-2 p-2.5 bg-amber-50 border-2 border-amber-300 rounded-xl flex items-start space-x-2 text-amber-900 shadow-2xs">
@@ -469,7 +490,7 @@
                             <div class="flex items-start justify-between gap-2">
                                 <div class="flex items-center gap-1.5 min-w-0 flex-1">
                                     <h4 class="text-xs font-black text-gray-900 truncate leading-snug" title="{{ $item['nama'] }}">{{ $item['nama'] }}</h4>
-                                    @if(!empty($item['is_custom_price']))
+                                    @if(!$isReal && !empty($item['is_custom_price']))
                                         <span class="px-1.5 py-0.2 rounded-md bg-purple-100 text-[#5E17EB] text-[9px] font-black uppercase tracking-wider shrink-0 border border-purple-200">
                                             Kustom
                                         </span>
@@ -519,11 +540,15 @@
                                                x-ref="inputEl"
                                                inputmode="numeric"
                                                :value="display"
-                                               @input="onInput($event)"
-                                               @blur="onCommit()"
-                                               @keydown.enter.prevent="onCommit(); $event.target.blur()"
-                                               @focus="$event.target.select()"
-                                               class="w-full pl-7 pr-2.5 py-1 text-xs sm:text-sm font-black font-mono tabular-nums text-right rounded-xl border {{ !empty($item['is_custom_price']) ? 'border-purple-300 bg-purple-50/30 text-[#5E17EB]' : 'border-gray-200 bg-white text-[#0052FF]' }} focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-all shadow-2xs">
+                                               @if(!$isReal)
+                                                   @input="onInput($event)"
+                                                   @blur="onCommit()"
+                                                   @keydown.enter.prevent="onCommit(); $event.target.blur()"
+                                                   @focus="$event.target.select()"
+                                               @endif
+                                               @disabled($isReal)
+                                               class="w-full pl-7 pr-2.5 py-1 text-xs sm:text-sm font-black font-mono tabular-nums text-right rounded-xl border {{ $isReal ? 'border-gray-200 bg-gray-100 text-gray-600 cursor-not-allowed select-none' : (!empty($item['is_custom_price']) ? 'border-purple-300 bg-purple-50/30 text-[#5E17EB]' : 'border-gray-200 bg-white text-[#0052FF]') }} focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-all shadow-2xs"
+                                               @if($isReal) title="Harga transaksi real terkunci sesuai katalog" @endif>
                                     </div>
                                 </div>
                             </div>
@@ -534,7 +559,7 @@
                                     <template x-if="humanHelper">
                                         <span class="px-1.5 py-0.5 rounded-md bg-purple-100 text-[#5E17EB] font-black text-[10px]" x-text="humanHelper"></span>
                                     </template>
-                                    @if(!empty($item['is_custom_price']))
+                                    @if(!$isReal && !empty($item['is_custom_price']))
                                         <button type="button"
                                                 wire:click="resetItemPrice({{ $item['id'] }})"
                                                 wire:loading.attr="disabled"

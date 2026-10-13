@@ -561,13 +561,15 @@ class KasirPosTest extends TestCase
         ]);
     }
 
-    public function test_kasir_can_edit_item_subtotal_and_recalculate_unit_price(): void
+    public function test_kasir_can_edit_item_subtotal_in_non_real_mode(): void
     {
         $this->actingAs($this->kasir);
 
-        // Produk 1 harga 175.000, tambah ke keranjang lalu ubah qty jadi 2 (subtotal awal 350.000)
+        // Produk 1 harga 175.000, ubah ke Non-Real, tambah ke keranjang lalu ubah qty jadi 2 (subtotal awal 350.000)
         // Kasir menawar / negosiasi subtotal menjadi 320.000
         Livewire::test(Index::class)
+            ->call('toggleRealMode')
+            ->assertSet('isReal', false)
             ->call('addToCart', $this->produk1->id)
             ->call('updateQty', $this->produk1->id, 2)
             ->call('updateItemSubtotal', $this->produk1->id, '320.000')
@@ -583,6 +585,7 @@ class KasirPosTest extends TestCase
             'cabang_id' => $this->cabangPkp->id,
             'subtotal' => 320000,
             'total' => 320000,
+            'is_real' => false,
         ]);
 
         $this->assertDatabaseHas('penjualan_details', [
@@ -599,6 +602,7 @@ class KasirPosTest extends TestCase
 
         // Produk 1 harga katalog 175.000
         Livewire::test(Index::class)
+            ->call('toggleRealMode')
             ->call('addToCart', $this->produk1->id)
             ->call('updateQty', $this->produk1->id, 2)
             ->call('updateItemSubtotal', $this->produk1->id, 320000)
@@ -608,5 +612,86 @@ class KasirPosTest extends TestCase
             ->assertSet('cart.' . $this->produk1->id . '.subtotal', 350000)
             ->assertSet('cart.' . $this->produk1->id . '.is_custom_price', false)
             ->assertSet('grandTotal', 350000);
+    }
+
+    public function test_real_mode_rejects_update_item_subtotal_with_403(): void
+    {
+        $this->actingAs($this->kasir);
+
+        Livewire::test(Index::class)
+            ->assertSet('isReal', true)
+            ->call('addToCart', $this->produk1->id)
+            ->call('updateItemSubtotal', $this->produk1->id, 150000)
+            ->assertStatus(403);
+    }
+
+    public function test_real_mode_rejects_custom_date_on_checkout_with_403(): void
+    {
+        $this->actingAs($this->kasir);
+
+        Livewire::test(Index::class)
+            ->assertSet('isReal', true)
+            ->call('addToCart', $this->produk1->id)
+            ->set('customTanggal', '2026-05-10T14:30')
+            ->call('openPaymentModal')
+            ->call('prosesPembayaran')
+            ->assertStatus(403);
+    }
+
+    public function test_real_mode_rejects_tampered_item_price_on_checkout_with_403(): void
+    {
+        $this->actingAs($this->kasir);
+
+        // Simulasi manipulasi state keranjang secara paksa via DevTools
+        Livewire::test(Index::class)
+            ->assertSet('isReal', true)
+            ->call('addToCart', $this->produk1->id)
+            ->set('cart.' . $this->produk1->id . '.harga', 100000)
+            ->call('openPaymentModal')
+            ->call('prosesPembayaran')
+            ->assertStatus(403);
+    }
+
+    public function test_non_real_mode_allows_custom_date_and_saves_to_penjualan(): void
+    {
+        $this->actingAs($this->kasir);
+
+        $customTime = '2026-04-15 10:30:00';
+
+        Livewire::test(Index::class)
+            ->call('toggleRealMode')
+            ->assertSet('isReal', false)
+            ->call('addToCart', $this->produk1->id)
+            ->set('customTanggal', '2026-04-15T10:30')
+            ->call('openPaymentModal')
+            ->call('prosesPembayaran')
+            ->assertDispatched('open-print-invoice');
+
+        $penjualan = Penjualan::where('cabang_id', $this->cabangPkp->id)
+            ->where('is_real', false)
+            ->first();
+
+        $this->assertNotNull($penjualan);
+        $this->assertEquals('2026-04-15 10:30:00', $penjualan->tanggal->format('Y-m-d H:i:s'));
+        // Pastikan prefix invoice menggunakan tanggal kustom (260415)
+        $this->assertStringContainsString('INV-PJ-CBPKP-260415-', $penjualan->no_transaksi);
+    }
+
+    public function test_switching_to_real_mode_resets_custom_date_and_item_prices(): void
+    {
+        $this->actingAs($this->kasir);
+
+        Livewire::test(Index::class)
+            ->call('toggleRealMode') // switch to Non-Real
+            ->set('customTanggal', '2026-04-15T10:30')
+            ->call('addToCart', $this->produk1->id)
+            ->call('updateItemSubtotal', $this->produk1->id, 100000)
+            ->assertSet('cart.' . $this->produk1->id . '.is_custom_price', true)
+            ->call('toggleRealMode') // switch back to Real
+            ->assertSet('isReal', true)
+            ->assertSet('customTanggal', null)
+            ->assertSet('cart.' . $this->produk1->id . '.harga', 175000)
+            ->assertSet('cart.' . $this->produk1->id . '.subtotal', 175000)
+            ->assertSet('cart.' . $this->produk1->id . '.is_custom_price', false);
     }
 }

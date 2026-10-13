@@ -12,6 +12,7 @@ use App\Models\Penjualan;
 use App\Models\PenjualanDetail;
 use App\Models\Produk;
 use App\Models\Stok;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -75,6 +76,9 @@ class Index extends Component
 
     // Mode Transaksi (Real vs Non-Real / Cetak Bon Formalitas Saja)
     public bool $isReal = true;
+
+    // Custom Tanggal & Waktu Transaksi (Khusus Non-Real)
+    public ?string $customTanggal = null;
 
     // Modal Pembayaran
     public bool $modalBayarOpen = false;
@@ -303,6 +307,16 @@ class Index extends Component
         $this->isReal = ! $this->isReal;
 
         if ($this->isReal) {
+            $this->customTanggal = null;
+
+            // Reset seluruh harga item di keranjang ke harga katalog
+            foreach ($this->cart as $pId => $item) {
+                $katalog = (float) ($item['harga_katalog'] ?? $item['harga']);
+                $this->cart[$pId]['harga'] = $katalog;
+                $this->cart[$pId]['is_custom_price'] = false;
+                $this->cart[$pId]['subtotal'] = $this->cart[$pId]['qty'] * $katalog;
+            }
+
             $cabang = $this->activeCabang;
             foreach ($this->cart as $pId => $item) {
                 $stok = Stok::where('produk_id', $pId)->where('cabang_id', $cabang?->id)->first();
@@ -318,6 +332,9 @@ class Index extends Component
                 }
             }
         } else {
+            if (empty($this->customTanggal)) {
+                $this->customTanggal = now()->format('Y-m-d\TH:i');
+            }
             foreach ($this->cart as $pId => $item) {
                 $this->cart[$pId]['stok_max'] = 99999;
             }
@@ -386,6 +403,10 @@ class Index extends Component
 
     public function updateItemSubtotal(int $produkId, float|string|int $newSubtotal): void
     {
+        if ($this->isReal) {
+            abort(403, 'Pengubahan harga per item pada transaksi real dilarang.');
+        }
+
         if (! isset($this->cart[$produkId])) {
             return;
         }
@@ -600,6 +621,33 @@ class Index extends Component
         $this->recalculateTotals();
     }
 
+    /**
+     * Memvalidasi kepatuhan transaksi real (harga katalog & waktu now())
+     * atau mengembalikan Carbon instance tanggal transaksi untuk non-real.
+     */
+    protected function validateRealTransactionGuards(): Carbon
+    {
+        if ($this->isReal) {
+            if (! empty($this->customTanggal)) {
+                abort(403, 'Kustomisasi tanggal pada transaksi real dilarang.');
+            }
+
+            $produkIds = array_keys($this->cart);
+            $katalogPrices = Produk::whereIn('id', $produkIds)->pluck('harga_jual', 'id');
+            foreach ($this->cart as $pId => $item) {
+                $dbPrice = (float) ($katalogPrices[$pId] ?? 0);
+                $cartPrice = (float) $item['harga'];
+                if (abs($dbPrice - $cartPrice) > 0.01 || ! empty($item['is_custom_price'])) {
+                    abort(403, 'Perubahan harga produk pada transaksi real dilarang.');
+                }
+            }
+
+            return now();
+        }
+
+        return ! empty($this->customTanggal) ? Carbon::parse($this->customTanggal) : now();
+    }
+
     public function prosesPembayaran(): void
     {
         if (empty($this->cart)) {
@@ -625,11 +673,12 @@ class Index extends Component
             $this->jumlahBayar = $this->grandTotal;
         }
 
+        $transactionDate = $this->validateRealTransactionGuards();
+
         try {
             DB::beginTransaction();
 
-            $now = now();
-            $dateCode = $now->format('ymd');
+            $dateCode = $transactionDate->format('ymd');
             $kodeCabangClean = str_replace('-', '', $cabang->kode_cabang);
             $prefix = "INV-PJ-{$kodeCabangClean}-{$dateCode}-";
 
@@ -656,7 +705,7 @@ class Index extends Component
                 'customer_id' => $this->customerType === 'langganan' ? $this->selectedCustomerId : null,
                 'servis_id' => null,
                 'tipe_transaksi' => 'penjualan_barang',
-                'tanggal' => $now,
+                'tanggal' => $transactionDate,
                 'subtotal' => round((float) $this->subtotal, 2),
                 'diskon' => round((float) $this->diskon, 2),
                 'ppn_id' => $this->selectedPpnId,
@@ -703,6 +752,11 @@ class Index extends Component
             $this->modalBayarOpen = false;
             $this->clearCart();
             $this->setCustomerUmum();
+            if (! $this->isReal) {
+                $this->customTanggal = now()->format('Y-m-d\TH:i');
+            } else {
+                $this->customTanggal = null;
+            }
             $this->dispatch('open-print-invoice', url: route('kasir.produk.invoice', $penjualan->id) . '?autoprint=1');
             session()->flash('success', "Transaksi {$penjualan->no_transaksi_frontend} berhasil diproses!");
 
@@ -742,11 +796,12 @@ class Index extends Component
             return;
         }
 
+        $transactionDate = $this->validateRealTransactionGuards();
+
         try {
             DB::beginTransaction();
 
-            $now = now();
-            $dateCode = $now->format('ymd');
+            $dateCode = $transactionDate->format('ymd');
             $kodeCabangClean = str_replace('-', '', $cabang->kode_cabang);
             $prefix = "INV-PJ-{$kodeCabangClean}-{$dateCode}-";
 
@@ -773,7 +828,7 @@ class Index extends Component
                 'customer_id' => $this->selectedCustomerId,
                 'servis_id' => null,
                 'tipe_transaksi' => 'penjualan_barang',
-                'tanggal' => $now,
+                'tanggal' => $transactionDate,
                 'subtotal' => round((float) $this->subtotal, 2),
                 'diskon' => round((float) $this->diskon, 2),
                 'ppn_id' => $this->selectedPpnId,
@@ -819,6 +874,11 @@ class Index extends Component
 
             $this->clearCart();
             $this->setCustomerUmum();
+            if (! $this->isReal) {
+                $this->customTanggal = now()->format('Y-m-d\TH:i');
+            } else {
+                $this->customTanggal = null;
+            }
             $this->dispatch('open-print-invoice', url: route('kasir.produk.invoice', $penjualan->id) . '?autoprint=1');
             session()->flash('success', "Transaksi Bon {$penjualan->no_transaksi_frontend} berhasil disimpan!");
 
