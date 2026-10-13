@@ -124,9 +124,9 @@
                             </td>
                         @endif
                         <td style="vertical-align: top;">
-                            <div style="font-size: 20pt; font-weight: bold; color: #111; line-height: 1.1;">Soulmate Komputer</div>
-                            <div class="text-muted" style="font-size: 20pt; margin-top: 2px;">{{ $address }}</div>
-                            <div style="font-size: 20pt; font-weight: bold; margin-top: 1px;">WhatsApp: {{ $phone }}</div>
+                            <div style="font-size: 11pt; font-weight: bold; color: #111; line-height: 1.1;">Soulmate Komputer</div>
+                            <div class="text-muted" style="font-size: 7.5pt; margin-top: 2px;">{{ $address }}</div>
+                            <div style="font-size: 7.5pt; font-weight: bold; margin-top: 1px;">WhatsApp: {{ $phone }}</div>
                         </td>
                     </tr>
                 </table>

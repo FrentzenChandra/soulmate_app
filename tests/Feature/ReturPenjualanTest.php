@@ -138,7 +138,7 @@ class ReturPenjualanTest extends TestCase
             ->test(LaporanPenjualanIndex::class)
             ->call('openReturModal', $penjualan->id)
             ->assertSet('modalReturOpen', true)
-            ->assertSet("returItems.{$detail->id}.input_qty", 2)
+            ->assertSet("returItems.{$detail->id}.sisa_qty", 2)
             ->set('alasanRetur', 'Tukar unit / Barang batal dibeli')
             ->call('prosesReturStok')
             ->assertSet('modalReturOpen', false);
@@ -153,8 +153,9 @@ class ReturPenjualanTest extends TestCase
         $detail->refresh();
         $this->assertEquals(2, $detail->qty_retur);
 
-        // Pastikan nilai omzet/total pada penjualan TIDAK dikurangi
+        // Pastikan status transaksi diubah menjadi batal
         $penjualan->refresh();
+        $this->assertEquals('batal', $penjualan->status);
         $this->assertEquals(820000, (float) $penjualan->total);
 
         // Pastikan histori retur tercatat lengkap

@@ -612,15 +612,15 @@
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                         </button>
 
-                                        <!-- Tombol Retur Stok (HANYA MUNCUL PADA TRANSAKSI REAL & BERIZIN) -->
-                                        @if($pj->is_real)
+                                        <!-- Tombol Retur Stok (HANYA MUNCUL PADA TRANSAKSI REAL, BELUM BATAL & BERIZIN) -->
+                                        @if($pj->is_real && $pj->status !== 'batal')
                                             @can('laporan.penjualan.retur')
                                                 <button type="button"
                                                         wire:click="openReturModal({{ $pj->id }})"
                                                         wire:loading.attr="disabled"
                                                         wire:target="openReturModal({{ $pj->id }})"
                                                         class="p-2 rounded-xl text-amber-700 hover:text-amber-900 hover:bg-amber-50 transition-colors cursor-pointer disabled:opacity-50"
-                                                        title="Retur Stok Barang">
+                                                        title="Retur Transaksi">
                                                     <svg wire:loading wire:target="openReturModal({{ $pj->id }})" class="animate-spin w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24">
                                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
@@ -1088,7 +1088,7 @@
                                 </button>
                             @endif
 
-                            @if($selectedPenjualan->is_real)
+                            @if($selectedPenjualan->is_real && $selectedPenjualan->status !== 'batal')
                                 @can('laporan.penjualan.retur')
                                     <button type="button"
                                             wire:click="openReturModal({{ $selectedPenjualan->id }})"
@@ -1102,7 +1102,7 @@
                                         <svg wire:loading.remove wire:target="openReturModal({{ $selectedPenjualan->id }})" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
                                         </svg>
-                                        <span>Retur Stok</span>
+                                        <span>Retur Transaksi</span>
                                     </button>
                                 @endcan
                             @endif
@@ -1148,7 +1148,7 @@
                             <div class="min-w-0">
                                 <div class="flex items-center gap-2">
                                     <h3 class="text-base font-extrabold text-white tracking-tight">
-                                        Retur Stok Barang
+                                        Retur Transaksi Penjualan
                                     </h3>
                                     <span class="text-[10px] font-black px-2 py-0.5 rounded-lg bg-emerald-400 text-emerald-950">
                                         Transaksi Real
@@ -1168,82 +1168,66 @@
                     <form wire:submit.prevent="prosesReturStok">
                         <div class="p-6 space-y-4">
 
-                            <!-- Toolbar Aksi Cepat Retur -->
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="text-xs font-extrabold text-gray-900 uppercase tracking-wider">
-                                    Pilih Jumlah Unit Diretur
-                                </span>
-                                <div class="flex items-center space-x-1.5">
-                                    <button type="button"
-                                            wire:click="setReturSemua"
-                                            class="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-[#5E17EB] text-[#5E17EB] hover:text-white text-[11px] font-extrabold transition-colors cursor-pointer">
-                                        Retur Semua Sisa
-                                    </button>
-                                    <button type="button"
-                                            wire:click="resetReturNol"
-                                            class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-[11px] font-bold transition-colors cursor-pointer">
-                                        Reset 0
-                                    </button>
+                            <!-- Ringkasan Transaksi -->
+                            <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200/80 flex items-center justify-between gap-4">
+                                <div>
+                                    <span class="text-[10px] font-extrabold uppercase text-gray-500 tracking-wider block">Pelanggan</span>
+                                    <span class="text-xs font-black text-gray-900 block mt-0.5">{{ $returCustomerName }}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[10px] font-extrabold uppercase text-gray-500 tracking-wider block">Total Belanja</span>
+                                    <span class="text-sm font-black font-mono text-[#5E17EB] block mt-0.5">
+                                        Rp {{ number_format($returTotal, 0, ',', '.') }}
+                                    </span>
                                 </div>
                             </div>
 
-                            @error('returItems')
-                                <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold">
-                                    {{ $message }}
-                                </div>
-                            @enderror
+                            <!-- Alert Informasi Full Retur -->
+                            <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/90 flex items-start gap-3 text-amber-900">
+                                <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                                <p class="text-xs font-semibold leading-relaxed">
+                                    Seluruh sisa barang pada transaksi ini akan dikembalikan ke stok fisik cabang dan status transaksi akan otomatis disesuaikan menjadi <strong class="font-black text-amber-950">Batal</strong>.
+                                </p>
+                            </div>
 
-                            <!-- Daftar Item Nota untuk Diretur -->
-                            <div class="space-y-2.5 max-h-64 overflow-y-auto custom-scrollbar pr-1">
-                                @foreach($returItems as $detailId => $item)
-                                    <div class="p-3.5 rounded-2xl border {{ $item['sisa_qty'] > 0 && $item['input_qty'] > 0 ? 'border-purple-300 bg-purple-50/20' : 'border-gray-200 bg-gray-50/50' }} flex items-center justify-between gap-3">
-                                        <div class="min-w-0 flex-1">
-                                            <span class="text-xs font-extrabold text-gray-900 block truncate">
-                                                {{ $item['nama_item'] }}
-                                            </span>
-                                            <div class="flex flex-wrap items-center gap-2 mt-1 text-[11px] font-bold text-gray-600">
-                                                <span>Dibeli: <strong class="text-gray-900 font-mono">{{ $item['qty_beli'] }} UNIT</strong></span>
-                                                @if($item['qty_sudah_retur'] > 0)
-                                                    <span class="text-amber-700">&bull; Sudah Diretur: <strong class="font-mono">{{ $item['qty_sudah_retur'] }} UNIT</strong></span>
-                                                @endif
-                                                <span class="text-emerald-700">&bull; Sisa Bisa Diretur: <strong class="font-mono">{{ $item['sisa_qty'] }} UNIT</strong></span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Kontrol Input Qty Retur -->
-                                        <div class="shrink-0">
-                                            @if($item['sisa_qty'] > 0)
-                                                <div class="flex items-center space-x-1.5 bg-white p-1 rounded-xl border border-gray-200 shadow-2xs">
-                                                    <button type="button"
-                                                            wire:click="adjustReturQty({{ $detailId }}, -1)"
-                                                            class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-black flex justify-center transition-colors cursor-pointer">
-                                                        -
-                                                    </button>
-                                                    <input type="number"
-                                                           min="0"
-                                                           max="{{ $item['sisa_qty'] }}"
-                                                           wire:model.live="returItems.{{ $detailId }}.input_qty"
-                                                           class="w-12 text-center text-xs font-black text-gray-900 border-0 focus:ring-0 p-0 font-mono">
-                                                    <button type="button"
-                                                            wire:click="adjustReturQty({{ $detailId }}, 1)"
-                                                            class="w-7 h-7 rounded-lg bg-[#5E17EB] hover:bg-purple-700 text-white font-black flex justify-center transition-colors cursor-pointer">
-                                                        +
-                                                    </button>
-                                                </div>
-                                            @else
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-xl text-[10px] font-black bg-gray-200 text-gray-700">
-                                                    Sudah Diretur Penuh
-                                                </span>
-                                            @endif
-                                        </div>
+                            <!-- Daftar Barang yang Dikembalikan ke Stok -->
+                            <div>
+                                <label class="block text-xs font-extrabold text-gray-900 uppercase tracking-wider mb-2">
+                                    Barang Dikembalikan ke Stok
+                                </label>
+                                <div class="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-2xs">
+                                    <div class="bg-gray-50/80 px-4 py-2 border-b border-gray-200 flex items-center justify-between text-[10px] font-extrabold text-gray-700 uppercase tracking-wider">
+                                        <span>Item Barang</span>
+                                        <span class="text-right">Kuantiti Retur</span>
                                     </div>
-                                @endforeach
+                                    <div class="divide-y divide-gray-100 max-h-48 overflow-y-auto custom-scrollbar">
+                                        @foreach($returItems as $item)
+                                            <div class="px-4 py-2.5 flex items-center justify-between text-xs hover:bg-gray-50/50 transition-colors">
+                                                <div class="min-w-0 pr-3">
+                                                    <span class="font-extrabold text-gray-900 block truncate">{{ $item['nama_item'] }}</span>
+                                                    <div class="flex items-center gap-2 mt-0.5 text-[11px] text-gray-500 font-semibold">
+                                                        @if($item['barcode'])
+                                                            <span class="font-mono text-gray-600">{{ $item['barcode'] }}</span>
+                                                            <span>&bull;</span>
+                                                        @endif
+                                                        <span>Dibeli: <strong class="text-gray-800 font-mono">{{ $item['qty_beli'] }} UNIT</strong></span>
+                                                    </div>
+                                                </div>
+                                                <span class="font-black font-mono text-[#5E17EB] bg-purple-50 px-2.5 py-1 rounded-xl border border-purple-200 text-xs shrink-0">
+                                                    +{{ $item['sisa_qty'] }} UNIT
+                                                </span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Input Alasan Retur (Wajib Isi, Zero Placeholder) -->
                             <div>
                                 <label class="block text-xs font-extrabold text-gray-900 uppercase tracking-wider mb-1.5">
-                                    Alasan Retur Stok <span class="text-rose-500">*</span>
+                                    Alasan Retur Transaksi <span class="text-rose-500">*</span>
                                 </label>
                                 <input type="text"
                                        wire:model="alasanRetur"
@@ -1271,7 +1255,7 @@
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                 </svg>
-                                <span wire:loading.remove wire:target="prosesReturStok">Kembalikan Stok</span>
+                                <span wire:loading.remove wire:target="prosesReturStok">Proses Retur Transaksi</span>
                                 <span wire:loading wire:target="prosesReturStok">Memproses Retur...</span>
                             </button>
                         </div>

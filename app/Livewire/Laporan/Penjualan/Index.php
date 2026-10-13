@@ -67,6 +67,10 @@ class Index extends Component
 
     public string $returNoTransaksi = '';
 
+    public string $returCustomerName = '';
+
+    public float $returTotal = 0;
+
     public array $returItems = [];
 
     public string $alasanRetur = '';
@@ -238,7 +242,7 @@ class Index extends Component
         $user = Auth::user();
         abort_if(! $user || (! $user->isOwner() && ! $user->can('laporan.penjualan.retur')), 403, 'Akses fitur retur stok dibatasi.');
 
-        $penjualan = Penjualan::with(['details.produk', 'cabang'])->find($id);
+        $penjualan = Penjualan::with(['customer', 'details.produk', 'cabang'])->find($id);
         if (! $penjualan) {
             $this->dispatch('swal:toast', [
                 'type' => 'error',
@@ -278,10 +282,12 @@ class Index extends Component
         }
 
         $items = [];
+        $totalSisaUnit = 0;
         foreach ($penjualan->details as $d) {
             $qtyBeli = (int) $d->qty;
             $qtySudah = (int) ($d->qty_retur ?? 0);
             $sisa = max(0, $qtyBeli - $qtySudah);
+            $totalSisaUnit += $sisa;
 
             $items[$d->id] = [
                 'detail_id' => $d->id,
@@ -291,13 +297,24 @@ class Index extends Component
                 'qty_beli' => $qtyBeli,
                 'qty_sudah_retur' => $qtySudah,
                 'sisa_qty' => $sisa,
-                'input_qty' => $sisa,
             ];
+        }
+
+        if ($totalSisaUnit <= 0) {
+            $this->dispatch('swal:modal', [
+                'type' => 'info',
+                'title' => 'Sudah Diretur Penuh',
+                'text' => "Seluruh barang pada transaksi {$penjualan->no_transaksi_frontend} sudah pernah diretur sebelumnya.",
+            ]);
+
+            return;
         }
 
         $this->modalDetailOpen = false;
         $this->returPenjualanId = $penjualan->id;
         $this->returNoTransaksi = $penjualan->no_transaksi_frontend;
+        $this->returCustomerName = $penjualan->customer?->nama ?? 'Pelanggan Umum';
+        $this->returTotal = (float) $penjualan->total;
         $this->returItems = $items;
         $this->alasanRetur = '';
         $this->resetValidation();
@@ -309,34 +326,11 @@ class Index extends Component
         $this->modalReturOpen = false;
         $this->returPenjualanId = null;
         $this->returNoTransaksi = '';
+        $this->returCustomerName = '';
+        $this->returTotal = 0;
         $this->returItems = [];
         $this->alasanRetur = '';
         $this->resetValidation();
-    }
-
-    public function adjustReturQty(int $detailId, int $delta): void
-    {
-        if (! isset($this->returItems[$detailId])) {
-            return;
-        }
-
-        $sisa = (int) $this->returItems[$detailId]['sisa_qty'];
-        $current = (int) $this->returItems[$detailId]['input_qty'];
-        $this->returItems[$detailId]['input_qty'] = max(0, min($sisa, $current + $delta));
-    }
-
-    public function setReturSemua(): void
-    {
-        foreach ($this->returItems as $detailId => $item) {
-            $this->returItems[$detailId]['input_qty'] = (int) $item['sisa_qty'];
-        }
-    }
-
-    public function resetReturNol(): void
-    {
-        foreach ($this->returItems as $detailId => $item) {
-            $this->returItems[$detailId]['input_qty'] = 0;
-        }
     }
 
     public function prosesReturStok(): void
@@ -351,23 +345,9 @@ class Index extends Component
         $this->validate([
             'alasanRetur' => ['required', 'string', 'max:255'],
         ], [
-            'alasanRetur.required' => 'Alasan retur stok wajib diisi.',
+            'alasanRetur.required' => 'Alasan retur transaksi wajib diisi.',
             'alasanRetur.max' => 'Alasan retur maksimal 255 karakter.',
         ]);
-
-        $totalWillReturn = 0;
-        foreach ($this->returItems as $detailId => $item) {
-            $sisa = (int) ($item['sisa_qty'] ?? 0);
-            $val = max(0, min((int) ($item['input_qty'] ?? 0), $sisa));
-            $this->returItems[$detailId]['input_qty'] = $val;
-            $totalWillReturn += $val;
-        }
-
-        if ($totalWillReturn <= 0) {
-            $this->addError('returItems', 'Pilih minimal 1 unit barang yang akan dikembalikan ke stok.');
-
-            return;
-        }
 
         $isOwner = $user->isOwner();
         $activeBranchSession = session('active_branch_id', 'hq');
@@ -398,24 +378,14 @@ class Index extends Component
 
                 $noTransaksiFrontend = $penjualan->no_transaksi_frontend;
 
-                foreach ($this->returItems as $detailId => $item) {
-                    $inputQty = (int) ($item['input_qty'] ?? 0);
-                    if ($inputQty <= 0) {
-                        continue;
-                    }
+                $details = PenjualanDetail::where('penjualan_id', $penjualan->id)
+                    ->lockForUpdate()
+                    ->get();
 
-                    $detail = PenjualanDetail::where('id', $detailId)
-                        ->where('penjualan_id', $penjualan->id)
-                        ->lockForUpdate()
-                        ->first();
-
-                    if (! $detail) {
-                        continue;
-                    }
-
+                foreach ($details as $detail) {
                     $sisaServer = max(0, (int) $detail->qty - (int) $detail->qty_retur);
-                    if ($inputQty > $sisaServer) {
-                        throw new \RuntimeException("Jumlah retur untuk \"{$detail->nama_item}\" melebihi sisa unit yang dapat diretur ({$sisaServer} unit).");
+                    if ($sisaServer <= 0) {
+                        continue;
                     }
 
                     $stokSebelum = 0;
@@ -438,11 +408,11 @@ class Index extends Component
                         }
 
                         $stokSebelum = (int) $stok->jumlah;
-                        $stok->increment('jumlah', $inputQty);
-                        $stokSesudah = $stokSebelum + $inputQty;
+                        $stok->increment('jumlah', $sisaServer);
+                        $stokSesudah = $stokSebelum + $sisaServer;
                     }
 
-                    $detail->increment('qty_retur', $inputQty);
+                    $detail->increment('qty_retur', $sisaServer);
 
                     PenjualanRetur::create([
                         'penjualan_id' => $penjualan->id,
@@ -450,23 +420,30 @@ class Index extends Component
                         'cabang_id' => $penjualan->cabang_id,
                         'produk_id' => $detail->produk_id,
                         'user_id' => $user->id,
-                        'qty_retur' => $inputQty,
+                        'qty_retur' => $sisaServer,
                         'stok_sebelum' => $stokSebelum,
                         'stok_sesudah' => $stokSesudah,
                         'alasan' => trim($this->alasanRetur),
                     ]);
 
-                    $totalReturned += $inputQty;
+                    $totalReturned += $sisaServer;
                 }
+
+                if ($totalReturned <= 0) {
+                    throw new \RuntimeException('Tidak ada unit barang yang dapat diretur pada transaksi ini.');
+                }
+
+                // Ubah status penjualan menjadi batal setelah seluruh item diretur
+                $penjualan->update(['status' => 'batal']);
             });
 
             $this->dispatch('stockUpdated');
             $this->closeReturModal();
 
-            $msg = "Retur stok berhasil! +{$totalReturned} UNIT telah dikembalikan ke stok untuk nota {$noTransaksiFrontend}.";
+            $msg = "Retur transaksi berhasil! Seluruh barang ({$totalReturned} unit) nota {$noTransaksiFrontend} telah dikembalikan ke stok dan status transaksi diubah menjadi Batal.";
             $this->dispatch('swal:toast', [
                 'type' => 'success',
-                'title' => 'Stok Dikembalikan',
+                'title' => 'Transaksi Diretur',
                 'text' => $msg,
             ]);
             session()->flash('success', $msg);
