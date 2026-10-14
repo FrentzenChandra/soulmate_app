@@ -352,7 +352,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Servis Masuk -->
+                    <!-- Servis Masuk (Pengecekan, Perbaikan & Belum Cetak Nota) -->
                     <div class="bg-white card-custom p-5 rounded-2xl border border-blue-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-all">
                         <div>
                             <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Jumlah Servis Masuk</span>
@@ -360,7 +360,7 @@
                                 {{ $servisStats->total_masuk ?? 0 }} <span class="text-sm font-semibold text-slate-400">Unit</span>
                             </span>
                             <span class="text-[11px] font-semibold text-blue-600 mt-1 block">
-                                Periode {{ \Carbon\Carbon::create(null, (int)($filterBulanServis ?: now()->month), 1)->translatedFormat('F') }} {{ $filterTahunServis ?: now()->year }}
+                                Pengecekan, perbaikan &amp; belum nota
                             </span>
                         </div>
                         <div class="w-12 h-12 rounded-2xl bg-blue-50 text-[#0052FF] border border-blue-100 flex items-center justify-center shrink-0">
@@ -368,7 +368,7 @@
                         </div>
                     </div>
 
-                    <!-- Servis Selesai (Belum Diambil) -->
+                    <!-- Servis Selesai (Sudah Cetak Nota & Belum Diambil) -->
                     <div class="bg-white card-custom p-5 rounded-2xl border border-emerald-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-all">
                         <div>
                             <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Jumlah Servis Selesai</span>
@@ -376,7 +376,7 @@
                                 {{ $servisStats->selesai_belum_ambil ?? 0 }} <span class="text-sm font-semibold text-slate-400">Unit</span>
                             </span>
                             <span class="text-[11px] font-semibold text-emerald-600 mt-1 block">
-                                Belum diambil customer
+                                Sudah cetak nota &amp; belum diambil
                             </span>
                         </div>
                         <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
