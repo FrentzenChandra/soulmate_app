@@ -352,7 +352,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Servis Masuk -->
+                    <!-- Servis Masuk (Pengecekan, Perbaikan & Belum Cetak Nota) -->
                     <div class="bg-white card-custom p-5 rounded-2xl border border-blue-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-all">
                         <div>
                             <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Jumlah Servis Masuk</span>
@@ -360,7 +360,7 @@
                                 {{ $servisStats->total_masuk ?? 0 }} <span class="text-sm font-semibold text-slate-400">Unit</span>
                             </span>
                             <span class="text-[11px] font-semibold text-blue-600 mt-1 block">
-                                Periode {{ \Carbon\Carbon::create(null, (int)($filterBulanServis ?: now()->month), 1)->translatedFormat('F') }} {{ $filterTahunServis ?: now()->year }}
+                                Pengecekan, perbaikan &amp; belum nota
                             </span>
                         </div>
                         <div class="w-12 h-12 rounded-2xl bg-blue-50 text-[#0052FF] border border-blue-100 flex items-center justify-center shrink-0">
@@ -384,19 +384,19 @@
                         </div>
                     </div>
 
-                    <!-- Servis Batal (Belum Diambil) -->
-                    <div class="bg-white card-custom p-5 rounded-2xl border border-rose-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-all">
+                    <!-- Servis Siap Diambil (Sudah Cetak Nota & Belum Diambil) -->
+                    <div class="bg-white card-custom p-5 rounded-2xl border border-purple-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-all">
                         <div>
-                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Jumlah Servis Batal</span>
-                            <span class="text-2xl sm:text-3xl font-extrabold text-rose-600 mt-1 block">
-                                {{ $servisStats->batal_belum_ambil ?? 0 }} <span class="text-sm font-semibold text-slate-400">Unit</span>
+                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Servis Siap Diambil</span>
+                            <span class="text-2xl sm:text-3xl font-extrabold text-[#5E17EB] mt-1 block">
+                                {{ $servisStats->siap_diambil_nota ?? 0 }} <span class="text-sm font-semibold text-slate-400">Unit</span>
                             </span>
-                            <span class="text-[11px] font-semibold text-rose-600 mt-1 block">
-                                Belum diambil customer
+                            <span class="text-[11px] font-semibold text-purple-600 mt-1 block">
+                                Sudah cetak nota &amp; belum diambil
                             </span>
                         </div>
-                        <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shrink-0">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div class="w-12 h-12 rounded-2xl bg-purple-50 text-[#5E17EB] border border-purple-100 flex items-center justify-center shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
                         </div>
                     </div>
                 </div>

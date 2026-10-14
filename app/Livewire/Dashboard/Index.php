@@ -254,9 +254,9 @@ class Index extends Component
                 ->whereYear('tanggal_masuk', $tahunServis)
                 ->whereMonth('tanggal_masuk', $bulanServis)
                 ->selectRaw("
-                    COUNT(*) as total_masuk,
+                    COUNT(CASE WHEN status IN ('pengecekan', 'perbaikan', 'pengerjaan') OR (status = 'selesai' AND (is_cetak_nota = false OR is_cetak_nota IS NULL)) THEN 1 END) as total_masuk,
                     COUNT(CASE WHEN status = 'selesai' AND tanggal_ambil IS NULL THEN 1 END) as selesai_belum_ambil,
-                    COUNT(CASE WHEN status = 'batal' AND tanggal_ambil IS NULL THEN 1 END) as batal_belum_ambil
+                    COUNT(CASE WHEN status = 'selesai' AND is_cetak_nota = true AND tanggal_ambil IS NULL THEN 1 END) as siap_diambil_nota
                 ")
                 ->first();
 
