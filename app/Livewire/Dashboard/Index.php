@@ -3,6 +3,8 @@
 namespace App\Livewire\Dashboard;
 
 use App\Models\Cabang;
+use App\Models\KasKeluar;
+use App\Models\ModalAwal;
 use App\Models\Penjualan;
 use App\Models\SaldoRekening;
 use App\Models\ServisMasuk;
@@ -208,6 +210,41 @@ class Index extends Component
                 ")
                 ->first();
 
+            // Hitung Uang Cash - Bulan Berjalan (Tgl 1 s/d Hari Ini) - Exact Formula Transaksi FULL
+            $modalAwalQ = ModalAwal::query()
+                ->where('cabang_id', $cabangId)
+                ->whereBetween('tanggal', [$startBulan, $nowDate]);
+
+            $kasKeluarQ = KasKeluar::query()
+                ->where('cabang_id', $cabangId)
+                ->whereBetween('tanggal', [$startBulan, $nowDate]);
+
+            $cashMasukQ = TransaksiFull::query()
+                ->where('cabang_id', $cabangId)
+                ->where('status', 'Lunas')
+                ->where(function ($q) {
+                    $q->whereRaw('LOWER(metode_pembayaran) LIKE ?', ['%cash%'])
+                        ->orWhereRaw('LOWER(metode_pembayaran) LIKE ?', ['%tunai%']);
+                })
+                ->whereRaw('COALESCE(tanggal_lunas, tanggal) BETWEEN ? AND ?', [
+                    $startBulan->toDateTimeString(),
+                    $nowDate->toDateTimeString(),
+                ]);
+
+            $totalModalAwal = (float) $modalAwalQ->sum('nominal');
+
+            $totalKasKeluarCash = (float) $kasKeluarQ->where(function ($q) {
+                $q->whereHas('sumberDana', function ($sq) {
+                    $sq->whereRaw('LOWER(nama) LIKE ?', ['%cash%'])
+                        ->orWhereRaw('LOWER(nama) LIKE ?', ['%tunai%'])
+                        ->orWhereRaw('LOWER(nama) LIKE ?', ['%kasir%']);
+                })->orWhereDoesntHave('sumberDana');
+            })->sum('nominal');
+
+            $transaksiCashMasuk = (float) $cashMasukQ->sum('total_jual');
+
+            $totalUangCash = $totalModalAwal + $transaksiCashMasuk - $totalKasKeluarCash;
+
             // 2. BARIS 2: Operasional Servis - Filter Bulan & Tahun - Single-Pass Query
             $bulanServis = (int) ($this->filterBulanServis ?: now()->month);
             $tahunServis = (int) ($this->filterTahunServis ?: now()->year);
@@ -256,6 +293,7 @@ class Index extends Component
 
             return [
                 'finansial' => $finansial,
+                'totalUangCash' => $totalUangCash,
                 'servisStats' => $servisStats,
                 'sumberSaldos' => $sumberSaldos,
                 'totalSaldoKeseluruhan' => $totalSaldoKeseluruhan,

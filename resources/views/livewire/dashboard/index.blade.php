@@ -227,7 +227,7 @@
             <!-- ========================================================================= -->
             <!-- BARIS 1: FINANSIAL BULAN BERJALAN (1 s/d Hari Ini) - EXACT TRANSAKSI FULL -->
             <!-- ========================================================================= -->
-            <div wire:ignore class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+            <div wire:ignore class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
                 <!-- 1. Pendapatan (Ungu) -->
                 <div class="bg-white p-4 rounded-2xl border border-purple-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between pb-2 border-b border-purple-100/80">
@@ -293,7 +293,7 @@
                 </div>
 
                 <!-- 5. Jumlah Bon (Merah) -->
-                <div class="bg-white p-4 rounded-2xl border border-rose-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow col-span-2 sm:col-span-1">
+                <div class="bg-white p-4 rounded-2xl border border-rose-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between pb-2 border-b border-rose-100/80">
                         <span class="text-[10px] font-black text-rose-950 uppercase tracking-wider">Jumlah Bon</span>
                         <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200/60">
@@ -305,6 +305,22 @@
                             Rp {{ number_format($finansial->total_bon ?? 0, 0, ',', '.') }}
                         </span>
                         <span class="text-[10px] text-gray-400 font-medium mt-1 block">Belum dibayar customer</span>
+                    </div>
+                </div>
+
+                <!-- 6. Uang Cash (Teal) -->
+                <div class="bg-white p-4 rounded-2xl border border-teal-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between pb-2 border-b border-teal-100/80">
+                        <span class="text-[10px] font-black text-teal-950 uppercase tracking-wider">Uang Cash</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-teal-50 text-teal-700 border border-teal-200/60">
+                            Kas Laci
+                        </span>
+                    </div>
+                    <div class="mt-3">
+                        <span class="text-base sm:text-xl font-mono font-black {{ ($totalUangCash ?? 0) >= 0 ? 'text-teal-700' : 'text-rose-600' }} tracking-tight block truncate">
+                            Rp {{ number_format($totalUangCash ?? 0, 0, ',', '.') }}
+                        </span>
+                        <span class="text-[10px] text-gray-400 font-medium mt-1 block">Saldo fisik laci kasir</span>
                     </div>
                 </div>
             </div>
