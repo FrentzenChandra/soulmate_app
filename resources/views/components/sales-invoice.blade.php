@@ -19,11 +19,11 @@
         <div class="col-span-7 flex items-start space-x-3.5">
             <img src="{{ asset('images/logo_bulat.png') }}" alt="Logo" class="w-16 h-16 rounded-2xl object-cover shrink-0 shadow-xs">
             <div>
-                <h1 class="text-lg  text-black font-bold tracking-tight leading-none " style="font-family: Arial, Helvetica, sans-serif;">Soulmate Komputer</h1>
-                <p class="text-lg font-medium text-black mt-1.5 leading-snug">
+                <h1 class="text-base  text-black font-bold tracking-tight leading-none " style="font-family: Arial, Helvetica, sans-serif;">Soulmate Komputer</h1>
+                <p class="text-base font-medium text-black mt-1.5 leading-snug">
                     {{ $address }}
                 </p>
-                <p class="text-lg  text-black mt-1">
+                <p class="text-base  text-black mt-1">
                     WhatsApp: {{ $phone }}
                 </p>
             </div>
