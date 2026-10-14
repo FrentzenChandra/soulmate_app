@@ -153,6 +153,7 @@ Route::middleware('auth')->group(function () {
 
     // Transaksi FULL & Target Bulanan (Dynamic Permissions)
     Route::get('/transaksi/full', TransaksiFull::class)->name('transaksi.full')->middleware('can:transaksi.full.view');
+    Route::get('/transaksi/full/export-pdf', [\App\Http\Controllers\TransaksiFullExportController::class, 'exportPdf'])->name('transaksi.full.export-pdf')->middleware('can:transaksi.full.view');
     Route::get('/target-bulanan', TargetBulananIndex::class)->name('target.bulanan')->middleware('can:target.bulanan.view');
 
     // Audit Laci (Owner Only)

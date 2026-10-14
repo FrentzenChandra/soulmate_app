@@ -329,6 +329,24 @@
                 <!-- Font Size Selector -->
                 <x-table-size-selector />
 
+                <!-- Tombol Export Excel & PDF -->
+                <div class="flex items-center gap-1.5 border-l border-gray-200 pl-2">
+                    <button type="button"
+                            @click="exportExcel()"
+                            class="px-2.5 py-1 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                            title="Download Excel (.xlsx)">
+                        <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span>Excel</span>
+                    </button>
+                    <button type="button"
+                            @click="exportPdf()"
+                            class="px-2.5 py-1 rounded-xl border border-rose-300 bg-rose-50 text-rose-800 hover:bg-rose-100 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                            title="Download PDF Laporan">
+                        <svg class="w-3.5 h-3.5 text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        <span>PDF</span>
+                    </button>
+                </div>
+
                 <template x-if="selectedCount > 0">
                     <span class="px-2 py-0.5 rounded-md bg-purple-50 text-[#5E17EB] font-bold text-[11px] border border-purple-200"
                           x-text="selectedCount + ' dipilih'"></span>
@@ -1133,6 +1151,7 @@
 </div>
 
 @push('scripts')
+<script src="{{ asset('js/xlsx.full.min.js') }}"></script>
 <script>
 window.tabulatorTransaksiFullTable = function(config) {
     return {
@@ -1491,6 +1510,24 @@ window.tabulatorTransaksiFullTable = function(config) {
                         }
                     },
                     {
+                        title: "No Transaksi",
+                        field: "no_transaksi",
+                        visible: false,
+                        download: true
+                    },
+                    {
+                        title: "Waktu",
+                        field: "waktu",
+                        visible: false,
+                        download: true
+                    },
+                    {
+                        title: "Petugas",
+                        field: "petugas",
+                        visible: false,
+                        download: true
+                    },
+                    {
                         title: "Aksi",
                         field: "id",
                         width: 55,
@@ -1499,6 +1536,7 @@ window.tabulatorTransaksiFullTable = function(config) {
                         hozAlign: "center",
                         headerSort: false,
                         resizable: false,
+                        download: false,
                         formatter: (cell) => {
                             const id = cell.getValue();
                             const data = cell.getData();
@@ -1628,6 +1666,31 @@ window.tabulatorTransaksiFullTable = function(config) {
                 this.rowCount = this.table.getData().length;
                 this.selectedCount = 0;
             }
+        },
+
+        exportExcel() {
+            if (!this.table) return;
+            const filename = "Laporan_Transaksi_FULL_" + new Date().toISOString().slice(0, 10) + ".xlsx";
+            this.table.download("xlsx", filename, {
+                sheetName: "Transaksi FULL"
+            });
+        },
+
+        exportPdf() {
+            const wire = window.activeTransaksiFullWire;
+            const params = new URLSearchParams();
+            if (wire) {
+                if (wire.startDate) params.set('startDate', wire.startDate);
+                if (wire.endDate) params.set('endDate', wire.endDate);
+                if (wire.periodeMode) params.set('periodeMode', wire.periodeMode);
+                if (wire.tipeFilter) params.set('tipeFilter', wire.tipeFilter);
+                if (wire.statusFilter) params.set('statusFilter', wire.statusFilter);
+                if (wire.metodeFilter) params.set('metodeFilter', wire.metodeFilter);
+                if (wire.ppnFilter) params.set('ppnFilter', wire.ppnFilter);
+                if (wire.cabangFilter) params.set('cabangFilter', wire.cabangFilter);
+                if (wire.search) params.set('search', wire.search);
+            }
+            window.open("{{ route('transaksi.full.export-pdf') }}?" + params.toString(), "_blank");
         }
     };
 };
