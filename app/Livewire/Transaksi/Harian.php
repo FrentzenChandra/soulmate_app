@@ -859,7 +859,7 @@ class Harian extends Component
                 $q->whereHas('details', function ($dq) {
                     $dq->where('ppn_persen', '>', 0)
                        ->orWhere('ppn_nominal', '>', 0)
-                       ->orWhereHas('ppn', fn ($pq) => $pq->where('persen', '>', 0));
+                       ->orWhereNotNull('ppn_id');
                 })->orWhere('transaksi_fulls.ppn_persen', '>', 0)
                   ->orWhere('transaksi_fulls.ppn_nominal', '>', 0);
             });
