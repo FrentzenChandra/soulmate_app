@@ -1179,7 +1179,9 @@ window.tabulatorTransaksiFullTable = function(config) {
                 if (Array.isArray(headerValue)) {
                     return headerValue.includes(rowValue);
                 }
-                return String(rowValue).toLowerCase() === String(headerValue).toLowerCase();
+                const h = String(headerValue).trim().toLowerCase();
+                const r = String(rowValue).trim().toLowerCase();
+                return r === h || r.includes(h);
             };
 
             const initialData = config.tableData || [];
@@ -1530,6 +1532,25 @@ window.tabulatorTransaksiFullTable = function(config) {
 
             this.table.on("dataFiltered", (filters, rows) => {
                 this.rowCount = rows.length;
+                if (Array.isArray(filters)) {
+                    const pajakF = filters.find(f => f.field === 'pajak_label');
+                    if (pajakF && pajakF.value) {
+                        const val = String(pajakF.value || '').trim().toLowerCase();
+                        if (val.includes('non')) {
+                            if ($wire.get('ppnFilter') !== 'non_ppn') {
+                                $wire.set('ppnFilter', 'non_ppn');
+                            }
+                        } else if (val.includes('pp')) {
+                            if ($wire.get('ppnFilter') !== 'ppn') {
+                                $wire.set('ppnFilter', 'ppn');
+                            }
+                        }
+                    } else if (!pajakF || !pajakF.value) {
+                        if ($wire.get('ppnFilter') !== 'semua' && $wire.get('ppnFilter') !== '') {
+                            $wire.set('ppnFilter', 'semua');
+                        }
+                    }
+                }
             });
 
             this.table.on("rowSelectionChanged", (data, rows) => {

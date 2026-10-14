@@ -1034,6 +1034,9 @@ class Harian extends Component
                 $filteredPpnNominal = 0;
 
                 $parentHasPpn = ((float) $item->ppn_persen > 0 || (float) $item->ppn_nominal > 0);
+                $trxHasExplicitPpnDetail = collect($trxDetails)->contains(function ($d) {
+                    return (float) $d->ppn_persen > 0 || (float) $d->ppn_nominal > 0 || (float) ($d->master_ppn_persen ?? 0) > 0;
+                });
 
                 foreach ($trxDetails as $d) {
                     $qty = (int) $d->qty;
@@ -1046,10 +1049,14 @@ class Harian extends Component
                     $masterPpnPersen = (float) ($d->master_ppn_persen ?? 0);
 
                     // Deteksi PPN item
-                    $itemHasPpn = ($ppnPersen > 0 || $ppnNominal > 0 || $masterPpnPersen > 0);
-                    if (! $itemHasPpn && $parentHasPpn && empty($d->ppn_id) && ($d->ppn_persen === null || (float) $d->ppn_persen == 0)) {
-                        $itemHasPpn = true;
-                        $ppnPersen = (float) $item->ppn_persen;
+                    if ($trxHasExplicitPpnDetail) {
+                        $itemHasPpn = ($ppnPersen > 0 || $ppnNominal > 0 || $masterPpnPersen > 0);
+                    } else {
+                        // Legacy: jika tidak ada detail yang eksplisit PPN, ikuti parent transaksi
+                        $itemHasPpn = $parentHasPpn;
+                        if ($itemHasPpn && $ppnPersen <= 0) {
+                            $ppnPersen = (float) $item->ppn_persen;
+                        }
                     }
 
                     // Saring murni level item jika filter PPN / Non-PPN aktif
