@@ -416,32 +416,66 @@
                                                      let num = parseInt(val.toString().replace(/[^0-9]/g, ''), 10);
                                                      return isNaN(num) || num === 0 ? '' : num.toLocaleString('id-ID');
                                                  },
-                                                 onInputJual(val) {
-                                                     let s = val.toString().toLowerCase().trim();
+                                                 onInputJual(e) {
+                                                     let input = e.target;
+                                                     let rawVal = input.value;
+                                                     let s = rawVal.toString().toLowerCase().trim();
                                                      if (/[a-z]/.test(s)) {
-                                                         let parsed = this.parseRupiah(s);
-                                                         this.hargaJual = parsed;
+                                                         this.hargaJual = this.parseRupiah(s);
+                                                         this.displayJual = rawVal;
                                                          return;
                                                      }
-                                                     let parsed = this.parseRupiah(s);
-                                                     this.hargaJual = parsed;
-                                                     this.displayJual = this.formatRupiah(parsed);
+                                                     let cursorPos = input.selectionEnd || 0;
+                                                     let digitsBeforeCursor = rawVal.slice(0, cursorPos).replace(/[^0-9]/g, '').length;
+                                                     let clean = rawVal.replace(/[^0-9]/g, '');
+                                                     let num = clean ? parseInt(clean, 10) : 0;
+                                                     this.hargaJual = num;
+                                                     let formatted = num ? num.toLocaleString('id-ID') : '';
+                                                     this.displayJual = formatted;
+                                                     input.value = formatted;
+
+                                                     let newCursor = 0;
+                                                     let digitCount = 0;
+                                                     while (newCursor < formatted.length && digitCount < digitsBeforeCursor) {
+                                                         if (/[0-9]/.test(formatted[newCursor])) {
+                                                             digitCount++;
+                                                         }
+                                                         newCursor++;
+                                                     }
+                                                     input.setSelectionRange(newCursor, newCursor);
                                                  },
                                                  onBlurJual() {
                                                      let parsed = this.parseRupiah(this.displayJual);
                                                      this.hargaJual = parsed;
                                                      this.displayJual = this.formatRupiah(parsed);
                                                  },
-                                                 onInputModal(val) {
-                                                     let s = val.toString().toLowerCase().trim();
+                                                 onInputModal(e) {
+                                                     let input = e.target;
+                                                     let rawVal = input.value;
+                                                     let s = rawVal.toString().toLowerCase().trim();
                                                      if (/[a-z]/.test(s)) {
-                                                         let parsed = this.parseRupiah(s);
-                                                         this.hargaModal = parsed;
+                                                         this.hargaModal = this.parseRupiah(s);
+                                                         this.displayModal = rawVal;
                                                          return;
                                                      }
-                                                     let parsed = this.parseRupiah(s);
-                                                     this.hargaModal = parsed;
-                                                     this.displayModal = this.formatRupiah(parsed);
+                                                     let cursorPos = input.selectionEnd || 0;
+                                                     let digitsBeforeCursor = rawVal.slice(0, cursorPos).replace(/[^0-9]/g, '').length;
+                                                     let clean = rawVal.replace(/[^0-9]/g, '');
+                                                     let num = clean ? parseInt(clean, 10) : 0;
+                                                     this.hargaModal = num;
+                                                     let formatted = num ? num.toLocaleString('id-ID') : '';
+                                                     this.displayModal = formatted;
+                                                     input.value = formatted;
+
+                                                     let newCursor = 0;
+                                                     let digitCount = 0;
+                                                     while (newCursor < formatted.length && digitCount < digitsBeforeCursor) {
+                                                         if (/[0-9]/.test(formatted[newCursor])) {
+                                                             digitCount++;
+                                                         }
+                                                         newCursor++;
+                                                     }
+                                                     input.setSelectionRange(newCursor, newCursor);
                                                  },
                                                  onBlurModal() {
                                                      let parsed = this.parseRupiah(this.displayModal);
@@ -451,8 +485,16 @@
                                                  init() {
                                                      this.displayJual = this.formatRupiah(this.hargaJual);
                                                      this.displayModal = this.formatRupiah(this.hargaModal);
-                                                     this.$watch('hargaJual', (v) => { this.displayJual = this.formatRupiah(v); });
-                                                     this.$watch('hargaModal', (v) => { this.displayModal = this.formatRupiah(v); });
+                                                     this.$watch('hargaJual', (v) => {
+                                                         if (this.$refs.inputJual && document.activeElement !== this.$refs.inputJual) {
+                                                             this.displayJual = this.formatRupiah(v);
+                                                         }
+                                                     });
+                                                     this.$watch('hargaModal', (v) => {
+                                                         if (this.$refs.inputModal && document.activeElement !== this.$refs.inputModal) {
+                                                             this.displayModal = this.formatRupiah(v);
+                                                         }
+                                                     });
                                                  },
                                                  get subtotalJual() {
                                                      let q = parseInt(this.qty, 10) || 1;
@@ -542,9 +584,10 @@
                                                         <div class="relative">
                                                             <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-[10px] font-bold text-blue-700/70 select-none pointer-events-none font-mono">Rp</span>
                                                             <input type="text"
+                                                                   x-ref="inputJual"
                                                                    inputmode="numeric"
-                                                                   x-model="displayJual"
-                                                                   @input="onInputJual($event.target.value)"
+                                                                   :value="displayJual"
+                                                                   @input="onInputJual($event)"
                                                                    @blur="onBlurJual()"
                                                                    @keydown.enter="onBlurJual()"
                                                                    class="w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-blue-300 bg-blue-50/40 font-mono font-black text-[#0052FF] text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
@@ -560,9 +603,10 @@
                                                         <div class="relative">
                                                             <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-[10px] font-bold text-amber-700/70 select-none pointer-events-none font-mono">Rp</span>
                                                             <input type="text"
+                                                                   x-ref="inputModal"
                                                                    inputmode="numeric"
-                                                                   x-model="displayModal"
-                                                                   @input="onInputModal($event.target.value)"
+                                                                   :value="displayModal"
+                                                                   @input="onInputModal($event)"
                                                                    @blur="onBlurModal()"
                                                                    @keydown.enter="onBlurModal()"
                                                                    class="w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50/40 font-mono font-bold text-amber-900 text-xs focus:ring-2 focus:ring-amber-200 focus:border-amber-500">
