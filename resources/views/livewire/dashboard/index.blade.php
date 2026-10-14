@@ -433,23 +433,31 @@
                                 <span>{{ $sumber->nama }}</span>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 @forelse($sumber->rekenings as $rek)
-                                    <div class="p-4 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-purple-200 hover:shadow-xs transition-all flex items-center space-x-3.5">
-                                        <!-- Bank Avatar / Badge -->
-                                        <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center font-extrabold text-xs text-[#5E17EB] shrink-0 shadow-2xs uppercase">
-                                            {{ substr($rek->nama_bank, 0, 3) }}
+                                    <div class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-white hover:border-[#5E17EB]/40 hover:shadow-md transition-all flex items-center justify-between space-x-4">
+                                        <div class="flex items-center space-x-3.5 min-w-0">
+                                            <!-- Bank Avatar / Badge -->
+                                            <div class="w-12 h-12 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center font-extrabold text-sm text-[#5E17EB] shrink-0 shadow-2xs uppercase">
+                                                {{ substr($rek->nama_bank, 0, 3) }}
+                                            </div>
+                                            <div class="min-w-0">
+                                                <span class="text-sm font-black text-slate-900 block truncate">{{ $rek->nama_bank }}</span>
+                                                <span class="text-xs text-slate-500 font-medium block truncate">{{ $rek->atas_nama ?: '-' }}</span>
+                                                @if(!empty($rek->nomor_rekening))
+                                                    <span class="text-[11px] font-mono text-slate-400 block truncate">{{ $rek->nomor_rekening }}</span>
+                                                @endif
+                                            </div>
                                         </div>
-                                        <div class="truncate">
-                                            <span class="text-xs font-black text-slate-900 block truncate">{{ $rek->nama_bank }}</span>
-                                            <span class="text-[11px] text-slate-500 font-medium block truncate">{{ $rek->atas_nama ?: '-' }}</span>
-                                            <span class="text-xs font-mono font-extrabold text-[#5E17EB] block mt-1">
+                                        <div class="text-right shrink-0">
+                                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Saldo</span>
+                                            <span class="text-base sm:text-lg font-mono font-black text-[#5E17EB] block mt-0.5">
                                                 Rp {{ number_format($rek->saldo, 0, ',', '.') }}
                                             </span>
                                         </div>
                                     </div>
                                 @empty
-                                    <div class="col-span-full py-3 text-center text-xs text-slate-400 italic">
+                                    <div class="col-span-full py-4 text-center text-xs text-slate-400 italic bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
                                         Belum ada rekening tercatat di {{ $sumber->nama }}
                                     </div>
                                 @endforelse
