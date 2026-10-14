@@ -214,6 +214,15 @@
                 </button>
             </div>
             <div class="flex items-center gap-3 text-xs text-gray-900 font-bold flex-wrap">
+                <!-- Toggle Group Tanggal -->
+                <button type="button"
+                        @click="toggleGrouping()"
+                        class="px-2.5 py-1 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                        :class="groupByDate ? 'bg-blue-50 text-[#0052FF] border-blue-200 shadow-2xs' : 'border-gray-300 text-gray-900 hover:bg-gray-50'">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span x-text="groupByDate ? 'Group Tanggal (ON)' : 'Group Tanggal'"></span>
+                </button>
+
                 <!-- Font Size Selector -->
                 <x-table-size-selector />
 
@@ -1019,9 +1028,22 @@ window.tabulatorTransaksiHarianTable = function(config) {
     return {
         table: null,
         tableSize: localStorage.getItem('soulmate_table_size') || 'md',
+        groupByDate: true,
         quickSearch: '',
         rowCount: (config.tableData || []).length,
         selectedCount: 0,
+
+        toggleGrouping() {
+            this.groupByDate = !this.groupByDate;
+            if (this.table) {
+                if (this.groupByDate) {
+                    this.table.setGroupBy("tanggal_group");
+                } else {
+                    this.table.setGroupBy(false);
+                }
+                this.table.redraw(true);
+            }
+        },
 
         formatRupiah(val) {
             return Number(val || 0).toLocaleString('id-ID');
@@ -1061,9 +1083,33 @@ window.tabulatorTransaksiHarianTable = function(config) {
                 paginationSize: 200,
                 paginationSizeSelector: [200, 1000, 2000, 10000],
                 movableColumns: true,
+                groupBy: this.groupByDate ? "tanggal_group" : false,
+                groupOrder: function(a, b, aGroup, bGroup) {
+                    let aRows = aGroup.getRows();
+                    let bRows = bGroup.getRows();
+                    let aTime = aRows.length ? (aRows[0].getData().waktu_epoch || 0) : 0;
+                    let bTime = bRows.length ? (bRows[0].getData().waktu_epoch || 0) : 0;
+                    return bTime - aTime;
+                },
                 initialSort: [
                     { column: "waktu_epoch", dir: "desc" }
                 ],
+                groupStartOpen: true,
+                groupToggleElement: "header",
+                groupHeader: function(value, count, data, group) {
+                    return `
+                        <div class="flex items-center justify-between w-full pr-3 py-0.5 text-xs font-bold text-slate-800 cursor-pointer select-none">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-md bg-[#0052FF]/10 text-[#0052FF] font-black">${value}</span>
+                                <span class="text-slate-600 font-bold text-[11px] font-mono">(${count} Transaksi)</span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
+                                <span>Klik baris untuk buka/tutup</span>
+                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                    `;
+                },
                 placeholder: "Belum ada transaksi hari ini.",
                 columns: [
                     // { formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 24, minWidth: 24, maxWidth: 24, resizable: false },
