@@ -1510,24 +1510,6 @@ window.tabulatorTransaksiFullTable = function(config) {
                         }
                     },
                     {
-                        title: "No Transaksi",
-                        field: "no_transaksi",
-                        visible: false,
-                        download: true
-                    },
-                    {
-                        title: "Waktu",
-                        field: "waktu",
-                        visible: false,
-                        download: true
-                    },
-                    {
-                        title: "Petugas",
-                        field: "petugas",
-                        visible: false,
-                        download: true
-                    },
-                    {
                         title: "Aksi",
                         field: "id",
                         width: 55,
@@ -1670,10 +1652,35 @@ window.tabulatorTransaksiFullTable = function(config) {
 
         exportExcel() {
             if (!this.table) return;
-            const filename = "Laporan_Transaksi_FULL_" + new Date().toISOString().slice(0, 10) + ".xlsx";
-            this.table.download("xlsx", filename, {
-                sheetName: "Transaksi FULL"
-            });
+            const rows = this.table.getData("active");
+            if (!window.XLSX) {
+                this.table.download("xlsx", "Laporan_Transaksi_FULL_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                return;
+            }
+
+            const exportData = rows.map((r, idx) => ({
+                "No": idx + 1,
+                "No Transaksi": r.no_transaksi || '-',
+                "Waktu": r.waktu || '-',
+                "Tipe": r.tipe_transaksi || '-',
+                "Pelanggan": r.pelanggan || '-',
+                "No HP": r.no_hp || '-',
+                "Petugas": r.petugas || '-',
+                "Diinput Oleh": r.user_input || '-',
+                "Rincian Item": r.rincian_item || '-',
+                "Biaya Jual (Rp)": Number(r.total_jual || 0),
+                "Modal HPP (Rp)": Number(r.total_modal || 0),
+                "Laba Bersih (Rp)": Number(r.total_laba || 0),
+                "Pajak": r.pajak_label || '-',
+                "Metode": r.metode_pembayaran || '-',
+                "Status": r.status || '-',
+                "Keterangan": r.keterangan || '-'
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Transaksi FULL");
+            XLSX.writeFile(workbook, "Laporan_Transaksi_FULL_" + new Date().toISOString().slice(0, 10) + ".xlsx");
         },
 
         exportPdf() {
