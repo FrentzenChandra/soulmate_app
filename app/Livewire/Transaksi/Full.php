@@ -877,12 +877,21 @@ class Full extends Component
             $query->where('transaksi_fulls.metode_pembayaran', $this->metodeFilter);
         }
 
-        // Filter Pajak PPN
+        // Filter Pajak PPN (Level Item Detail)
         if ($this->ppnFilter === 'ppn') {
-            $query->whereNotNull('transaksi_fulls.ppn_id')->where('transaksi_fulls.ppn_persen', '>', 0);
+            $query->whereHas('details', function ($dq) {
+                $dq->where(function ($sq) {
+                    $sq->where('ppn_persen', '>', 0)
+                       ->orWhere('ppn_nominal', '>', 0);
+                });
+            });
         } elseif ($this->ppnFilter === 'non_ppn') {
-            $query->where(function ($q) {
-                $q->whereNull('transaksi_fulls.ppn_id')->orWhere('transaksi_fulls.ppn_persen', '<=', 0);
+            $query->whereHas('details', function ($dq) {
+                $dq->where(function ($sq) {
+                    $sq->whereNull('ppn_persen')->orWhere('ppn_persen', '<=', 0);
+                })->where(function ($sq) {
+                    $sq->whereNull('ppn_nominal')->orWhere('ppn_nominal', '<=', 0);
+                });
             });
         }
 
@@ -1058,6 +1067,9 @@ class Full extends Component
                 $trxDetails = $detailsByTrx[$item->id] ?? [];
                 $itemsList = [];
                 $rincianArr = [];
+                $filteredSubtotalJual = 0;
+                $filteredSubtotalModal = 0;
+                $filteredLaba = 0;
 
                 foreach ($trxDetails as $d) {
                     $qty = (int) $d->qty;
@@ -1068,6 +1080,19 @@ class Full extends Component
                     $laba = (float) ($d->laba ?: ($subJual - $subModal));
                     $ppnPersen = (float) $d->ppn_persen;
                     $ppnNominal = (float) $d->ppn_nominal;
+                    $itemHasPpn = ($ppnPersen > 0 || $ppnNominal > 0);
+
+                    // Saring murni level item jika filter PPN / Non-PPN aktif
+                    if ($this->ppnFilter === 'ppn' && ! $itemHasPpn) {
+                        continue;
+                    }
+                    if ($this->ppnFilter === 'non_ppn' && $itemHasPpn) {
+                        continue;
+                    }
+
+                    $filteredSubtotalJual += $subJual;
+                    $filteredSubtotalModal += $subModal;
+                    $filteredLaba += $laba;
 
                     $itemsList[] = [
                         'qty' => $qty,
@@ -1077,7 +1102,7 @@ class Full extends Component
                         'subtotal_modal' => $subModal,
                         'subtotal_jual' => $subJual,
                         'laba' => $laba,
-                        'has_ppn' => ($ppnPersen > 0 || $ppnNominal > 0),
+                        'has_ppn' => $itemHasPpn,
                         'ppn_persen' => $ppnPersen,
                         'ppn_nominal' => $ppnNominal,
                     ];
@@ -1086,6 +1111,15 @@ class Full extends Component
                 }
 
                 $rincianItem = ! empty($rincianArr) ? implode(', ', $rincianArr) : 'Tanpa item';
+
+                // Jika filter aktif, gunakan total dari item yang lolos filter
+                $rowTotalJual = ($this->ppnFilter !== 'semua') ? $filteredSubtotalJual : (float) $item->total_jual;
+                $rowTotalModal = ($this->ppnFilter !== 'semua') ? $filteredSubtotalModal : (float) $item->total_modal;
+                $rowTotalLaba = ($this->ppnFilter !== 'semua') ? $filteredLaba : (float) $item->total_laba;
+                $rowGrandTotal = ($this->ppnFilter !== 'semua') ? $filteredSubtotalJual : (float) $item->grand_total;
+
+                $rowHasPpn = ($this->ppnFilter === 'ppn') ? true : (($this->ppnFilter === 'non_ppn') ? false : ((float) $item->ppn_persen > 0 || (float) $item->ppn_nominal > 0));
+                $rowPajakLabel = $rowHasPpn ? 'PPN' : 'Non PPN';
 
                 return [
                     'id' => (int) $item->id,
@@ -1106,12 +1140,12 @@ class Full extends Component
                     'rincian_item' => $rincianItem,
                     'metode_pembayaran_id' => $item->metode_pembayaran_id,
                     'metode_pembayaran' => $item->metode_pembayaran ?: '-',
-                    'total_modal' => (float) $item->total_modal,
-                    'total_jual' => (float) $item->total_jual,
-                    'grand_total' => (float) $item->grand_total,
-                    'total_laba' => (float) $item->total_laba,
-                    'has_ppn' => ((float) $item->ppn_persen > 0 || (float) $item->ppn_nominal > 0),
-                    'pajak_label' => ((float) $item->ppn_persen > 0 || (float) $item->ppn_nominal > 0) ? 'PPN' : 'Non PPN',
+                    'total_modal' => $rowTotalModal,
+                    'total_jual' => $rowTotalJual,
+                    'grand_total' => $rowGrandTotal,
+                    'total_laba' => $rowTotalLaba,
+                    'has_ppn' => $rowHasPpn,
+                    'pajak_label' => $rowPajakLabel,
                     'ppn_persen' => (float) $item->ppn_persen,
                     'ppn_nominal' => (float) $item->ppn_nominal,
                     'status' => $item->status,

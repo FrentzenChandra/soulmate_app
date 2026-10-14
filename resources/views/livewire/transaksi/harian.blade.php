@@ -165,8 +165,18 @@
                 </select>
             </div>
 
+            <!-- Filter Pajak PPN -->
+            <div class="md:col-span-2">
+                <select wire:model.live="ppnFilter"
+                        class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#0052FF] cursor-pointer">
+                    <option value="semua">Semua Pajak</option>
+                    <option value="ppn">Transaksi PPN</option>
+                    <option value="non_ppn">Non-PPN</option>
+                </select>
+            </div>
+
             <!-- Filter Metode & Size Selector -->
-            <div class="md:col-span-4 flex items-center gap-2">
+            <div class="md:col-span-3 flex items-center gap-2">
                 <select wire:model.live="metodeFilter"
                         class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#0052FF] cursor-pointer">
                     <option value="semua">Semua Metode</option>
@@ -1223,7 +1233,7 @@ window.tabulatorTransaksiHarianTable = function(config) {
                         hozAlign: "left",
                         headerHozAlign: "left",
                         headerFilter: "list",
-                        headerFilterParams: { values: ["PPN", "NON"], clearable: true },
+                        headerFilterParams: { values: ["PPN", "Non PPN"], clearable: true },
                         headerFilterFunc: multiSelectFilterFunc,
                         formatter: (cell) => {
                             const d = cell.getData();
@@ -1233,14 +1243,14 @@ window.tabulatorTransaksiHarianTable = function(config) {
                             if (items.length === 0 || !isMulti) {
                                 const it = items[0] || {};
                                 const itemHasPpn = it.has_ppn !== undefined ? it.has_ppn : d.has_ppn;
-                                const taxLabel = itemHasPpn ? 'PPN' : 'NON';
+                                const taxLabel = itemHasPpn ? 'PPN' : 'Non PPN';
                                 const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
                                 return `<span class="text-[8px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</span>`;
                             }
 
                             const html = items.map(it => {
                                 const itemHasPpn = it.has_ppn !== undefined ? it.has_ppn : d.has_ppn;
-                                const taxLabel = itemHasPpn ? 'PPN' : 'NON';
+                                const taxLabel = itemHasPpn ? 'PPN' : 'Non PPN';
                                 const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
                                 return `
                                     <div class="leading-tight py-0.5 min-h-[18px] text-[8px] font-black ${taxColor} uppercase tracking-wider">

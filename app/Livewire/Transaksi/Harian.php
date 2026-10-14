@@ -42,6 +42,9 @@ class Harian extends Component
     #[Url(except: 'semua')]
     public string $metodeFilter = 'semua';
 
+    #[Url(except: 'semua')]
+    public string $ppnFilter = 'semua'; // 'semua' | 'ppn' | 'non_ppn'
+
     public string $periodeMode = 'hari_ini'; // 'hari_ini' | 'range' | 'bulanan' | 'tahunan' | 'semua'
     public string $startDate = '';
     public string $endDate = '';
@@ -850,6 +853,24 @@ class Harian extends Component
             $query->where('transaksi_fulls.metode_pembayaran', $this->metodeFilter);
         }
 
+        // Filter Pajak PPN (Level Item Detail)
+        if ($this->ppnFilter === 'ppn') {
+            $query->whereHas('details', function ($dq) {
+                $dq->where(function ($sq) {
+                    $sq->where('ppn_persen', '>', 0)
+                       ->orWhere('ppn_nominal', '>', 0);
+                });
+            });
+        } elseif ($this->ppnFilter === 'non_ppn') {
+            $query->whereHas('details', function ($dq) {
+                $dq->where(function ($sq) {
+                    $sq->whereNull('ppn_persen')->orWhere('ppn_persen', '<=', 0);
+                })->where(function ($sq) {
+                    $sq->whereNull('ppn_nominal')->orWhere('ppn_nominal', '<=', 0);
+                });
+            });
+        }
+
         // Multi-Word Loose Search
         if (! empty($this->search)) {
             $cleanSearch = trim($this->search);
@@ -994,6 +1015,8 @@ class Harian extends Component
                 $trxDetails = $detailsByTrx[$item->id] ?? [];
                 $itemsList = [];
                 $rincianArr = [];
+                $filteredSubtotalJual = 0;
+                $filteredSubtotalModal = 0;
 
                 foreach ($trxDetails as $d) {
                     $qty = (int) $d->qty;
@@ -1003,6 +1026,18 @@ class Harian extends Component
                     $subJual = (float) ($d->subtotal_jual ?: ($hargaJual * $qty));
                     $ppnPersen = (float) $d->ppn_persen;
                     $ppnNominal = (float) $d->ppn_nominal;
+                    $itemHasPpn = ($ppnPersen > 0 || $ppnNominal > 0);
+
+                    // Saring murni level item jika filter PPN / Non-PPN aktif
+                    if ($this->ppnFilter === 'ppn' && ! $itemHasPpn) {
+                        continue;
+                    }
+                    if ($this->ppnFilter === 'non_ppn' && $itemHasPpn) {
+                        continue;
+                    }
+
+                    $filteredSubtotalJual += $subJual;
+                    $filteredSubtotalModal += $subModal;
 
                     $itemsList[] = [
                         'qty' => $qty,
@@ -1011,7 +1046,7 @@ class Harian extends Component
                         'harga_jual' => $hargaJual,
                         'subtotal_modal' => $subModal,
                         'subtotal_jual' => $subJual,
-                        'has_ppn' => ($ppnPersen > 0 || $ppnNominal > 0),
+                        'has_ppn' => $itemHasPpn,
                         'ppn_persen' => $ppnPersen,
                         'ppn_nominal' => $ppnNominal,
                     ];
@@ -1020,6 +1055,14 @@ class Harian extends Component
                 }
 
                 $rincianItem = ! empty($rincianArr) ? implode(', ', $rincianArr) : 'Tanpa item';
+
+                // Jika filter aktif, gunakan total dari item yang lolos filter
+                $rowTotalJual = ($this->ppnFilter !== 'semua') ? $filteredSubtotalJual : (float) $item->total_jual;
+                $rowTotalModal = ($this->ppnFilter !== 'semua') ? $filteredSubtotalModal : (float) $item->total_modal;
+                $rowGrandTotal = ($this->ppnFilter !== 'semua') ? $filteredSubtotalJual : (float) $item->grand_total;
+
+                $rowHasPpn = ($this->ppnFilter === 'ppn') ? true : (($this->ppnFilter === 'non_ppn') ? false : ((float) $item->ppn_persen > 0 || (float) $item->ppn_nominal > 0));
+                $rowPajakLabel = $rowHasPpn ? 'PPN' : 'Non PPN';
 
                 return [
                     'id' => (int) $item->id,
@@ -1040,11 +1083,11 @@ class Harian extends Component
                     'rincian_item' => $rincianItem,
                     'metode_pembayaran_id' => $item->metode_pembayaran_id,
                     'metode_pembayaran' => $item->metode_pembayaran ?: '-',
-                    'total_modal' => (float) $item->total_modal,
-                    'total_jual' => (float) $item->total_jual,
-                    'grand_total' => (float) $item->grand_total,
-                    'has_ppn' => ((float) $item->ppn_persen > 0 || (float) $item->ppn_nominal > 0),
-                    'pajak_label' => ((float) $item->ppn_persen > 0 || (float) $item->ppn_nominal > 0) ? 'PPN' : 'Non PPN',
+                    'total_modal' => $rowTotalModal,
+                    'total_jual' => $rowTotalJual,
+                    'grand_total' => $rowGrandTotal,
+                    'has_ppn' => $rowHasPpn,
+                    'pajak_label' => $rowPajakLabel,
                     'ppn_persen' => (float) $item->ppn_persen,
                     'ppn_nominal' => (float) $item->ppn_nominal,
                     'status' => $item->status,
