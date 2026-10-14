@@ -877,20 +877,30 @@ class Full extends Component
             $query->where('transaksi_fulls.metode_pembayaran', $this->metodeFilter);
         }
 
-        // Filter Pajak PPN (Level Item Detail)
+        // Filter Pajak PPN (Level Item Detail & Parent)
         if ($this->ppnFilter === 'ppn') {
-            $query->whereHas('details', function ($dq) {
-                $dq->where(function ($sq) {
-                    $sq->where('ppn_persen', '>', 0)
-                       ->orWhere('ppn_nominal', '>', 0);
-                });
+            $query->where(function ($q) {
+                $q->whereHas('details', function ($dq) {
+                    $dq->where('ppn_persen', '>', 0)
+                       ->orWhere('ppn_nominal', '>', 0)
+                       ->orWhereHas('ppn', fn ($pq) => $pq->where('persen', '>', 0));
+                })->orWhere('transaksi_fulls.ppn_persen', '>', 0)
+                  ->orWhere('transaksi_fulls.ppn_nominal', '>', 0);
             });
         } elseif ($this->ppnFilter === 'non_ppn') {
-            $query->whereHas('details', function ($dq) {
-                $dq->where(function ($sq) {
-                    $sq->whereNull('ppn_persen')->orWhere('ppn_persen', '<=', 0);
-                })->where(function ($sq) {
-                    $sq->whereNull('ppn_nominal')->orWhere('ppn_nominal', '<=', 0);
+            $query->where(function ($q) {
+                $q->whereHas('details', function ($dq) {
+                    $dq->where(function ($sq) {
+                        $sq->whereNull('ppn_persen')->orWhere('ppn_persen', '<=', 0);
+                    })->where(function ($sq) {
+                        $sq->whereNull('ppn_nominal')->orWhere('ppn_nominal', '<=', 0);
+                    });
+                })->orWhere(function ($sq) {
+                    $sq->where(function ($ssq) {
+                        $ssq->whereNull('transaksi_fulls.ppn_persen')->orWhere('transaksi_fulls.ppn_persen', '<=', 0);
+                    })->where(function ($ssq) {
+                        $ssq->whereNull('transaksi_fulls.ppn_nominal')->orWhere('transaksi_fulls.ppn_nominal', '<=', 0);
+                    });
                 });
             });
         }
@@ -1027,20 +1037,23 @@ class Full extends Component
             $trxIds = $allCurrent->pluck('id')->all();
             $detailsByTrx = [];
             if (! empty($trxIds)) {
-                $rawDetails = DB::table('transaksi_full_details')
-                    ->whereIn('transaksi_full_id', $trxIds)
+                $rawDetails = DB::table('transaksi_full_details as d')
+                    ->leftJoin('master_ppns as mp', 'mp.id', '=', 'd.ppn_id')
+                    ->whereIn('d.transaksi_full_id', $trxIds)
                     ->select([
-                        'id',
-                        'transaksi_full_id',
-                        'qty',
-                        'nama_item',
-                        'harga_modal',
-                        'harga_jual',
-                        'subtotal_modal',
-                        'subtotal_jual',
-                        'laba',
-                        'ppn_persen',
-                        'ppn_nominal',
+                        'd.id',
+                        'd.transaksi_full_id',
+                        'd.qty',
+                        'd.nama_item',
+                        'd.harga_modal',
+                        'd.harga_jual',
+                        'd.subtotal_modal',
+                        'd.subtotal_jual',
+                        'd.laba',
+                        'd.ppn_id',
+                        'd.ppn_persen',
+                        'd.ppn_nominal',
+                        'mp.persen as master_ppn_persen',
                     ])
                     ->get();
 
@@ -1070,6 +1083,9 @@ class Full extends Component
                 $filteredSubtotalJual = 0;
                 $filteredSubtotalModal = 0;
                 $filteredLaba = 0;
+                $filteredPpnNominal = 0;
+
+                $parentHasPpn = ((float) $item->ppn_persen > 0 || (float) $item->ppn_nominal > 0);
 
                 foreach ($trxDetails as $d) {
                     $qty = (int) $d->qty;
@@ -1080,7 +1096,14 @@ class Full extends Component
                     $laba = (float) ($d->laba ?: ($subJual - $subModal));
                     $ppnPersen = (float) $d->ppn_persen;
                     $ppnNominal = (float) $d->ppn_nominal;
-                    $itemHasPpn = ($ppnPersen > 0 || $ppnNominal > 0);
+                    $masterPpnPersen = (float) ($d->master_ppn_persen ?? 0);
+
+                    // Deteksi PPN item
+                    $itemHasPpn = ($ppnPersen > 0 || $ppnNominal > 0 || $masterPpnPersen > 0);
+                    if (! $itemHasPpn && $parentHasPpn && empty($d->ppn_id) && ($d->ppn_persen === null || (float) $d->ppn_persen == 0)) {
+                        $itemHasPpn = true;
+                        $ppnPersen = (float) $item->ppn_persen;
+                    }
 
                     // Saring murni level item jika filter PPN / Non-PPN aktif
                     if ($this->ppnFilter === 'ppn' && ! $itemHasPpn) {
@@ -1090,9 +1113,13 @@ class Full extends Component
                         continue;
                     }
 
+                    $effectivePpnRate = $ppnPersen ?: $masterPpnPersen;
+                    $itemPpnNominal = $itemHasPpn ? ($ppnNominal ?: (($subJual * $effectivePpnRate) / 100)) : 0;
+
                     $filteredSubtotalJual += $subJual;
                     $filteredSubtotalModal += $subModal;
                     $filteredLaba += $laba;
+                    $filteredPpnNominal += $itemPpnNominal;
 
                     $itemsList[] = [
                         'qty' => $qty,
@@ -1103,11 +1130,16 @@ class Full extends Component
                         'subtotal_jual' => $subJual,
                         'laba' => $laba,
                         'has_ppn' => $itemHasPpn,
-                        'ppn_persen' => $ppnPersen,
-                        'ppn_nominal' => $ppnNominal,
+                        'ppn_persen' => $effectivePpnRate,
+                        'ppn_nominal' => $itemPpnNominal,
                     ];
 
                     $rincianArr[] = "{$qty}x {$d->nama_item}";
+                }
+
+                // Jika filter aktif dan transaksi ini tidak memiliki item yang cocok, buang dari tabel
+                if ($this->ppnFilter !== 'semua' && empty($itemsList)) {
+                    return null;
                 }
 
                 $rincianItem = ! empty($rincianArr) ? implode(', ', $rincianArr) : 'Tanpa item';
@@ -1116,9 +1148,9 @@ class Full extends Component
                 $rowTotalJual = ($this->ppnFilter !== 'semua') ? $filteredSubtotalJual : (float) $item->total_jual;
                 $rowTotalModal = ($this->ppnFilter !== 'semua') ? $filteredSubtotalModal : (float) $item->total_modal;
                 $rowTotalLaba = ($this->ppnFilter !== 'semua') ? $filteredLaba : (float) $item->total_laba;
-                $rowGrandTotal = ($this->ppnFilter !== 'semua') ? $filteredSubtotalJual : (float) $item->grand_total;
+                $rowGrandTotal = ($this->ppnFilter === 'ppn') ? ($filteredSubtotalJual + $filteredPpnNominal) : (($this->ppnFilter === 'non_ppn') ? $filteredSubtotalJual : (float) $item->grand_total);
 
-                $rowHasPpn = ($this->ppnFilter === 'ppn') ? true : (($this->ppnFilter === 'non_ppn') ? false : ((float) $item->ppn_persen > 0 || (float) $item->ppn_nominal > 0));
+                $rowHasPpn = ($this->ppnFilter === 'ppn') ? true : (($this->ppnFilter === 'non_ppn') ? false : ($parentHasPpn || collect($itemsList)->contains('has_ppn', true)));
                 $rowPajakLabel = $rowHasPpn ? 'PPN' : 'Non PPN';
 
                 return [
@@ -1151,7 +1183,7 @@ class Full extends Component
                     'status' => $item->status,
                     'keterangan' => $item->catatan ?: '-',
                 ];
-            })->values()->all();
+            })->filter()->values()->all();
 
             $this->dispatch('transaksi-full-table-updated', data: $tableData);
         }
