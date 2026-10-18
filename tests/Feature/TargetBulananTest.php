@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Livewire\TargetBulanan\Index as TargetBulananIndex;
 use App\Models\Cabang;
+use App\Models\Customer;
 use App\Models\Pegawai;
+use App\Models\ServisMasuk;
 use App\Models\TargetDivisi;
 use App\Models\TransaksiFull;
 use App\Models\User;
@@ -180,16 +182,16 @@ class TargetBulananTest extends TestCase
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
 
-        // Setup annual target first
+        // Setup annual target first for admin division
         TargetDivisi::updateOrCreate(
-            ['cabang_id' => $superadmin->cabang_id ?: 1, 'divisi' => 'printer', 'tahun' => 2026],
+            ['cabang_id' => $superadmin->cabang_id ?: 1, 'divisi' => 'admin', 'tahun' => 2026],
             ['target_bulanan' => 25]
         );
 
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->call('openEditCellDivisi', 'printer', 5)
-            ->assertSet('editDivisiKey', 'printer')
+            ->call('openEditCellDivisi', 'admin', 5)
+            ->assertSet('editDivisiKey', 'admin')
             ->assertSet('editDivisiBulan', 5)
             ->assertSet('targetSyaratBulananInfo', 25)
             ->set('formRealisasiDivisi', 30)
@@ -198,7 +200,7 @@ class TargetBulananTest extends TestCase
             ->assertSet('modalEditCellDivisiOpen', false);
 
         $targetDivisi = TargetDivisi::where('cabang_id', $superadmin->cabang_id ?: 1)
-            ->where('divisi', 'printer')
+            ->where('divisi', 'admin')
             ->where('tahun', 2026)
             ->first();
 
@@ -209,11 +211,128 @@ class TargetBulananTest extends TestCase
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
             ->assertViewHas('divisiMatrix', function ($divisiMatrix) {
-                return isset($divisiMatrix['printer'])
-                    && $divisiMatrix['printer']['months'][5]['target'] === 25
-                    && $divisiMatrix['printer']['months'][5]['count'] === 30
-                    && $divisiMatrix['printer']['months'][5]['percent'] === 120
-                    && $divisiMatrix['printer']['months'][5]['status'] === 'tercapai';
+                return isset($divisiMatrix['admin'])
+                    && $divisiMatrix['admin']['months'][5]['target'] === 25
+                    && $divisiMatrix['admin']['months'][5]['count'] === 30
+                    && $divisiMatrix['admin']['months'][5]['percent'] === 120
+                    && $divisiMatrix['admin']['months'][5]['status'] === 'tercapai';
+            });
+    }
+
+    public function test_cannot_edit_cell_for_non_admin_divisions()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        Livewire::test(TargetBulananIndex::class)
+            ->set('filterTahun', 2026)
+            ->call('openEditCellDivisi', 'laptop', 1)
+            ->assertStatus(403);
+
+        Livewire::test(TargetBulananIndex::class)
+            ->set('filterTahun', 2026)
+            ->call('openEditCellDivisi', 'printer', 1)
+            ->assertStatus(403);
+
+        Livewire::test(TargetBulananIndex::class)
+            ->set('filterTahun', 2026)
+            ->call('openEditCellDivisi', 'komputer', 1)
+            ->assertStatus(403);
+    }
+
+    public function test_technical_divisions_auto_calculated_from_servis_masuk_by_tanggal_ambil()
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        ServisMasuk::query()->delete();
+        TargetDivisi::query()->delete();
+
+        $cabangId = $superadmin->cabang_id ?: 1;
+        $customer = Customer::create([
+            'cabang_id' => $cabangId,
+            'nama' => 'Pelanggan Servis Test',
+            'no_hp' => '08123456789',
+        ]);
+
+        // 1. Laptop taken in January 2026 (status: sudah_diambil) -> SHOULD BE COUNTED
+        ServisMasuk::create([
+            'no_servis' => 'SRV-LP-001',
+            'cabang_id' => $cabangId,
+            'customer_id' => $customer->id,
+            'created_by' => $superadmin->id,
+            'kategori_perangkat' => 'laptop',
+            'tipe_unit' => 'Asus ROG',
+            'keluhan' => 'Layar blank',
+            'status' => 'sudah_diambil',
+            'tanggal_masuk' => '2026-01-05 10:00:00',
+            'tanggal_ambil' => '2026-01-15 14:00:00',
+        ]);
+
+        // 2. Laptop with status 'batal' taken in January 2026 -> SHOULD NOT BE COUNTED
+        ServisMasuk::create([
+            'no_servis' => 'SRV-LP-002',
+            'cabang_id' => $cabangId,
+            'customer_id' => $customer->id,
+            'created_by' => $superadmin->id,
+            'kategori_perangkat' => 'laptop',
+            'tipe_unit' => 'Lenovo Thinkpad',
+            'keluhan' => 'Mati total',
+            'status' => 'batal',
+            'tanggal_masuk' => '2026-01-08 10:00:00',
+            'tanggal_ambil' => '2026-01-20 11:00:00',
+        ]);
+
+        // 3. Laptop not yet taken (tanggal_ambil IS NULL) -> SHOULD NOT BE COUNTED
+        ServisMasuk::create([
+            'no_servis' => 'SRV-LP-003',
+            'cabang_id' => $cabangId,
+            'customer_id' => $customer->id,
+            'created_by' => $superadmin->id,
+            'kategori_perangkat' => 'laptop',
+            'tipe_unit' => 'Acer Swift',
+            'keluhan' => 'Keyboard rusak',
+            'status' => 'selesai',
+            'tanggal_masuk' => '2026-01-10 10:00:00',
+            'tanggal_ambil' => null,
+        ]);
+
+        // 4. Printer taken in February 2026 -> SHOULD BE COUNTED in month 2
+        ServisMasuk::create([
+            'no_servis' => 'SRV-PR-001',
+            'cabang_id' => $cabangId,
+            'customer_id' => $customer->id,
+            'created_by' => $superadmin->id,
+            'kategori_perangkat' => 'printer',
+            'tipe_unit' => 'Epson L3110',
+            'keluhan' => 'Tinta mampet',
+            'status' => 'sudah_diambil',
+            'tanggal_masuk' => '2026-02-01 10:00:00',
+            'tanggal_ambil' => '2026-02-10 16:00:00',
+        ]);
+
+        // 5. Komputer/PC taken in March 2026 -> SHOULD BE COUNTED in month 3
+        ServisMasuk::create([
+            'no_servis' => 'SRV-PC-001',
+            'cabang_id' => $cabangId,
+            'customer_id' => $customer->id,
+            'created_by' => $superadmin->id,
+            'kategori_perangkat' => 'komputer',
+            'tipe_unit' => 'PC Rakitan Core i7',
+            'keluhan' => 'Upgrade RAM & SSD',
+            'status' => 'sudah_diambil',
+            'tanggal_masuk' => '2026-03-01 10:00:00',
+            'tanggal_ambil' => '2026-03-05 15:00:00',
+        ]);
+
+        Livewire::test(TargetBulananIndex::class)
+            ->set('filterTahun', 2026)
+            ->assertViewHas('divisiMatrix', function ($divisiMatrix) {
+                return $divisiMatrix['laptop']['months'][1]['count'] === 1
+                    && $divisiMatrix['laptop']['months'][2]['count'] === 0
+                    && $divisiMatrix['printer']['months'][2]['count'] === 1
+                    && $divisiMatrix['komputer']['months'][3]['count'] === 1
+                    && $divisiMatrix['admin']['months'][1]['count'] === 0; // Admin is manual, zero by default
             });
     }
 
@@ -240,10 +359,10 @@ class TargetBulananTest extends TestCase
             ->assertHasNoErrors()
             ->assertSet('modalSetTargetTahunanDivisiOpen', false);
 
-        // Can edit cell realization
+        // Can edit cell realization for admin division
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->call('openEditCellDivisi', 'laptop', 1)
+            ->call('openEditCellDivisi', 'admin', 1)
             ->assertSet('modalEditCellDivisiOpen', true)
             ->set('formRealisasiDivisi', 15)
             ->call('simpanEditCellDivisi')

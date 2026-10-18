@@ -148,11 +148,14 @@
                                 </span>
                             </td>
 
-                            <!-- 12 Bulan (Edit Per Cell Divisi Tetap Aktif) -->
+                            <!-- 12 Bulan (Khusus Divisi Admin yang Dapat Diedit Manual) -->
                             @for($m = 1; $m <= 12; $m++)
-                                @php $cell = $d['months'][$m]; @endphp
-                                <td class="py-3 px-1 align-middle text-center {{ $canManageTarget ? 'cursor-pointer hover:bg-purple-100/60 transition-colors' : '' }}"
-                                    @if($canManageTarget) wire:click="openEditCellDivisi('{{ $key }}', {{ $m }})" title="Klik untuk edit target & realisasi {{ $d['name'] }} bulan {{ $bulanNames[$m] }}" @endif>
+                                @php
+                                    $cell = $d['months'][$m];
+                                    $isEditable = ($key === 'admin') && $canManageTarget;
+                                @endphp
+                                <td class="py-3 px-1 align-middle text-center {{ $isEditable ? 'cursor-pointer hover:bg-purple-100/60 transition-colors' : '' }}"
+                                    @if($isEditable) wire:click="openEditCellDivisi('{{ $key }}', {{ $m }})" title="Klik untuk edit realisasi {{ $d['name'] }} bulan {{ $bulanNames[$m] }}" @endif>
                                     @if(! $cell['has_data'])
                                         <span class="text-gray-300 font-mono font-bold text-xs leading-none">-</span>
                                     @else

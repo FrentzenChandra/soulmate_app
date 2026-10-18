@@ -4,6 +4,7 @@ namespace App\Livewire\TargetBulanan;
 
 use App\Models\Cabang;
 use App\Models\Pegawai;
+use App\Models\ServisMasuk;
 use App\Models\TargetDivisi;
 use App\Models\TransaksiFull;
 use Carbon\Carbon;
@@ -173,7 +174,7 @@ class Index extends Component
     }
 
     // =========================================================================
-    // MODAL & ACTION: EDIT REALISASI PER CELL (DIVISI)
+    // MODAL & ACTION: EDIT REALISASI PER CELL (DIVISI ADMIN INPUT MANUAL)
     // =========================================================================
 
     public function openEditCellDivisi(string $divisiKey, int $bulan): void
@@ -182,20 +183,18 @@ class Index extends Component
             abort(403, 'Akses mengatur target dibatasi.');
         }
 
-        $this->editDivisiKey = $divisiKey;
-        $this->editDivisiName = match (strtolower($divisiKey)) {
-            'laptop' => 'Laptop',
-            'printer' => 'Printer',
-            'komputer' => 'Komputer',
-            'admin' => 'Admin',
-            default => ucfirst($divisiKey),
-        };
+        if ($divisiKey !== 'admin') {
+            abort(403, 'Hanya divisi Admin yang dapat diinput manual.');
+        }
+
+        $this->editDivisiKey = 'admin';
+        $this->editDivisiName = 'Admin';
         $this->editDivisiBulan = $bulan;
         $cabangId = $this->getTargetCabangId();
 
         $targetDivisi = TargetDivisi::where('cabang_id', $cabangId)
             ->where('tahun', $this->filterTahun)
-            ->where('divisi', $divisiKey)
+            ->where('divisi', 'admin')
             ->first();
 
         $monthlyRealisasi = $targetDivisi?->monthly_realisasi ?? [];
@@ -214,7 +213,7 @@ class Index extends Component
         }
 
         $this->validate([
-            'editDivisiKey' => 'required|string|in:laptop,printer,komputer,admin',
+            'editDivisiKey' => 'required|string|in:admin',
             'editDivisiBulan' => 'required|integer|min:1|max:12',
             'formRealisasiDivisi' => 'required|integer|min:0',
         ]);
@@ -226,7 +225,7 @@ class Index extends Component
             [
                 'cabang_id' => $cabangId,
                 'tahun' => $this->filterTahun,
-                'divisi' => $this->editDivisiKey,
+                'divisi' => 'admin',
             ],
             [
                 'target_bulanan' => 0,
@@ -243,7 +242,7 @@ class Index extends Component
 
         $this->modalEditCellDivisiOpen = false;
         $namaBulan = Carbon::createFromDate($this->filterTahun, $this->editDivisiBulan, 1)->translatedFormat('F');
-        session()->flash('success', "Realisasi Divisi {$this->editDivisiName} bulan {$namaBulan} {$this->filterTahun} berhasil diperbarui!");
+        session()->flash('success', "Realisasi Divisi Admin bulan {$namaBulan} {$this->filterTahun} berhasil diperbarui!");
     }
 
     // =========================================================================
@@ -293,13 +292,21 @@ class Index extends Component
             $pegawaiMap[$row->pegawai_id][(int) $row->bulan] = (int) $row->total;
         }
 
-        // Rekap Divisi: Group by bulan, tipe_transaksi, kategori_perangkat
-        $divisiRawCounts = TransaksiFull::query()
-            ->selectRaw("{$monthExpr} as bulan, tipe_transaksi, LOWER(COALESCE(kategori_perangkat, '')) as kategori, COUNT(*) as total")
-            ->whereYear('tanggal', $tahun)
-            ->where('status', '!=', 'Batal')
+        // Expression bulan servis berdasarkan tanggal_ambil
+        $servisMonthExpr = match ($driver) {
+            'pgsql', 'postgres' => 'EXTRACT(MONTH FROM tanggal_ambil)::integer',
+            'sqlite' => "CAST(strftime('%m', tanggal_ambil) AS INTEGER)",
+            default => 'MONTH(tanggal_ambil)',
+        };
+
+        // Rekap Divisi Teknis: Murni ditarik dari servis_masuks (berdasarkan kapan diambil customer, non-batal)
+        $divisiRawCounts = ServisMasuk::query()
+            ->selectRaw("{$servisMonthExpr} as bulan, LOWER(COALESCE(kategori_perangkat, '')) as kategori, COUNT(*) as total")
+            ->whereNotNull('tanggal_ambil')
+            ->whereYear('tanggal_ambil', $tahun)
+            ->whereRaw("LOWER(status) != 'batal'")
             ->tap($cabangScope)
-            ->groupByRaw("{$monthExpr}, tipe_transaksi, LOWER(COALESCE(kategori_perangkat, ''))")
+            ->groupByRaw("{$servisMonthExpr}, LOWER(COALESCE(kategori_perangkat, ''))")
             ->get();
 
         $divisiMap = [
@@ -311,21 +318,15 @@ class Index extends Component
 
         foreach ($divisiRawCounts as $row) {
             $m = (int) $row->bulan;
-            $tipe = strtolower($row->tipe_transaksi ?? '');
-            $kat = strtolower($row->kategori ?? '');
+            $kat = trim(strtolower($row->kategori ?? ''));
             $total = (int) $row->total;
 
             if ($kat === 'laptop') {
                 $divisiMap['laptop'][$m] = ($divisiMap['laptop'][$m] ?? 0) + $total;
-            }
-            if ($kat === 'printer') {
+            } elseif ($kat === 'printer') {
                 $divisiMap['printer'][$m] = ($divisiMap['printer'][$m] ?? 0) + $total;
-            }
-            if (in_array($kat, ['komputer', 'pc'])) {
+            } elseif (in_array($kat, ['komputer', 'pc'])) {
                 $divisiMap['komputer'][$m] = ($divisiMap['komputer'][$m] ?? 0) + $total;
-            }
-            if ($tipe === 'penjualan' || $kat === 'admin' || (! in_array($kat, ['laptop', 'printer', 'komputer', 'pc']))) {
-                $divisiMap['admin'][$m] = ($divisiMap['admin'][$m] ?? 0) + $total;
             }
         }
 
@@ -362,12 +363,14 @@ class Index extends Component
             $totalYtdTarget = 0;
 
             for ($m = 1; $m <= 12; $m++) {
-                // Realisasi diutamakan dari override manual jika diset, jika tidak diambil dari hasil SQL agregasi
-                $hasManualRealisasi = isset($monthlyRealisasi[(string)$m]);
-                if ($hasManualRealisasi) {
-                    $count = (int) $monthlyRealisasi[(string)$m];
+                if ($key === 'admin') {
+                    // Divisi Admin: 100% input manual dari monthly_realisasi
+                    $count = (int) ($monthlyRealisasi[(string)$m] ?? 0);
+                    $hasManualRealisasi = isset($monthlyRealisasi[(string)$m]);
                 } else {
+                    // Divisi Laptop, Printer, Komputer: 100% murni ditarik dari servis_masuks
                     $count = (int) ($divisiMap[$key][$m] ?? 0);
+                    $hasManualRealisasi = false;
                 }
 
                 $targetSyarat = $defaultTarget;
