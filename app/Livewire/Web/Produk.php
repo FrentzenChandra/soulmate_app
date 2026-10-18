@@ -263,8 +263,8 @@ class Produk extends Component
                     $pattern = '%' . strtolower($word) . '%';
                     $q->where(function ($sq) use ($pattern) {
                         $sq->whereRaw('LOWER(nama_produk) LIKE ?', [$pattern])
-                           ->orWhereRaw('LOWER(COALESCE(deskripsi, "")) LIKE ?', [$pattern])
-                           ->orWhereRaw('LOWER(COALESCE(barcode, "")) LIKE ?', [$pattern]);
+                           ->orWhereRaw("LOWER(COALESCE(deskripsi, '')) LIKE ?", [$pattern])
+                           ->orWhereRaw("LOWER(COALESCE(barcode, '')) LIKE ?", [$pattern]);
                     });
                 }
             });

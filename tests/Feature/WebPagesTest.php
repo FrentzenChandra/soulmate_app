@@ -77,7 +77,9 @@ class WebPagesTest extends TestCase
         Livewire::test(Produk::class)
             ->set('search', 'Vivobook')
             ->assertSee('Asus Vivobook 14')
-            ->assertSee('8.500.000');
+            ->assertSee('8.500.000')
+            ->set('search', 'asdkfjalk')
+            ->assertSee('Produk tidak ditemukan');
     }
 
     public function test_produk_filters_are_active(): void
