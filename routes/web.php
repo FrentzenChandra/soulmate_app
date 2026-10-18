@@ -14,6 +14,7 @@ use App\Livewire\Master\Ppn\Index as MasterPpnIndex;
 use App\Livewire\Master\Produk\Index as MasterProdukIndex;
 use App\Livewire\Master\Servis\Index as MasterServisIndex;
 use App\Livewire\Master\User\Index as MasterUserIndex;
+use App\Livewire\Servis\AntrianDisplay;
 use App\Livewire\Servis\Masuk\Index as ServisMasukIndex;
 use App\Livewire\Servis\Keluar\Index as ServisKeluarIndex;
 use App\Livewire\Servis\Batal\Index as ServisBatalIndex;
@@ -35,20 +36,28 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Livewire\Web\Home as WebHome;
+use App\Livewire\Web\Produk as WebProduk;
+use App\Livewire\Web\Servis as WebServis;
+use App\Livewire\Web\TentangKami as WebTentangKami;
+use App\Livewire\Web\Kontak as WebKontak;
 
-// Redirect root to dashboard or login
-Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect()->route('dashboard');
-    }
-
-    return redirect()->route('login');
-});
+// Public Website Pages (Soulmate Komputer Landing & Information)
+Route::get('/', WebHome::class)->name('home');
+Route::get('/beranda', WebHome::class)->name('beranda');
+Route::get('/produk', WebProduk::class)->name('web.produk');
+Route::get('/servis', WebServis::class)->name('web.servis');
+Route::get('/tentang-kami', WebTentangKami::class)->name('web.tentang-kami');
+Route::get('/kontak', WebKontak::class)->name('web.kontak');
 
 // Guest Routes (Authentication)
 Route::middleware('guest')->group(function () {
     Route::get('/login', Login::class)->name('login');
 });
+
+// TV Monitor / Public Antrian Servis Display
+Route::get('/antrian', AntrianDisplay::class)->name('antrian.display');
+Route::get('/antrian-servis', fn () => redirect()->route('antrian.display'));
 
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
@@ -82,6 +91,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/servis/keluar', ServisKeluarIndex::class)->name('servis.keluar')->middleware('can:servis.keluar.view');
     Route::get('/servis/batal', ServisBatalIndex::class)->name('servis.batal')->middleware('can:servis.batal.view');
     Route::get('/servis/non-real', ServisNonRealIndex::class)->name('servis.non-real')->middleware('can:servis.non_real.view');
+    Route::get('/servis/antrian', AntrianDisplay::class)->name('servis.antrian');
     Route::get('/servis/pengerjaan', fn () => redirect()->route('servis.keluar'))->name('servis.pengerjaan');
     Route::get('/servis/{servis}/tanda-terima', function (\App\Models\ServisMasuk $servis) {
         $user = Auth::user();

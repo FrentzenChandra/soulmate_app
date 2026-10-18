@@ -282,6 +282,13 @@
                         Servis Non Real
                     </a>
 
+                    <a href="{{ route('servis.antrian') }}" target="_blank"
+                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('servis.antrian*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('servis.antrian*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke-width="2"></rect><line x1="8" y1="21" x2="16" y2="21" stroke-width="2"></line><line x1="12" y1="17" x2="12" y2="21" stroke-width="2"></line></svg>
+                        Antrian Servis (TV)
+                        <span class="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-purple-900/60 text-purple-300 border border-purple-700/50">Display</span>
+                    </a>
+
                     <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Kas & Transaksi</p>
 
                     <a href="{{ route('transaksi.harian') }}"
@@ -540,6 +547,13 @@
                         Servis Non Real
                     </a>
                     @endcan
+
+                    <a href="{{ route('servis.antrian') }}" target="_blank"
+                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('servis.antrian*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('servis.antrian*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke-width="2"></rect><line x1="8" y1="21" x2="16" y2="21" stroke-width="2"></line><line x1="12" y1="17" x2="12" y2="21" stroke-width="2"></line></svg>
+                        Antrian Servis (TV)
+                        <span class="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-900/60 text-blue-300 border border-blue-700/50">Display</span>
+                    </a>
                     @endcanany
 
                     <!-- 4. Kas & Transaksi -->
