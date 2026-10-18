@@ -321,29 +321,29 @@
                     @foreach ($products as $item)
                         @php $inCart = isset($cart[$item['id']]); @endphp
                         <div class="bg-white rounded-2xl border border-gray-200/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 group hover:shadow-lg hover:border-purple-200 transition-all">
-                            <div class="flex items-center gap-4 w-full sm:w-auto">
+                            <div class="flex items-center gap-4 flex-1 min-w-0 w-full sm:w-auto">
                                 <div class="w-20 h-20 bg-gray-50 rounded-xl p-2 shrink-0 flex items-center justify-center overflow-hidden">
                                     <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" loading="lazy" decoding="async" class="w-full h-full object-contain mix-blend-multiply">
                                 </div>
-                                <div>
+                                <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded truncate max-w-[160px]">{{ $item['brand'] }}</span>
                                         @if($item['badge'])
-                                        <span class="text-[10px] font-bold text-white {{ $item['badge']['color'] }} px-2 py-0.5 rounded">{{ $item['badge']['text'] }}</span>
+                                        <span class="text-[10px] font-bold text-white {{ $item['badge']['color'] }} px-2 py-0.5 rounded shrink-0">{{ $item['badge']['text'] }}</span>
                                         @endif
                                     </div>
-                                    <h3 class="font-bold text-sm text-[#0c1330] leading-snug line-clamp-2 sm:line-clamp-1 truncate" title="{{ $item['name'] }}">{{ $item['name'] }}</h3>
+                                    <h3 class="font-bold text-sm text-[#0c1330] leading-snug truncate" title="{{ $item['name'] }}">{{ $item['name'] }}</h3>
                                 </div>
                             </div>
 
-                            <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-100">
-                                <div class="text-left sm:text-right">
-                                    <span class="text-rose-600 font-black text-base block">Rp {{ $item['formatted_price'] }}</span>
-                                    <span class="text-[10px] text-gray-400 font-semibold">Tersedia di Toko</span>
+                            <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-100 shrink-0">
+                                <div class="text-left sm:text-right shrink-0">
+                                    <span class="text-rose-600 font-black text-base block whitespace-nowrap">Rp {{ $item['formatted_price'] }}</span>
+                                    <span class="text-[10px] text-gray-400 font-semibold block whitespace-nowrap">Tersedia di Toko</span>
                                 </div>
                                 <button type="button"
                                         wire:click="addToCart({{ $item['id'] }})"
-                                        class="px-4 py-2.5 rounded-xl {{ $inCart ? 'bg-emerald-600' : 'bg-[#5E17EB]' }} text-white text-xs font-bold flex items-center gap-2 shadow-xs hover:opacity-95 transition-all">
+                                        class="px-4 py-2.5 rounded-xl {{ $inCart ? 'bg-emerald-600' : 'bg-[#5E17EB]' }} text-white text-xs font-bold flex items-center gap-2 shadow-xs hover:opacity-95 transition-all shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                     <span>{{ $inCart ? 'Tambah Lagi' : '+ Keranjang' }}</span>
                                 </button>
