@@ -143,7 +143,7 @@
         </aside>
 
         <!-- RIGHT MAIN AREA: PRODUCTS CATALOG (Order-1 on mobile, Order-2 on desktop) -->
-        <main class="order-1 lg:order-2 lg:col-span-9 space-y-6">
+        <main class="order-1 lg:order-2 lg:col-span-9 space-y-6 min-w-0">
 
             <!-- Top Toolbar -->
             <div class="bg-white rounded-3xl border border-gray-200/90 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -251,7 +251,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5">
                     @foreach ($products as $item)
                         @php $inCart = isset($cart[$item['id']]); @endphp
-                        <div class="bg-white rounded-2xl border border-gray-200/80 p-4 flex flex-col group hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer relative">
+                        <div class="bg-white rounded-2xl border border-gray-200/80 p-4 flex flex-col h-full min-w-0 w-full group hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer relative">
 
                             <!-- Badges -->
                             @if($item['badge'])
@@ -277,25 +277,25 @@
 
                             <!-- Brand -->
                             @if(!empty($item['brand']))
-                                <span class="text-[11px] font-black uppercase tracking-wider text-[#5E17EB] block mb-0.5 " title="{{ $item['brand'] }}">
+                                <span class="text-[11px] font-black uppercase tracking-wider text-[#5E17EB] block mb-0.5 break-words" title="{{ $item['brand'] }}">
                                     {{ $item['brand'] }}
                                 </span>
                             @endif
 
-                            <!-- Product Title ( to 2 lines for uniform grid cards) -->
-                            <h3 class="font-extrabold text-xs sm:text-sm text-[#0c1330] leading-snug mb-2 " title="{{ $item['name'] }}">
+                            <!-- Product Title (Full Title Display without Truncate) -->
+                            <h3 class="font-extrabold text-xs sm:text-sm text-[#0c1330] leading-snug mb-2 break-words [overflow-wrap:anywhere]" title="{{ $item['name'] }}">
                                 {{ $item['name'] }}
                             </h3>
 
                             <!-- Price Row -->
-                            <div class="mt-auto pt-2 border-t border-gray-100 flex items-center justify-between">
-                                <div class="flex items-baseline gap-1.5 flex-wrap">
-                                    <span class="text-[#0c1330] font-black text-xs sm:text-sm block">
+                            <div class="mt-auto pt-2 border-t border-gray-100 flex items-center justify-between gap-1.5 min-w-0">
+                                <div class="flex items-baseline gap-1.5 flex-wrap min-w-0">
+                                    <span class="text-[#0c1330] font-black text-xs sm:text-sm block break-words">
                                         Rp {{ $item['formatted_price'] }}
                                     </span>
                                 </div>
                                 @if($item['badge'])
-                                    <span class="text-[9px] font-black text-white {{ $item['badge']['color'] }} px-1.5 py-0.5 rounded shadow-xs">
+                                    <span class="text-[9px] font-black text-white {{ $item['badge']['color'] }} px-1.5 py-0.5 rounded shadow-xs shrink-0">
                                         {{ $item['badge']['text'] }}
                                     </span>
                                 @endif
@@ -320,19 +320,19 @@
                 <div class="space-y-3">
                     @foreach ($products as $item)
                         @php $inCart = isset($cart[$item['id']]); @endphp
-                        <div class="bg-white rounded-2xl border border-gray-200/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 group hover:shadow-lg hover:border-purple-200 transition-all">
-                            <div class="flex items-center gap-4 flex-1 min-w-0 w-full sm:w-auto">
+                        <div class="bg-white rounded-2xl border border-gray-200/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 group hover:shadow-lg hover:border-purple-200 transition-all min-w-0 w-full">
+                            <div class="flex items-center gap-4 flex-1 min-w-0 w-full">
                                 <div class="w-20 h-20 bg-gray-50 rounded-xl p-2 shrink-0 flex items-center justify-center overflow-hidden">
                                     <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" loading="lazy" decoding="async" class="w-full h-full object-contain mix-blend-multiply">
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded  max-w-[160px]">{{ $item['brand'] }}</span>
+                                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded break-words max-w-[200px]">{{ $item['brand'] }}</span>
                                         @if($item['badge'])
                                         <span class="text-[10px] font-bold text-white {{ $item['badge']['color'] }} px-2 py-0.5 rounded shrink-0">{{ $item['badge']['text'] }}</span>
                                         @endif
                                     </div>
-                                    <h3 class="font-bold text-sm text-[#0c1330] leading-snug " title="{{ $item['name'] }}">{{ $item['name'] }}</h3>
+                                    <h3 class="font-bold text-sm text-[#0c1330] leading-snug break-words [overflow-wrap:anywhere]" title="{{ $item['name'] }}">{{ $item['name'] }}</h3>
                                 </div>
                             </div>
 
@@ -473,7 +473,7 @@
                                         <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="w-full h-full object-contain mix-blend-multiply">
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <h4 class="text-xs font-bold text-[#0c1330] leading-snug " title="{{ $item['name'] }}">
+                                        <h4 class="text-xs font-bold text-[#0c1330] leading-snug break-words [overflow-wrap:anywhere]" title="{{ $item['name'] }}">
                                             {{ $item['name'] }}
                                         </h4>
                                         <span class="text-xs font-black text-rose-600 block mt-0.5">
