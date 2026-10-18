@@ -13,7 +13,7 @@
                 </svg>
             </div>
             <div class="flex-1">
-                <p class="text-xs font-bold text-[#0c1330] leading-snug">{{ $toastMessage }}</p>
+                <p class="text-xs font-bold text-[#0c1330] leading-snug line-clamp-2">{{ $toastMessage }}</p>
                 <div class="mt-2 flex items-center gap-3">
                     <button type="button" wire:click="toggleCartModal" class="text-xs font-black text-[#5E17EB] hover:underline">
                         Lihat Keranjang &rarr;
@@ -277,13 +277,13 @@
 
                             <!-- Brand -->
                             @if(!empty($item['brand']))
-                                <span class="text-[11px] font-black uppercase tracking-wider text-[#5E17EB] block mb-0.5">
+                                <span class="text-[11px] font-black uppercase tracking-wider text-[#5E17EB] block mb-0.5 truncate" title="{{ $item['brand'] }}">
                                     {{ $item['brand'] }}
                                 </span>
                             @endif
 
-                            <!-- Product Title (Full Name Display) -->
-                            <h3 class="font-extrabold text-xs sm:text-sm text-[#0c1330] leading-snug mb-2" title="{{ $item['name'] }}">
+                            <!-- Product Title (Truncate to 2 lines for uniform grid cards) -->
+                            <h3 class="font-extrabold text-xs sm:text-sm text-[#0c1330] leading-snug mb-2 line-clamp-2" title="{{ $item['name'] }}">
                                 {{ $item['name'] }}
                             </h3>
 
@@ -327,12 +327,12 @@
                                 </div>
                                 <div>
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded">{{ $item['brand'] }}</span>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded truncate max-w-[160px]">{{ $item['brand'] }}</span>
                                         @if($item['badge'])
                                         <span class="text-[10px] font-bold text-white {{ $item['badge']['color'] }} px-2 py-0.5 rounded">{{ $item['badge']['text'] }}</span>
                                         @endif
                                     </div>
-                                    <h3 class="font-bold text-sm text-[#0c1330] leading-snug">{{ $item['name'] }}</h3>
+                                    <h3 class="font-bold text-sm text-[#0c1330] leading-snug line-clamp-2 sm:line-clamp-1 truncate" title="{{ $item['name'] }}">{{ $item['name'] }}</h3>
                                 </div>
                             </div>
 
