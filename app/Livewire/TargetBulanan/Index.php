@@ -299,9 +299,10 @@ class Index extends Component
             default => 'MONTH(tanggal_ambil)',
         };
 
-        // Rekap Divisi Teknis: Murni ditarik dari servis_masuks (berdasarkan kapan diambil customer, non-batal)
+        // Rekap Divisi Teknis: Murni ditarik dari servis_masuks (berdasarkan kapan diambil customer, non-batal, real only)
         $divisiRawCounts = ServisMasuk::query()
             ->selectRaw("{$servisMonthExpr} as bulan, LOWER(COALESCE(kategori_perangkat, '')) as kategori, COUNT(*) as total")
+            ->where('is_real', true)
             ->whereNotNull('tanggal_ambil')
             ->whereYear('tanggal_ambil', $tahun)
             ->whereRaw("LOWER(status) != 'batal'")

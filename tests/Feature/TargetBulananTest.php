@@ -321,8 +321,24 @@ class TargetBulananTest extends TestCase
             'tipe_unit' => 'PC Rakitan Core i7',
             'keluhan' => 'Upgrade RAM & SSD',
             'status' => 'sudah_diambil',
+            'is_real' => true,
             'tanggal_masuk' => '2026-03-01 10:00:00',
             'tanggal_ambil' => '2026-03-05 15:00:00',
+        ]);
+
+        // 6. Laptop non-real (is_real = false) taken in January 2026 -> SHOULD NOT BE COUNTED
+        ServisMasuk::create([
+            'no_servis' => 'SRV-LP-NONREAL-001',
+            'cabang_id' => $cabangId,
+            'customer_id' => $customer->id,
+            'created_by' => $superadmin->id,
+            'kategori_perangkat' => 'laptop',
+            'tipe_unit' => 'HP Pavilion Simulasi',
+            'keluhan' => 'Servis simulasi non-real',
+            'status' => 'sudah_diambil',
+            'is_real' => false,
+            'tanggal_masuk' => '2026-01-12 10:00:00',
+            'tanggal_ambil' => '2026-01-18 15:00:00',
         ]);
 
         Livewire::test(TargetBulananIndex::class)
