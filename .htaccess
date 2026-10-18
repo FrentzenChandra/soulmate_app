@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Arahkan seluruh request ke folder public
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Keamanan: Blokir akses langsung ke file sensitif
+<FilesMatch "^\.(env|git|gitignore)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
