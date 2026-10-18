@@ -30,12 +30,12 @@ class Home extends Component
             ],
             [
                 'name' => 'Aksesoris',
-                'category' => 'aksesoris',
+                'category' => 'mouse-keyboard',
                 'image' => asset('images/image_beranda/aksesoris.png'),
             ],
             [
                 'name' => 'Gaming',
-                'category' => 'gaming',
+                'category' => 'gamepad',
                 'image' => asset('images/image_beranda/gaming.webp'),
             ],
             [
@@ -45,7 +45,7 @@ class Home extends Component
             ],
             [
                 'name' => 'Jaringan',
-                'category' => 'networking',
+                'category' => 'router',
                 'image' => asset('images/image_beranda/jaringan.jpeg'),
             ],
             [

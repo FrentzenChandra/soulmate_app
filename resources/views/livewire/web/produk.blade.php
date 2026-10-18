@@ -13,7 +13,7 @@
                 </svg>
             </div>
             <div class="flex-1">
-                <p class="text-xs font-bold text-[#0c1330] leading-snug line-clamp-2">{{ $toastMessage }}</p>
+                <p class="text-xs font-bold text-[#0c1330] leading-snug ">{{ $toastMessage }}</p>
                 <div class="mt-2 flex items-center gap-3">
                     <button type="button" wire:click="toggleCartModal" class="text-xs font-black text-[#5E17EB] hover:underline">
                         Lihat Keranjang &rarr;
@@ -30,10 +30,10 @@
     @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
+
         <!-- LEFT SIDEBAR: FILTERS (Order-2 on mobile, Order-1 on desktop) -->
         <aside class="order-2 lg:order-1 lg:col-span-3 space-y-6">
-            
+
             <!-- 1. Kategori Card (With Accurate Distinct SVG Icons) -->
             <div class="bg-white rounded-3xl border border-gray-200/90 p-5 shadow-xs">
                 <div class="flex items-center justify-between mb-4 px-2">
@@ -131,8 +131,8 @@
             <!-- Reset All Filters Button -->
             @if($hasActiveFilters)
             <div class="pt-1">
-                <button type="button" 
-                        wire:click="resetFilters" 
+                <button type="button"
+                        wire:click="resetFilters"
                         class="w-full py-3 px-4 rounded-2xl bg-gray-100 hover:bg-rose-50 hover:text-rose-600 text-gray-600 text-xs font-bold transition-all flex items-center justify-center gap-2 border border-gray-200">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     <span>Reset Semua Filter</span>
@@ -144,7 +144,7 @@
 
         <!-- RIGHT MAIN AREA: PRODUCTS CATALOG (Order-1 on mobile, Order-2 on desktop) -->
         <main class="order-1 lg:order-2 lg:col-span-9 space-y-6">
-            
+
             <!-- Top Toolbar -->
             <div class="bg-white rounded-3xl border border-gray-200/90 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -168,13 +168,13 @@
 
                 <!-- Search, Sort & Cart Controls -->
                 <div class="flex flex-wrap items-center gap-3">
-                    
+
                     <!-- Search Input (Zero placeholder standard) -->
                     <div class="relative w-full sm:w-56">
                         <label for="search-input" class="sr-only">Cari produk</label>
-                        <input type="text" 
+                        <input type="text"
                                id="search-input"
-                               wire:model.live.debounce.300ms="search" 
+                               wire:model.live.debounce.300ms="search"
                                class="w-full text-xs font-semibold rounded-xl border border-gray-200 pl-9 pr-8 py-2.5 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB] transition-all">
                         <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -187,7 +187,7 @@
                     </div>
 
                     <!-- Sort Dropdown -->
-                    <select wire:model.live="sort" 
+                    <select wire:model.live="sort"
                             aria-label="Urutan Produk"
                             class="text-xs font-bold text-gray-700 rounded-xl border border-gray-200 py-2.5 px-3 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB] cursor-pointer">
                         <option value="terbaru">Urutan: Terbaru</option>
@@ -212,14 +212,14 @@
 
                     <!-- View Switcher -->
                     <div class="hidden sm:flex items-center border border-gray-200 rounded-xl p-1 bg-gray-50">
-                        <button type="button" 
-                                wire:click="$set('viewMode', 'grid')" 
+                        <button type="button"
+                                wire:click="$set('viewMode', 'grid')"
                                 class="p-1.5 rounded-lg {{ $viewMode === 'grid' ? 'bg-white text-[#5E17EB] shadow-xs' : 'text-gray-400 hover:text-gray-700' }}"
                                 title="Tampilan Kotak Grid">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
                         </button>
-                        <button type="button" 
-                                wire:click="$set('viewMode', 'list')" 
+                        <button type="button"
+                                wire:click="$set('viewMode', 'list')"
                                 class="p-1.5 rounded-lg {{ $viewMode === 'list' ? 'bg-white text-[#5E17EB] shadow-xs' : 'text-gray-400 hover:text-gray-700' }}"
                                 title="Tampilan Daftar List">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -252,7 +252,7 @@
                     @foreach ($products as $item)
                         @php $inCart = isset($cart[$item['id']]); @endphp
                         <div class="bg-white rounded-2xl border border-gray-200/80 p-4 flex flex-col group hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer relative">
-                            
+
                             <!-- Badges -->
                             @if($item['badge'])
                                 <div class="absolute top-3 left-3 z-10 {{ $item['badge']['color'] }} text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs">
@@ -268,8 +268,8 @@
 
                             <!-- Product Image (Authentic Hardware Photo) -->
                             <div class="aspect-square bg-gray-50 rounded-xl mb-3 p-2.5 flex items-center justify-center overflow-hidden relative">
-                                <img src="{{ $item['image'] }}" 
-                                     alt="{{ $item['name'] }}" 
+                                <img src="{{ $item['image'] }}"
+                                     alt="{{ $item['name'] }}"
                                      loading="lazy"
                                      decoding="async"
                                      class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-300">
@@ -277,13 +277,13 @@
 
                             <!-- Brand -->
                             @if(!empty($item['brand']))
-                                <span class="text-[11px] font-black uppercase tracking-wider text-[#5E17EB] block mb-0.5 truncate" title="{{ $item['brand'] }}">
+                                <span class="text-[11px] font-black uppercase tracking-wider text-[#5E17EB] block mb-0.5 " title="{{ $item['brand'] }}">
                                     {{ $item['brand'] }}
                                 </span>
                             @endif
 
-                            <!-- Product Title (Truncate to 2 lines for uniform grid cards) -->
-                            <h3 class="font-extrabold text-xs sm:text-sm text-[#0c1330] leading-snug mb-2 line-clamp-2" title="{{ $item['name'] }}">
+                            <!-- Product Title ( to 2 lines for uniform grid cards) -->
+                            <h3 class="font-extrabold text-xs sm:text-sm text-[#0c1330] leading-snug mb-2 " title="{{ $item['name'] }}">
                                 {{ $item['name'] }}
                             </h3>
 
@@ -310,7 +310,7 @@
                                 <svg class="w-4 h-4 text-white shrink-0 group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                                 </svg>
-                                <span class="truncate">Tambah ke Keranjang</span>
+                                <span class="">Tambah ke Keranjang</span>
                             </button>
                         </div>
                     @endforeach
@@ -327,12 +327,12 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded truncate max-w-[160px]">{{ $item['brand'] }}</span>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded  max-w-[160px]">{{ $item['brand'] }}</span>
                                         @if($item['badge'])
                                         <span class="text-[10px] font-bold text-white {{ $item['badge']['color'] }} px-2 py-0.5 rounded shrink-0">{{ $item['badge']['text'] }}</span>
                                         @endif
                                     </div>
-                                    <h3 class="font-bold text-sm text-[#0c1330] leading-snug truncate" title="{{ $item['name'] }}">{{ $item['name'] }}</h3>
+                                    <h3 class="font-bold text-sm text-[#0c1330] leading-snug " title="{{ $item['name'] }}">{{ $item['name'] }}</h3>
                                 </div>
                             </div>
 
@@ -390,15 +390,15 @@
     </div>
 
     <!-- SLIDE-OVER CART DRAWER & WHATSAPP ORDER MODAL -->
-    <div x-cloak 
-         x-show="showCart" 
-         class="fixed inset-0 z-50 overflow-hidden" 
-         aria-labelledby="slide-over-title" 
-         role="dialog" 
+    <div x-cloak
+         x-show="showCart"
+         class="fixed inset-0 z-50 overflow-hidden"
+         aria-labelledby="slide-over-title"
+         role="dialog"
          aria-modal="true">
-        
+
         <!-- Backdrop -->
-        <div x-show="showCart" 
+        <div x-show="showCart"
              x-transition:enter="ease-in-out duration-300"
              x-transition:enter-start="opacity-0"
              x-transition:enter-end="opacity-100"
@@ -409,7 +409,7 @@
              class="fixed inset-0 bg-[#0c1330]/60 backdrop-blur-sm transition-opacity"></div>
 
         <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
-            <div x-show="showCart" 
+            <div x-show="showCart"
                  x-transition:enter="transform transition ease-in-out duration-300"
                  x-transition:enter-start="translate-x-full"
                  x-transition:enter-end="translate-x-0"
@@ -417,7 +417,7 @@
                  x-transition:leave-start="translate-x-0"
                  x-transition:leave-end="translate-x-full"
                  class="w-screen max-w-md bg-white shadow-2xl flex flex-col">
-                
+
                 <!-- Drawer Header -->
                 <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                     <div class="flex items-center gap-3">
@@ -431,13 +431,13 @@
                     </div>
                     <div class="flex items-center gap-2">
                         @if(!empty($cart))
-                        <button type="button" 
+                        <button type="button"
                                 wire:click="clearCart"
                                 class="text-xs font-bold text-rose-500 hover:text-rose-700 px-2 py-1 rounded-lg hover:bg-rose-50 transition-colors">
                             Kosongkan
                         </button>
                         @endif
-                        <button type="button" 
+                        <button type="button"
                                 @click="showCart = false"
                                 class="w-8 h-8 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -457,7 +457,7 @@
                                 Silakan pilih produk dari katalog kami untuk memulai pemesanan via WhatsApp.
                             </p>
                             <div class="pt-2">
-                                <button type="button" 
+                                <button type="button"
                                         @click="showCart = false"
                                         class="px-5 py-2.5 rounded-xl bg-[#5E17EB] text-white text-xs font-bold hover:bg-[#301ac4] transition-colors">
                                     Mulai Pilih Produk
@@ -473,17 +473,17 @@
                                         <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="w-full h-full object-contain mix-blend-multiply">
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <h4 class="text-xs font-bold text-[#0c1330] leading-snug truncate" title="{{ $item['name'] }}">
+                                        <h4 class="text-xs font-bold text-[#0c1330] leading-snug " title="{{ $item['name'] }}">
                                             {{ $item['name'] }}
                                         </h4>
                                         <span class="text-xs font-black text-rose-600 block mt-0.5">
                                             Rp {{ number_format($item['price'], 0, ',', '.') }}
                                         </span>
-                                        
+
                                         <!-- Quantity stepper -->
                                         <div class="flex items-center gap-2 mt-2">
                                             <div class="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-                                                <button type="button" 
+                                                <button type="button"
                                                         wire:click="decrementQty({{ $id }})"
                                                         class="px-2 py-0.5 text-xs font-bold text-gray-600 hover:bg-gray-200 transition-colors">
                                                     &minus;
@@ -491,7 +491,7 @@
                                                 <span class="px-2.5 py-0.5 text-xs font-black text-[#0c1330] bg-white">
                                                     {{ $item['qty'] }}
                                                 </span>
-                                                <button type="button" 
+                                                <button type="button"
                                                         wire:click="incrementQty({{ $id }})"
                                                         class="px-2 py-0.5 text-xs font-bold text-gray-600 hover:bg-gray-200 transition-colors">
                                                     +
@@ -502,7 +502,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <button type="button" 
+                                    <button type="button"
                                             wire:click="removeFromCart({{ $id }})"
                                             class="text-gray-300 hover:text-rose-500 p-1 transition-colors"
                                             title="Hapus">
@@ -517,14 +517,14 @@
                             <h3 class="text-xs font-black text-[#0c1330] uppercase tracking-wider">
                                 Data Pemesan
                             </h3>
-                            
+
                             <!-- Nama Lengkap -->
                             <div>
                                 <label for="customerName" class="block text-xs font-bold text-gray-700 mb-1">
                                     Nama Lengkap <span class="text-rose-500 font-bold">*</span>
                                 </label>
-                                <input type="text" 
-                                       id="customerName" 
+                                <input type="text"
+                                       id="customerName"
                                        wire:model.defer="customerName"
                                        class="w-full text-xs font-medium rounded-xl border border-gray-200 p-2.5 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB] @error('customerName') border-rose-500 @enderror">
                                 @error('customerName')
@@ -537,8 +537,8 @@
                                 <label for="customerPhone" class="block text-xs font-bold text-gray-700 mb-1">
                                     No. WhatsApp / HP
                                 </label>
-                                <input type="text" 
-                                       id="customerPhone" 
+                                <input type="text"
+                                       id="customerPhone"
                                        wire:model.defer="customerPhone"
                                        class="w-full text-xs font-medium rounded-xl border border-gray-200 p-2.5 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
                             </div>
@@ -548,8 +548,8 @@
                                 <label for="customerNotes" class="block text-xs font-bold text-gray-700 mb-1">
                                     Catatan / Alamat Pengiriman
                                 </label>
-                                <textarea id="customerNotes" 
-                                          wire:model.defer="customerNotes" 
+                                <textarea id="customerNotes"
+                                          wire:model.defer="customerNotes"
                                           rows="2"
                                           class="w-full text-xs font-medium rounded-xl border border-gray-200 p-2.5 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB] resize-none"></textarea>
                             </div>
@@ -572,7 +572,7 @@
                     </div>
 
                     <!-- WhatsApp Checkout Button with Heroicon Spinner loading standard -->
-                    <button type="button" 
+                    <button type="button"
                             wire:click="orderViaWhatsApp"
                             wire:loading.attr="disabled"
                             class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2.5 transition-all disabled:opacity-50">
