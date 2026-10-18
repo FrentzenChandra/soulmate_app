@@ -353,37 +353,16 @@
                 </div>
             @endif
 
-            <!-- INFINITE LOADING SENTINEL & LOAD MORE -->
-            @if ($hasMorePages)
-                <div class="mt-8 flex flex-col items-center justify-center space-y-3"
-                     x-data
-                     x-intersect.threshold.20="$wire.loadMore()">
-                    
-                    <!-- Loading Spinner Indicator during lazy load -->
-                    <div wire:loading wire:target="loadMore" class="flex items-center gap-2 text-xs font-bold text-[#5E17EB] py-2">
-                        <svg class="animate-spin w-5 h-5 text-[#5E17EB]" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                        </svg>
-                        <span>Memuat produk lainnya...</span>
-                    </div>
-
-                    <!-- Fallback manual button if user stopped scrolling -->
-                    <button type="button" 
-                            wire:click="loadMore" 
-                            wire:loading.remove 
-                            wire:target="loadMore"
-                            class="px-6 py-2.5 rounded-2xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:text-[#5E17EB] hover:border-[#5E17EB] shadow-xs transition-all">
-                        Muat Lebih Banyak
-                    </button>
-                </div>
-            @elseif ($products->isNotEmpty())
-                <div class="mt-8 py-4 text-center">
-                    <span class="text-xs font-medium text-gray-400">
-                        Semua produk telah ditampilkan ({{ $totalFilteredCount }} produk)
-                    </span>
-                </div>
-            @endif
+            <!-- INFINITE LOADING SENTINEL (3 Bouncing Dots Standard) -->
+            <div class="mt-8">
+                <x-infinite-scroll-sentinel
+                    :has-more="$hasMorePages"
+                    target="loadMore"
+                    label="produk"
+                    :current="$products->count()"
+                    :total="$totalFilteredCount"
+                    color="purple" />
+            </div>
 
         </main>
     </div>
