@@ -282,12 +282,7 @@
                         Servis Non Real
                     </a>
 
-                    <a href="{{ route('servis.antrian') }}" target="_blank"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('servis.antrian*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('servis.antrian*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke-width="2"></rect><line x1="8" y1="21" x2="16" y2="21" stroke-width="2"></line><line x1="12" y1="17" x2="12" y2="21" stroke-width="2"></line></svg>
-                        Antrian Servis (TV)
-                        <span class="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-purple-900/60 text-purple-300 border border-purple-700/50">Display</span>
-                    </a>
+
 
                     <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Kas & Transaksi</p>
 
@@ -548,12 +543,6 @@
                     </a>
                     @endcan
 
-                    <a href="{{ route('servis.antrian') }}" target="_blank"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('servis.antrian*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('servis.antrian*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke-width="2"></rect><line x1="8" y1="21" x2="16" y2="21" stroke-width="2"></line><line x1="12" y1="17" x2="12" y2="21" stroke-width="2"></line></svg>
-                        Antrian Servis (TV)
-                        <span class="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-900/60 text-blue-300 border border-blue-700/50">Display</span>
-                    </a>
                     @endcanany
 
                     <!-- 4. Kas & Transaksi -->
@@ -715,10 +704,10 @@
                     <!-- 6. Layar Toko -->
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Layar Toko</p>
 
-                    <a href="#" target="_blank" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
+                    <a href="{{ route('servis.antrian') }}" target="_blank" class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all">
                         <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                         Display Antrian TV
-                        <span class="ml-auto text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-bold">Live</span>
+                        <span class="ml-auto text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 {{ request()->routeIs('servis.antrian') ? 'bg-white' : 'bg-blue-400' }} rounded-full font-bold">Live</span>
                     </a>
 
                     @if($isOwner)

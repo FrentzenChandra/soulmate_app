@@ -21,22 +21,22 @@
     </style>
 </head>
 <body class="bg-[#F8F9FA] text-gray-700 antialiased font-sans flex flex-col min-h-screen selection:bg-[#5E17EB] selection:text-white"
-      x-data="{ 
-          mobileMenuOpen: false, 
-          cartCount: {{ array_sum(array_column(session('soulmate_cart', []), 'qty')) }} 
+      x-data="{
+          mobileMenuOpen: false,
+          cartCount: {{ array_sum(array_column(session('soulmate_cart', []), 'qty')) }}
       }"
       @cart-updated.window="cartCount = $event.detail.count">
 
     <!-- 1. STICKY MAIN HEADER NAVIGATION -->
     <header class="w-full border-b border-gray-100 bg-white/95 backdrop-blur-md sticky top-0 z-50 transition-all">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-            
+
             <!-- Left: Logo + Navigation Menu -->
             <div class="flex items-center gap-6 xl:gap-10">
                 <!-- Logo Section -->
                 <a href="{{ route('home') }}" class="flex items-center shrink-0 group" title="Soulmate Komputer">
-                    <img src="{{ asset('images/logo.png') }}" 
-                         alt="Soulmate Komputer" 
+                    <img src="{{ asset('images/logo.png') }}"
+                         alt="Soulmate Komputer"
                          class="h-10 sm:h-12 w-auto object-contain group-hover:scale-105 transition-transform">
                     <span class="sr-only">SOULMATE KOMPUTER - Device Care People First</span>
                 </a>
@@ -44,19 +44,19 @@
                 <!-- Desktop Navigation Menu -->
                 <nav class="hidden lg:flex items-center gap-1 xl:gap-2">
                     <!-- 1. Beranda -->
-                    <a href="{{ route('home') }}" 
+                    <a href="{{ route('home') }}"
                        class="px-5 py-2 rounded-xl font-bold text-sm transition-all {{ request()->routeIs('home') || request()->routeIs('beranda') ? 'bg-[#5E17EB] text-white shadow-sm shadow-purple-500/25' : 'text-[#0c1330] hover:text-[#5E17EB] hover:bg-purple-50/60' }}">
                         Beranda
                     </a>
 
                     <!-- 2. Produk -->
-                    <a href="{{ route('web.produk') }}" 
+                    <a href="{{ route('web.produk') }}"
                        class="px-5 py-2 rounded-xl font-bold text-sm transition-all {{ request()->routeIs('web.produk*') ? 'bg-[#5E17EB] text-white shadow-sm shadow-purple-500/25' : 'text-[#0c1330] hover:text-[#5E17EB] hover:bg-purple-50/60' }}">
                         Produk
                     </a>
 
                     <!-- 3. Servis -->
-                    <a href="{{ route('web.servis') }}" 
+                    <a href="{{ route('web.servis') }}"
                        class="px-5 py-2 rounded-xl font-bold text-sm transition-all {{ request()->routeIs('web.servis*') ? 'bg-[#5E17EB] text-white shadow-sm shadow-purple-500/25' : 'text-[#0c1330] hover:text-[#5E17EB] hover:bg-purple-50/60' }}">
                         Servis
                     </a>
@@ -80,7 +80,7 @@
                 </a>
 
                 <!-- Cart Shortcut (Desktop & Mobile) -->
-                <a href="{{ route('web.produk', ['open_cart' => 1]) }}" 
+                <a href="{{ route('web.produk', ['open_cart' => 1]) }}"
                    @click="if (window.location.pathname === '{{ url('/produk') }}' || window.location.pathname === '/produk') { $event.preventDefault(); window.dispatchEvent(new CustomEvent('open-cart-modal')); }"
                    title="Keranjang Belanja"
                    class="p-2 rounded-xl text-[#0c1330] hover:text-[#5E17EB] hover:bg-purple-50 transition-colors relative flex items-center justify-center">
@@ -93,15 +93,15 @@
                 </a>
 
                 @auth
-                <a href="{{ route('dashboard') }}" 
+                <a href="{{ route('dashboard') }}"
                    class="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#5E17EB] text-white font-bold text-xs shadow-xs hover:opacity-95 transition-all">
                     Dashboard
                 </a>
                 @endauth
 
                 <!-- Mobile Hamburger Button -->
-                <button @click="mobileMenuOpen = !mobileMenuOpen" 
-                        type="button" 
+                <button @click="mobileMenuOpen = !mobileMenuOpen"
+                        type="button"
                         class="lg:hidden p-2 rounded-xl text-gray-700 hover:text-purple-600 hover:bg-gray-100 focus:outline-hidden"
                         aria-label="Buka Menu">
                     <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -111,7 +111,7 @@
         </div>
 
         <!-- Mobile Drawer Menu -->
-        <div x-show="mobileMenuOpen" 
+        <div x-show="mobileMenuOpen"
              x-cloak
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="opacity-0 -translate-y-2"
@@ -123,7 +123,7 @@
             <a href="{{ route('home') }}" class="block px-4 py-2.5 rounded-xl font-bold {{ request()->routeIs('home') || request()->routeIs('beranda') ? 'bg-purple-50 text-[#301ac4]' : 'text-gray-700 hover:bg-gray-50' }}">Beranda</a>
             <a href="{{ route('web.produk') }}" class="block px-4 py-2.5 rounded-xl font-bold {{ request()->routeIs('web.produk*') ? 'bg-purple-50 text-[#301ac4]' : 'text-gray-700 hover:bg-gray-50' }}">Produk</a>
             <a href="{{ route('web.servis') }}" class="block px-4 py-2.5 rounded-xl font-bold {{ request()->routeIs('web.servis*') ? 'bg-purple-50 text-[#301ac4]' : 'text-gray-700 hover:bg-gray-50' }}">Servis</a>
-            <a href="{{ route('web.produk', ['open_cart' => 1]) }}" 
+            <a href="{{ route('web.produk', ['open_cart' => 1]) }}"
                @click="if (window.location.pathname === '/produk') { mobileMenuOpen = false; $event.preventDefault(); window.dispatchEvent(new CustomEvent('open-cart-modal')); }"
                class="flex items-center justify-between px-4 py-2.5 rounded-xl font-bold text-gray-700 hover:bg-gray-50">
                 <span class="flex items-center gap-2.5">
@@ -132,7 +132,6 @@
                 </span>
                 <span x-cloak x-show="cartCount > 0" x-text="cartCount + ' item'" class="px-2 py-0.5 rounded-full text-xs font-black bg-[#5E17EB] text-white"></span>
             </a>
-            <a href="{{ route('antrian.display') }}" target="_blank" class="block px-4 py-2.5 rounded-xl font-bold text-gray-700 hover:bg-gray-50">Antrian Display (TV)</a>
             <div class="pt-3 border-t border-gray-100">
                 @auth
                 <a href="{{ route('dashboard') }}" class="block w-full text-center py-3 rounded-xl bg-gradient-to-r from-[#301ac4] via-[#5E17EB] to-[#db00df] text-white font-extrabold text-sm shadow-md">Dashboard Internal</a>
@@ -155,12 +154,12 @@
 
         <div class="pt-16 pb-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-                
+
                 <!-- Col 1: Brand & Slogan -->
                 <div>
                     <div class="flex flex-col gap-2 mb-6">
-                        <img src="{{ asset('images/logo.png') }}" 
-                             alt="Soulmate Komputer Logo" 
+                        <img src="{{ asset('images/logo.png') }}"
+                             alt="Soulmate Komputer Logo"
                              class="h-10 w-auto max-w-[220px] object-contain bg-white rounded-xl p-1.5 shadow-sm">
                         <span class="text-[11px] text-gray-400 font-semibold tracking-wide">
                             Device Care People First
