@@ -54,6 +54,7 @@ class WebPagesTest extends TestCase
 
         $kategori = KategoriProduk::create([
             'nama_kategori' => 'Laptop & Notebook',
+            'slug' => 'laptop',
             'cabang_id' => $cabang->id,
         ]);
 
@@ -65,6 +66,7 @@ class WebPagesTest extends TestCase
             'stok' => 5,
             'cabang_id' => $cabang->id,
             'status' => 'aktif',
+            'ready_marketplace' => true,
         ]);
 
         $response = $this->get(route('web.produk'));
@@ -73,26 +75,65 @@ class WebPagesTest extends TestCase
         $response->assertSee('Temukan berbagai pilihan perangkat komputer, laptop, dan aksesoris');
 
         Livewire::test(Produk::class)
-            ->set('search', 'Strix')
-            ->assertSee('ASUS ROG Strix G16')
-            ->assertSee('19.999.000');
+            ->set('search', 'Vivobook')
+            ->assertSee('Asus Vivobook 14')
+            ->assertSee('8.500.000');
     }
 
     public function test_produk_filters_are_active(): void
     {
+        $cabang = Cabang::create([
+            'kode_cabang' => 'CB-TEST-2',
+            'nama_cabang' => 'Cabang Test 2',
+            'status' => 'aktif',
+        ]);
+
+        $katPrinter = KategoriProduk::create([
+            'nama_kategori' => 'Printer',
+            'slug' => 'printer',
+            'cabang_id' => $cabang->id,
+        ]);
+
+        $katLaptop = KategoriProduk::create([
+            'nama_kategori' => 'Laptop',
+            'slug' => 'laptop',
+            'cabang_id' => $cabang->id,
+        ]);
+
+        ProdukModel::create([
+            'kode_produk' => 'PRD-PRINT-1',
+            'nama_produk' => 'Epson L3250 EcoTank',
+            'kategori_id' => $katPrinter->id,
+            'harga_jual' => 2450000,
+            'stok' => 3,
+            'cabang_id' => $cabang->id,
+            'status' => 'aktif',
+            'ready_marketplace' => true,
+        ]);
+
+        ProdukModel::create([
+            'kode_produk' => 'PRD-LAP-1',
+            'nama_produk' => 'Lenovo ThinkPad X1',
+            'kategori_id' => $katLaptop->id,
+            'harga_jual' => 15000000,
+            'stok' => 2,
+            'cabang_id' => $cabang->id,
+            'status' => 'aktif',
+            'ready_marketplace' => true,
+        ]);
+
         // 1. Filter Kategori
         Livewire::test(Produk::class)
             ->call('setKategori', 'printer')
             ->assertSet('kategori', 'printer')
-            ->assertSee('Epson L3250')
-            ->assertSee('Canon G3020')
-            ->assertDontSee('ASUS ROG Strix G16');
+            ->assertSee('Epson L3250 EcoTank')
+            ->assertDontSee('Lenovo ThinkPad X1');
 
-        // 2. Pagination (80 items per page)
+        // 2. Infinite scroll loadMore
         Livewire::test(Produk::class)
-            ->assertSet('perPage', 80)
-            ->assertSee('Acer Aspire 5 A514-56')
-            ->assertSee('Epson L3250');
+            ->assertSet('perPage', 20)
+            ->call('loadMore')
+            ->assertSet('perPage', 40);
 
         // 3. Verify Filter Harga and Brand are removed from /produk, and Tentang Kami and Kontak removed from nav
         $response = $this->get(route('web.produk'));
@@ -105,17 +146,39 @@ class WebPagesTest extends TestCase
 
     public function test_cart_system_and_whatsapp_order(): void
     {
+        $cabang = Cabang::create([
+            'kode_cabang' => 'CB-TEST-3',
+            'nama_cabang' => 'Cabang Test 3',
+            'status' => 'aktif',
+        ]);
+
+        $kat = KategoriProduk::create([
+            'nama_kategori' => 'Accessories',
+            'slug' => 'aksesoris',
+            'cabang_id' => $cabang->id,
+        ]);
+
+        $produk = ProdukModel::create([
+            'kode_produk' => 'PRD-ACC-1',
+            'nama_produk' => 'Logitech G102 Lightsync',
+            'kategori_id' => $kat->id,
+            'harga_jual' => 250000,
+            'stok' => 10,
+            'cabang_id' => $cabang->id,
+            'status' => 'aktif',
+            'ready_marketplace' => true,
+        ]);
+
         $component = Livewire::test(Produk::class)
-            // Add product 1 (Acer Aspire 5 - Rp 8.499.000)
-            ->call('addToCart', 1)
-            ->assertSet('cart.1.qty', 1)
-            ->assertSee('Produk "Acer Aspire 5 A514-56" berhasil ditambahkan ke keranjang!')
+            ->call('addToCart', $produk->id)
+            ->assertSet("cart.{$produk->id}.qty", 1)
+            ->assertSee('Produk "Logitech G102 Lightsync" berhasil ditambahkan ke keranjang!')
             // Increment
-            ->call('incrementQty', 1)
-            ->assertSet('cart.1.qty', 2)
+            ->call('incrementQty', $produk->id)
+            ->assertSet("cart.{$produk->id}.qty", 2)
             // Decrement
-            ->call('decrementQty', 1)
-            ->assertSet('cart.1.qty', 1)
+            ->call('decrementQty', $produk->id)
+            ->assertSet("cart.{$produk->id}.qty", 1)
             // WhatsApp Order
             ->set('customerName', 'Triwanto')
             ->set('customerPhone', '08123456789')

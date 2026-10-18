@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+    <rect width="200" height="200" fill="#f8fafc" rx="16"/>
+    <g transform="translate(50, 45)" stroke="#94a3b8" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Desktop Monitor / Device -->
+        <rect x="5" y="5" width="90" height="65" rx="8" fill="#ffffff" stroke="#5E17EB" stroke-width="4"/>
+        <line x1="50" y1="70" x2="50" y2="92" stroke="#5E17EB" stroke-width="4"/>
+        <line x1="28" y1="92" x2="72" y2="92" stroke="#5E17EB" stroke-width="4"/>
+        <!-- Screen Content Graphic -->
+        <circle cx="50" cy="38" r="14" fill="#f1f5f9" stroke="#94a3b8" stroke-width="3"/>
+        <path d="M26 55 Q 50 42 74 55" stroke="#cbd5e1" stroke-width="3"/>
+    </g>
+    <text x="100" y="165" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#94a3b8" text-anchor="middle">SOULMATE KOMPUTER</text>
+</svg>
+

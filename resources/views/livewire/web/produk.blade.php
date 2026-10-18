@@ -46,7 +46,7 @@
                     </button>
                     @endif
                 </div>
-                <div class="space-y-1">
+                <div class="space-y-1 max-h-[500px] overflow-y-auto pr-1">
                     @foreach ($categories as $cat)
                         <button wire:click="setKategori('{{ $cat['slug'] }}')"
                                 type="button"
@@ -112,6 +112,11 @@
                                     <svg class="w-4 h-4 {{ $kategori === $cat['slug'] ? 'text-[#301ac4]' : 'text-gray-400' }}" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.38c.62-.75 1.04-1.8 0.93-2.85-.9.04-1.99.6-2.63 1.35-.57.65-1.07 1.72-.94 2.74 1.01.08 2.02-.49 2.64-1.24z"/>
                                     </svg>
+                                @else
+                                    <!-- Generic Category Icon -->
+                                    <svg class="w-4 h-4 {{ $kategori === $cat['slug'] ? 'text-[#301ac4]' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                    </svg>
                                 @endif
                                 <span>{{ $cat['name'] }}</span>
                             </div>
@@ -157,7 +162,7 @@
                         Temukan berbagai pilihan perangkat komputer, laptop, dan aksesoris dengan harga terbaik.
                     </p>
                     <span class="text-xs font-bold text-gray-400 mt-2 block">
-                        Menampilkan {{ $products->firstItem() ?? 0 }} &ndash; {{ $products->lastItem() ?? 0 }} dari {{ $totalFilteredCount }} produk
+                        Menampilkan {{ $products->count() > 0 ? 1 : 0 }} &ndash; {{ $products->count() }} dari {{ $totalFilteredCount }} produk
                     </span>
                 </div>
 
@@ -266,6 +271,7 @@
                                 <img src="{{ $item['image'] }}" 
                                      alt="{{ $item['name'] }}" 
                                      loading="lazy"
+                                     decoding="async"
                                      class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-300">
                             </div>
 
@@ -317,7 +323,7 @@
                         <div class="bg-white rounded-2xl border border-gray-200/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 group hover:shadow-lg hover:border-purple-200 transition-all">
                             <div class="flex items-center gap-4 w-full sm:w-auto">
                                 <div class="w-20 h-20 bg-gray-50 rounded-xl p-2 shrink-0 flex items-center justify-center overflow-hidden">
-                                    <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="w-full h-full object-contain mix-blend-multiply">
+                                    <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" loading="lazy" decoding="async" class="w-full h-full object-contain mix-blend-multiply">
                                 </div>
                                 <div>
                                     <div class="flex items-center gap-2 mb-1">
@@ -347,52 +353,35 @@
                 </div>
             @endif
 
-            <!-- PAGINATION -->
-            @if ($products->hasPages())
-                <div class="bg-white rounded-3xl border border-gray-200/90 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-                    <div class="text-xs text-gray-500 font-medium">
-                        Menampilkan <span class="font-bold text-[#0c1330]">{{ $products->firstItem() }}</span> &ndash; <span class="font-bold text-[#0c1330]">{{ $products->lastItem() }}</span> dari <span class="font-bold text-[#0c1330]">{{ $products->total() }}</span> produk
+            <!-- INFINITE LOADING SENTINEL & LOAD MORE -->
+            @if ($hasMorePages)
+                <div class="mt-8 flex flex-col items-center justify-center space-y-3"
+                     x-data
+                     x-intersect.threshold.20="$wire.loadMore()">
+                    
+                    <!-- Loading Spinner Indicator during lazy load -->
+                    <div wire:loading wire:target="loadMore" class="flex items-center gap-2 text-xs font-bold text-[#5E17EB] py-2">
+                        <svg class="animate-spin w-5 h-5 text-[#5E17EB]" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <span>Memuat produk lainnya...</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                        {{-- Previous Button --}}
-                        @if ($products->onFirstPage())
-                            <button type="button" disabled class="p-2 sm:px-3 sm:py-2 rounded-xl text-gray-300 border border-gray-100 bg-gray-50 text-xs font-bold cursor-not-allowed">
-                                <span class="hidden sm:inline">&larr; Sebelumnya</span>
-                                <span class="sm:hidden">&larr;</span>
-                            </button>
-                        @else
-                            <button type="button" wire:click="previousPage" class="p-2 sm:px-3 sm:py-2 rounded-xl text-[#0c1330] hover:text-[#5E17EB] hover:bg-purple-50 border border-gray-200 bg-white text-xs font-bold transition-colors">
-                                <span class="hidden sm:inline">&larr; Sebelumnya</span>
-                                <span class="sm:hidden">&larr;</span>
-                            </button>
-                        @endif
 
-                        {{-- Page Numbers --}}
-                        @foreach (range(1, $products->lastPage()) as $page)
-                            @if ($page == $products->currentPage())
-                                <button type="button" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#5E17EB] text-white text-xs font-black shadow-sm shadow-purple-500/30">
-                                    {{ $page }}
-                                </button>
-                            @else
-                                <button type="button" wire:click="gotoPage({{ $page }})" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-[#0c1330] hover:text-[#5E17EB] text-xs font-bold transition-colors">
-                                    {{ $page }}
-                                </button>
-                            @endif
-                        @endforeach
-
-                        {{-- Next Button --}}
-                        @if ($products->hasMorePages())
-                            <button type="button" wire:click="nextPage" class="p-2 sm:px-3 sm:py-2 rounded-xl text-[#0c1330] hover:text-[#5E17EB] hover:bg-purple-50 border border-gray-200 bg-white text-xs font-bold transition-colors">
-                                <span class="hidden sm:inline">Berikutnya &rarr;</span>
-                                <span class="sm:hidden">&rarr;</span>
-                            </button>
-                        @else
-                            <button type="button" disabled class="p-2 sm:px-3 sm:py-2 rounded-xl text-gray-300 border border-gray-100 bg-gray-50 text-xs font-bold cursor-not-allowed">
-                                <span class="hidden sm:inline">Berikutnya &rarr;</span>
-                                <span class="sm:hidden">&rarr;</span>
-                            </button>
-                        @endif
-                    </div>
+                    <!-- Fallback manual button if user stopped scrolling -->
+                    <button type="button" 
+                            wire:click="loadMore" 
+                            wire:loading.remove 
+                            wire:target="loadMore"
+                            class="px-6 py-2.5 rounded-2xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:text-[#5E17EB] hover:border-[#5E17EB] shadow-xs transition-all">
+                        Muat Lebih Banyak
+                    </button>
+                </div>
+            @elseif ($products->isNotEmpty())
+                <div class="mt-8 py-4 text-center">
+                    <span class="text-xs font-medium text-gray-400">
+                        Semua produk telah ditampilkan ({{ $totalFilteredCount }} produk)
+                    </span>
                 </div>
             @endif
 
