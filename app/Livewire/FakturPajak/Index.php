@@ -295,14 +295,17 @@ class Index extends Component
         $requiredPerm = $this->isEditMode ? 'pajak.edit' : 'pajak.create';
         abort_if(! $user->isOwner() && ! $user->can($requiredPerm), 403, 'Akses simpan faktur pajak dibatasi.');
 
+        if (empty($this->formTanggal)) {
+            $this->formTanggal = now()->toDateString();
+        }
+
         $this->validate([
-            'formTanggal' => 'required|date',
+            'formTanggal' => 'nullable|date',
             'formNamaPajak' => 'required|string|max:150',
             'formBarang' => 'required|string',
             'formViaPajak' => 'required|string|max:100',
             'formBruto' => 'required',
         ], [
-            'formTanggal.required' => 'Tanggal faktur wajib diisi.',
             'formNamaPajak.required' => 'Nama rekanan / instansi wajib diisi.',
             'formBarang.required' => 'Uraian barang / jasa wajib diisi.',
             'formViaPajak.required' => 'Saluran via pajak wajib dipilih.',
@@ -341,7 +344,7 @@ class Index extends Component
             if ($this->isEditMode && $this->fakturId) {
                 $faktur = FakturPajak::findOrFail($this->fakturId);
                 $faktur->update([
-                    'tanggal' => $this->formTanggal,
+                    'tanggal' => $this->formTanggal ?: now()->toDateString(),
                     'master_orang_pajak_id' => $this->formMasterOrangPajakId,
                     'master_via_pajak_id' => $this->formMasterViaPajakId,
                     'master_kode_pajak_id' => $this->formMasterKodePajakId,
@@ -361,12 +364,16 @@ class Index extends Component
                     'netto' => $netto,
                     'catatan' => trim($this->formCatatan) ?: null,
                 ]);
-                session()->flash('success', 'Faktur Pajak "' . $faktur->no_faktur . '" berhasil diperbarui.');
+                $this->dispatch('swal:toast', [
+                    'type' => 'success',
+                    'title' => 'Berhasil Diperbarui',
+                    'text' => 'Faktur Pajak "' . $faktur->no_faktur . '" berhasil diperbarui.',
+                ]);
             } else {
                 $noFaktur = FakturPajak::generateNoFaktur($cabangId, $this->formTanggal);
                 $faktur = FakturPajak::create([
                     'no_faktur' => $noFaktur,
-                    'tanggal' => $this->formTanggal,
+                    'tanggal' => $this->formTanggal ?: now()->toDateString(),
                     'cabang_id' => $cabangId,
                     'user_id' => $user->id,
                     'is_selesai' => false,
@@ -389,7 +396,11 @@ class Index extends Component
                     'netto' => $netto,
                     'catatan' => trim($this->formCatatan) ?: null,
                 ]);
-                session()->flash('success', 'Faktur Pajak "' . $faktur->no_faktur . '" berhasil disimpan.');
+                $this->dispatch('swal:toast', [
+                    'type' => 'success',
+                    'title' => 'Berhasil Disimpan',
+                    'text' => 'Faktur Pajak "' . $faktur->no_faktur . '" berhasil dicatat.',
+                ]);
             }
         });
 
@@ -409,7 +420,11 @@ class Index extends Component
         $faktur->save();
 
         $statusText = $faktur->is_selesai ? 'Selesai' : 'Belum Selesai';
-        session()->flash('success', "Status Faktur {$faktur->no_faktur} diubah menjadi {$statusText}.");
+        $this->dispatch('swal:toast', [
+            'type' => 'success',
+            'title' => 'Status Diperbarui',
+            'text' => "Status Faktur {$faktur->no_faktur} diubah menjadi {$statusText}.",
+        ]);
         $this->dispatch('table-reload');
     }
 
@@ -433,7 +448,11 @@ class Index extends Component
         $faktur = FakturPajak::findOrFail($id);
         $no = $faktur->no_faktur;
         $faktur->delete();
-        session()->flash('success', "Faktur Pajak {$no} berhasil dihapus.");
+        $this->dispatch('swal:toast', [
+            'type' => 'success',
+            'title' => 'Berhasil Dihapus',
+            'text' => "Faktur Pajak {$no} berhasil dihapus.",
+        ]);
         $this->dispatch('table-reload');
     }
 

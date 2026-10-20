@@ -81,4 +81,29 @@ class FakturPajakTest extends TestCase
 
         $this->assertTrue($faktur->fresh()->is_selesai);
     }
+
+    public function test_faktur_pajak_can_be_created_and_deleted(): void
+    {
+        $component = Livewire::actingAs($this->owner)
+            ->test(Index::class)
+            ->call('openCreateModal')
+            ->set('formNamaPajak', 'RSUD Sehat')
+            ->set('formBarang', 'Perangkat Jaringan')
+            ->set('formViaPajak', 'E-Katalog')
+            ->set('formBruto', '5000000')
+            ->call('save')
+            ->assertDispatched('swal:toast');
+
+        $faktur = FakturPajak::where('nama_pajak_snapshot', 'RSUD Sehat')->first();
+        $this->assertNotNull($faktur);
+        $this->assertEquals(5000000, (float) $faktur->bruto);
+
+        // Test delete
+        Livewire::actingAs($this->owner)
+            ->test(Index::class)
+            ->call('delete', $faktur->id)
+            ->assertDispatched('swal:toast');
+
+        $this->assertNull(FakturPajak::find($faktur->id));
+    }
 }
