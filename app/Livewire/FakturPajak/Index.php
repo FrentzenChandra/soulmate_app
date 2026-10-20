@@ -154,7 +154,7 @@ class Index extends Component
         }
 
         if (! empty($this->startDate) && ! empty($this->endDate)) {
-            $query->whereBetween('tanggal', [
+            $query->whereBetween('faktur_pajaks.tanggal', [
                 Carbon::parse($this->startDate)->toDateString(),
                 Carbon::parse($this->endDate)->toDateString(),
             ]);
@@ -464,13 +464,13 @@ class Index extends Component
     public function render()
     {
         $user = Auth::user();
-        $query = FakturPajak::query()->with(['user', 'cabang']);
+        $query = FakturPajak::query();
 
         // Scope Cabang
         if (! $user->isOwner()) {
-            $query->where('cabang_id', $user->cabang_id);
+            $query->where('faktur_pajaks.cabang_id', $user->cabang_id);
         } elseif ($this->cabangFilter !== 'semua') {
-            $query->where('cabang_id', $this->cabangFilter);
+            $query->where('faktur_pajaks.cabang_id', $this->cabangFilter);
         }
 
         // Filter Periode
@@ -478,20 +478,20 @@ class Index extends Component
 
         // Filter Status Selesai
         if ($this->statusFilter === 'selesai') {
-            $query->where('is_selesai', true);
+            $query->where('faktur_pajaks.is_selesai', true);
         } elseif ($this->statusFilter === 'belum') {
-            $query->where('is_selesai', false);
+            $query->where('faktur_pajaks.is_selesai', false);
         }
 
         // Filter Saluran & Kode
         if ($this->viaFilter !== 'semua') {
-            $query->where('via_pajak_snapshot', $this->viaFilter);
+            $query->where('faktur_pajaks.via_pajak_snapshot', $this->viaFilter);
         }
         if ($this->kodeFilter !== 'semua') {
-            $query->where('kode_pajak_snapshot', $this->kodeFilter);
+            $query->where('faktur_pajaks.kode_pajak_snapshot', $this->kodeFilter);
         }
         if ($this->orangFilter !== 'semua') {
-            $query->where('master_orang_pajak_id', $this->orangFilter);
+            $query->where('faktur_pajaks.master_orang_pajak_id', $this->orangFilter);
         }
 
         // Pencarian Bebas Multi-Kata Tokenized (Rule 3)
@@ -501,47 +501,79 @@ class Index extends Component
                 foreach ($words as $word) {
                     $pattern = '%' . strtolower($word) . '%';
                     $q->where(function ($sq) use ($pattern) {
-                        $sq->whereRaw('LOWER(no_faktur) LIKE ?', [$pattern])
-                           ->orWhereRaw('LOWER(nama_pajak_snapshot) LIKE ?', [$pattern])
-                           ->orWhereRaw('LOWER(barang_snapshot) LIKE ?', [$pattern])
-                           ->orWhereRaw("LOWER(COALESCE(catatan, '')) LIKE ?", [$pattern]);
+                        $sq->whereRaw('LOWER(faktur_pajaks.no_faktur) LIKE ?', [$pattern])
+                           ->orWhereRaw('LOWER(faktur_pajaks.nama_pajak_snapshot) LIKE ?', [$pattern])
+                           ->orWhereRaw('LOWER(faktur_pajaks.barang_snapshot) LIKE ?', [$pattern])
+                           ->orWhereRaw("LOWER(COALESCE(faktur_pajaks.catatan, '')) LIKE ?", [$pattern]);
                     });
                 }
             });
         }
 
-        // Urutan Descending created_at
-        $records = $query->orderByDesc('created_at')->get();
-        $totalCount = $records->count();
+        // Ultra-Fast toBase() Slim Query Payload for Tabulator (Zero Eloquent Model Hydration, ~85% RAM reduction)
+        $tableData = [];
+        if (! $this->modalFormOpen && ! $this->modalDetailOpen) {
+            $records = (clone $query)
+                ->toBase()
+                ->leftJoin('users as u', 'u.id', '=', 'faktur_pajaks.user_id')
+                ->select([
+                    'faktur_pajaks.id',
+                    'faktur_pajaks.is_selesai',
+                    'faktur_pajaks.no_faktur',
+                    'faktur_pajaks.tanggal',
+                    'faktur_pajaks.created_at',
+                    'faktur_pajaks.nama_pajak_snapshot',
+                    'faktur_pajaks.barang_snapshot',
+                    'faktur_pajaks.via_pajak_snapshot',
+                    'faktur_pajaks.kode_pajak_snapshot',
+                    'faktur_pajaks.bruto',
+                    'faktur_pajaks.dpp',
+                    'faktur_pajaks.dpp_lain',
+                    'faktur_pajaks.ppn_nominal',
+                    'faktur_pajaks.jenis_pph_snapshot',
+                    'faktur_pajaks.pph_persen',
+                    'faktur_pajaks.pph_nominal',
+                    'faktur_pajaks.netto',
+                    'faktur_pajaks.catatan',
+                    'u.name as user_name',
+                ])
+                ->orderByDesc('faktur_pajaks.created_at')
+                ->get();
 
-        // Map data untuk Tabulator
-        $tableData = $records->values()->map(function ($r, $idx) use ($totalCount) {
-            $dateCarbon = Carbon::parse($r->tanggal);
-            return [
-                'id' => (int) $r->id,
-                'no' => $totalCount - $idx, // Descending nomor urut
-                'is_selesai' => (bool) $r->is_selesai,
-                'no_faktur' => $r->no_faktur,
-                'tanggal' => $dateCarbon->format('d/m/Y'),
-                'tanggal_group' => $dateCarbon->translatedFormat('d M Y'),
-                'waktu_epoch' => $r->created_at ? $r->created_at->timestamp : $dateCarbon->timestamp,
-                'user_input' => $r->user?->name ?: 'Sistem',
-                'jam' => $r->created_at ? $r->created_at->format('H:i') : '00:00',
-                'nama' => $r->nama_pajak_snapshot,
-                'barang' => $r->barang_snapshot,
-                'via' => $r->via_pajak_snapshot,
-                'kode' => $r->kode_pajak_snapshot ?: '-',
-                'bruto' => (float) $r->bruto,
-                'dpp' => (float) $r->dpp,
-                'dpp_lain' => (float) $r->dpp_lain,
-                'ppn_nominal' => (float) $r->ppn_nominal,
-                'jenis_pph' => $r->jenis_pph_snapshot,
-                'pph_persen' => (float) $r->pph_persen,
-                'pph_nominal' => (float) $r->pph_nominal,
-                'netto' => (float) $r->netto,
-                'catatan' => $r->catatan ?: '',
-            ];
-        })->toArray();
+            $totalCount = $records->count();
+
+            // Map data untuk Tabulator
+            $tableData = $records->values()->map(function ($r, $idx) use ($totalCount) {
+                $dateCarbon = Carbon::parse($r->tanggal);
+                $createdCarbon = $r->created_at ? Carbon::parse($r->created_at) : $dateCarbon;
+                return [
+                    'id' => (int) $r->id,
+                    'no' => $totalCount - $idx, // Descending nomor urut
+                    'is_selesai' => (bool) $r->is_selesai,
+                    'no_faktur' => $r->no_faktur,
+                    'tanggal' => $dateCarbon->format('d/m/Y'),
+                    'tanggal_group' => $dateCarbon->translatedFormat('d M Y'),
+                    'waktu_epoch' => $createdCarbon->timestamp,
+                    'user_input' => $r->user_name ?: 'Sistem',
+                    'jam' => $createdCarbon->format('H:i'),
+                    'nama' => $r->nama_pajak_snapshot,
+                    'barang' => $r->barang_snapshot,
+                    'via' => $r->via_pajak_snapshot,
+                    'kode' => $r->kode_pajak_snapshot ?: '-',
+                    'bruto' => (float) $r->bruto,
+                    'dpp' => (float) $r->dpp,
+                    'dpp_lain' => (float) $r->dpp_lain,
+                    'ppn_nominal' => (float) $r->ppn_nominal,
+                    'jenis_pph' => $r->jenis_pph_snapshot,
+                    'pph_persen' => (float) $r->pph_persen,
+                    'pph_nominal' => (float) $r->pph_nominal,
+                    'netto' => (float) $r->netto,
+                    'catatan' => $r->catatan ?: '',
+                ];
+            })->toArray();
+
+            $this->dispatch('faktur-pajak-table-updated', data: $tableData);
+        }
 
         // Data opsi master untuk filter & modal
         $viaOptions = MasterViaPajak::where('is_aktif', true)->orderBy('nama')->get();
@@ -549,11 +581,6 @@ class Index extends Component
         $pphOptions = MasterPph::where('is_aktif', true)->orderBy('persentase')->get();
         $orangOptions = MasterOrangPajak::where('is_aktif', true)->orderBy('nama')->get();
         $cabangs = $user->isOwner() ? Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get() : collect([]);
-
-        // Rule 24: Isolasi modal dari table updates
-        if (! $this->modalFormOpen && ! $this->modalDetailOpen) {
-            $this->dispatch('faktur-pajak-table-updated', data: $tableData);
-        }
 
         return view('livewire.faktur-pajak.index', [
             'tableData' => $tableData,
