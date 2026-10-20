@@ -249,7 +249,7 @@
         </div>
 
         <div :class="'tabulator-size-' + tableSize + ' table-size-' + tableSize + ' tabulator-dense'">
-            <div id="faktur-pajak-table" class="rounded-xl border border-gray-200 text-xs"></div>
+            <div x-ref="tableContainer" id="faktur-pajak-table" class="rounded-xl border border-gray-200 text-xs"></div>
         </div>
     </div>
 
@@ -664,6 +664,7 @@
 </div>
 
 @push('scripts')
+<script src="{{ asset('js/xlsx.full.min.js') }}"></script>
 <script>
     window.fakturPajakTable = function(config) {
         return {
@@ -674,6 +675,8 @@
             rowCount: (config.tableData || []).length,
 
             initTable() {
+                window.activeFakturPajakWire = this.$wire;
+
                 window.addEventListener('table-size-changed', (e) => {
                     this.tableSize = e.detail;
                     if (this.table) {
@@ -681,14 +684,27 @@
                     }
                 });
 
-                this.renderTable(config.tableData || []);
+                if (!window.Tabulator) {
+                    console.error('Tabulator not loaded');
+                    return;
+                }
+
+                this.$nextTick(() => {
+                    this.renderTable(config.tableData || []);
+                });
 
                 // Listen real-time data updates from Livewire (Rule 24 Standard)
-                Livewire.on('faktur-pajak-table-updated', ({ data }) => {
-                    if (this.table && data) {
-                        this.table.setData(data);
-                        this.rowCount = data.length;
-                        this.applyFilter();
+                Livewire.on('faktur-pajak-table-updated', (payload) => {
+                    const data = (payload && payload.data) ? payload.data : (Array.isArray(payload) ? payload : []);
+                    if (this.table) {
+                        this.table.replaceData(data).then(() => {
+                            this.rowCount = data.length;
+                            this.applyFilter();
+                        }).catch(() => {
+                            this.table.setData(data);
+                            this.rowCount = data.length;
+                            this.applyFilter();
+                        });
                     }
                 });
 
@@ -746,7 +762,10 @@
 
             renderTable(data) {
                 const self = this;
-                this.table = new Tabulator("#faktur-pajak-table", {
+                const container = this.$refs.tableContainer || document.getElementById('faktur-pajak-table');
+                if (!container) return;
+
+                this.table = new Tabulator(container, {
                     data: data,
                     layout: "fitColumns",
                     responsiveLayout: false,
@@ -769,24 +788,12 @@
                         self.rowCount = rows.length;
                     },
                     groupHeader: function(value, count, groupData) {
-                        // let totalBruto = groupData.reduce((acc, r) => acc + Number(r.bruto || 0), 0);
-                        // let totalPpn = groupData.reduce((acc, r) => acc + Number(r.ppn_nominal || 0), 0);
-                        // let totalPph = groupData.reduce((acc, r) => acc + Number(r.pph_nominal || 0), 0);
-                        // let totalNetto = groupData.reduce((acc, r) => acc + Number(r.netto || 0), 0);
                         return `
                             <div class="flex flex-wrap items-center justify-between w-full pr-3 py-0.5 text-xs font-bold text-slate-800 cursor-pointer select-none">
                                 <div class="flex items-center gap-2">
                                     <span class="px-2 py-0.5 rounded-md bg-[#5E17EB]/10 text-[#5E17EB] font-black">${value}</span>
                                     <span class="text-slate-600 font-bold text-[11px] font-mono">(${count} Faktur)</span>
                                 </div>
-                                <!-- Breakdown finansial disembunyikan sementara sesuai instruksi user:
-                                <div class="flex items-center gap-3 text-[11px] font-mono">
-                                    <span class="text-slate-600 font-bold">Bruto: <strong class="text-slate-800">Rp ${totalBruto.toLocaleString('id-ID')}</strong></span>
-                                    <span class="text-rose-600 font-bold">PPN: <strong>Rp ${totalPpn.toLocaleString('id-ID')}</strong></span>
-                                    <span class="text-amber-600 font-bold">PPh: <strong>Rp ${totalPph.toLocaleString('id-ID')}</strong></span>
-                                    <span class="text-[#0052FF] font-bold">Netto: <strong class="text-[#0052FF] font-black">Rp ${totalNetto.toLocaleString('id-ID')}</strong></span>
-                                </div>
-                                -->
                             </div>
                         `;
                     },
@@ -801,7 +808,7 @@
                             headerHozAlign: "center",
                             formatter: (cell) => `<span class="font-mono font-bold text-slate-500">${cell.getValue()}</span>`
                         },
-                        // 2. STATUS SELESAI (CENTANG HIJAU / SILANG MERAH)
+                        // 2. STATUS SELESAI
                         {
                             title: "Selesai",
                             field: "is_selesai",
@@ -958,12 +965,13 @@
                                 const d = cell.getData();
                                 const toggleTitle = d.is_selesai ? 'Tandai Belum Selesai' : 'Tandai Selesai';
                                 const toggleClass = d.is_selesai ? 'text-amber-600 hover:bg-amber-50' : 'text-emerald-600 hover:bg-emerald-50';
+                                const safeNama = (d.nama || '').replace(/'/g, "\\'");
                                 return `
                                     <div class="flex items-center justify-center gap-1">
                                         <!-- Tombol Centang (Toggle Selesai) -->
                                         <button
                                             type="button"
-                                            onclick="Livewire.dispatch('call-toggle-selesai', { id: ${d.id} })"
+                                            onclick="window.toggleSelesaiFaktur(${d.id})"
                                             class="p-1 rounded-lg ${toggleClass} transition-colors cursor-pointer"
                                             title="${toggleTitle}"
                                         >
@@ -975,7 +983,7 @@
                                         <!-- Detail -->
                                         <button
                                             type="button"
-                                            onclick="Livewire.dispatch('call-open-detail', { id: ${d.id} })"
+                                            onclick="window.openDetailFaktur(${d.id})"
                                             class="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                                             title="Detail Faktur"
                                         >
@@ -988,7 +996,7 @@
                                         <!-- Edit -->
                                         <button
                                             type="button"
-                                            onclick="Livewire.dispatch('call-edit-faktur', { id: ${d.id} })"
+                                            onclick="window.editFaktur(${d.id})"
                                             class="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
                                             title="Edit Faktur"
                                         >
@@ -1000,18 +1008,7 @@
                                         <!-- Hapus -->
                                         <button
                                             type="button"
-                                            onclick="window.swalConfirm('Hapus Faktur Pajak?', 'Data faktur ini akan dihapus secara permanen.', { danger: true, confirmText: 'Ya, Hapus', cancelText: 'Batal' }).then((res) => { if (res.isConfirmed) { Livewire.dispatch('call-delete-faktur', { id: ${d.id} }); } })"
-                                            class="p-1 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                                            title="Hapus Faktur"
-                                        >
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                `;
-                            }
-                        }
+                                            onclick="window.deleteFakturConfirm(${d.id}, '${safeNama}')"
                                             class="p-1 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                                             title="Hapus Faktur"
                                         >
@@ -1062,23 +1059,44 @@
                 XLSX.writeFile(wb, `Laporan_Faktur_Pajak_${new Date().toISOString().slice(0, 10)}.xlsx`);
             }
         };
-    }
+    };
 
-    // Global Event Listeners from Tabulator buttons to Livewire
-    document.addEventListener('livewire:initialized', () => {
-        Livewire.on('call-toggle-selesai', (event) => {
-            @this.call('toggleSelesai', event.id);
-        });
-        Livewire.on('call-open-detail', (event) => {
-            @this.call('openDetail', event.id);
-        });
-        Livewire.on('call-edit-faktur', (event) => {
-            @this.call('edit', event.id);
-        });
-        Livewire.on('call-delete-faktur', (event) => {
-            @this.call('delete', event.id);
-        });
-    });
+    // Global Action Helpers linked directly to Livewire Component
+    window.toggleSelesaiFaktur = function(id) {
+        if (window.activeFakturPajakWire) {
+            window.activeFakturPajakWire.toggleSelesai(id);
+        }
+    };
+
+    window.openDetailFaktur = function(id) {
+        if (window.activeFakturPajakWire) {
+            window.activeFakturPajakWire.openDetail(id);
+        }
+    };
+
+    window.editFaktur = function(id) {
+        if (window.activeFakturPajakWire) {
+            window.activeFakturPajakWire.edit(id);
+        }
+    };
+
+    window.deleteFakturConfirm = function(id, nama) {
+        if (typeof window.swalConfirm === 'function') {
+            window.swalConfirm(
+                'Hapus Faktur Pajak?',
+                `Data faktur untuk rekanan "${nama}" akan dihapus permanen dari sistem.`,
+                { danger: true, confirmText: 'Ya, Hapus', cancelText: 'Batal' }
+            ).then((res) => {
+                if (res.isConfirmed && window.activeFakturPajakWire) {
+                    window.activeFakturPajakWire.delete(id);
+                }
+            });
+        } else if (confirm(`Hapus faktur untuk "${nama}"?`)) {
+            if (window.activeFakturPajakWire) {
+                window.activeFakturPajakWire.delete(id);
+            }
+        }
+    };
 </script>
 @endpush
 
