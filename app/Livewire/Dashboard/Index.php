@@ -108,9 +108,9 @@ class Index extends Component
                 $totalCabangAktif = Cabang::where('status', 'aktif')->count();
                 $totalUserAktif = User::where('status', 'aktif')->count();
 
-                $countTotalAktif = ServisMasuk::whereIn('status', ['pengecekan', 'pengerjaan'])->count();
-                $countPengecekan = ServisMasuk::where('status', 'pengecekan')->count();
-                $countPengerjaan = ServisMasuk::where('status', 'pengerjaan')->count();
+                $countTotalAktif = ServisMasuk::where('is_real', true)->whereIn('status', ['pengecekan', 'pengerjaan'])->count();
+                $countPengecekan = ServisMasuk::where('is_real', true)->where('status', 'pengecekan')->count();
+                $countPengerjaan = ServisMasuk::where('is_real', true)->where('status', 'pengerjaan')->count();
 
                 $penjualanQuery = Penjualan::query()->where('is_real', true)->where('status', 'lunas');
                 $omzetHariIni = (clone $penjualanQuery)->whereDate('tanggal', Carbon::today())->sum('total');
@@ -123,7 +123,7 @@ class Index extends Component
 
                 foreach ($allCabangs as $c) {
                     $cOmzet = Penjualan::where('cabang_id', $c->id)->where('is_real', true)->where('status', 'lunas')->whereDate('tanggal', Carbon::today())->sum('total');
-                    $cServisAktif = ServisMasuk::where('cabang_id', $c->id)->whereIn('status', ['pengecekan', 'pengerjaan'])->count();
+                    $cServisAktif = ServisMasuk::where('cabang_id', $c->id)->where('is_real', true)->whereIn('status', ['pengecekan', 'pengerjaan'])->count();
                     $cSuperadmin = $c->users->first()?->name ?? 'Belum ada Admin';
                     $cTotalStaff = User::where('cabang_id', $c->id)->where('status', 'aktif')->count();
 
@@ -251,6 +251,7 @@ class Index extends Component
 
             $servisStats = DB::table('servis_masuks')
                 ->where('cabang_id', $cabangId)
+                ->where('is_real', true)
                 ->whereYear('tanggal_masuk', $tahunServis)
                 ->whereMonth('tanggal_masuk', $bulanServis)
                 ->selectRaw("
