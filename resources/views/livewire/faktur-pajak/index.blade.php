@@ -475,9 +475,9 @@
                                 <div class="p-3.5 bg-white rounded-xl border border-gray-200 shadow-2xs space-y-2.5">
                                     <div class="text-[10px] font-bold text-gray-600 uppercase tracking-wider flex items-center justify-between border-b border-gray-100 pb-2">
                                         <span>Rincian Kalkulasi Pajak</span>
-                                        <span class="text-[10px] text-purple-700 font-mono font-bold">PPN 12% &bull; PPh <span x-text="pphPersen + '%'"></span></span>
+                                        <span class="text-[10px] text-purple-700 font-mono font-bold">PPN 12%</span>
                                     </div>
-                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                                    <div class="grid grid-cols-3 gap-2 text-xs">
                                         <div>
                                             <span class="block text-[10px] font-bold text-gray-500">DPP (Bruto/1.11)</span>
                                             <span class="font-mono font-bold text-gray-800" x-text="formatRp(numDpp)"></span>
@@ -489,10 +489,6 @@
                                         <div>
                                             <span class="block text-[10px] font-bold text-rose-600">PPN 12%</span>
                                             <span class="font-mono font-bold text-rose-600" x-text="formatRp(numPpn)"></span>
-                                        </div>
-                                        <div>
-                                            <span class="block text-[10px] font-bold text-amber-600">PPh Potongan</span>
-                                            <span class="font-mono font-bold text-amber-600" x-text="formatRp(numPph)"></span>
                                         </div>
                                     </div>
                                     <div class="pt-2 border-t border-gray-100 flex items-center justify-between">
