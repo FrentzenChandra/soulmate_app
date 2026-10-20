@@ -426,7 +426,7 @@
                                         >
                                             <option value="">Tanpa Kode</option>
                                             @foreach ($kodeOptions as $k)
-                                                <option value="{{ $k->id }}">{{ $k->kode }} - {{ $k->keterangan }}</option>
+                                                <option value="{{ $k->id }}">{{ $k->kode }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -932,11 +932,11 @@
                             headerHozAlign: "right",
                             formatter: (cell) => `<span class="font-mono font-bold text-rose-600">${self.formatRupiah(cell.getValue())}</span>`
                         },
-                        // 10. PPH (TARIF)
+                        // 10. JENIS PPH
                         {
-                            title: "PPh",
+                            title: "Jenis PPh",
                             field: "jenis_pph",
-                            width: 100,
+                            width: 105,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
@@ -944,9 +944,9 @@
                                 return `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">${d.jenis_pph}</span>`;
                             }
                         },
-                        // 11. PPH NOMINAL
+                        // 11. PPH
                         {
-                            title: "PPh Nominal",
+                            title: "PPh",
                             field: "pph_nominal",
                             width: 115,
                             hozAlign: "right",
@@ -1058,7 +1058,7 @@
                     'PPN 12% (Rp)': r.ppn_nominal,
                     'Jenis PPh': r.jenis_pph,
                     'Tarif PPh (%)': r.pph_persen,
-                    'PPh Nominal (Rp)': r.pph_nominal,
+                    'PPh (Rp)': r.pph_nominal,
                     'Netto (Rp)': r.netto,
                     'Catatan': r.catatan,
                 }));
