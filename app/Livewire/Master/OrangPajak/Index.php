@@ -93,7 +93,7 @@ class Index extends Component
             'kontak' => 'nullable|string|max:50',
             'is_aktif' => 'boolean',
         ], [
-            'nama.required' => 'Nama rekanan / instansi pajak wajib diisi.',
+            'nama.required' => 'Nama rekanan wajib diisi.',
         ]);
 
         if ($this->isEditMode && $this->selectedId) {
@@ -104,15 +104,23 @@ class Index extends Component
                 'kontak' => trim($this->kontak) ?: null,
                 'is_aktif' => $this->is_aktif,
             ]);
-            session()->flash('success', 'Data Orang Pajak berhasil diperbarui.');
+            $this->dispatch('swal:toast', [
+                'type' => 'success',
+                'title' => 'Berhasil Diperbarui',
+                'text' => "Data Orang Pajak \"{$item->nama}\" berhasil diperbarui.",
+            ]);
         } else {
-            MasterOrangPajak::create([
+            $item = MasterOrangPajak::create([
                 'nama' => trim($this->nama),
                 'npwp' => trim($this->npwp) ?: null,
                 'kontak' => trim($this->kontak) ?: null,
                 'is_aktif' => $this->is_aktif,
             ]);
-            session()->flash('success', 'Data Orang Pajak baru berhasil ditambahkan.');
+            $this->dispatch('swal:toast', [
+                'type' => 'success',
+                'title' => 'Berhasil Ditambahkan',
+                'text' => "Data Orang Pajak \"{$item->nama}\" berhasil ditambahkan.",
+            ]);
         }
 
         $this->modalOpen = false;
@@ -124,8 +132,13 @@ class Index extends Component
         abort_if(! $user->isOwner() && ! $user->can('master.orang_pajak.delete'), 403, 'Akses hapus rekanan pajak dibatasi.');
 
         $item = MasterOrangPajak::findOrFail($id);
+        $nama = $item->nama;
         $item->delete();
-        session()->flash('success', 'Data Orang Pajak berhasil dihapus.');
+        $this->dispatch('swal:toast', [
+            'type' => 'success',
+            'title' => 'Berhasil Dihapus',
+            'text' => "Data Orang Pajak \"{$nama}\" berhasil dihapus.",
+        ]);
     }
 
     public function closeModal(): void
