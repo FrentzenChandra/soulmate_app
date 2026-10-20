@@ -544,6 +544,7 @@ class Index extends Component
             'orangOptions' => $orangOptions,
             'cabangs' => $cabangs,
             'isOwner' => $user->isOwner(),
+            'isHQ' => $user->isOwner(),
         ]);
     }
 }

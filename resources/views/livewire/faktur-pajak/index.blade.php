@@ -1,144 +1,111 @@
-<div class="space-y-4" x-data="fakturPajakTable(@js($tableData))">
-    <!-- Header & Action Toolbar -->
-    <div class="sm:flex sm:items-center sm:justify-between bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-2xs gap-4">
+<div class="space-y-6">
+
+    <!-- ============================================== -->
+    <!-- HEADER HALAMAN & TOMBOL TAMBAH FAKTUR          -->
+    <!-- ============================================== -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <span class="w-2.5 h-6 bg-[#5E17EB] rounded-full inline-block"></span>
-                Faktur Pajak
-            </h1>
-            <p class="text-xs text-gray-500 mt-1">Administrasi faktur pengadaan, kalkulasi PPN 12%, PPh, dan pelacakan status selesai</p>
+            <div class="flex items-center space-x-3">
+                <h1 class="text-2xl font-black tracking-tight text-gray-900">
+                    Faktur Pajak
+                </h1>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black {{ $isHQ ? 'bg-purple-100 text-[#5E17EB] border border-purple-200' : 'bg-blue-100 text-[#0052FF] border border-blue-200' }}">
+                    {{ $isHQ ? 'Konteks HQ (Semua Cabang)' : 'Soulmate Komputer' }}
+                </span>
+            </div>
+            <p class="text-sm font-medium text-gray-500 mt-1">
+                Administrasi faktur pengadaan, kalkulasi PPN 12%, PPh, dan pelacakan status selesai.
+            </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2.5 mt-3 sm:mt-0">
-            <!-- Toggle Group Tanggal -->
-            <button
-                type="button"
-                @click="toggleGroupDate()"
-                :class="groupByDate ? 'bg-purple-50 text-[#5E17EB] border-purple-200 shadow-2xs font-bold' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'"
-                class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border transition-colors cursor-pointer select-none"
-            >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span x-text="groupByDate ? 'Group Tanggal (ON)' : 'Group Tanggal (OFF)'"></span>
+        @canany(['pajak.create', 'owner'])
+        <div class="flex items-center space-x-2">
+            <button type="button"
+                    wire:click="openCreateModal"
+                    wire:loading.attr="disabled"
+                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-black text-xs shadow-md shadow-purple-600/25 transition-all cursor-pointer disabled:opacity-50">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                <span>Input Faktur Baru</span>
             </button>
-
-            <!-- Export Excel -->
-            @canany(['pajak.export_excel', 'owner'])
-            <button
-                type="button"
-                @click="exportExcel()"
-                class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
-            >
-                <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Excel (.xlsx)
-            </button>
-            @endcanany
-
-            <!-- Tambah Faktur Baru -->
-            @canany(['pajak.create', 'owner'])
-            <button
-                type="button"
-                wire:click="openCreateModal"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-[#5E17EB] hover:bg-[#4d12c4] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors duration-150 cursor-pointer"
-            >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                + Input Faktur Baru
-            </button>
-            @endcanany
         </div>
+        @endcanany
     </div>
 
-    <!-- Filter & Periode Toolbar (Format Transaksi FULL - Rule 13) -->
-    <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs space-y-3">
-        <!-- Baris 1: Mode Periode & Date Pickers -->
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <!-- Mode Switcher Tabs -->
-            <div class="inline-flex p-1 bg-gray-100/80 rounded-xl border border-gray-200 text-xs font-semibold">
-                <button
-                    type="button"
-                    wire:click="setPeriodeMode('semua')"
-                    class="px-3 py-1.5 rounded-lg transition-colors {{ $periodeMode === 'semua' ? 'bg-white text-[#5E17EB] shadow-2xs font-bold' : 'text-gray-600 hover:text-gray-900' }}"
-                >
+    <!-- Alert Flash Message -->
+    @if (session()->has('success'))
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between shadow-xs">
+            <div class="flex items-center space-x-3">
+                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-xs font-bold">{{ session('success') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-800 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+    @endif
+
+    <!-- ============================================== -->
+    <!-- FILTER BAR, PERIODE & PENCARIAN (TRANSAKSI FULL) -->
+    <!-- ============================================== -->
+    <div class="card-custom bg-white p-5 space-y-4 border border-gray-100/90 shadow-sm rounded-2xl">
+
+        <!-- Baris 1: Mode Periode Switcher -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-100">
+            <div class="flex items-center space-x-1.5 bg-gray-100 p-1 rounded-xl">
+                <button type="button"
+                        wire:click="setPeriodeMode('semua')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'semua' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
                     Semua
                 </button>
-                <button
-                    type="button"
-                    wire:click="setPeriodeMode('hari_ini')"
-                    class="px-3 py-1.5 rounded-lg transition-colors {{ $periodeMode === 'hari_ini' ? 'bg-white text-[#5E17EB] shadow-2xs font-bold' : 'text-gray-600 hover:text-gray-900' }}"
-                >
+                <button type="button"
+                        wire:click="setPeriodeMode('hari_ini')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'hari_ini' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
                     Hari Ini
                 </button>
-                <button
-                    type="button"
-                    wire:click="setPeriodeMode('range')"
-                    class="px-3 py-1.5 rounded-lg transition-colors {{ $periodeMode === 'range' ? 'bg-white text-[#5E17EB] shadow-2xs font-bold' : 'text-gray-600 hover:text-gray-900' }}"
-                >
+                <button type="button"
+                        wire:click="setPeriodeMode('range')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'range' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
                     Rentang Tanggal
                 </button>
-                <button
-                    type="button"
-                    wire:click="setPeriodeMode('bulanan')"
-                    class="px-3 py-1.5 rounded-lg transition-colors {{ $periodeMode === 'bulanan' ? 'bg-white text-[#5E17EB] shadow-2xs font-bold' : 'text-gray-600 hover:text-gray-900' }}"
-                >
+                <button type="button"
+                        wire:click="setPeriodeMode('bulanan')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'bulanan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
                     Bulanan
                 </button>
-                <button
-                    type="button"
-                    wire:click="setPeriodeMode('tahunan')"
-                    class="px-3 py-1.5 rounded-lg transition-colors {{ $periodeMode === 'tahunan' ? 'bg-white text-[#5E17EB] shadow-2xs font-bold' : 'text-gray-600 hover:text-gray-900' }}"
-                >
+                <button type="button"
+                        wire:click="setPeriodeMode('tahunan')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'tahunan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
                     Tahunan
                 </button>
             </div>
 
-            <!-- Dynamic Date Selectors (Right-aligned) -->
-            <div class="flex flex-wrap items-center gap-2 sm:ml-auto">
-                @if (in_array($periodeMode, ['range', 'hari_ini']))
-                    <div class="flex items-center gap-1.5 text-xs">
-                        <input
-                            type="date"
-                            wire:model.live="startDate"
-                            class="bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs text-gray-900 focus:bg-white focus:border-[#5E17EB] focus:outline-hidden"
-                        >
-                        <span class="text-gray-400 font-semibold text-[11px]">s/d</span>
-                        <input
-                            type="date"
-                            wire:model.live="endDate"
-                            class="bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs text-gray-900 focus:bg-white focus:border-[#5E17EB] focus:outline-hidden"
-                        >
-                    </div>
-                @elseif ($periodeMode === 'bulanan')
-                    <div class="flex items-center gap-2">
-                        <select
-                            wire:model.live="filterBulan"
-                            class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs text-gray-900 focus:bg-white focus:border-[#5E17EB] focus:outline-hidden"
-                        >
-                            @foreach (range(1, 12) as $m)
-                                <option value="{{ sprintf('%02d', $m) }}">
-                                    {{ Carbon\Carbon::create(2026, $m, 1)->translatedFormat('F') }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <select
-                            wire:model.live="filterTahun"
-                            class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs text-gray-900 focus:bg-white focus:border-[#5E17EB] focus:outline-hidden"
-                        >
-                            @foreach (range(2024, 2030) as $y)
-                                <option value="{{ $y }}">{{ $y }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                @elseif ($periodeMode === 'tahunan')
-                    <select
-                        wire:model.live="filterTahun"
-                        class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs text-gray-900 focus:bg-white focus:border-[#5E17EB] focus:outline-hidden"
-                    >
-                        @foreach (range(2024, 2030) as $y)
+            <!-- Input Tanggal Dinamis -->
+            <div class="flex items-center space-x-2">
+                @if($periodeMode === 'range' || $periodeMode === 'hari_ini')
+                    <input type="date"
+                           wire:model.live="startDate"
+                           class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB]">
+                    <span class="text-xs font-bold text-gray-400">s/d</span>
+                    <input type="date"
+                           wire:model.live="endDate"
+                           class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB]">
+                @elseif($periodeMode === 'bulanan')
+                    <select wire:model.live="filterBulan"
+                            class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700">
+                        @foreach(range(1, 12) as $m)
+                            <option value="{{ sprintf('%02d', $m) }}">{{ Carbon\Carbon::create(2026, $m, 1)->translatedFormat('F') }}</option>
+                        @endforeach
+                    </select>
+                    <select wire:model.live="filterTahun"
+                            class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700">
+                        @foreach(range(now()->year - 3, now()->year + 1) as $y)
+                            <option value="{{ $y }}">{{ $y }}</option>
+                        @endforeach
+                    </select>
+                @elseif($periodeMode === 'tahunan')
+                    <select wire:model.live="filterTahun"
+                            class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700">
+                        @foreach(range(now()->year - 3, now()->year + 1) as $y)
                             <option value="{{ $y }}">{{ $y }}</option>
                         @endforeach
                     </select>
@@ -146,28 +113,32 @@
             </div>
         </div>
 
-        <!-- Baris 2: Filters Dropdown & Multi-Word Search -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2.5 pt-1">
+        <!-- Baris 2: Search & Filter Dropdown -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3">
+            <!-- Pencarian Multi-Kata Longgar -->
+            <div class="md:col-span-3 relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text"
+                       wire:model.live.debounce.300ms="search"
+                       class="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-semibold text-gray-800 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all">
+            </div>
+
             <!-- Filter Status Selesai -->
-            <div>
-                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Status Selesai</label>
-                <select
-                    wire:model.live="statusFilter"
-                    class="w-full bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs text-gray-900 focus:bg-white focus:border-[#5E17EB] focus:outline-hidden"
-                >
+            <div class="md:col-span-2">
+                <select wire:model.live="statusFilter"
+                        class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
                     <option value="semua">Semua Status</option>
                     <option value="selesai">Selesai</option>
                     <option value="belum">Belum Selesai</option>
                 </select>
             </div>
 
-            <!-- Filter Rekanan / Nama -->
-            <div>
-                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Rekanan Pajak</label>
-                <select
-                    wire:model.live="orangFilter"
-                    class="w-full bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs text-gray-900 focus:bg-white focus:border-[#5E17EB] focus:outline-hidden"
-                >
+            <!-- Filter Rekanan -->
+            <div class="md:col-span-3">
+                <select wire:model.live="orangFilter"
+                        class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
                     <option value="semua">Semua Rekanan</option>
                     @foreach ($orangOptions as $o)
                         <option value="{{ $o->id }}">{{ $o->nama }}</option>
@@ -176,12 +147,9 @@
             </div>
 
             <!-- Filter Saluran Via -->
-            <div>
-                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Saluran Via</label>
-                <select
-                    wire:model.live="viaFilter"
-                    class="w-full bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs text-gray-900 focus:bg-white focus:border-[#5E17EB] focus:outline-hidden"
-                >
+            <div class="md:col-span-2">
+                <select wire:model.live="viaFilter"
+                        class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
                     <option value="semua">Semua Saluran</option>
                     @foreach ($viaOptions as $v)
                         <option value="{{ $v->nama }}">{{ $v->nama }}</option>
@@ -190,12 +158,9 @@
             </div>
 
             <!-- Filter Kode Pajak -->
-            <div>
-                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Kode Pajak</label>
-                <select
-                    wire:model.live="kodeFilter"
-                    class="w-full bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs text-gray-900 focus:bg-white focus:border-[#5E17EB] focus:outline-hidden"
-                >
+            <div class="md:col-span-2">
+                <select wire:model.live="kodeFilter"
+                        class="w-full py-2 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
                     <option value="semua">Semua Kode</option>
                     @foreach ($kodeOptions as $k)
                         <option value="{{ $k->kode }}">{{ $k->kode }}</option>
@@ -203,39 +168,88 @@
                 </select>
             </div>
 
-            <!-- Pencarian Multi-Kata Tokenized (Rule 3) -->
-            <div>
-                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Cari Faktur</label>
-                <div class="relative">
-                    <input
-                        type="text"
-                        wire:model.live.debounce.300ms="search"
-                        class="w-full bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 pr-8 text-xs text-gray-900 focus:bg-white focus:border-[#5E17EB] focus:outline-hidden"
-                    >
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-gray-400">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+            <!-- Filter Cabang (HQ Saja) -->
+            @if($isHQ)
+                <div class="md:col-span-12 pt-1 flex justify-end">
+                    <div class="w-full sm:w-72">
+                        <select wire:model.live="cabangFilter"
+                                class="w-full py-2 px-3 rounded-xl border border-purple-200 bg-purple-50/40 text-xs font-bold text-[#5E17EB] focus:bg-white cursor-pointer">
+                            <option value="semua">Semua Cabang (HQ)</option>
+                            @foreach($cabangs as $c)
+                                <option value="{{ $c->id }}">{{ $c->nama_cabang }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 
-    <!-- Notification Alert -->
-    @if (session()->has('success'))
-        <div class="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs flex items-center gap-2">
-            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
+    <!-- ============================================== -->
+    <!-- TABEL DATA FAKTUR PAJAK (TABULATOR)            -->
+    <!-- ============================================== -->
+    <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs"
+         x-data="fakturPajakTable({
+             tableData: @js($tableData),
+         })"
+         x-init="initTable()"
+         wire:ignore>
 
-    <!-- TABULATOR TABLE CONTAINER (ZERO METRIC CARDS STANDARD) -->
-    <div class="bg-white rounded-2xl border border-gray-200 shadow-2xs overflow-hidden">
-        <div wire:ignore>
-            <div id="faktur-pajak-table" class="tabulator-dense"></div>
+        <div class="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2 flex-1 max-w-md">
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input type="text"
+                           x-model="quickSearch"
+                           @input="applyFilter()"
+                           class="w-full pl-9 pr-3 py-1.5 text-xs font-bold text-gray-900 bg-gray-50/60 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#5E17EB] transition-all">
+                </div>
+                <button type="button"
+                        @click="clearAllFilters"
+                        class="px-3 py-1.5 rounded-xl border border-gray-300 text-xs font-bold text-gray-900 hover:bg-gray-100 transition-colors flex items-center space-x-1.5 cursor-pointer shrink-0">
+                    <svg class="w-3.5 h-3.5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <span>Reset</span>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-3 text-xs text-gray-900 font-bold flex-wrap">
+                <!-- Toggle Group Tanggal -->
+                <button type="button"
+                        @click="toggleGroupDate()"
+                        class="px-2.5 py-1 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                        :class="groupByDate ? 'bg-purple-50 text-[#5E17EB] border-purple-200 shadow-2xs' : 'border-gray-300 text-gray-900 hover:bg-gray-50'">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span x-text="groupByDate ? 'Group Tanggal (ON)' : 'Group Tanggal'"></span>
+                </button>
+
+                <!-- Font Size Selector -->
+                <x-table-size-selector />
+
+                <!-- Tombol Export Excel -->
+                @canany(['pajak.export_excel', 'owner'])
+                <div class="flex items-center gap-1.5 border-l border-gray-200 pl-2">
+                    <button type="button"
+                            @click="exportExcel()"
+                            class="px-2.5 py-1 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                            title="Download Excel (.xlsx)">
+                        <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span>Excel</span>
+                    </button>
+                </div>
+                @endcanany
+
+                <span class="text-[11px] text-gray-900 font-bold hidden md:inline-flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
+                    Tarik garis kolom untuk melebarkan
+                </span>
+                <span class="text-gray-900 font-black" x-text="'Total ' + rowCount + ' Faktur'"></span>
+            </div>
+        </div>
+
+        <div :class="'tabulator-size-' + tableSize + ' table-size-' + tableSize + ' tabulator-dense'">
+            <div id="faktur-pajak-table" class="rounded-xl border border-gray-200 text-xs"></div>
         </div>
     </div>
 
@@ -585,17 +599,30 @@
 
 @push('scripts')
 <script>
-    function fakturPajakTable(initialData) {
+    window.fakturPajakTable = function(config) {
         return {
             table: null,
+            tableSize: localStorage.getItem('soulmate_table_size') || 'M',
             groupByDate: true,
-            init() {
-                this.renderTable(initialData);
+            quickSearch: '',
+            rowCount: (config.tableData || []).length,
+
+            initTable() {
+                window.addEventListener('table-size-changed', (e) => {
+                    this.tableSize = e.detail;
+                    if (this.table) {
+                        this.table.redraw(true);
+                    }
+                });
+
+                this.renderTable(config.tableData || []);
 
                 // Listen real-time data updates from Livewire (Rule 24 Standard)
                 Livewire.on('faktur-pajak-table-updated', ({ data }) => {
                     if (this.table && data) {
                         this.table.setData(data);
+                        this.rowCount = data.length;
+                        this.applyFilter();
                     }
                 });
 
@@ -604,15 +631,53 @@
                     Livewire.dispatch('$refresh');
                 });
             },
+
+            applyFilter() {
+                if (!this.table) return;
+                const q = (this.quickSearch || '').toLowerCase().trim();
+                if (!q) {
+                    this.table.clearFilter();
+                    this.rowCount = this.table.getData().length;
+                    return;
+                }
+                const terms = q.split(/\s+/).filter(Boolean);
+                this.table.setFilter((row) => {
+                    const text = [
+                        row.no_faktur || '',
+                        row.nama || '',
+                        row.barang || '',
+                        row.via || '',
+                        row.kode || '',
+                        row.user_input || '',
+                        row.catatan || '',
+                        row.jenis_pph || '',
+                        row.tanggal || ''
+                    ].join(' ').toLowerCase();
+                    return terms.every(term => text.includes(term));
+                });
+                this.rowCount = this.table.getData("active").length;
+            },
+
+            clearAllFilters() {
+                this.quickSearch = '';
+                if (this.table) {
+                    this.table.clearFilter();
+                    this.rowCount = this.table.getData().length;
+                }
+            },
+
             toggleGroupDate() {
                 this.groupByDate = !this.groupByDate;
                 if (this.table) {
                     this.table.setGroupBy(this.groupByDate ? "tanggal_group" : false);
+                    this.table.redraw(true);
                 }
             },
+
             formatRupiah(val) {
                 return 'Rp ' + Math.round(Number(val) || 0).toLocaleString('id-ID');
             },
+
             renderTable(data) {
                 const self = this;
                 this.table = new Tabulator("#faktur-pajak-table", {
@@ -634,6 +699,9 @@
                         { column: "waktu_epoch", dir: "desc" }
                     ],
                     groupStartOpen: true,
+                    dataFiltered: function(filters, rows) {
+                        self.rowCount = rows.length;
+                    },
                     groupHeader: function(value, count, groupData) {
                         let totalBruto = groupData.reduce((acc, r) => acc + Number(r.bruto || 0), 0);
                         let totalPpn = groupData.reduce((acc, r) => acc + Number(r.ppn_nominal || 0), 0);
@@ -698,6 +766,8 @@
                             title: "Faktur",
                             field: "no_faktur",
                             width: 130,
+                            headerFilter: "input",
+                            headerFilterPlaceholder: "",
                             formatter: (cell) => {
                                 const d = cell.getData();
                                 return `
@@ -717,6 +787,8 @@
                             title: "Nama",
                             field: "nama",
                             widthGrow: 1.5,
+                            headerFilter: "input",
+                            headerFilterPlaceholder: "",
                             formatter: (cell) => `<span class="font-bold text-gray-900 block truncate text-xs" title="${cell.getValue()}">${cell.getValue()}</span>`
                         },
                         // 5. BARANG
@@ -724,6 +796,8 @@
                             title: "Barang",
                             field: "barang",
                             widthGrow: 2,
+                            headerFilter: "input",
+                            headerFilterPlaceholder: "",
                             formatter: (cell) => `<span class="text-gray-700 block truncate text-xs" title="${cell.getValue()}">${cell.getValue()}</span>`
                         },
                         // 6. SALURAN
@@ -733,6 +807,8 @@
                             width: 110,
                             hozAlign: "center",
                             headerHozAlign: "center",
+                            headerFilter: "input",
+                            headerFilterPlaceholder: "",
                             formatter: (cell) => {
                                 const d = cell.getData();
                                 return `
