@@ -866,25 +866,34 @@
                             headerFilterPlaceholder: "",
                             formatter: (cell) => `<span class="text-gray-700 block truncate text-xs" title="${cell.getValue()}">${cell.getValue()}</span>`
                         },
-                        // 5. SALURAN
+                        // 5. VIA
                         {
-                            title: "Saluran",
+                            title: "Via",
                             field: "via",
-                            width: 110,
+                            width: 105,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             headerFilter: "input",
                             headerFilterPlaceholder: "",
                             formatter: (cell) => {
-                                const d = cell.getData();
-                                return `
-                                    <div class="space-y-0.5 py-0.5">
-                                        <span class="inline-block px-1.5 py-0.2 rounded text-[8px] font-bold uppercase tracking-wider bg-blue-50 text-[#0052FF] border border-blue-200">
-                                            ${d.via}
-                                        </span>
-                                        <div class="text-[9px] font-mono font-bold text-gray-500">${d.kode}</div>
-                                    </div>
-                                `;
+                                const val = cell.getValue();
+                                if (!val || val === '-') return '<span class="text-gray-400 font-mono text-xs">-</span>';
+                                return `<span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-[#0052FF] border border-blue-200">${val}</span>`;
+                            }
+                        },
+                        // 6. KODE
+                        {
+                            title: "Kode",
+                            field: "kode",
+                            width: 75,
+                            hozAlign: "center",
+                            headerHozAlign: "center",
+                            headerFilter: "input",
+                            headerFilterPlaceholder: "",
+                            formatter: (cell) => {
+                                const val = cell.getValue();
+                                if (!val || val === '-') return '<span class="text-gray-400 font-mono text-xs">-</span>';
+                                return `<span class="font-mono font-bold text-gray-700 text-xs">${val}</span>`;
                             }
                         },
                         // 6. BRUTO
@@ -1041,8 +1050,8 @@
                     'Petugas': r.user_input,
                     'Rekanan': r.nama,
                     'Barang / Jasa': r.barang,
-                    'Saluran': r.via,
-                    'Kode Pajak': r.kode,
+                    'Via': r.via,
+                    'Kode': r.kode,
                     'Bruto (Rp)': r.bruto,
                     'DPP (Rp)': r.dpp,
                     'DPP Lain (Rp)': r.dpp_lain,
