@@ -756,8 +756,12 @@
                 }
             },
 
+            formatAngka(val) {
+                return Math.round(Number(val) || 0).toLocaleString('id-ID');
+            },
+
             formatRupiah(val) {
-                return 'Rp ' + Math.round(Number(val) || 0).toLocaleString('id-ID');
+                return this.formatAngka(val);
             },
 
             renderTable(data) {
@@ -803,7 +807,8 @@
                         {
                             title: "No",
                             field: "no",
-                            width: 55,
+                            width: 44,
+                            minWidth: 40,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => `<span class="font-mono font-bold text-slate-500">${cell.getValue()}</span>`
@@ -812,23 +817,24 @@
                         {
                             title: "Selesai",
                             field: "is_selesai",
-                            width: 70,
+                            width: 52,
+                            minWidth: 48,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const isSelesai = cell.getValue();
                                 if (isSelesai) {
                                     return `
-                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 shadow-2xs" title="Selesai">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 shadow-2xs" title="Selesai">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                                             </svg>
                                         </span>
                                     `;
                                 } else {
                                     return `
-                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-100 text-rose-600 shadow-2xs" title="Belum Selesai">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-rose-100 text-rose-600 shadow-2xs" title="Belum Selesai">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
                                             </svg>
                                         </span>
@@ -840,16 +846,17 @@
                         {
                             title: "Nama",
                             field: "nama",
-                            widthGrow: 1.5,
+                            minWidth: 150,
+                            widthGrow: 2,
                             headerFilter: "input",
                             headerFilterPlaceholder: "",
                             formatter: (cell) => {
                                 const d = cell.getData();
                                 return `
-                                    <div class="leading-tight py-0.5">
+                                    <div class="leading-snug py-0.5">
                                         <span class="font-bold text-gray-900 block truncate text-xs" title="${d.nama}">${d.nama}</span>
                                         <div class="flex items-center gap-1 text-[9px] text-gray-500 font-semibold mt-0.5">
-                                            <span class="truncate max-w-[70px]">${d.user_input}</span>
+                                            <span class="truncate max-w-[80px]">${d.user_input}</span>
                                             <span>&bull;</span>
                                             <span class="font-mono">${d.jam}</span>
                                         </div>
@@ -861,16 +868,18 @@
                         {
                             title: "Barang",
                             field: "barang",
-                            widthGrow: 2,
+                            minWidth: 200,
+                            widthGrow: 3,
                             headerFilter: "input",
                             headerFilterPlaceholder: "",
-                            formatter: (cell) => `<span class="text-gray-700 block truncate text-xs" title="${cell.getValue()}">${cell.getValue()}</span>`
+                            formatter: (cell) => `<span class="text-gray-700 block text-xs leading-snug break-words" title="${cell.getValue()}">${cell.getValue()}</span>`
                         },
                         // 5. VIA
                         {
                             title: "Via",
                             field: "via",
-                            width: 105,
+                            width: 82,
+                            minWidth: 75,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             headerFilter: "input",
@@ -878,14 +887,15 @@
                             formatter: (cell) => {
                                 const val = cell.getValue();
                                 if (!val || val === '-') return '<span class="text-gray-400 font-mono text-xs">-</span>';
-                                return `<span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-[#0052FF] border border-blue-200">${val}</span>`;
+                                return `<span class="inline-block px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-blue-50 text-[#0052FF] border border-blue-200">${val}</span>`;
                             }
                         },
                         // 6. KODE
                         {
                             title: "Kode",
                             field: "kode",
-                            width: 75,
+                            width: 52,
+                            minWidth: 48,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             headerFilter: "input",
@@ -896,47 +906,52 @@
                                 return `<span class="font-mono font-bold text-gray-700 text-xs">${val}</span>`;
                             }
                         },
-                        // 6. BRUTO
+                        // 7. BRUTO
                         {
                             title: "Bruto",
                             field: "bruto",
-                            width: 120,
+                            width: 95,
+                            minWidth: 85,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-bold text-gray-900">${self.formatRupiah(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-bold text-gray-900">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 7. DPP
+                        // 8. DPP
                         {
                             title: "DPP",
                             field: "dpp",
-                            width: 110,
+                            width: 88,
+                            minWidth: 80,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono text-gray-600">${self.formatRupiah(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono text-gray-600">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 8. DPP LAIN
+                        // 9. DPP LAIN
                         {
                             title: "DPP Lain",
                             field: "dpp_lain",
-                            width: 110,
+                            width: 88,
+                            minWidth: 80,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono text-gray-600">${self.formatRupiah(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono text-gray-600">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 9. PPN
+                        // 10. PPN
                         {
                             title: "PPN",
                             field: "ppn_nominal",
-                            width: 110,
+                            width: 88,
+                            minWidth: 80,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-bold text-rose-600">${self.formatRupiah(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-bold text-rose-600">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 10. JENIS PPH
+                        // 11. JENIS PPH
                         {
                             title: "Jenis PPh",
                             field: "jenis_pph",
-                            width: 105,
+                            width: 85,
+                            minWidth: 78,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
@@ -944,29 +959,32 @@
                                 return `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">${d.jenis_pph}</span>`;
                             }
                         },
-                        // 11. PPH
+                        // 12. PPH
                         {
                             title: "PPh",
                             field: "pph_nominal",
-                            width: 115,
+                            width: 88,
+                            minWidth: 80,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-bold text-amber-600">${self.formatRupiah(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-bold text-amber-600">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 12. NETTO
+                        // 13. NETTO
                         {
                             title: "Netto",
                             field: "netto",
-                            width: 125,
+                            width: 98,
+                            minWidth: 88,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-black text-[#0052FF]">${self.formatRupiah(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-black text-[#0052FF]">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 13. AKSI
+                        // 14. AKSI
                         {
                             title: "Aksi",
                             field: "id",
-                            width: 130,
+                            width: 105,
+                            minWidth: 100,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             headerSort: false,
@@ -976,15 +994,15 @@
                                 const toggleClass = d.is_selesai ? 'text-amber-600 hover:bg-amber-50' : 'text-emerald-600 hover:bg-emerald-50';
                                 const safeNama = (d.nama || '').replace(/'/g, "\\'");
                                 return `
-                                    <div class="flex items-center justify-center gap-1">
+                                    <div class="flex items-center justify-center gap-0.5">
                                         <!-- Tombol Centang (Toggle Selesai) -->
                                         <button
                                             type="button"
                                             onclick="window.toggleSelesaiFaktur(${d.id})"
-                                            class="p-1 rounded-lg ${toggleClass} transition-colors cursor-pointer"
+                                            class="p-0.5 rounded ${toggleClass} transition-colors cursor-pointer"
                                             title="${toggleTitle}"
                                         >
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                                             </svg>
                                         </button>
@@ -993,10 +1011,10 @@
                                         <button
                                             type="button"
                                             onclick="window.openDetailFaktur(${d.id})"
-                                            class="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                                            class="p-0.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors cursor-pointer"
                                             title="Detail Faktur"
                                         >
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
@@ -1006,10 +1024,10 @@
                                         <button
                                             type="button"
                                             onclick="window.editFaktur(${d.id})"
-                                            class="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                                            class="p-0.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors cursor-pointer"
                                             title="Edit Faktur"
                                         >
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
@@ -1018,10 +1036,10 @@
                                         <button
                                             type="button"
                                             onclick="window.deleteFakturConfirm(${d.id}, '${safeNama}')"
-                                            class="p-1 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                            class="p-0.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded transition-colors cursor-pointer"
                                             title="Hapus Faktur"
                                         >
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                         </button>
