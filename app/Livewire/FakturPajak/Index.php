@@ -531,6 +531,11 @@ class Index extends Component
         $orangOptions = MasterOrangPajak::where('is_aktif', true)->orderBy('nama')->get();
         $cabangs = $user->isOwner() ? Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get() : collect([]);
 
+        // Rule 24: Isolasi modal dari table updates
+        if (! $this->modalFormOpen && ! $this->modalDetailOpen) {
+            $this->dispatch('faktur-pajak-table-updated', data: $tableData);
+        }
+
         return view('livewire.faktur-pajak.index', [
             'tableData' => $tableData,
             'viaOptions' => $viaOptions,

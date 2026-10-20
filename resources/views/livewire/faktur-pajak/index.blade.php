@@ -592,15 +592,16 @@
             init() {
                 this.renderTable(initialData);
 
+                // Listen real-time data updates from Livewire (Rule 24 Standard)
+                Livewire.on('faktur-pajak-table-updated', ({ data }) => {
+                    if (this.table && data) {
+                        this.table.setData(data);
+                    }
+                });
+
                 // Listen reload event from Livewire
                 Livewire.on('table-reload', () => {
                     Livewire.dispatch('$refresh');
-                });
-
-                this.$watch('$wire.tableData', (newData) => {
-                    if (this.table && newData) {
-                        this.table.setData(newData);
-                    }
                 });
             },
             toggleGroupDate() {
