@@ -70,10 +70,14 @@ Route::middleware('auth')->group(function () {
             Route::get('/cabang', MasterCabangIndex::class)->name('cabang');
             Route::get('/ppn', MasterPpnIndex::class)->name('ppn');
             Route::get('/hak-akses', HakAksesIndex::class)->name('hak-akses');
+            Route::get('/via-pajak', \App\Livewire\Master\ViaPajak\Index::class)->name('via-pajak');
+            Route::get('/kode-pajak', \App\Livewire\Master\KodePajak\Index::class)->name('kode-pajak');
+            Route::get('/pph', \App\Livewire\Master\Pph\Index::class)->name('pph');
         });
 
         // Owner & Superadmin / Permission: master.users.view & master.settings.view
         Route::get('/users', MasterUserIndex::class)->name('users')->middleware('can:master.users.view');
+        Route::get('/orang-pajak', \App\Livewire\Master\OrangPajak\Index::class)->name('orang-pajak')->middleware('can:master.orang_pajak.view');
         Route::get('/kategori', MasterKategoriIndex::class)->name('kategori')->middleware('can:master.settings.view');
         Route::get('/metode-pembayaran', MasterPembayaranIndex::class)->name('metode-pembayaran')->middleware('can:master.settings.view');
         Route::get('/sumber-dana', MasterSumberDanaIndex::class)->name('sumber-dana')->middleware('can:master.settings.view');
@@ -164,6 +168,7 @@ Route::middleware('auth')->group(function () {
     // Transaksi FULL & Target Bulanan (Dynamic Permissions)
     Route::get('/transaksi/full', TransaksiFull::class)->name('transaksi.full')->middleware('can:transaksi.full.view');
     Route::get('/transaksi/full/export-pdf', [\App\Http\Controllers\TransaksiFullExportController::class, 'exportPdf'])->name('transaksi.full.export-pdf')->middleware('can:transaksi.full.view');
+    Route::get('/faktur-pajak', \App\Livewire\FakturPajak\Index::class)->name('faktur-pajak.index')->middleware('can:pajak.view');
     Route::get('/target-bulanan', TargetBulananIndex::class)->name('target.bulanan')->middleware('can:target.bulanan.view');
 
     // Audit Laci (Owner Only)
