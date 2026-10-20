@@ -25,7 +25,7 @@ class NavbarRingkasanTransaksi extends Component
     {
         $this->filterBulan = now()->format('m');
         $this->filterTahun = now()->format('Y');
-        $this->startDate = now()->toDateString();
+        $this->startDate = now()->startOfMonth()->toDateString();
         $this->endDate = now()->toDateString();
     }
 
@@ -33,7 +33,7 @@ class NavbarRingkasanTransaksi extends Component
     {
         $this->periodeMode = $mode;
         if ($mode === 'range') {
-            $this->startDate = now()->toDateString();
+            $this->startDate = now()->startOfMonth()->toDateString();
             $this->endDate = now()->toDateString();
         } elseif ($mode === 'bulanan') {
             $this->applyBulanan();
@@ -134,29 +134,30 @@ class NavbarRingkasanTransaksi extends Component
             $totalMarginLunas = 0;
 
             foreach ($allTrx as $trx) {
-                if ($trx->status === 'Batal') {
+                $statusLower = strtolower(trim($trx->status ?? ''));
+                if ($statusLower === 'batal') {
                     continue;
                 }
 
-                $grandTotal = (float) $trx->grand_total;
+                $nominalJual = (float) ($trx->total_jual ?: $trx->grand_total);
                 $modal = (float) $trx->total_modal;
                 $laba = (float) $trx->total_laba;
 
                 if ($trx->tipe_transaksi === 'servis') {
-                    $totalServisBruto += $grandTotal;
+                    $totalServisBruto += $nominalJual;
                     $modalServisTotal += $modal;
                     $marginServisTotal += $laba;
                 } else {
-                    $totalPenjualanBruto += $grandTotal;
+                    $totalPenjualanBruto += $nominalJual;
                     $modalPenjualanTotal += $modal;
                     $marginPenjualanTotal += $laba;
                 }
 
-                if ($trx->status === 'Lunas') {
-                    $totalPemasukanLunasAll += $grandTotal;
+                if ($statusLower === 'lunas') {
+                    $totalPemasukanLunasAll += $nominalJual;
                     $totalMarginLunas += $laba;
-                } elseif ($trx->status === 'BON' || $trx->status === 'Belum Lunas') {
-                    $totalBelumLunasAll += $grandTotal;
+                } elseif (in_array($statusLower, ['bon', 'belum lunas'])) {
+                    $totalBelumLunasAll += $nominalJual;
                 }
             }
 

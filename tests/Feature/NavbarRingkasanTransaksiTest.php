@@ -45,4 +45,32 @@ class NavbarRingkasanTransaksiTest extends TestCase
             ->call('setPeriodeMode', 'range')
             ->assertSet('periodeMode', 'range');
     }
+
+    public function test_bon_transactions_are_correctly_summed_in_navbar_ringkasan(): void
+    {
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $this->actingAs($superadmin);
+
+        \App\Models\TransaksiFull::create([
+            'cabang_id' => $superadmin->cabang_id ?: 1,
+            'no_transaksi' => 'INV-PJ-TEST-BON-01',
+            'tipe_transaksi' => 'penjualan',
+            'nama_pelanggan' => 'Pelanggan Bon Test',
+            'metode_pembayaran' => 'Cash',
+            'tanggal' => now(),
+            'total_modal' => 50000,
+            'total_jual' => 150000,
+            'total_laba' => 100000,
+            'grand_total' => 150000,
+            'status' => 'Bon', // Status with Capital B
+        ]);
+
+        \Illuminate\Support\Facades\Cache::flush();
+
+        Livewire::test(NavbarRingkasanTransaksi::class)
+            ->assertViewHas('totalBelumLunasAll', function ($totalBon) {
+                return $totalBon >= 150000;
+            })
+            ->assertSee('Jumlah Bon');
+    }
 }

@@ -91,8 +91,9 @@ class CachingStrategyTest extends TestCase
         Livewire::test(\App\Livewire\Components\NavbarRingkasanTransaksi::class)
             ->assertStatus(200);
 
+        $startOfMonth = now()->startOfMonth()->toDateString();
         $today = now()->toDateString();
-        $navbarKey = 'navbar_ringkasan_' . $superadmin->cabang_id . '_' . $today . '_' . $today;
+        $navbarKey = 'navbar_ringkasan_' . $superadmin->cabang_id . '_' . $startOfMonth . '_' . $today;
         $this->assertTrue(Cache::has($navbarKey));
     }
 }
