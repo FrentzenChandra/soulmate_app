@@ -803,8 +803,8 @@
                         {
                             title: "No",
                             field: "no",
-                            width: 44,
-                            minWidth: 40,
+                            width: 38,
+                            minWidth: 35,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => `<span class="font-mono font-bold text-slate-500">${cell.getValue()}</span>`
@@ -813,8 +813,8 @@
                         {
                             title: "Selesai",
                             field: "is_selesai",
-                            width: 52,
-                            minWidth: 48,
+                            width: 42,
+                            minWidth: 38,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
@@ -838,44 +838,35 @@
                                 }
                             }
                         },
-                        // 3. NAMA (DISERTAI PETUGAS INPUT & JAM)
+                        // 3. NAMA (BERSIH TANPA JAM & NAMA PENGINPUT)
                         {
                             title: "Nama",
                             field: "nama",
-                            minWidth: 150,
                             widthGrow: 2,
+                            minWidth: 100,
                             headerFilter: "input",
                             headerFilterPlaceholder: "",
                             formatter: (cell) => {
                                 const d = cell.getData();
-                                return `
-                                    <div class="leading-snug py-0.5">
-                                        <span class="font-bold text-gray-900 block truncate text-xs" title="${d.nama}">${d.nama}</span>
-                                        <div class="flex items-center gap-1 text-[9px] text-gray-500 font-semibold mt-0.5">
-                                            <span class="truncate max-w-[80px]">${d.user_input}</span>
-                                            <span>&bull;</span>
-                                            <span class="font-mono">${d.jam}</span>
-                                        </div>
-                                    </div>
-                                `;
+                                return `<span class="font-bold text-gray-900 block truncate text-xs" title="${d.nama}">${d.nama}</span>`;
                             }
                         },
                         // 4. BARANG
                         {
                             title: "Barang",
                             field: "barang",
-                            minWidth: 200,
                             widthGrow: 3,
+                            minWidth: 120,
                             headerFilter: "input",
                             headerFilterPlaceholder: "",
-                            formatter: (cell) => `<span class="text-gray-700 block text-xs leading-snug break-words" title="${cell.getValue()}">${cell.getValue()}</span>`
+                            formatter: (cell) => `<span class="text-gray-700 block text-xs leading-snug truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
                         },
                         // 5. VIA
                         {
                             title: "Via",
                             field: "via",
-                            width: 82,
-                            minWidth: 75,
+                            width: 65,
+                            minWidth: 60,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             headerFilter: "input",
@@ -890,8 +881,8 @@
                         {
                             title: "Kode",
                             field: "kode",
-                            width: 52,
-                            minWidth: 48,
+                            width: 44,
+                            minWidth: 40,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             headerFilter: "input",
@@ -906,8 +897,8 @@
                         {
                             title: "Bruto",
                             field: "bruto",
-                            width: 95,
-                            minWidth: 85,
+                            width: 78,
+                            minWidth: 70,
                             hozAlign: "right",
                             headerHozAlign: "right",
                             formatter: (cell) => `<span class="font-mono font-bold text-gray-900">${self.formatAngka(cell.getValue())}</span>`
@@ -916,8 +907,8 @@
                         {
                             title: "DPP",
                             field: "dpp",
-                            width: 88,
-                            minWidth: 80,
+                            width: 74,
+                            minWidth: 66,
                             hozAlign: "right",
                             headerHozAlign: "right",
                             formatter: (cell) => `<span class="font-mono text-gray-600">${self.formatAngka(cell.getValue())}</span>`
@@ -926,8 +917,8 @@
                         {
                             title: "DPP Lain",
                             field: "dpp_lain",
-                            width: 88,
-                            minWidth: 80,
+                            width: 74,
+                            minWidth: 66,
                             hozAlign: "right",
                             headerHozAlign: "right",
                             formatter: (cell) => `<span class="font-mono text-gray-600">${self.formatAngka(cell.getValue())}</span>`
@@ -936,31 +927,38 @@
                         {
                             title: "PPN",
                             field: "ppn_nominal",
-                            width: 88,
-                            minWidth: 80,
+                            width: 74,
+                            minWidth: 66,
                             hozAlign: "right",
                             headerHozAlign: "right",
                             formatter: (cell) => `<span class="font-mono font-bold text-rose-600">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 11. JENIS PPH
+                        // 11. JENIS PPH (DIBEDAKAN WARNA PPH 22 VS PPH 23)
                         {
                             title: "Jenis PPh",
                             field: "jenis_pph",
-                            width: 85,
-                            minWidth: 78,
+                            width: 68,
+                            minWidth: 62,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const d = cell.getData();
-                                return `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">${d.jenis_pph}</span>`;
+                                const val = (d.jenis_pph || '').toLowerCase();
+                                let badgeClass = 'bg-gray-100 text-gray-600 border-gray-200';
+                                if (val.includes('22')) {
+                                    badgeClass = 'bg-amber-50 text-amber-700 border-amber-300';
+                                } else if (val.includes('23')) {
+                                    badgeClass = 'bg-purple-50 text-[#5E17EB] border-purple-200';
+                                }
+                                return `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold border ${badgeClass}">${d.jenis_pph}</span>`;
                             }
                         },
                         // 12. PPH
                         {
                             title: "PPh",
                             field: "pph_nominal",
-                            width: 88,
-                            minWidth: 80,
+                            width: 74,
+                            minWidth: 66,
                             hozAlign: "right",
                             headerHozAlign: "right",
                             formatter: (cell) => `<span class="font-mono font-bold text-amber-600">${self.formatAngka(cell.getValue())}</span>`
@@ -969,8 +967,8 @@
                         {
                             title: "Netto",
                             field: "netto",
-                            width: 98,
-                            minWidth: 88,
+                            width: 80,
+                            minWidth: 72,
                             hozAlign: "right",
                             headerHozAlign: "right",
                             formatter: (cell) => `<span class="font-mono font-black text-[#0052FF]">${self.formatAngka(cell.getValue())}</span>`
@@ -979,8 +977,8 @@
                         {
                             title: "Aksi",
                             field: "id",
-                            width: 105,
-                            minWidth: 100,
+                            width: 86,
+                            minWidth: 80,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             headerSort: false,
@@ -991,10 +989,10 @@
                                 const safeNama = (d.nama || '').replace(/'/g, "\\'");
                                 return `
                                     <div class="flex items-center justify-center gap-0.5">
-                                        <!-- Tombol Centang (Toggle Selesai) -->
+                                        <!-- Tombol Centang (Toggle Selesai dengan Konfirmasi) -->
                                         <button
                                             type="button"
-                                            onclick="window.toggleSelesaiFaktur(${d.id})"
+                                            onclick="window.toggleSelesaiConfirm(${d.id}, ${d.is_selesai ? 'true' : 'false'}, '${safeNama}')"
                                             class="p-0.5 rounded ${toggleClass} transition-colors cursor-pointer"
                                             title="${toggleTitle}"
                                         >
@@ -1085,6 +1083,30 @@
     };
 
     // Global Action Helpers linked directly to Livewire Component
+    window.toggleSelesaiConfirm = function(id, isSelesai, nama) {
+        const title = isSelesai ? 'Tandai Belum Selesai?' : 'Tandai Faktur Selesai?';
+        const text = isSelesai
+            ? `Ubah status faktur rekanan "${nama}" menjadi Belum Selesai?`
+            : `Ubah status faktur rekanan "${nama}" menjadi Selesai?`;
+        const confirmText = isSelesai ? 'Ya, Belum Selesai' : 'Ya, Selesai';
+
+        if (typeof window.swalConfirm === 'function') {
+            window.swalConfirm(title, text, {
+                danger: isSelesai,
+                confirmText: confirmText,
+                cancelText: 'Batal'
+            }).then((res) => {
+                if (res.isConfirmed && window.activeFakturPajakWire) {
+                    window.activeFakturPajakWire.toggleSelesai(id);
+                }
+            });
+        } else if (confirm(`${title}\n${text}`)) {
+            if (window.activeFakturPajakWire) {
+                window.activeFakturPajakWire.toggleSelesai(id);
+            }
+        }
+    };
+
     window.toggleSelesaiFaktur = function(id) {
         if (window.activeFakturPajakWire) {
             window.activeFakturPajakWire.toggleSelesai(id);
