@@ -1,32 +1,48 @@
 <div class="space-y-6">
 
-    <!-- Top Action & Title Bar -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center text-[#5E17EB] shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                </svg>
+    <!-- ============================================== -->
+    <!-- HEADER HALAMAN & TOMBOL TAMBAH KLAIM           -->
+    <!-- ============================================== -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <div class="flex items-center space-x-3">
+                <h1 class="text-2xl font-black tracking-tight text-gray-900">
+                    Klaim Garansi
+                </h1>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black {{ $isHQ ? 'bg-purple-100 text-[#5E17EB] border border-purple-200' : 'bg-blue-100 text-[#0052FF] border border-blue-200' }}">
+                    {{ $isHQ ? 'Konteks HQ (Semua Cabang)' : 'Soulmate Komputer' }}
+                </span>
             </div>
-            <div>
-                <h1 class="text-xl font-extrabold text-gray-900 tracking-tight">Klaim Garansi</h1>
-                <p class="text-xs font-semibold text-gray-500 mt-0.5">Pencatatan alur klaim distributor, penanganan kendala barang, dan pengembalian unit</p>
-            </div>
+            <p class="text-sm font-medium text-gray-500 mt-1">
+                Pencatatan alur klaim distributor, penanganan kendala barang, dan pengembalian unit.
+            </p>
         </div>
 
+        @can('klaim_garansi.create')
         <div class="flex items-center space-x-2">
-            @can('klaim_garansi.create')
-            <button wire:click="openCreateModal"
-                    type="button"
-                    class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#5E17EB] text-white hover:bg-purple-700 font-bold text-xs shadow-md shadow-purple-500/20 transition-all cursor-pointer">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                <span>Input Klaim Garansi</span>
+            <button type="button"
+                    wire:click="openCreateModal"
+                    wire:loading.attr="disabled"
+                    class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-black text-xs shadow-md shadow-purple-600/25 transition-all cursor-pointer disabled:opacity-50">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                <span>Input Klaim Baru</span>
             </button>
-            @endcan
         </div>
+        @endcan
     </div>
+
+    <!-- Alert Flash Message -->
+    @if (session()->has('success'))
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between shadow-xs">
+            <div class="flex items-center space-x-3">
+                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-xs font-bold">{{ session('success') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-800 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+    @endif
 
     <!-- Filter Control Bar (Universal Date Standard Rule 13) -->
     <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm space-y-3">
