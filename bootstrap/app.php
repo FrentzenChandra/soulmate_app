@@ -16,7 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->trustProxies(at: '*');
+        $trustedProxies = env('TRUSTED_PROXIES', '*');
+        $middleware->trustProxies(at: !empty($trustedProxies) ? (str_contains($trustedProxies, ',') ? array_map('trim', explode(',', $trustedProxies)) : $trustedProxies) : '*');
 
         $middleware->append(\App\Http\Middleware\ApiMenuLogger::class);
 

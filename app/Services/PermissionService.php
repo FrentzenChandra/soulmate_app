@@ -301,6 +301,41 @@ class PermissionService
                     ],
                 ],
             ],
+            'absensi_kehadiran' => [
+                'group_label' => 'Absensi & Kehadiran Staf',
+                'description' => 'Pencatatan absensi harian berbasis jaringan WiFi cabang dan rekapitulasi riwayat kehadiran',
+                'modules' => [
+                    'absensi_harian' => [
+                        'label' => 'Absensi Harian',
+                        'route' => 'absensi.index',
+                        'main_permission' => 'absensi.view',
+                        'description' => 'Akses tombol absensi masuk harian menggunakan jaringan WiFi toko',
+                        'actions' => [
+                            'absensi.submit' => 'Lakukan Absen Masuk',
+                        ],
+                    ],
+                    'absensi_riwayat' => [
+                        'label' => 'Riwayat Absensi',
+                        'route' => 'absensi.riwayat',
+                        'main_permission' => 'absensi.riwayat',
+                        'description' => 'Monitoring dan rekapitulasi riwayat absensi staf',
+                        'actions' => [
+                            'absensi.riwayat.export' => 'Ekspor Rekap Absensi',
+                        ],
+                    ],
+                    'wifi_absensi' => [
+                        'label' => 'Master WiFi Absensi',
+                        'route' => 'master.wifi-absen',
+                        'main_permission' => 'master.wifi_absensi.view',
+                        'description' => 'Konfigurasi whitelist IP jaringan WiFi yang diizinkan untuk absensi',
+                        'actions' => [
+                            'master.wifi_absensi.create' => 'Tambah IP WiFi',
+                            'master.wifi_absensi.edit' => 'Edit Data WiFi',
+                            'master.wifi_absensi.delete' => 'Hapus IP WiFi',
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -373,6 +408,9 @@ class PermissionService
                 'klaim_garansi.create',
                 'klaim_garansi.edit',
                 'master.distributor.view',
+                'absensi.view',
+                'absensi.submit',
+                'absensi.riwayat',
             ],
 
             'Admin' => [
@@ -431,6 +469,9 @@ class PermissionService
                 'serial_number.create',
                 'master.produk.view',
                 'master.servis.view',
+                'absensi.view',
+                'absensi.submit',
+                'absensi.riwayat',
             ],
 
             'Bendahara' => [
@@ -472,6 +513,9 @@ class PermissionService
                 'servis.keluar.print',
                 'master.customer.view',
                 'cabang.stok.view',
+                'absensi.view',
+                'absensi.submit',
+                'absensi.riwayat',
             ],
 
             'Operasional' => [

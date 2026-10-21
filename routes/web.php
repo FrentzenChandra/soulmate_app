@@ -89,6 +89,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/servis', MasterServisIndex::class)->name('servis')->middleware('can:master.servis.view');
         Route::get('/customer', MasterCustomerIndex::class)->name('customer')->middleware('can:master.customer.view');
         Route::get('/distributor', \App\Livewire\Master\Distributor\Index::class)->name('distributor')->middleware('can:master.distributor.view');
+        Route::get('/wifi-absensi', \App\Livewire\Master\WifiAbsen\Index::class)->name('wifi-absen')->middleware('can:master.wifi_absensi.view');
     });
 
     // Layanan Servis & Reparasi (Dynamic Permissions)
@@ -188,6 +189,10 @@ Route::middleware('auth')->group(function () {
     // Serial Number & Manajemen Stok (Dynamic Permissions)
     Route::get('/serial-number', SerialNumberIndex::class)->name('serial-number')->middleware('can:serial_number.view');
     Route::get('/cabang/stok', CabangStokIndex::class)->name('cabang.stok')->middleware('can:cabang.stok.view');
+
+    // Absensi Staf & Riwayat (Dynamic Permissions)
+    Route::get('/absensi', \App\Livewire\Absensi\Index::class)->name('absensi.index')->middleware('can:absensi.view');
+    Route::get('/absensi/riwayat', \App\Livewire\Absensi\Riwayat::class)->name('absensi.riwayat')->middleware('can:absensi.riwayat');
 
     Route::post('/logout', function () {
         Auth::logout();

@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             KasKeluarSeeder::class,
             SerialNumberSeeder::class,
             TargetBulananSeeder::class,
+            WifiAbsenSeeder::class,
         ]);
     }
 }

@@ -383,6 +383,14 @@
                     </a>
                     @endhasanyrole
 
+                    @can('absensi.riwayat')
+                    <a href="{{ route('absensi.riwayat') }}"
+                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('absensi.riwayat*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('absensi.riwayat*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Riwayat Absensi
+                    </a>
+                    @endcan
+
                     <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Laporan Global</p>
 
                     <div x-data="{ open: {{ request()->routeIs('laporan.penjualan*') ? 'true' : 'false' }} }" class="space-y-1">
@@ -485,6 +493,14 @@
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.distributor*') ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.distributor*') ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
                                 <span>Master Distributor</span>
+                            </a>
+                            @endcan
+
+                            @can('master.wifi_absensi.view')
+                            <a href="{{ route('master.wifi-absen') }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.wifi-absen*') ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.wifi-absen*') ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
+                                <span>WiFi Absensi</span>
                             </a>
                             @endcan
                         </div>
@@ -780,9 +796,38 @@
                                 <span>Master Distributor</span>
                             </a>
                             @endcan
+
+                            @can('master.wifi_absensi.view')
+                            <a href="{{ route('master.wifi-absen') }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.wifi-absen*') ? 'bg-[#0052FF] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.wifi-absen*') ? 'bg-white' : 'bg-blue-400' }} mr-2.5"></span>
+                                <span>WiFi Absensi</span>
+                            </a>
+                            @endcan
                         </div>
                     </div>
                     @endcanany
+                    @endcanany
+
+                    <!-- Absensi Staf -->
+                    @canany(['absensi.view', 'absensi.riwayat'])
+                    <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Absensi Staf</p>
+
+                    @can('absensi.view')
+                    <a href="{{ route('absensi.index') }}"
+                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('absensi.index*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('absensi.index*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004.07 9.878m11.93 6.966c-.302 1.002-.693 1.96-1.161 2.864m-4.839-2.864c.302 1.002.693 1.96 1.161 2.864"></path></svg>
+                        Absensi
+                    </a>
+                    @endcan
+
+                    @can('absensi.riwayat')
+                    <a href="{{ route('absensi.riwayat') }}"
+                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('absensi.riwayat*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('absensi.riwayat*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Riwayat Absensi
+                    </a>
+                    @endcan
                     @endcanany
 
                     <!-- 6. Layar Toko -->
