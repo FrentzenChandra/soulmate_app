@@ -66,6 +66,19 @@ class PermissionService
                             'servis.non_real.print' => 'Cetak Nota Non-Real',
                         ],
                     ],
+                    'klaim_garansi' => [
+                        'label' => 'Klaim Garansi',
+                        'route' => 'klaim-garansi.index',
+                        'main_permission' => 'klaim_garansi.view',
+                        'description' => 'Pencatatan dan pelacakan alur klaim garansi produk ke distributor',
+                        'actions' => [
+                            'klaim_garansi.detail' => 'Lihat Detail Klaim Garansi',
+                            'klaim_garansi.create' => 'Input Klaim Garansi Baru (POST)',
+                            'klaim_garansi.edit' => 'Edit / Perbarui Data Klaim (PUT)',
+                            'klaim_garansi.delete' => 'Hapus Data Klaim Garansi (DELETE)',
+                            'klaim_garansi.export_excel' => 'Export Laporan Excel (.xlsx)',
+                        ],
+                    ],
                 ],
             ],
 
@@ -275,6 +288,17 @@ class PermissionService
                             'master.orang_pajak.delete' => 'Hapus Orang Pajak',
                         ],
                     ],
+                    'master_distributor' => [
+                        'label' => 'Master Distributor',
+                        'route' => 'master.distributor',
+                        'main_permission' => 'master.distributor.view',
+                        'description' => 'Daftar distributor dan vendor rekanan servis untuk klaim garansi',
+                        'actions' => [
+                            'master.distributor.create' => 'Tambah Distributor Baru',
+                            'master.distributor.edit' => 'Edit Data Distributor',
+                            'master.distributor.delete' => 'Hapus Data Distributor',
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -344,6 +368,11 @@ class PermissionService
                 'master.produk.view',
                 'serial_number.view',
                 'cabang.stok.view',
+                'klaim_garansi.view',
+                'klaim_garansi.detail',
+                'klaim_garansi.create',
+                'klaim_garansi.edit',
+                'master.distributor.view',
             ],
 
             'Admin' => [
@@ -369,6 +398,16 @@ class PermissionService
                 'pajak.export_pdf',
                 'master.orang_pajak.view',
                 'master.orang_pajak.create',
+                'klaim_garansi.view',
+                'klaim_garansi.detail',
+                'klaim_garansi.create',
+                'klaim_garansi.edit',
+                'klaim_garansi.delete',
+                'klaim_garansi.export_excel',
+                'master.distributor.view',
+                'master.distributor.create',
+                'master.distributor.edit',
+                'master.distributor.delete',
                 'servis.masuk.view',
                 'servis.masuk.detail',
                 'servis.masuk.create',
@@ -460,6 +499,10 @@ class PermissionService
                 'master.customer.view',
                 'master.customer.create',
                 'serial_number.view',
+                'klaim_garansi.view',
+                'klaim_garansi.detail',
+                'klaim_garansi.create',
+                'klaim_garansi.edit',
             ],
 
             'Magang' => [

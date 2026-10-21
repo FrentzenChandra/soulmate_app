@@ -88,6 +88,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/produk', MasterProdukIndex::class)->name('produk')->middleware('can:master.produk.view');
         Route::get('/servis', MasterServisIndex::class)->name('servis')->middleware('can:master.servis.view');
         Route::get('/customer', MasterCustomerIndex::class)->name('customer')->middleware('can:master.customer.view');
+        Route::get('/distributor', \App\Livewire\Master\Distributor\Index::class)->name('distributor')->middleware('can:master.distributor.view');
     });
 
     // Layanan Servis & Reparasi (Dynamic Permissions)
@@ -95,6 +96,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/servis/keluar', ServisKeluarIndex::class)->name('servis.keluar')->middleware('can:servis.keluar.view');
     Route::get('/servis/batal', ServisBatalIndex::class)->name('servis.batal')->middleware('can:servis.batal.view');
     Route::get('/servis/non-real', ServisNonRealIndex::class)->name('servis.non-real')->middleware('can:servis.non_real.view');
+    Route::get('/klaim-garansi', \App\Livewire\KlaimGaransi\Index::class)->name('klaim-garansi.index')->middleware('can:klaim_garansi.view');
     Route::get('/servis/antrian', AntrianDisplay::class)->name('servis.antrian');
     Route::get('/servis/pengerjaan', fn () => redirect()->route('servis.keluar'))->name('servis.pengerjaan');
     Route::get('/servis/{servis}/tanda-terima', function (\App\Models\ServisMasuk $servis) {
