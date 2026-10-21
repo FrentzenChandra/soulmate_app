@@ -147,4 +147,32 @@ class AbsensiTest extends TestCase
         $this->assertEquals($user->name, $loaded->user->name);
         $this->assertTrue($loaded->user->trashed());
     }
+
+    public function test_device_cannot_be_used_by_two_different_users_on_same_day(): void
+    {
+        $service = app(AbsensiService::class);
+        $user1 = User::where('email', 'teknisi.pkp@soulmate.test')->first();
+        $user2 = User::where('email', 'admin.pkp@soulmate.test')->first();
+
+        $deviceIdShared = 'device-uuid-test-12345';
+
+        // User 1 clocks in with Device A -> Success
+        $absen1 = $service->absen($user1, '127.0.0.1', null, $deviceIdShared);
+        $this->assertInstanceOf(Absensi::class, $absen1);
+        $this->assertEquals($deviceIdShared, $absen1->device_id);
+
+        // User 2 attempts to clock in with the same Device A -> Rejected
+        try {
+            $service->absen($user2, '127.0.0.1', null, $deviceIdShared);
+            $this->fail('Harusnya gagal karena perangkat sudah dipakai user lain hari ini.');
+        } catch (\RuntimeException $e) {
+            $this->assertStringContainsString('Perangkat ini sudah digunakan untuk absensi', $e->getMessage());
+        }
+
+        // User 2 clocks in with a different Device B -> Success
+        $deviceIdUser2 = 'device-uuid-test-67890';
+        $absen2 = $service->absen($user2, '127.0.0.1', null, $deviceIdUser2);
+        $this->assertInstanceOf(Absensi::class, $absen2);
+        $this->assertEquals($deviceIdUser2, $absen2->device_id);
+    }
 }

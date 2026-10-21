@@ -30,6 +30,7 @@ class Absensi extends Model
         'tanggal',
         'waktu_absen',
         'ip_address',
+        'device_id',
         'user_agent',
     ];
 

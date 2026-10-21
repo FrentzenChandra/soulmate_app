@@ -69,11 +69,12 @@ class AbsensiService
     /**
      * Lakukan pencatatan absensi masuk untuk user.
      * Waktu diset ke Asia/Jakarta. Validasi IP dilakukan langsung di dalam service.
+     * Memvalidasi device_id agar 1 perangkat tidak dapat dipakai untuk absensi user lain di hari yang sama.
      * Menangani UniqueConstraintViolationException jika terjadi request ganda serentak.
      *
      * @throws \RuntimeException
      */
-    public function absen(User $user, ?string $ip = null, ?string $userAgent = null): Absensi
+    public function absen(User $user, ?string $ip = null, ?string $userAgent = null, ?string $deviceId = null): Absensi
     {
         $clientIp = trim($ip ?? request()->ip() ?? '');
         $agent = $userAgent ?? request()->userAgent();
@@ -89,9 +90,25 @@ class AbsensiService
             return $existing;
         }
 
-        // 3. Catat absensi baru
         $now = Carbon::now('Asia/Jakarta');
 
+        // 3. Validasi Device-Lock (Anti-Titip Absen: 1 Perangkat hanya untuk 1 Staf per Hari)
+        if (! empty($deviceId)) {
+            $cleanDeviceId = trim(substr($deviceId, 0, 64));
+            $existingDeviceAbsen = Absensi::whereDate('tanggal', $now->toDateString())
+                ->where('device_id', $cleanDeviceId)
+                ->where('user_id', '!=', $user->id)
+                ->with('user')
+                ->first();
+
+            if ($existingDeviceAbsen) {
+                $namaStaf = $existingDeviceAbsen->user?->name ?? 'staf lain';
+                $jam = $existingDeviceAbsen->waktu_absen->format('H:i');
+                throw new \RuntimeException("Perangkat ini sudah digunakan untuk absensi {$namaStaf} hari ini (jam {$jam} WIB). Satu perangkat hanya dapat digunakan oleh 1 staf per hari.");
+            }
+        }
+
+        // 4. Catat absensi baru
         try {
             return Absensi::create([
                 'cabang_id' => $user->cabang_id,
@@ -99,6 +116,7 @@ class AbsensiService
                 'tanggal' => $now->toDateString(),
                 'waktu_absen' => $now,
                 'ip_address' => $clientIp,
+                'device_id' => ! empty($deviceId) ? trim(substr($deviceId, 0, 64)) : null,
                 'user_agent' => $agent ? substr($agent, 0, 255) : null,
             ]);
         } catch (UniqueConstraintViolationException $e) {

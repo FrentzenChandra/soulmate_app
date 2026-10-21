@@ -1,4 +1,17 @@
-<div class="space-y-6 max-w-xl mx-auto py-4">
+<div x-data="{
+        deviceId: localStorage.getItem('soulmate_device_token') || '',
+        init() {
+            if (!this.deviceId) {
+                this.deviceId = 'dev-' + (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36));
+                localStorage.setItem('soulmate_device_token', this.deviceId);
+            }
+            $wire.set('deviceId', this.deviceId);
+        },
+        doAbsen() {
+            $wire.submitAbsen(this.deviceId);
+        }
+     }"
+     class="space-y-6 max-w-xl mx-auto py-4">
 
     <!-- Header Halaman -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-gray-200/80 shadow-xs">
@@ -132,7 +145,7 @@
             @else
                 <!-- Keadaan 1 & 2: Siap / Memproses -->
                 <button type="button"
-                        wire:click="submitAbsen"
+                        @click="doAbsen"
                         wire:loading.attr="disabled"
                         wire:target="submitAbsen"
                         class="relative w-40 h-40 sm:w-48 sm:h-48 rounded-full bg-[#5E17EB] hover:bg-purple-800 active:scale-95 text-white ring-8 ring-purple-100 flex items-center justify-center shadow-md transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-purple-600 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed group"

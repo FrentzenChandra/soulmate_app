@@ -17,6 +17,7 @@ class Index extends Component
     public string $statusState = 'siap'; // siap, memproses, sudah_absen, bukan_wifi
     public ?array $todayAbsensi = null;
     public string $clientIp = '';
+    public string $deviceId = '';
     public bool $isWifiValid = false;
     public ?string $errorMessage = null;
     public ?string $successMessage = null;
@@ -62,17 +63,19 @@ class Index extends Component
         }
     }
 
-    public function submitAbsen(AbsensiService $service): void
+    public function submitAbsen(AbsensiService $service, ?string $clientDeviceId = null): void
     {
         $user = Auth::user();
         $this->errorMessage = null;
         $this->successMessage = null;
 
+        $targetDeviceId = ! empty($clientDeviceId) ? $clientDeviceId : $this->deviceId;
+
         try {
             $clientIp = trim(request()->ip() ?? '127.0.0.1');
             $userAgent = request()->userAgent();
 
-            $absen = $service->absen($user, $clientIp, $userAgent);
+            $absen = $service->absen($user, $clientIp, $userAgent, $targetDeviceId);
 
             $this->todayAbsensi = [
                 'id' => $absen->id,

@@ -268,7 +268,7 @@
                             <div>
                                 <div class="flex items-center justify-between mb-1">
                                     <label class="block text-xs font-bold text-gray-700">
-                                        IP Address <span class="text-rose-500 font-bold">*</span>
+                                        IP Address Jaringan <span class="text-rose-500 font-bold">*</span>
                                     </label>
                                     <button type="button"
                                             wire:click="useCurrentIp"
@@ -276,14 +276,15 @@
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                         </svg>
-                                        <span>Ambil IP Saat Ini</span>
+                                        <span>Deteksi Ulang Jaringan</span>
                                     </button>
                                 </div>
                                 <input type="text"
                                        wire:model="ip_address"
                                        class="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-xs font-mono font-bold text-gray-800 focus:bg-white focus:border-[#5E17EB]">
-                                <p class="text-[11px] text-gray-400 mt-1">
-                                    IP otomatis terisi dengan alamat jaringan perangkat Anda saat ini.
+                                <p class="text-[11px] text-gray-500 mt-1.5 flex items-center space-x-1">
+                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                    <span>Otomatis terisi alamat IP jaringan saat modal dibuka. Staf hanya dapat absen saat terhubung ke jaringan ini.</span>
                                 </p>
                                 @error('ip_address') <span class="text-rose-500 text-[11px] font-bold">{{ $message }}</span> @enderror
                             </div>
