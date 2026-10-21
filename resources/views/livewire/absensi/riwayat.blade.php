@@ -53,64 +53,66 @@
     <!-- ============================================== -->
     <!-- FILTER BAR & MODE PERIODE                      -->
     <!-- ============================================== -->
-    <div class="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-xs space-y-4">
+    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs space-y-3.5 sm:space-y-4">
 
         <!-- Baris 1: Mode Periode Switcher & Input Tanggal Dinamis -->
-        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-100">
-            <div class="flex items-center space-x-1.5 bg-gray-100 p-1 rounded-xl">
-                <button type="button"
-                        wire:click="setPeriodeMode('semua')"
-                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'semua' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
-                    Semua
-                </button>
-                <button type="button"
-                        wire:click="setPeriodeMode('hari_ini')"
-                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'hari_ini' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
-                    Hari Ini
-                </button>
-                <button type="button"
-                        wire:click="setPeriodeMode('range')"
-                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'range' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
-                    Rentang Tanggal
-                </button>
-                <button type="button"
-                        wire:click="setPeriodeMode('bulanan')"
-                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'bulanan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
-                    Bulanan
-                </button>
-                <button type="button"
-                        wire:click="setPeriodeMode('tahunan')"
-                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'tahunan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
-                    Tahunan
-                </button>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
+            <div class="w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 -mx-1 px-1">
+                <div class="inline-flex items-center space-x-1 sm:space-x-1.5 bg-gray-100 p-1 rounded-xl whitespace-nowrap">
+                    <button type="button"
+                            wire:click="setPeriodeMode('semua')"
+                            class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'semua' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                        Semua
+                    </button>
+                    <button type="button"
+                            wire:click="setPeriodeMode('hari_ini')"
+                            class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'hari_ini' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                        Hari Ini
+                    </button>
+                    <button type="button"
+                            wire:click="setPeriodeMode('range')"
+                            class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'range' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                        Rentang Tanggal
+                    </button>
+                    <button type="button"
+                            wire:click="setPeriodeMode('bulanan')"
+                            class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'bulanan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                        Bulanan
+                    </button>
+                    <button type="button"
+                            wire:click="setPeriodeMode('tahunan')"
+                            class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {{ $periodeMode === 'tahunan' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">
+                        Tahunan
+                    </button>
+                </div>
             </div>
 
             <!-- Input Tanggal Dinamis -->
-            <div class="flex items-center space-x-2 sm:ml-auto">
+            <div class="w-full sm:w-auto flex flex-wrap sm:flex-nowrap items-center gap-2 sm:ml-auto">
                 @if($periodeMode === 'range' || $periodeMode === 'hari_ini')
                     <input type="date"
                            wire:model.live="startDate"
-                           class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB]">
+                           class="flex-1 sm:flex-none py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB]">
                     <span class="text-xs font-bold text-gray-400">s/d</span>
                     <input type="date"
                            wire:model.live="endDate"
-                           class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB]">
+                           class="flex-1 sm:flex-none py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB]">
                 @elseif($periodeMode === 'bulanan')
                     <select wire:model.live="filterBulan"
-                            class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
+                            class="flex-1 sm:flex-none py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
                         @for($m = 1; $m <= 12; $m++)
                             <option value="{{ $m }}">{{ Carbon\Carbon::create(null, $m, 1)->translatedFormat('F') }}</option>
                         @endfor
                     </select>
                     <select wire:model.live="filterTahun"
-                            class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
+                            class="flex-1 sm:flex-none py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
                         @for($y = (int) date('Y'); $y >= 2024; $y--)
                             <option value="{{ $y }}">{{ $y }}</option>
                         @endfor
                     </select>
                 @elseif($periodeMode === 'tahunan')
                     <select wire:model.live="filterTahun"
-                            class="py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
+                            class="w-full sm:w-auto py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
                         @for($y = (int) date('Y'); $y >= 2024; $y--)
                             <option value="{{ $y }}">{{ $y }}</option>
                         @endfor
@@ -122,9 +124,9 @@
         <!-- Baris 2: Pencarian, Cabang (Owner Only) & Table Size Selector -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 
-            <div class="flex flex-1 items-center gap-3">
+            <div class="flex flex-col sm:flex-row flex-1 sm:items-center gap-2 sm:gap-3">
                 <!-- Search multi-kata -->
-                <div class="relative flex-1 max-w-sm">
+                <div class="relative w-full sm:max-w-sm">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -137,7 +139,7 @@
 
                 <!-- Filter Cabang (KHUSUS OWNER) -->
                 @if ($isOwner)
-                    <div class="w-48">
+                    <div class="w-full sm:w-48">
                         <select wire:model.live="cabangFilter"
                                 class="w-full py-1.5 px-3 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] cursor-pointer">
                             <option value="semua">Semua Cabang</option>
@@ -150,7 +152,7 @@
             </div>
 
             <!-- Table Size Selector -->
-            <div class="flex items-center space-x-2 shrink-0">
+            <div class="flex items-center justify-end space-x-2 shrink-0">
                 <x-table-size-selector />
             </div>
         </div>
