@@ -182,25 +182,14 @@
             </div>
 
             <div class="flex items-center gap-3 text-xs text-gray-900 font-bold flex-wrap">
-                <!-- Dropdown Group per Tanggal atau Hari -->
-                <div class="relative">
-                    <select x-model="groupMode"
-                            @change="handleGroupChange($event.target.value)"
-                            class="text-xs font-bold pl-8 pr-7 py-1.5 rounded-xl border border-gray-300 text-gray-800 bg-white hover:border-[#5E17EB] focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB] transition-colors cursor-pointer shadow-2xs appearance-none">
-                        <option value="tanggal">Group: Per Tanggal</option>
-                        <option value="none">Tanpa Grouping</option>
-                    </select>
-                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#5E17EB]">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-gray-500">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </div>
-                </div>
+                <!-- Toggle Group Tanggal (Active / Not Active ala Transaksi FULL) -->
+                <button type="button"
+                        @click="toggleGrouping()"
+                        class="px-2.5 py-1 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                        :class="groupByDate ? 'bg-purple-50 text-[#5E17EB] border-purple-200 shadow-2xs' : 'border-gray-300 text-gray-900 hover:bg-gray-50'">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span x-text="groupByDate ? 'Group Tanggal (ON)' : 'Group Tanggal'"></span>
+                </button>
 
                 <!-- Font Size Selector (Rule 11) -->
                 <x-table-size-selector />
@@ -721,7 +710,7 @@
             table: null,
             tableData: config.tableData || [],
             quickSearch: '',
-            groupMode: 'tanggal',
+            groupByDate: true,
             tableSize: localStorage.getItem('soulmate_table_size') || 'M',
             rowCount: 0,
 
@@ -782,23 +771,15 @@
                 }
             },
 
-            handleGroupChange(val) {
-                this.groupMode = val;
+            toggleGrouping() {
+                this.groupByDate = !this.groupByDate;
                 if (this.table) {
-                    this.table.setGroupBy(val === 'tanggal' ? "tanggal_group" : false);
+                    if (this.groupByDate) {
+                        this.table.setGroupBy("tanggal_group");
+                    } else {
+                        this.table.setGroupBy(false);
+                    }
                     this.table.redraw(true);
-                }
-            },
-
-            expandAllGroups() {
-                if (this.table) {
-                    this.table.getGroups().forEach(g => g.show());
-                }
-            },
-
-            collapseAllGroups() {
-                if (this.table) {
-                    this.table.getGroups().forEach(g => g.hide());
                 }
             },
 
@@ -815,7 +796,7 @@
                     pagination: "local",
                     paginationSize: 200,
                     paginationSizeSelector: [200, 1000, 2000, 10000],
-                    groupBy: this.groupMode === 'tanggal' ? "tanggal_group" : false,
+                    groupBy: this.groupByDate ? "tanggal_group" : false,
                     groupToggleElement: "header",
                     groupStartOpen: true,
                     groupOrder: function(a, b, aGroup, bGroup) {
