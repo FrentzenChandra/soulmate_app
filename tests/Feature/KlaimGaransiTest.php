@@ -218,7 +218,9 @@ class KlaimGaransiTest extends TestCase
         ]);
 
         Livewire::test(KlaimGaransiIndex::class)
+            ->assertViewHas('tableData')
             ->call('openEditModal', $klaim->id)
+            ->assertSet('formBarang', 'Monitor LG 24 Inch')
             ->set('formTindakan', 'Panel LCD diganti baru oleh SC')
             ->set('formTanggalSelesaiKlaim', '2026-10-21')
             ->call('save')

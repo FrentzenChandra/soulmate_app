@@ -1,11 +1,4 @@
-<div class="space-y-6" x-data="{
-    tableSize: localStorage.getItem('soulmate_table_size') || 'M',
-    init() {
-        window.addEventListener('table-size-changed', (e) => {
-            this.tableSize = e.detail;
-        });
-    }
-}">
+<div class="space-y-6">
 
     <!-- Top Action & Title Bar -->
     <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -22,18 +15,6 @@
         </div>
 
         <div class="flex items-center space-x-2">
-            @can('klaim_garansi.export_excel')
-            <button wire:click="exportExcel"
-                    type="button"
-                    wire:loading.attr="disabled"
-                    class="inline-flex items-center px-4 py-2.5 rounded-xl border border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 font-bold text-xs shadow-sm transition-all cursor-pointer">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <span>Export Excel</span>
-            </button>
-            @endcan
-
             @can('klaim_garansi.create')
             <button wire:click="openCreateModal"
                     type="button"
@@ -126,220 +107,98 @@
             </div>
         </div>
 
-        <!-- Baris 2: Search, Distributor Filter, Branch Selector (HQ), & Table Size -->
-        <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100">
-            <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
-                <!-- Search Input Non-Strict (Rule 3) -->
-                <div class="relative flex-1 min-w-[220px]">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </div>
-                    <input type="text"
-                           wire:model.live.debounce.300ms="search"
-                           class="w-full text-xs font-semibold pl-9 pr-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
-                </div>
-
-                <!-- Distributor Filter -->
-                <div class="w-48">
-                    <select wire:model.live="distributorFilter"
-                            class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
-                        <option value="semua">Semua Distributor</option>
-                        @foreach($distributors as $dist)
-                            <option value="{{ $dist->id }}">{{ $dist->nama }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Cabang Filter (HQ Only Rule 4) -->
-                @if($isHQ && $cabangs->isNotEmpty())
-                <div class="w-48">
-                    <select wire:model.live="cabangFilter"
-                            class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
-                        <option value="semua">Semua Cabang</option>
-                        @foreach($cabangs as $cab)
-                            <option value="{{ $cab->id }}">{{ $cab->nama_cabang }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                @endif
+        <!-- Baris 2: Dropdown Filter Distributor & Cabang (HQ) -->
+        <div class="flex flex-wrap items-center gap-3 pt-3 border-t border-gray-100">
+            <!-- Filter Distributor -->
+            <div class="w-full sm:w-56">
+                <select wire:model.live="distributorFilter"
+                        class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                    <option value="semua">Semua Distributor</option>
+                    @foreach($distributors as $dist)
+                        <option value="{{ $dist->id }}">{{ $dist->nama }}</option>
+                    @endforeach
+                </select>
             </div>
 
-            <!-- Table Size Selector (Rule 11) -->
-            <div class="flex items-center space-x-2">
-                <span class="text-xs font-bold text-gray-400">Ukuran:</span>
-                <x-table-size-selector />
+            <!-- Filter Cabang (HQ Saja Rule 4) -->
+            @if($isHQ && $cabangs->isNotEmpty())
+            <div class="w-full sm:w-56">
+                <select wire:model.live="cabangFilter"
+                        class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-purple-200 bg-purple-50/40 text-[#5E17EB] focus:bg-white focus:border-[#5E17EB]">
+                    <option value="semua">Semua Cabang (HQ)</option>
+                    @foreach($cabangs as $cab)
+                        <option value="{{ $cab->id }}">{{ $cab->nama_cabang }}</option>
+                    @endforeach
+                </select>
             </div>
+            @endif
         </div>
     </div>
 
-    <!-- Data Table Container -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse"
-                   :class="{
-                       'text-[11px]': tableSize === 'S',
-                       'text-xs': tableSize === 'M',
-                       'text-[13px]': tableSize === 'L'
-                   }">
-                <thead>
-                    <tr class="bg-gray-50/75 border-b border-gray-100 text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">
-                        <th class="py-3 px-3 w-12 text-center">No</th>
-                        <th class="py-3 px-3 font-extrabold text-[#5E17EB]">Tanggal Selesai Klaim</th>
-                        <th class="py-3 px-3">Tanggal barang masuk</th>
-                        <th class="py-3 px-3">Customer</th>
-                        <th class="py-3 px-3 min-w-[160px]">Barang</th>
-                        <th class="py-3 px-3 min-w-[180px]">Keluhan</th>
-                        <th class="py-3 px-3">Distributor</th>
-                        <th class="py-3 px-3">Tanggal Kirim</th>
-                        <th class="py-3 px-3 min-w-[160px]">Tindakan</th>
-                        <th class="py-3 px-3">Tanggal Barang Kembali</th>
-                        <th class="py-3 px-3">Penerima Barang</th>
-                        <th class="py-3 px-3 text-center w-28">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 font-semibold text-gray-800">
-                    @forelse($klaimList as $index => $item)
-                        <tr class="hover:bg-purple-50/30 transition-colors">
-                            <td class="py-2.5 px-3 text-center text-gray-400 font-medium">
-                                {{ $klaimList->firstItem() + $index }}
-                            </td>
+    <!-- ============================================== -->
+    <!-- TABEL DATA KLAIM GARANSI (TABULATOR STANDARD)  -->
+    <!-- ============================================== -->
+    <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs"
+         x-data="klaimGaransiTable({
+             tableData: @js($tableData),
+         })"
+         x-init="initTable()"
+         wire:ignore>
 
-                            <!-- 1. Tanggal Selesai Klaim (Posisi 1 terdepan) -->
-                            <td class="py-2.5 px-3 whitespace-nowrap">
-                                @if($item->tanggal_selesai_klaim)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md font-bold text-emerald-700 bg-emerald-50 border border-emerald-200">
-                                        {{ \Carbon\Carbon::parse($item->tanggal_selesai_klaim)->format('d/m/Y') }}
-                                    </span>
-                                @else
-                                    <span class="text-gray-400 font-normal">&mdash;</span>
-                                @endif
-                            </td>
+        <!-- Toolbar Atas Tabel (Pola Transaksi FULL) -->
+        <div class="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2 flex-1 max-w-md">
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input type="text"
+                           x-model="quickSearch"
+                           @input="applyFilter()"
+                           class="w-full pl-9 pr-3 py-1.5 text-xs font-bold text-gray-900 bg-gray-50/60 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#5E17EB] transition-all">
+                </div>
+                <button type="button"
+                        @click="clearAllFilters"
+                        class="px-3 py-1.5 rounded-xl border border-gray-300 text-xs font-bold text-gray-900 hover:bg-gray-100 transition-colors flex items-center space-x-1.5 cursor-pointer shrink-0">
+                    <svg class="w-3.5 h-3.5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <span>Reset</span>
+                </button>
+            </div>
 
-                            <!-- 2. Tanggal barang masuk -->
-                            <td class="py-2.5 px-3 whitespace-nowrap">
-                                {{ $item->tanggal_masuk ? \Carbon\Carbon::parse($item->tanggal_masuk)->format('d/m/Y') : '-' }}
-                            </td>
+            <div class="flex items-center gap-3 text-xs text-gray-900 font-bold flex-wrap">
+                <!-- Toggle Group Tanggal -->
+                <button type="button"
+                        @click="toggleGroupDate()"
+                        class="px-2.5 py-1 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                        :class="groupByDate ? 'bg-purple-50 text-[#5E17EB] border-purple-200 shadow-2xs' : 'border-gray-300 text-gray-900 hover:bg-gray-50'">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span x-text="groupByDate ? 'Group Tanggal (ON)' : 'Group Tanggal'"></span>
+                </button>
 
-                            <!-- 3. Customer -->
-                            <td class="py-2.5 px-3">
-                                <div class="font-bold text-gray-900 leading-tight">{{ $item->customer_nama }}</div>
-                                @if($item->customer_kontak)
-                                    <div class="text-[11px] text-gray-400 font-normal">{{ $item->customer_kontak }}</div>
-                                @endif
-                            </td>
+                <!-- Font Size Selector (Rule 11) -->
+                <x-table-size-selector />
 
-                            <!-- 4. Barang -->
-                            <td class="py-2.5 px-3">
-                                <span class="font-bold text-gray-900">{{ $item->barang }}</span>
-                            </td>
+                <!-- Tombol Export Excel -->
+                @canany(['klaim_garansi.export_excel', 'owner'])
+                <div class="flex items-center gap-1.5 border-l border-gray-200 pl-2">
+                    <button type="button"
+                            @click="exportExcel()"
+                            class="px-2.5 py-1 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                            title="Download Excel (.xlsx)">
+                        <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span>Excel</span>
+                    </button>
+                </div>
+                @endcanany
 
-                            <!-- 5. Keluhan -->
-                            <td class="py-2.5 px-3">
-                                <p class="line-clamp-2 text-gray-600 font-normal text-[11px] leading-relaxed">{{ $item->keluhan }}</p>
-                            </td>
-
-                            <!-- 6. Distributor -->
-                            <td class="py-2.5 px-3 whitespace-nowrap">
-                                @if($item->distributor_nama)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold text-purple-700 bg-purple-50 border border-purple-200">
-                                        {{ $item->distributor_nama }}
-                                    </span>
-                                @else
-                                    <span class="text-gray-400 font-normal">&mdash;</span>
-                                @endif
-                            </td>
-
-                            <!-- 7. Tanggal Kirim -->
-                            <td class="py-2.5 px-3 whitespace-nowrap">
-                                {{ $item->tanggal_kirim ? \Carbon\Carbon::parse($item->tanggal_kirim)->format('d/m/Y') : '-' }}
-                            </td>
-
-                            <!-- 8. Tindakan -->
-                            <td class="py-2.5 px-3">
-                                @if($item->tindakan)
-                                    <p class="line-clamp-2 text-gray-600 font-normal text-[11px] leading-relaxed">{{ $item->tindakan }}</p>
-                                @else
-                                    <span class="text-gray-400 font-normal">&mdash;</span>
-                                @endif
-                            </td>
-
-                            <!-- 9. Tanggal Barang Kembali -->
-                            <td class="py-2.5 px-3 whitespace-nowrap">
-                                {{ $item->tanggal_barang_kembali ? \Carbon\Carbon::parse($item->tanggal_barang_kembali)->format('d/m/Y') : '-' }}
-                            </td>
-
-                            <!-- 10. Penerima Barang -->
-                            <td class="py-2.5 px-3 whitespace-nowrap">
-                                @if($item->penerima_nama)
-                                    <span class="font-semibold text-gray-700">{{ $item->penerima_nama }}</span>
-                                @else
-                                    <span class="text-gray-400 font-normal">&mdash;</span>
-                                @endif
-                            </td>
-
-                            <!-- Aksi -->
-                            <td class="py-2.5 px-3 text-center whitespace-nowrap">
-                                <div class="inline-flex items-center space-x-1">
-                                    @can('klaim_garansi.detail')
-                                    <button wire:click="openDetailModal({{ $item->id }})"
-                                            type="button"
-                                            title="Detail Klaim"
-                                            class="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                        </svg>
-                                    </button>
-                                    @endcan
-
-                                    @can('klaim_garansi.edit')
-                                    <button wire:click="openEditModal({{ $item->id }})"
-                                            type="button"
-                                            title="Edit Klaim"
-                                            class="p-1.5 rounded-lg text-gray-500 hover:text-[#5E17EB] hover:bg-purple-50 transition-colors cursor-pointer">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                    </button>
-                                    @endcan
-
-                                    @can('klaim_garansi.delete')
-                                    <button wire:click="confirmDelete({{ $item->id }}, '{{ $item->no_klaim }}')"
-                                            type="button"
-                                            title="Hapus Klaim"
-                                            class="p-1.5 rounded-lg text-gray-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                    </button>
-                                    @endcan
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="12" class="py-12 text-center">
-                                <div class="flex flex-col items-center justify-center text-gray-400">
-                                    <svg class="w-12 h-12 stroke-current mb-2 text-gray-300" fill="none" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                                    </svg>
-                                    <p class="text-sm font-bold text-gray-600">Belum Ada Data Klaim Garansi</p>
-                                    <p class="text-xs text-gray-400 mt-1">Gunakan tombol "Input Klaim Garansi" untuk mencatat pengajuan klaim baru</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                <span class="text-gray-900 font-black" x-text="'Total ' + rowCount + ' Klaim'"></span>
+            </div>
         </div>
 
-        @if($klaimList->hasPages())
-        <div class="p-4 border-t border-gray-100">
-            {{ $klaimList->links() }}
+        <!-- Tabulator Table Mount Element -->
+        <div :class="'tabulator-size-' + tableSize + ' table-size-' + tableSize + ' tabulator-dense'">
+            <div x-ref="tableContainer" id="klaim-garansi-table" class="rounded-xl border border-gray-200 text-xs"></div>
         </div>
-        @endif
     </div>
 
     <!-- ===================================================================== -->
@@ -471,25 +330,60 @@
                         @endif
                     </div>
 
-                    <!-- Barang (Copy string Varchar, no mutation) -->
-                    <div class="space-y-1">
-                        <label class="block text-xs font-bold text-gray-700">
-                            Barang <span class="text-rose-500 font-bold">*</span>
-                        </label>
-                        <div class="relative">
+                    <!-- Barang (Single Binding & Visual Terpilih Standard) -->
+                    <div class="space-y-1.5" x-data="{ showDropdown: false }">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-bold text-gray-700">
+                                Barang <span class="text-rose-500 font-bold">*</span>
+                            </label>
+                            @if($formBarang)
+                                <span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
+                                    Terisi
+                                </span>
+                            @endif
+                        </div>
+
+                        <!-- Card preview barang terpilih (sangat jelas saat edit) -->
+                        @if($formBarang)
+                            <div class="flex items-center justify-between p-2.5 rounded-xl bg-purple-50/70 border border-purple-200">
+                                <div class="flex items-center space-x-2 min-w-0">
+                                    <div class="w-6 h-6 rounded-lg bg-[#5E17EB] text-white flex items-center justify-center shrink-0">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                        </svg>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="text-[10px] text-gray-500 font-medium block">Nama Barang Tersimpan:</span>
+                                        <span class="text-xs font-extrabold text-gray-900 truncate block">{{ $formBarang }}</span>
+                                    </div>
+                                </div>
+                                <button type="button"
+                                        wire:click="$set('formBarang', '')"
+                                        class="text-xs font-bold text-purple-700 hover:text-purple-900 px-2 py-1 hover:bg-purple-100 rounded-lg transition-colors cursor-pointer shrink-0">
+                                    Ganti
+                                </button>
+                            </div>
+                        @endif
+
+                        <div class="relative" @click.outside="showDropdown = false">
                             <input type="text"
-                                   wire:model="formBarang"
-                                   wire:model.live.debounce.250ms="barangSearch"
-                                   class="w-full text-xs font-semibold px-3.5 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                                   wire:model.live.debounce.250ms="formBarang"
+                                   @focus="showDropdown = true"
+                                   @input="showDropdown = true"
+                                   class="w-full text-xs font-semibold px-3.5 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB] bg-white">
 
                             @if($productSuggestions->isNotEmpty())
-                                <div class="absolute z-20 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-100 max-h-44 overflow-y-auto divide-y divide-gray-50">
+                                <div x-show="showDropdown"
+                                     class="absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-100 max-h-48 overflow-y-auto divide-y divide-gray-50">
+                                    <div class="px-3 py-1.5 bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                        Saran Master Produk (Klik untuk memilih)
+                                    </div>
                                     @foreach($productSuggestions as $pSug)
                                         <button type="button"
-                                                wire:click="selectProduct('{{ addslashes($pSug->nama_produk) }}')"
+                                                wire:click="selectProduct('{{ addslashes($pSug->nama_produk) }}'); showDropdown = false;"
                                                 class="w-full text-left px-3.5 py-2 text-xs hover:bg-purple-50 flex items-center justify-between transition-colors cursor-pointer">
                                             <span class="font-bold text-gray-900">{{ $pSug->nama_produk }}</span>
-                                            <span class="text-gray-400 text-[10px]">Pilih</span>
+                                            <span class="text-gray-400 text-[10px] bg-gray-100 px-1.5 py-0.5 rounded font-mono">Pilih</span>
                                         </button>
                                     @endforeach
                                 </div>
@@ -738,7 +632,7 @@
                     <button wire:click="$set('modalDeleteOpen', false)"
                             type="button"
                             class="px-4 py-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 text-xs font-bold transition-all cursor-pointer">
-                        Batal
+                            Batal
                     </button>
                     <button wire:click="deleteKlaim"
                             type="button"
@@ -760,3 +654,369 @@
 
 </div>
 
+@push('scripts')
+<script src="{{ asset('js/xlsx.full.min.js') }}"></script>
+<script>
+    window.klaimGaransiTable = function(config) {
+        return {
+            table: null,
+            tableData: config.tableData || [],
+            quickSearch: '',
+            groupByDate: false,
+            tableSize: localStorage.getItem('soulmate_table_size') || 'M',
+            rowCount: 0,
+
+            initTable() {
+                const self = this;
+                window.activeKlaimGaransiWire = this.$wire;
+
+                this.$wire.on('klaim-garansi-table-updated', (event) => {
+                    let data = event.data || (Array.isArray(event) ? event[0] : []);
+                    if (self.table) {
+                        self.table.setData(data);
+                        self.rowCount = data.length;
+                    }
+                });
+
+                window.addEventListener('table-size-changed', (e) => {
+                    self.tableSize = e.detail;
+                    if (self.table) {
+                        self.table.redraw(true);
+                    }
+                });
+
+                this.renderTable(this.tableData);
+            },
+
+            applyFilter() {
+                if (!this.table) return;
+                const q = this.quickSearch.trim().toLowerCase();
+                if (!q) {
+                    this.table.clearFilter();
+                    this.rowCount = this.table.getData().length;
+                    return;
+                }
+                const terms = q.split(/\s+/).filter(Boolean);
+                this.table.setFilter((row) => {
+                    const text = [
+                        row.no_klaim || '',
+                        row.customer_nama || '',
+                        row.customer_kontak || '',
+                        row.barang || '',
+                        row.keluhan || '',
+                        row.distributor_nama || '',
+                        row.tindakan || '',
+                        row.penerima_nama || '',
+                        row.tanggal_selesai_klaim_formatted || '',
+                        row.tanggal_masuk_formatted || ''
+                    ].join(' ').toLowerCase();
+                    return terms.every(term => text.includes(term));
+                });
+                this.rowCount = this.table.getData("active").length;
+            },
+
+            clearAllFilters() {
+                this.quickSearch = '';
+                if (this.table) {
+                    this.table.clearFilter();
+                    this.rowCount = this.table.getData().length;
+                }
+            },
+
+            toggleGroupDate() {
+                this.groupByDate = !this.groupByDate;
+                if (this.table) {
+                    this.table.setGroupBy(this.groupByDate ? "tanggal_group" : false);
+                    this.table.redraw(true);
+                }
+            },
+
+            renderTable(data) {
+                const self = this;
+                const container = this.$refs.tableContainer || document.getElementById('klaim-garansi-table');
+                if (!container) return;
+
+                this.table = new Tabulator(container, {
+                    data: data,
+                    layout: "fitColumns",
+                    responsiveLayout: false,
+                    pagination: "local",
+                    paginationSize: 200,
+                    paginationSizeSelector: [200, 1000, 2000, 10000],
+                    groupBy: this.groupByDate ? "tanggal_group" : false,
+                    groupOrder: function(a, b, aGroup, bGroup) {
+                        let aRows = aGroup.getRows();
+                        let bRows = bGroup.getRows();
+                        let aTime = aRows.length ? (aRows[0].getData().epoch_sort || 0) : 0;
+                        let bTime = bRows.length ? (bRows[0].getData().epoch_sort || 0) : 0;
+                        return bTime - aTime;
+                    },
+                    initialSort: [
+                        { column: "tanggal_selesai_klaim", dir: "desc" }
+                    ],
+                    groupStartOpen: true,
+                    dataFiltered: function(filters, rows) {
+                        self.rowCount = rows.length;
+                    },
+                    groupHeader: function(value, count, groupData) {
+                        return `
+                            <div class="flex flex-wrap items-center justify-between w-full pr-3 py-0.5 text-xs font-bold text-slate-800 cursor-pointer select-none">
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded-md bg-[#5E17EB]/10 text-[#5E17EB] font-black">${value}</span>
+                                    <span class="text-slate-600 font-bold text-[11px] font-mono">(${count} Klaim)</span>
+                                </div>
+                            </div>
+                        `;
+                    },
+                    placeholder: "Belum ada data klaim garansi.",
+                    columns: [
+                        // NO
+                        {
+                            title: "No",
+                            field: "no",
+                            width: 42,
+                            minWidth: 38,
+                            hozAlign: "center",
+                            headerHozAlign: "center",
+                            formatter: (cell) => `<span class="font-mono font-bold text-slate-500">${cell.getValue()}</span>`
+                        },
+                        // 1. Tanggal Selesai Klaim (Posisi 1 terdepan - default sort desc)
+                        {
+                            title: "Tanggal Selesai Klaim",
+                            field: "tanggal_selesai_klaim",
+                            width: 140,
+                            minWidth: 120,
+                            hozAlign: "center",
+                            headerHozAlign: "center",
+                            formatter: (cell) => {
+                                const d = cell.getData();
+                                if (d.tanggal_selesai_klaim_formatted) {
+                                    return `<span class="inline-flex items-center px-2 py-0.5 rounded-md font-bold text-emerald-700 bg-emerald-50 border border-emerald-200">${d.tanggal_selesai_klaim_formatted}</span>`;
+                                }
+                                return '<span class="text-gray-300 font-bold">-</span>';
+                            }
+                        },
+                        // 2. Tanggal barang masuk (Posisi 2)
+                        {
+                            title: "Tanggal barang masuk",
+                            field: "tanggal_masuk",
+                            width: 135,
+                            minWidth: 115,
+                            hozAlign: "center",
+                            headerHozAlign: "center",
+                            formatter: (cell) => {
+                                const d = cell.getData();
+                                return `<span class="font-semibold text-gray-800">${d.tanggal_masuk_formatted || '-'}</span>`;
+                            }
+                        },
+                        // 3. Customer
+                        {
+                            title: "Customer",
+                            field: "customer_nama",
+                            width: 140,
+                            minWidth: 120,
+                            formatter: (cell) => {
+                                const d = cell.getData();
+                                return `
+                                    <div class="leading-tight py-0.5">
+                                        <div class="font-bold text-gray-900 truncate" title="${d.customer_nama}">${d.customer_nama}</div>
+                                        ${d.customer_kontak ? `<div class="text-[10.5px] text-gray-400 font-mono">${d.customer_kontak}</div>` : ''}
+                                    </div>
+                                `;
+                            }
+                        },
+                        // 4. Barang (Menyerap ruang)
+                        {
+                            title: "Barang",
+                            field: "barang",
+                            widthGrow: 1,
+                            minWidth: 130,
+                            formatter: (cell) => `<span class="font-bold text-gray-900 block truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
+                        },
+                        // 5. Keluhan
+                        {
+                            title: "Keluhan",
+                            field: "keluhan",
+                            widthGrow: 1,
+                            minWidth: 150,
+                            formatter: (cell) => `<span class="text-gray-600 block text-xs leading-snug line-clamp-2" title="${cell.getValue()}">${cell.getValue()}</span>`
+                        },
+                        // 6. Distributor
+                        {
+                            title: "Distributor",
+                            field: "distributor_nama",
+                            width: 135,
+                            minWidth: 115,
+                            hozAlign: "center",
+                            headerHozAlign: "center",
+                            formatter: (cell) => {
+                                const val = cell.getValue();
+                                if (!val || val === '-') return '<span class="text-gray-300 font-bold">-</span>';
+                                return `<span class="inline-block px-2 py-0.5 rounded text-[10.5px] font-bold bg-purple-50 text-[#5E17EB] border border-purple-200">${val}</span>`;
+                            }
+                        },
+                        // 7. Tanggal Kirim
+                        {
+                            title: "Tanggal Kirim",
+                            field: "tanggal_kirim",
+                            width: 115,
+                            minWidth: 100,
+                            hozAlign: "center",
+                            headerHozAlign: "center",
+                            formatter: (cell) => {
+                                const d = cell.getData();
+                                return d.tanggal_kirim_formatted ? `<span class="font-medium text-gray-700">${d.tanggal_kirim_formatted}</span>` : '<span class="text-gray-300 font-bold">-</span>';
+                            }
+                        },
+                        // 8. Tindakan
+                        {
+                            title: "Tindakan",
+                            field: "tindakan",
+                            widthGrow: 1,
+                            minWidth: 130,
+                            formatter: (cell) => {
+                                const val = cell.getValue();
+                                if (!val || val === '-') return '<span class="text-gray-300 font-bold">-</span>';
+                                return `<span class="text-gray-700 block text-xs leading-snug line-clamp-2" title="${val}">${val}</span>`;
+                            }
+                        },
+                        // 9. Tanggal Barang Kembali
+                        {
+                            title: "Tanggal Barang Kembali",
+                            field: "tanggal_barang_kembali",
+                            width: 135,
+                            minWidth: 115,
+                            hozAlign: "center",
+                            headerHozAlign: "center",
+                            formatter: (cell) => {
+                                const d = cell.getData();
+                                return d.tanggal_barang_kembali_formatted ? `<span class="font-medium text-gray-700">${d.tanggal_barang_kembali_formatted}</span>` : '<span class="text-gray-300 font-bold">-</span>';
+                            }
+                        },
+                        // 10. Penerima Barang
+                        {
+                            title: "Penerima Barang",
+                            field: "penerima_nama",
+                            width: 130,
+                            minWidth: 110,
+                            hozAlign: "center",
+                            headerHozAlign: "center",
+                            formatter: (cell) => {
+                                const val = cell.getValue();
+                                if (!val || val === '-') return '<span class="text-gray-300 font-bold">-</span>';
+                                return `<span class="font-semibold text-gray-800">${val}</span>`;
+                            }
+                        },
+                        // Aksi
+                        {
+                            title: "Aksi",
+                            field: "id",
+                            width: 80,
+                            minWidth: 76,
+                            hozAlign: "center",
+                            headerHozAlign: "center",
+                            headerSort: false,
+                            formatter: (cell) => {
+                                const d = cell.getData();
+                                const safeNoKlaim = (d.no_klaim || '').replace(/'/g, "\\'");
+                                return `
+                                    <div class="flex items-center justify-center gap-0.5">
+                                        <!-- Detail -->
+                                        <button
+                                            type="button"
+                                            onclick="window.openDetailKlaim(${d.id})"
+                                            class="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                                            title="Detail Klaim"
+                                        >
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+
+                                        <!-- Edit -->
+                                        <button
+                                            type="button"
+                                            onclick="window.openEditKlaim(${d.id})"
+                                            class="p-1 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors cursor-pointer"
+                                            title="Edit Klaim"
+                                        >
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+
+                                        <!-- Hapus -->
+                                        <button
+                                            type="button"
+                                            onclick="window.confirmDeleteKlaim(${d.id}, '${safeNoKlaim}')"
+                                            class="p-1 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                            title="Hapus Klaim"
+                                        >
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                `;
+                            }
+                        }
+                    ]
+                });
+
+                this.rowCount = data.length;
+            },
+
+            exportExcel() {
+                if (typeof XLSX === 'undefined') {
+                    alert('Library export Excel sedang dimuat, silakan coba sesaat lagi.');
+                    return;
+                }
+                const rows = this.table.getData();
+                if (!rows.length) {
+                    alert('Tidak ada data klaim untuk diekspor.');
+                    return;
+                }
+                const formatted = rows.map((r, i) => ({
+                    'No': i + 1,
+                    'No Klaim': r.no_klaim,
+                    'Tanggal Selesai Klaim': r.tanggal_selesai_klaim_formatted || '-',
+                    'Tanggal Barang Masuk': r.tanggal_masuk_formatted || '-',
+                    'Customer': r.customer_nama,
+                    'Kontak Customer': r.customer_kontak || '-',
+                    'Barang': r.barang,
+                    'Keluhan': r.keluhan,
+                    'Distributor': r.distributor_nama,
+                    'Tanggal Kirim': r.tanggal_kirim_formatted || '-',
+                    'Tindakan': r.tindakan,
+                    'Tanggal Barang Kembali': r.tanggal_barang_kembali_formatted || '-',
+                    'Penerima Barang': r.penerima_nama,
+                }));
+                const ws = XLSX.utils.json_to_sheet(formatted);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Klaim Garansi");
+                XLSX.writeFile(wb, `Laporan_Klaim_Garansi_${new Date().toISOString().slice(0, 10)}.xlsx`);
+            }
+        };
+    };
+
+    // Global action helpers
+    window.openDetailKlaim = function(id) {
+        if (window.activeKlaimGaransiWire) {
+            window.activeKlaimGaransiWire.openDetailModal(id);
+        }
+    };
+
+    window.openEditKlaim = function(id) {
+        if (window.activeKlaimGaransiWire) {
+            window.activeKlaimGaransiWire.openEditModal(id);
+        }
+    };
+
+    window.confirmDeleteKlaim = function(id, noKlaim) {
+        if (window.activeKlaimGaransiWire) {
+            window.activeKlaimGaransiWire.confirmDelete(id, noKlaim);
+        }
+    };
+</script>
+@endpush

@@ -15,14 +15,11 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 #[Layout('layouts.app')]
 #[Title('Klaim Garansi - Manajemen Servis & Klaim Distributor - Soulmate Komputer')]
 class Index extends Component
 {
-    use WithPagination;
-
     #[Url(except: '')]
     public string $search = '';
 
@@ -37,8 +34,6 @@ class Index extends Component
     public string $endDate = '';
     public string $filterBulan = '';
     public string $filterTahun = '';
-
-    public int $perPage = 200;
 
     // State Modal Form (Create / Edit)
     public bool $modalFormOpen = false;
@@ -55,8 +50,7 @@ class Index extends Component
     public string $newCustomerNama = '';
     public string $newCustomerKontak = '';
 
-    // Data Barang & Keluhan
-    public string $barangSearch = '';
+    // Data Barang & Keluhan (Single model binding for zero confusion)
     public string $formBarang = '';
     public string $formKeluhan = '';
 
@@ -90,14 +84,12 @@ class Index extends Component
     {
         $this->periodeMode = $mode;
         $this->setPeriodeDates();
-        $this->resetPage();
     }
 
     public function updatedFilterBulan(): void
     {
         if ($this->periodeMode === 'bulanan') {
             $this->setPeriodeDates();
-            $this->resetPage();
         }
     }
 
@@ -105,33 +97,7 @@ class Index extends Component
     {
         if (in_array($this->periodeMode, ['bulanan', 'tahunan'], true)) {
             $this->setPeriodeDates();
-            $this->resetPage();
         }
-    }
-
-    public function updatedStartDate(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatedEndDate(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatedSearch(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatedDistributorFilter(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatedCabangFilter(): void
-    {
-        $this->resetPage();
     }
 
     private function setPeriodeDates(): void
@@ -188,7 +154,6 @@ class Index extends Component
     public function selectProduct(string $namaProduk): void
     {
         $this->formBarang = $namaProduk;
-        $this->barangSearch = '';
     }
 
     // =========================================================================
@@ -225,6 +190,7 @@ class Index extends Component
         $this->selectedCustomerKontak = $klaim->customer_kontak ?? '';
         $this->customerType = 'langganan';
 
+        // Pastikan nama barang terisi penuh dan jelas di form
         $this->formBarang = $klaim->barang;
         $this->formKeluhan = $klaim->keluhan;
         $this->formMasterDistributorId = $klaim->master_distributor_id;
@@ -258,7 +224,6 @@ class Index extends Component
         $this->newCustomerNama = '';
         $this->newCustomerKontak = '';
 
-        $this->barangSearch = '';
         $this->formBarang = '';
         $this->formKeluhan = '';
 
@@ -372,6 +337,7 @@ class Index extends Component
         }
 
         $this->closeModal();
+        $this->dispatch('klaim-garansi-table-updated', data: $this->getTableData());
     }
 
     // =========================================================================
@@ -429,10 +395,11 @@ class Index extends Component
         $this->modalDeleteOpen = false;
         $this->deleteId = null;
         $this->deleteNoKlaim = '';
+        $this->dispatch('klaim-garansi-table-updated', data: $this->getTableData());
     }
 
     // =========================================================================
-    // EXPORT EXCEL
+    // EXPORT EXCEL (CSV / XLSX Fallback)
     // =========================================================================
 
     public function exportExcel()
@@ -453,10 +420,8 @@ class Index extends Component
 
         return response()->stream(function () use ($data) {
             $handle = fopen('php://output', 'w');
-            // UTF-8 BOM
             fputs($handle, "\xEF\xBB\xBF");
 
-            // Header kolom
             fputcsv($handle, [
                 'No',
                 'No Klaim',
@@ -496,7 +461,7 @@ class Index extends Component
     }
 
     // =========================================================================
-    // QUERY BUILDER (Slim Query + toBase)
+    // QUERY BUILDER & TABLE DATA MAPPING (Tabulator Standard)
     // =========================================================================
 
     private function buildQuery()
@@ -576,6 +541,49 @@ class Index extends Component
         return $query;
     }
 
+    public function getTableData(): array
+    {
+        $rawItems = $this->buildQuery()->get();
+
+        return $rawItems->map(function ($item, $index) {
+            $tglSelesaiFormatted = $item->tanggal_selesai_klaim ? Carbon::parse($item->tanggal_selesai_klaim)->format('d/m/Y') : '';
+            $tglMasukFormatted = $item->tanggal_masuk ? Carbon::parse($item->tanggal_masuk)->format('d/m/Y') : '';
+            $tglKirimFormatted = $item->tanggal_kirim ? Carbon::parse($item->tanggal_kirim)->format('d/m/Y') : '';
+            $tglKembaliFormatted = $item->tanggal_barang_kembali ? Carbon::parse($item->tanggal_barang_kembali)->format('d/m/Y') : '';
+
+            $tglGroup = $item->tanggal_selesai_klaim
+                ? Carbon::parse($item->tanggal_selesai_klaim)->translatedFormat('l, d F Y')
+                : ($item->tanggal_masuk ? Carbon::parse($item->tanggal_masuk)->translatedFormat('l, d F Y') : '-');
+
+            $epochSort = $item->tanggal_selesai_klaim
+                ? strtotime($item->tanggal_selesai_klaim)
+                : ($item->tanggal_masuk ? strtotime($item->tanggal_masuk) : 0);
+
+            return [
+                'no' => $index + 1,
+                'id' => $item->id,
+                'no_klaim' => $item->no_klaim,
+                'tanggal_selesai_klaim' => $item->tanggal_selesai_klaim,
+                'tanggal_selesai_klaim_formatted' => $tglSelesaiFormatted,
+                'tanggal_masuk' => $item->tanggal_masuk,
+                'tanggal_masuk_formatted' => $tglMasukFormatted,
+                'tanggal_group' => $tglGroup,
+                'epoch_sort' => $epochSort,
+                'customer_nama' => $item->customer_nama,
+                'customer_kontak' => $item->customer_kontak ?: '',
+                'barang' => $item->barang,
+                'keluhan' => $item->keluhan,
+                'distributor_nama' => $item->distributor_nama ?: '-',
+                'tanggal_kirim' => $item->tanggal_kirim,
+                'tanggal_kirim_formatted' => $tglKirimFormatted,
+                'tindakan' => $item->tindakan ?: '-',
+                'tanggal_barang_kembali' => $item->tanggal_barang_kembali,
+                'tanggal_barang_kembali_formatted' => $tglKembaliFormatted,
+                'penerima_nama' => $item->penerima_nama ?: '-',
+            ];
+        })->toArray();
+    }
+
     public function render()
     {
         $user = Auth::user();
@@ -608,10 +616,10 @@ class Index extends Component
             $customerSuggestions = $cQuery->orderBy('nama')->limit(8)->get(['id', 'nama', 'no_hp']);
         }
 
-        // Produk suggestions saat ketik nama barang di modal form (tanpa mutasi stok)
+        // Produk suggestions saat ketik nama barang di modal form (langsung terikat ke formBarang)
         $productSuggestions = collect();
-        if ($this->modalFormOpen && strlen(trim($this->barangSearch)) >= 2) {
-            $pSearch = trim($this->barangSearch);
+        if ($this->modalFormOpen && strlen(trim($this->formBarang)) >= 2) {
+            $pSearch = trim($this->formBarang);
             $pTokens = array_filter(explode(' ', $pSearch));
             $pQuery = Produk::query();
             foreach ($pTokens as $token) {
@@ -624,11 +632,16 @@ class Index extends Component
             $productSuggestions = $pQuery->orderBy('nama_produk')->limit(8)->get(['id', 'nama_produk']);
         }
 
-        // Query Utama dengan toBase() (Ponytail requirement: slim memory, no model hydration overhead)
-        $klaimList = $this->buildQuery()->paginate($this->perPage);
+        // Siapkan Tabulator data (Rule 24: isolasi payload jika modal terbuka)
+        $tableData = [];
+        if (! $this->modalFormOpen) {
+            $tableData = $this->getTableData();
+            $this->dispatch('klaim-garansi-table-updated', data: $tableData);
+        }
 
         return view('livewire.klaim-garansi.index', [
-            'klaimList' => $klaimList,
+            'tableData' => $tableData,
+            'totalKlaimCount' => count($tableData),
             'cabangs' => $cabangs,
             'distributors' => $distributors,
             'pegawais' => $pegawais,
@@ -638,4 +651,3 @@ class Index extends Component
         ]);
     }
 }
-
