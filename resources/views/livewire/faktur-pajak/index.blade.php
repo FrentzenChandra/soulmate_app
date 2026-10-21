@@ -809,7 +809,7 @@
                             headerHozAlign: "center",
                             formatter: (cell) => `<span class="font-mono font-bold text-slate-500">${cell.getValue()}</span>`
                         },
-                        // 2. STATUS SELESAI - FIT TO CONTENT
+                        // 2. STATUS SELESAI - INTERAKTIF DENGAN ICON TOGGLE
                         {
                             title: "Selesai",
                             field: "is_selesai",
@@ -818,24 +818,26 @@
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
-                                const isSelesai = cell.getValue();
-                                if (isSelesai) {
-                                    return `
-                                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 shadow-2xs" title="Selesai">
-                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        </span>
-                                    `;
-                                } else {
-                                    return `
-                                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-rose-100 text-rose-600 shadow-2xs" title="Belum Selesai">
-                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </span>
-                                    `;
-                                }
+                                const d = cell.getData();
+                                const isSelesai = !!cell.getValue();
+                                const safeNama = (d.nama || '').replace(/'/g, "\\'");
+                                const toggleTitle = isSelesai ? 'Tandai Belum Selesai' : 'Tandai Selesai';
+                                const btnClass = isSelesai
+                                    ? 'bg-emerald-100 hover:bg-amber-100 text-emerald-700 hover:text-amber-700 border-emerald-300 hover:border-amber-300'
+                                    : 'bg-gray-100 hover:bg-emerald-100 text-gray-400 hover:text-emerald-700 border-gray-300 hover:border-emerald-300';
+
+                                return `
+                                    <button
+                                        type="button"
+                                        onclick="window.toggleSelesaiConfirm(${d.id}, ${isSelesai ? 'true' : 'false'}, '${safeNama}')"
+                                        class="inline-flex items-center justify-center w-5.5 h-5.5 rounded-lg border ${btnClass} transition-colors cursor-pointer shadow-2xs"
+                                        title="${toggleTitle}"
+                                    >
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </button>
+                                `;
                             }
                         },
                         // 3. NAMA - FIT TO CONTENT
@@ -973,30 +975,16 @@
                         {
                             title: "Aksi",
                             field: "id",
-                            width: 88,
-                            minWidth: 84,
+                            width: 72,
+                            minWidth: 68,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             headerSort: false,
                             formatter: (cell) => {
                                 const d = cell.getData();
-                                const toggleTitle = d.is_selesai ? 'Tandai Belum Selesai' : 'Tandai Selesai';
-                                const toggleClass = d.is_selesai ? 'text-amber-600 hover:bg-amber-50' : 'text-emerald-600 hover:bg-emerald-50';
                                 const safeNama = (d.nama || '').replace(/'/g, "\\'");
                                 return `
                                     <div class="flex items-center justify-center gap-0.5">
-                                        <!-- Tombol Centang (Toggle Selesai dengan Konfirmasi) -->
-                                        <button
-                                            type="button"
-                                            onclick="window.toggleSelesaiConfirm(${d.id}, ${d.is_selesai ? 'true' : 'false'}, '${safeNama}')"
-                                            class="p-0.5 rounded ${toggleClass} transition-colors cursor-pointer"
-                                            title="${toggleTitle}"
-                                        >
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        </button>
-
                                         <!-- Detail -->
                                         <button
                                             type="button"
