@@ -50,7 +50,8 @@ class WifiAbsenTest extends TestCase
             ->assertOk()
             ->assertDontSee('Semua Cabang') // Obfuscated
             ->call('openCreateModal')
-            ->assertSet('cabang_id', $superadminPkp->cabang_id);
+            ->assertSet('cabang_id', $superadminPkp->cabang_id)
+            ->assertSet('ip_address', '127.0.0.1');
     }
 
     public function test_owner_can_manage_all_branches(): void

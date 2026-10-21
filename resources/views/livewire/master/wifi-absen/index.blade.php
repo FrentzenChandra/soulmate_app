@@ -266,14 +266,24 @@
 
                             <!-- IP Address -->
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">
-                                    IP Address <span class="text-rose-500 font-bold">*</span>
-                                </label>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-bold text-gray-700">
+                                        IP Address <span class="text-rose-500 font-bold">*</span>
+                                    </label>
+                                    <button type="button"
+                                            wire:click="useCurrentIp"
+                                            class="text-[11px] font-bold text-[#5E17EB] hover:text-purple-800 transition-colors cursor-pointer inline-flex items-center space-x-1">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        <span>Ambil IP Saat Ini</span>
+                                    </button>
+                                </div>
                                 <input type="text"
                                        wire:model="ip_address"
                                        class="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-xs font-mono font-bold text-gray-800 focus:bg-white focus:border-[#5E17EB]">
                                 <p class="text-[11px] text-gray-400 mt-1">
-                                    Masukkan IP public atau IP jaringan lokal router toko (contoh: 192.168.1.1 atau 127.0.0.1).
+                                    IP otomatis terisi dengan alamat jaringan perangkat Anda saat ini.
                                 </p>
                                 @error('ip_address') <span class="text-rose-500 text-[11px] font-bold">{{ $message }}</span> @enderror
                             </div>

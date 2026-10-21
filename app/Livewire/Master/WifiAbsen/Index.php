@@ -93,7 +93,7 @@ class Index extends Component
         $this->isEdit = false;
         $this->wifiId = null;
         $this->nama = '';
-        $this->ip_address = '';
+        $this->ip_address = trim(request()->ip() ?? '');
         $this->is_aktif = true;
 
         if ($user->isSuperadmin()) {
@@ -125,6 +125,11 @@ class Index extends Component
         $this->cabang_id = $wifi->cabang_id;
 
         $this->modalOpen = true;
+    }
+
+    public function useCurrentIp(): void
+    {
+        $this->ip_address = trim(request()->ip() ?? '');
     }
 
     public function closeModal(): void
