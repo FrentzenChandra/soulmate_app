@@ -399,68 +399,6 @@ class Index extends Component
     }
 
     // =========================================================================
-    // EXPORT EXCEL (CSV / XLSX Fallback)
-    // =========================================================================
-
-    public function exportExcel()
-    {
-        $user = Auth::user();
-        abort_if(! $user || (! $user->isOwner() && ! $user->can('klaim_garansi.export_excel')), 403, 'Akses export excel dibatasi.');
-
-        $data = $this->buildQuery()->get();
-
-        $csvFileName = 'Klaim_Garansi_' . date('Ymd_His') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$csvFileName}\"",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
-        ];
-
-        return response()->stream(function () use ($data) {
-            $handle = fopen('php://output', 'w');
-            fputs($handle, "\xEF\xBB\xBF");
-
-            fputcsv($handle, [
-                'No',
-                'No Klaim',
-                'Tanggal Selesai Klaim',
-                'Tanggal Barang Masuk',
-                'Customer',
-                'Kontak',
-                'Barang',
-                'Keluhan',
-                'Distributor',
-                'Tanggal Kirim',
-                'Tindakan',
-                'Tanggal Barang Kembali',
-                'Penerima Barang',
-            ]);
-
-            $no = 1;
-            foreach ($data as $row) {
-                fputcsv($handle, [
-                    $no++,
-                    $row->no_klaim,
-                    $row->tanggal_selesai_klaim ?: '-',
-                    $row->tanggal_masuk ?: '-',
-                    $row->customer_nama ?: '-',
-                    $row->customer_kontak ?: '-',
-                    $row->barang,
-                    $row->keluhan,
-                    $row->distributor_nama ?: '-',
-                    $row->tanggal_kirim ?: '-',
-                    $row->tindakan ?: '-',
-                    $row->tanggal_barang_kembali ?: '-',
-                    $row->penerima_nama ?: '-',
-                ]);
-            }
-            fclose($handle);
-        }, 200, $headers);
-    }
-
-    // =========================================================================
     // QUERY BUILDER & TABLE DATA MAPPING (Tabulator Standard)
     // =========================================================================
 

@@ -166,30 +166,48 @@
             </div>
 
             <div class="flex items-center gap-3 text-xs text-gray-900 font-bold flex-wrap">
-                <!-- Toggle Group Tanggal -->
-                <button type="button"
-                        @click="toggleGroupDate()"
-                        class="px-2.5 py-1 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                        :class="groupByDate ? 'bg-purple-50 text-[#5E17EB] border-purple-200 shadow-2xs' : 'border-gray-300 text-gray-900 hover:bg-gray-50'">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    <span x-text="groupByDate ? 'Group Tanggal (ON)' : 'Group Tanggal'"></span>
-                </button>
+                <!-- Dropdown Group per Tanggal atau Hari -->
+                <div class="flex items-center gap-1.5">
+                    <div class="relative">
+                        <select x-model="groupMode"
+                                @change="handleGroupChange($event.target.value)"
+                                class="text-xs font-bold pl-8 pr-7 py-1.5 rounded-xl border border-gray-300 text-gray-800 bg-white hover:border-[#5E17EB] focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB] transition-colors cursor-pointer shadow-2xs appearance-none">
+                            <option value="tanggal">Group: Per Tanggal</option>
+                            <option value="none">Tanpa Grouping</option>
+                        </select>
+                        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#5E17EB]">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-gray-500">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Quick Collapse / Expand Buttons saat Group Aktif -->
+                    <template x-if="groupMode === 'tanggal'">
+                        <div class="flex items-center gap-1 border-l border-gray-200 pl-1.5">
+                            <button type="button"
+                                    @click="expandAllGroups()"
+                                    class="px-2 py-1 text-[11px] font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors cursor-pointer"
+                                    title="Buka Semua Dropdown Tanggal">
+                                Buka Semua
+                            </button>
+                            <button type="button"
+                                    @click="collapseAllGroups()"
+                                    class="px-2 py-1 text-[11px] font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer"
+                                    title="Tutup Semua Dropdown Tanggal">
+                                Tutup Semua
+                            </button>
+                        </div>
+                    </template>
+                </div>
 
                 <!-- Font Size Selector (Rule 11) -->
                 <x-table-size-selector />
-
-                <!-- Tombol Export Excel -->
-                @canany(['klaim_garansi.export_excel', 'owner'])
-                <div class="flex items-center gap-1.5 border-l border-gray-200 pl-2">
-                    <button type="button"
-                            @click="exportExcel()"
-                            class="px-2.5 py-1 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                            title="Download Excel (.xlsx)">
-                        <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        <span>Excel</span>
-                    </button>
-                </div>
-                @endcanany
 
                 <span class="text-gray-900 font-black" x-text="'Total ' + rowCount + ' Klaim'"></span>
             </div>
@@ -654,15 +672,56 @@
 
 </div>
 
+@push('styles')
+<style>
+    /* 2 Baris untuk Judul Kolom (TH) agar pas dan tidak truncate */
+    #klaim-garansi-table .tabulator-header .tabulator-col {
+        height: auto !important;
+        vertical-align: middle !important;
+    }
+    #klaim-garansi-table .tabulator-header .tabulator-col .tabulator-col-content {
+        padding: 6px 3px !important;
+        height: auto !important;
+    }
+    #klaim-garansi-table .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
+        white-space: normal !important;
+        line-height: 1.25 !important;
+        text-overflow: clip !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+        max-height: none !important;
+        display: block !important;
+        font-size: 10px !important;
+        letter-spacing: 0.02em !important;
+    }
+    /* Group Header Collapsible Accordion Indicator */
+    #klaim-garansi-table .tabulator-row.tabulator-group {
+        background-color: #f8fafc !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        cursor: pointer !important;
+        transition: background-color 0.15s ease;
+    }
+    #klaim-garansi-table .tabulator-row.tabulator-group:hover {
+        background-color: #f1f5f9 !important;
+    }
+    #klaim-garansi-table .tabulator-group .tabulator-group-chevron {
+        transition: transform 0.2s ease;
+        transform: rotate(0deg);
+    }
+    #klaim-garansi-table .tabulator-group:not(.tabulator-group-visible) .tabulator-group-chevron {
+        transform: rotate(-90deg);
+    }
+</style>
+@endpush
+
 @push('scripts')
-<script src="{{ asset('js/xlsx.full.min.js') }}"></script>
 <script>
     window.klaimGaransiTable = function(config) {
         return {
             table: null,
             tableData: config.tableData || [],
             quickSearch: '',
-            groupByDate: false,
+            groupMode: 'tanggal',
             tableSize: localStorage.getItem('soulmate_table_size') || 'M',
             rowCount: 0,
 
@@ -723,11 +782,23 @@
                 }
             },
 
-            toggleGroupDate() {
-                this.groupByDate = !this.groupByDate;
+            handleGroupChange(val) {
+                this.groupMode = val;
                 if (this.table) {
-                    this.table.setGroupBy(this.groupByDate ? "tanggal_group" : false);
+                    this.table.setGroupBy(val === 'tanggal' ? "tanggal_group" : false);
                     this.table.redraw(true);
+                }
+            },
+
+            expandAllGroups() {
+                if (this.table) {
+                    this.table.getGroups().forEach(g => g.show());
+                }
+            },
+
+            collapseAllGroups() {
+                if (this.table) {
+                    this.table.getGroups().forEach(g => g.hide());
                 }
             },
 
@@ -743,7 +814,9 @@
                     pagination: "local",
                     paginationSize: 200,
                     paginationSizeSelector: [200, 1000, 2000, 10000],
-                    groupBy: this.groupByDate ? "tanggal_group" : false,
+                    groupBy: this.groupMode === 'tanggal' ? "tanggal_group" : false,
+                    groupToggleElement: "header",
+                    groupStartOpen: true,
                     groupOrder: function(a, b, aGroup, bGroup) {
                         let aRows = aGroup.getRows();
                         let bRows = bGroup.getRows();
@@ -754,17 +827,20 @@
                     initialSort: [
                         { column: "tanggal_selesai_klaim", dir: "desc" }
                     ],
-                    groupStartOpen: true,
                     dataFiltered: function(filters, rows) {
                         self.rowCount = rows.length;
                     },
-                    groupHeader: function(value, count, groupData) {
+                    groupHeader: function(value, count, data, group) {
                         return `
-                            <div class="flex flex-wrap items-center justify-between w-full pr-3 py-0.5 text-xs font-bold text-slate-800 cursor-pointer select-none">
+                            <div class="flex items-center justify-between w-full pr-3 py-1 text-xs font-bold text-slate-800 cursor-pointer select-none">
                                 <div class="flex items-center gap-2">
-                                    <span class="px-2 py-0.5 rounded-md bg-[#5E17EB]/10 text-[#5E17EB] font-black">${value}</span>
+                                    <svg class="w-4 h-4 text-[#5E17EB] tabulator-group-chevron shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                    <span class="px-2.5 py-0.5 rounded-lg bg-[#5E17EB]/10 text-[#5E17EB] font-black text-xs">${value}</span>
                                     <span class="text-slate-600 font-bold text-[11px] font-mono">(${count} Klaim)</span>
                                 </div>
+                                <span class="text-[10px] text-gray-400 font-semibold hidden sm:inline-block">Klik baris untuk buka atau tutup</span>
                             </div>
                         `;
                     },
@@ -773,9 +849,10 @@
                         // NO
                         {
                             title: "No",
+                            titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">No</div>`,
                             field: "no",
-                            width: 42,
-                            minWidth: 38,
+                            width: 44,
+                            minWidth: 40,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => `<span class="font-mono font-bold text-slate-500">${cell.getValue()}</span>`
@@ -783,9 +860,10 @@
                         // 1. Tanggal Selesai Klaim (Posisi 1 terdepan - default sort desc)
                         {
                             title: "Tanggal Selesai Klaim",
+                            titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Tanggal Selesai<br>Klaim</div>`,
                             field: "tanggal_selesai_klaim",
-                            width: 140,
-                            minWidth: 120,
+                            width: 135,
+                            minWidth: 115,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
@@ -799,9 +877,10 @@
                         // 2. Tanggal barang masuk (Posisi 2)
                         {
                             title: "Tanggal barang masuk",
+                            titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Tanggal Barang<br>Masuk</div>`,
                             field: "tanggal_masuk",
-                            width: 135,
-                            minWidth: 115,
+                            width: 130,
+                            minWidth: 110,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
@@ -812,6 +891,7 @@
                         // 3. Customer
                         {
                             title: "Customer",
+                            titleFormatter: () => `<div class="leading-tight text-left font-extrabold uppercase">Customer</div>`,
                             field: "customer_nama",
                             width: 140,
                             minWidth: 120,
@@ -828,6 +908,7 @@
                         // 4. Barang (Menyerap ruang)
                         {
                             title: "Barang",
+                            titleFormatter: () => `<div class="leading-tight text-left font-extrabold uppercase">Barang</div>`,
                             field: "barang",
                             widthGrow: 1,
                             minWidth: 130,
@@ -836,6 +917,7 @@
                         // 5. Keluhan
                         {
                             title: "Keluhan",
+                            titleFormatter: () => `<div class="leading-tight text-left font-extrabold uppercase">Keluhan</div>`,
                             field: "keluhan",
                             widthGrow: 1,
                             minWidth: 150,
@@ -844,9 +926,10 @@
                         // 6. Distributor
                         {
                             title: "Distributor",
+                            titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Distributor</div>`,
                             field: "distributor_nama",
-                            width: 135,
-                            minWidth: 115,
+                            width: 130,
+                            minWidth: 110,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
@@ -858,9 +941,10 @@
                         // 7. Tanggal Kirim
                         {
                             title: "Tanggal Kirim",
+                            titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Tanggal<br>Kirim</div>`,
                             field: "tanggal_kirim",
-                            width: 115,
-                            minWidth: 100,
+                            width: 110,
+                            minWidth: 95,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
@@ -871,6 +955,7 @@
                         // 8. Tindakan
                         {
                             title: "Tindakan",
+                            titleFormatter: () => `<div class="leading-tight text-left font-extrabold uppercase">Tindakan</div>`,
                             field: "tindakan",
                             widthGrow: 1,
                             minWidth: 130,
@@ -883,9 +968,10 @@
                         // 9. Tanggal Barang Kembali
                         {
                             title: "Tanggal Barang Kembali",
+                            titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Tanggal Barang<br>Kembali</div>`,
                             field: "tanggal_barang_kembali",
-                            width: 135,
-                            minWidth: 115,
+                            width: 130,
+                            minWidth: 110,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
@@ -896,9 +982,10 @@
                         // 10. Penerima Barang
                         {
                             title: "Penerima Barang",
+                            titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Penerima<br>Barang</div>`,
                             field: "penerima_nama",
-                            width: 130,
-                            minWidth: 110,
+                            width: 125,
+                            minWidth: 105,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
@@ -910,6 +997,7 @@
                         // Aksi
                         {
                             title: "Aksi",
+                            titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Aksi</div>`,
                             field: "id",
                             width: 80,
                             minWidth: 76,
@@ -965,37 +1053,6 @@
                 });
 
                 this.rowCount = data.length;
-            },
-
-            exportExcel() {
-                if (typeof XLSX === 'undefined') {
-                    alert('Library export Excel sedang dimuat, silakan coba sesaat lagi.');
-                    return;
-                }
-                const rows = this.table.getData();
-                if (!rows.length) {
-                    alert('Tidak ada data klaim untuk diekspor.');
-                    return;
-                }
-                const formatted = rows.map((r, i) => ({
-                    'No': i + 1,
-                    'No Klaim': r.no_klaim,
-                    'Tanggal Selesai Klaim': r.tanggal_selesai_klaim_formatted || '-',
-                    'Tanggal Barang Masuk': r.tanggal_masuk_formatted || '-',
-                    'Customer': r.customer_nama,
-                    'Kontak Customer': r.customer_kontak || '-',
-                    'Barang': r.barang,
-                    'Keluhan': r.keluhan,
-                    'Distributor': r.distributor_nama,
-                    'Tanggal Kirim': r.tanggal_kirim_formatted || '-',
-                    'Tindakan': r.tindakan,
-                    'Tanggal Barang Kembali': r.tanggal_barang_kembali_formatted || '-',
-                    'Penerima Barang': r.penerima_nama,
-                }));
-                const ws = XLSX.utils.json_to_sheet(formatted);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Klaim Garansi");
-                XLSX.writeFile(wb, `Laporan_Klaim_Garansi_${new Date().toISOString().slice(0, 10)}.xlsx`);
             }
         };
     };
