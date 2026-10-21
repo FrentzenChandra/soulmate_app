@@ -85,6 +85,33 @@ class Index extends Component
         ];
     }
 
+    private function detectSubnetPattern(?string $ip = null): string
+    {
+        $rawIp = trim($ip ?? request()->ip() ?? '');
+        if ($rawIp === '' || $rawIp === '127.0.0.1' || $rawIp === '::1') {
+            return $rawIp ?: '127.0.0.1';
+        }
+
+        // Jika IPv6, ambil prefix /64 (4 hextet pertama router WiFi kantor)
+        if (str_contains($rawIp, ':')) {
+            $hextets = explode(':', $rawIp);
+            if (count($hextets) >= 4) {
+                return implode(':', array_slice($hextets, 0, 4)) . ':*';
+            }
+            return $rawIp . '*';
+        }
+
+        // Jika IPv4 lokal (192.168.x.x, 10.x.x.x, dsb), ubah jadi subnet wildcard toko
+        $parts = explode('.', $rawIp);
+        if (count($parts) === 4) {
+            if (($parts[0] === '192' && $parts[1] === '168') || ($parts[0] === '10') || ($parts[0] === '172' && (int) $parts[1] >= 16 && (int) $parts[1] <= 31)) {
+                return "{$parts[0]}.{$parts[1]}.{$parts[2]}.*";
+            }
+        }
+
+        return $rawIp;
+    }
+
     public function openCreateModal(): void
     {
         $this->resetValidation();
@@ -93,7 +120,7 @@ class Index extends Component
         $this->isEdit = false;
         $this->wifiId = null;
         $this->nama = '';
-        $this->ip_address = trim(request()->ip() ?? '');
+        $this->ip_address = $this->detectSubnetPattern();
         $this->is_aktif = true;
 
         if ($user->isSuperadmin()) {
@@ -129,7 +156,7 @@ class Index extends Component
 
     public function useCurrentIp(): void
     {
-        $this->ip_address = trim(request()->ip() ?? '');
+        $this->ip_address = $this->detectSubnetPattern();
     }
 
     public function closeModal(): void

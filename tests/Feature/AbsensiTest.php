@@ -72,6 +72,46 @@ class AbsensiTest extends TestCase
         $this->assertTrue(Cache::has($cacheKey));
     }
 
+    public function test_jaringan_valid_supports_ipv4_and_ipv6_wildcard_subnets(): void
+    {
+        $service = app(AbsensiService::class);
+        $user = User::where('email', 'teknisi.pkp@soulmate.test')->first();
+
+        // 1. Daftarkan wildcard subnet IPv4
+        WifiAbsen::create([
+            'cabang_id' => $user->cabang_id,
+            'nama' => 'WiFi Kantor LAN Subnet',
+            'ip_address' => '192.168.18.*',
+            'is_aktif' => true,
+        ]);
+        AbsensiService::clearCache($user->cabang_id);
+
+        // Laptop & HP staf di subnet yang sama harus valid
+        $this->assertTrue($service->jaringanValid($user, '192.168.18.9'));
+        $this->assertTrue($service->jaringanValid($user, '192.168.18.15'));
+        $this->assertTrue($service->jaringanValid($user, '192.168.18.254'));
+
+        // IP di luar subnet harus ditolak
+        $this->assertFalse($service->jaringanValid($user, '192.168.1.9'));
+        $this->assertFalse($service->jaringanValid($user, '10.0.0.5'));
+
+        // 2. Daftarkan wildcard subnet IPv6 router kantor
+        WifiAbsen::create([
+            'cabang_id' => $user->cabang_id,
+            'nama' => 'WiFi Kantor IPv6 Subnet',
+            'ip_address' => '2404:8000:1036:ac2:*',
+            'is_aktif' => true,
+        ]);
+        AbsensiService::clearCache($user->cabang_id);
+
+        // Laptop & HP staf dengan prefix router IPv6 yang sama harus valid
+        $this->assertTrue($service->jaringanValid($user, '2404:8000:1036:ac2:3688:b97b:d7f:cd94'));
+        $this->assertTrue($service->jaringanValid($user, '2404:8000:1036:ac2:95b6:e3cd:47ed:e354'));
+
+        // IPv6 dari router / ISP lain harus ditolak
+        $this->assertFalse($service->jaringanValid($user, '2404:8000:9999:ffff:1111:2222:3333:4444'));
+    }
+
     public function test_absen_service_creates_attendance_with_asia_jakarta_time(): void
     {
         $service = app(AbsensiService::class);

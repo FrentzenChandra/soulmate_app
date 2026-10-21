@@ -41,6 +41,64 @@ class AbsensiService
     }
 
     /**
+     * Cocokkan apakah IP client sesuai dengan IP atau pola subnet yang didaftarkan.
+     * Mendukung:
+     * - Exact match (contoh: 127.0.0.1, 36.85.10.15)
+     * - IPv4 Wildcard Subnet (contoh: 192.168.18.*)
+     * - IPv6 Wildcard Subnet (contoh: 2404:8000:1036:ac2:*)
+     * - Smart IPv6 /64 router prefix matching
+     */
+    public static function isIpMatch(string $clientIp, string $registeredPattern): bool
+    {
+        $client = strtolower(trim($clientIp));
+        $pattern = strtolower(trim($registeredPattern));
+
+        if ($client === '' || $pattern === '') {
+            return false;
+        }
+
+        // 1. Exact match
+        if ($client === $pattern) {
+            return true;
+        }
+
+        // 2. Wildcard pattern matching (contoh: 192.168.18.* atau 2404:8000:1036:ac2:*)
+        if (str_contains($pattern, '*')) {
+            if (fnmatch($pattern, $client)) {
+                return true;
+            }
+        }
+
+        // 3. Prefix match jika diakhiri titik atau titik dua
+        if (str_ends_with($pattern, '.') || str_ends_with($pattern, ':')) {
+            if (str_starts_with($client, $pattern)) {
+                return true;
+            }
+        }
+
+        // 4. Smart IPv6 Subnet /64 matching jika kedua alamat merupakan IPv6
+        if (str_contains($client, ':') && str_contains($pattern, ':')) {
+            $cleanPattern = rtrim(str_replace('*', '', $pattern), ':');
+            if ($cleanPattern !== '' && str_starts_with($client, $cleanPattern)) {
+                return true;
+            }
+
+            // Normalisasi 4 hextet pertama (/64 router subnet)
+            $clientHextets = explode(':', $client);
+            $patternHextets = explode(':', $pattern);
+            if (count($clientHextets) >= 4 && count($patternHextets) >= 4) {
+                $clientPrefix = implode(':', array_slice($clientHextets, 0, 4));
+                $patternPrefix = implode(':', array_slice($patternHextets, 0, 4));
+                if ($clientPrefix === $patternPrefix) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Validasi apakah IP client terdaftar pada WiFi aktif cabang user.
      * Menggunakan cache 5 menit (300 detik) per cabang.
      */
@@ -63,7 +121,13 @@ class AbsensiService
                 ->toArray();
         });
 
-        return in_array($clientIp, $activeIps, true);
+        foreach ($activeIps as $registeredIp) {
+            if (self::isIpMatch($clientIp, $registeredIp)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

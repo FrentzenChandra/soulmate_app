@@ -282,10 +282,15 @@
                                 <input type="text"
                                        wire:model="ip_address"
                                        class="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-xs font-mono font-bold text-gray-800 focus:bg-white focus:border-[#5E17EB]">
-                                <p class="text-[11px] text-gray-500 mt-1.5 flex items-center space-x-1">
-                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
-                                    <span>Otomatis terisi alamat IP jaringan saat modal dibuka. Staf hanya dapat absen saat terhubung ke jaringan ini.</span>
-                                </p>
+                                <div class="mt-1.5 space-y-1 text-[11px] text-gray-500">
+                                    <p class="flex items-center space-x-1 font-semibold text-emerald-700">
+                                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                        <span>Terdeteksi otomatis. Mendukung wildcard bintang (*) dan subnet router kantor.</span>
+                                    </p>
+                                    <p class="text-gray-400">
+                                        Format valid: <span class="font-mono text-gray-600 font-bold">192.168.18.*</span> (semua HP di WiFi toko), <span class="font-mono text-gray-600 font-bold">2404:8000:1036:ac2:*</span> (IPv6 kantor), atau IP publik pasti.
+                                    </p>
+                                </div>
                                 @error('ip_address') <span class="text-rose-500 text-[11px] font-bold">{{ $message }}</span> @enderror
                             </div>
 
