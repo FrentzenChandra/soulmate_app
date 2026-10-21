@@ -799,22 +799,22 @@
                     },
                     placeholder: "Belum ada transaksi faktur pajak.",
                     columns: [
-                        // 1. NO (DESC)
+                        // 1. NO (DESC) - RAPET
                         {
                             title: "No",
                             field: "no",
-                            width: 38,
-                            minWidth: 35,
+                            width: 36,
+                            minWidth: 32,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => `<span class="font-mono font-bold text-slate-500">${cell.getValue()}</span>`
                         },
-                        // 2. STATUS SELESAI
+                        // 2. STATUS SELESAI - RAPET
                         {
                             title: "Selesai",
                             field: "is_selesai",
-                            width: 42,
-                            minWidth: 38,
+                            width: 38,
+                            minWidth: 36,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
@@ -838,12 +838,12 @@
                                 }
                             }
                         },
-                        // 3. NAMA (BERSIH TANPA JAM & NAMA PENGINPUT)
+                        // 3. NAMA - RAPET & BERSIH
                         {
                             title: "Nama",
                             field: "nama",
-                            widthGrow: 2,
-                            minWidth: 90,
+                            width: 100,
+                            minWidth: 85,
                             headerFilter: "input",
                             headerFilterPlaceholder: "",
                             formatter: (cell) => {
@@ -851,22 +851,22 @@
                                 return `<span class="font-bold text-gray-900 block truncate text-xs" title="${d.nama}">${d.nama}</span>`;
                             }
                         },
-                        // 4. BARANG
+                        // 4. BARANG - DIUTAMAKAN PALING LEBAR (FLEX MENYERAP SISA LAYAR)
                         {
                             title: "Barang",
                             field: "barang",
-                            widthGrow: 3,
-                            minWidth: 100,
+                            widthGrow: 1,
+                            minWidth: 120,
                             headerFilter: "input",
                             headerFilterPlaceholder: "",
                             formatter: (cell) => `<span class="text-gray-700 block text-xs leading-snug truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
                         },
-                        // 5. VIA
+                        // 5. VIA - RAPET
                         {
                             title: "Via",
                             field: "via",
-                            width: 65,
-                            minWidth: 60,
+                            width: 58,
+                            minWidth: 54,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             headerFilter: "input",
@@ -874,15 +874,15 @@
                             formatter: (cell) => {
                                 const val = cell.getValue();
                                 if (!val || val === '-') return '<span class="text-gray-400 font-mono text-xs">-</span>';
-                                return `<span class="inline-block px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-blue-50 text-[#0052FF] border border-blue-200">${val}</span>`;
+                                return `<span class="inline-block px-1 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-[#0052FF] border border-blue-200">${val}</span>`;
                             }
                         },
-                        // 6. KODE
+                        // 6. KODE - RAPET
                         {
                             title: "Kode",
                             field: "kode",
-                            width: 44,
-                            minWidth: 40,
+                            width: 40,
+                            minWidth: 36,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             headerFilter: "input",
@@ -893,52 +893,52 @@
                                 return `<span class="font-mono font-bold text-gray-700 text-xs">${val}</span>`;
                             }
                         },
-                        // 7. BRUTO
+                        // 7. BRUTO - PAS SELEBAR ANGKA KONTEN
                         {
                             title: "Bruto",
                             field: "bruto",
-                            width: 86,
+                            width: 84,
                             minWidth: 78,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-bold text-gray-900">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-bold text-gray-900 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 8. DPP
+                        // 8. DPP - PAS SELEBAR ANGKA KONTEN
                         {
                             title: "DPP",
                             field: "dpp",
-                            width: 82,
+                            width: 80,
                             minWidth: 74,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono text-gray-600">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono text-gray-600 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 9. DPP LAIN
+                        // 9. DPP LAIN - PAS SELEBAR ANGKA KONTEN
                         {
                             title: "DPP Lain",
                             field: "dpp_lain",
-                            width: 82,
+                            width: 80,
                             minWidth: 74,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono text-gray-600">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono text-gray-600 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 10. PPN
+                        // 10. PPN - PAS SELEBAR ANGKA KONTEN
                         {
                             title: "PPN",
                             field: "ppn_nominal",
-                            width: 82,
+                            width: 80,
                             minWidth: 74,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-bold text-rose-600">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-bold text-rose-600 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 11. JENIS PPH (DIBEDAKAN WARNA PPH 22 VS PPH 23)
+                        // 11. JENIS PPH - RAPET (DIBEDAKAN WARNA PPH 22 VS PPH 23)
                         {
                             title: "Jenis PPh",
                             field: "jenis_pph",
-                            width: 68,
-                            minWidth: 62,
+                            width: 62,
+                            minWidth: 58,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
@@ -950,34 +950,34 @@
                                 } else if (val.includes('23')) {
                                     badgeClass = 'bg-purple-50 text-[#5E17EB] border-purple-200';
                                 }
-                                return `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold border ${badgeClass}">${d.jenis_pph}</span>`;
+                                return `<span class="px-1 py-0.5 rounded text-[9px] font-bold border ${badgeClass}">${d.jenis_pph}</span>`;
                             }
                         },
-                        // 12. PPH
+                        // 12. PPH - PAS SELEBAR ANGKA KONTEN
                         {
                             title: "PPh",
                             field: "pph_nominal",
-                            width: 74,
-                            minWidth: 66,
+                            width: 80,
+                            minWidth: 74,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-bold text-amber-600">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-bold text-amber-600 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 13. NETTO
+                        // 13. NETTO - PAS SELEBAR ANGKA KONTEN
                         {
                             title: "Netto",
                             field: "netto",
-                            width: 80,
-                            minWidth: 72,
+                            width: 84,
+                            minWidth: 78,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-black text-[#0052FF]">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-black text-[#0052FF] whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 14. AKSI
+                        // 14. AKSI - TERLIHAT 1 LAYAR PENUH
                         {
                             title: "Aksi",
                             field: "id",
-                            width: 86,
+                            width: 84,
                             minWidth: 80,
                             hozAlign: "center",
                             headerHozAlign: "center",
