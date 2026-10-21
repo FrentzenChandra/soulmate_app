@@ -50,7 +50,8 @@ class Index extends Component
     public string $newCustomerNama = '';
     public string $newCustomerKontak = '';
 
-    // Data Barang & Keluhan (Single model binding for zero confusion)
+    // Data Barang & Keluhan (Pola Servis Masuk: Full Select dari Master Produk)
+    public string $barangSearch = '';
     public string $formBarang = '';
     public string $formKeluhan = '';
 
@@ -148,12 +149,19 @@ class Index extends Component
     }
 
     // =========================================================================
-    // PRODUCT SELECTION (Varchar string only, zero stock mutation)
+    // PRODUCT SELECTION (Pola Servis Masuk: Full Select dari Master Produk)
     // =========================================================================
 
     public function selectProduct(string $namaProduk): void
     {
         $this->formBarang = $namaProduk;
+        $this->barangSearch = '';
+    }
+
+    public function resetSelectedProduct(): void
+    {
+        $this->formBarang = '';
+        $this->barangSearch = '';
     }
 
     // =========================================================================
@@ -192,6 +200,7 @@ class Index extends Component
 
         // Pastikan nama barang terisi penuh dan jelas di form
         $this->formBarang = $klaim->barang;
+        $this->barangSearch = '';
         $this->formKeluhan = $klaim->keluhan;
         $this->formMasterDistributorId = $klaim->master_distributor_id;
 
@@ -225,6 +234,7 @@ class Index extends Component
         $this->newCustomerKontak = '';
 
         $this->formBarang = '';
+        $this->barangSearch = '';
         $this->formKeluhan = '';
 
         $this->formMasterDistributorId = null;
@@ -554,10 +564,10 @@ class Index extends Component
             $customerSuggestions = $cQuery->orderBy('nama')->limit(8)->get(['id', 'nama', 'no_hp']);
         }
 
-        // Produk suggestions saat ketik nama barang di modal form (langsung terikat ke formBarang)
+        // Produk suggestions saat ketik nama barang di modal form (Pola Servis Masuk: Full Select)
         $productSuggestions = collect();
-        if ($this->modalFormOpen && strlen(trim($this->formBarang)) >= 2) {
-            $pSearch = trim($this->formBarang);
+        if ($this->modalFormOpen && ! $this->formBarang && strlen(trim($this->barangSearch)) >= 1) {
+            $pSearch = trim($this->barangSearch);
             $pTokens = array_filter(explode(' ', $pSearch));
             $pQuery = Produk::query();
             foreach ($pTokens as $token) {

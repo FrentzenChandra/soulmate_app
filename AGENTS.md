@@ -218,6 +218,15 @@
   * Keamanan form autentikasi dilindungi langsung di level backend oleh mekanisme native Laravel (`RateLimiter::tooManyAttempts(...)`).
   * Batas keamanan: 20x toleransi percobaan gagal per 60 detik per identitas/IP (`Str::transliterate(Str::lower($identity) . '|' . request()->ip())`), memberikan ruang toleransi yang aman dan ramah bagi staf saat mengetik tanpa risiko brute-force.
 
+## 28. Master Data Selection Standard (Pola Servis Masuk)
+- **Universal Input Master Data Tanpa Tab Baru (Full Select Standard):**
+  * Desain input pemilihan data master (seperti Master Produk/Barang, Pegawai, Distributor, dll pada modal form) **WAJIB mengikuti desain pola input data pelanggan pada Servis Masuk**, namun **tanpa tabulasi untuk menambah data master baru** (murni full select).
+  * **State 1 - Belum Dipilih:** Menampilkan kolom input pencarian (`wire:model.live.debounce.250ms`) dengan saran dropdown instan (`$suggestions`) multi-kata tokenized substring matching dari master database. Pengguna wajib memilih salah satu item yang muncul dari saran.
+  * **State 2 - Item Terpilih:** Kolom input pencarian disembunyikan penuh, digantikan oleh **Kartu Item Terpilih** berdesain seragam (card beraksen ungu brand `#5E17EB`, icon box di kiri, label tipe kecil, nama item tebal, dan tombol aksi tegas `Ganti`).
+  * **Aksi Ganti:** Tombol `Ganti` mereset nilai model yang terpilih dan pencarian, memunculkan kembali input autocomplete secara instan.
+  * Menjamin 100% konsistensi alur seleksi data master di seluruh form aplikasi tanpa duplikasi kode atau tabulasi berlebih.
+
+
 
 
 

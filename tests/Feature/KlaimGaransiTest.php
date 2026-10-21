@@ -221,6 +221,11 @@ class KlaimGaransiTest extends TestCase
             ->assertViewHas('tableData')
             ->call('openEditModal', $klaim->id)
             ->assertSet('formBarang', 'Monitor LG 24 Inch')
+            ->call('resetSelectedProduct')
+            ->assertSet('formBarang', '')
+            ->assertSet('barangSearch', '')
+            ->call('selectProduct', 'Monitor LG 27 Inch Upgrade')
+            ->assertSet('formBarang', 'Monitor LG 27 Inch Upgrade')
             ->set('formTindakan', 'Panel LCD diganti baru oleh SC')
             ->set('formTanggalSelesaiKlaim', '2026-10-21')
             ->call('save')
@@ -228,6 +233,7 @@ class KlaimGaransiTest extends TestCase
 
         $this->assertDatabaseHas('klaim_garansis', [
             'id' => $klaim->id,
+            'barang' => 'Monitor LG 27 Inch Upgrade',
             'tindakan' => 'Panel LCD diganti baru oleh SC',
         ]);
 

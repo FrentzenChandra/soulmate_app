@@ -167,43 +167,23 @@
 
             <div class="flex items-center gap-3 text-xs text-gray-900 font-bold flex-wrap">
                 <!-- Dropdown Group per Tanggal atau Hari -->
-                <div class="flex items-center gap-1.5">
-                    <div class="relative">
-                        <select x-model="groupMode"
-                                @change="handleGroupChange($event.target.value)"
-                                class="text-xs font-bold pl-8 pr-7 py-1.5 rounded-xl border border-gray-300 text-gray-800 bg-white hover:border-[#5E17EB] focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB] transition-colors cursor-pointer shadow-2xs appearance-none">
-                            <option value="tanggal">Group: Per Tanggal</option>
-                            <option value="none">Tanpa Grouping</option>
-                        </select>
-                        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#5E17EB]">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                        <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-gray-500">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
+                <div class="relative">
+                    <select x-model="groupMode"
+                            @change="handleGroupChange($event.target.value)"
+                            class="text-xs font-bold pl-8 pr-7 py-1.5 rounded-xl border border-gray-300 text-gray-800 bg-white hover:border-[#5E17EB] focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB] transition-colors cursor-pointer shadow-2xs appearance-none">
+                        <option value="tanggal">Group: Per Tanggal</option>
+                        <option value="none">Tanpa Grouping</option>
+                    </select>
+                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#5E17EB]">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
                     </div>
-
-                    <!-- Quick Collapse / Expand Buttons saat Group Aktif -->
-                    <template x-if="groupMode === 'tanggal'">
-                        <div class="flex items-center gap-1 border-l border-gray-200 pl-1.5">
-                            <button type="button"
-                                    @click="expandAllGroups()"
-                                    class="px-2 py-1 text-[11px] font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors cursor-pointer"
-                                    title="Buka Semua Dropdown Tanggal">
-                                Buka Semua
-                            </button>
-                            <button type="button"
-                                    @click="collapseAllGroups()"
-                                    class="px-2 py-1 text-[11px] font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer"
-                                    title="Tutup Semua Dropdown Tanggal">
-                                Tutup Semua
-                            </button>
-                        </div>
-                    </template>
+                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-gray-500">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
                 </div>
 
                 <!-- Font Size Selector (Rule 11) -->
@@ -348,66 +328,60 @@
                         @endif
                     </div>
 
-                    <!-- Barang (Single Binding & Visual Terpilih Standard) -->
-                    <div class="space-y-1.5" x-data="{ showDropdown: false }">
+                    <!-- Barang (Pola Servis Masuk: Full Select Master Produk) -->
+                    <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-100 space-y-3">
                         <div class="flex items-center justify-between">
                             <label class="block text-xs font-bold text-gray-700">
                                 Barang <span class="text-rose-500 font-bold">*</span>
                             </label>
-                            @if($formBarang)
-                                <span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
-                                    Terisi
-                                </span>
-                            @endif
+                            <span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
+                                Master Produk
+                            </span>
                         </div>
 
-                        <!-- Card preview barang terpilih (sangat jelas saat edit) -->
                         @if($formBarang)
-                            <div class="flex items-center justify-between p-2.5 rounded-xl bg-purple-50/70 border border-purple-200">
-                                <div class="flex items-center space-x-2 min-w-0">
-                                    <div class="w-6 h-6 rounded-lg bg-[#5E17EB] text-white flex items-center justify-center shrink-0">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <!-- Kartu Barang Terpilih (Sama persis pola Pelanggan Terpilih Servis Masuk) -->
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-purple-50/60 border border-purple-100">
+                                <div class="flex items-center space-x-2.5 min-w-0">
+                                    <div class="w-8 h-8 rounded-xl bg-[#5E17EB] text-white font-bold flex items-center justify-center shrink-0 shadow-xs">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                                         </svg>
                                     </div>
                                     <div class="min-w-0">
-                                        <span class="text-[10px] text-gray-500 font-medium block">Nama Barang Tersimpan:</span>
-                                        <span class="text-xs font-extrabold text-gray-900 truncate block">{{ $formBarang }}</span>
+                                        <div class="text-xs font-bold text-gray-900 truncate" title="{{ $formBarang }}">{{ $formBarang }}</div>
+                                        <div class="text-[10.5px] text-gray-500">Produk Terpilih</div>
                                     </div>
                                 </div>
                                 <button type="button"
-                                        wire:click="$set('formBarang', '')"
-                                        class="text-xs font-bold text-purple-700 hover:text-purple-900 px-2 py-1 hover:bg-purple-100 rounded-lg transition-colors cursor-pointer shrink-0">
+                                        wire:click="resetSelectedProduct"
+                                        class="text-xs font-bold text-purple-700 hover:text-purple-900 hover:underline cursor-pointer shrink-0 ml-3">
                                     Ganti
                                 </button>
                             </div>
-                        @endif
+                        @else
+                            <!-- Input Autocomplete Search Master Produk -->
+                            <div class="relative">
+                                <input type="text"
+                                       wire:model.live.debounce.250ms="barangSearch"
+                                       class="w-full text-xs font-semibold px-3.5 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB] bg-white">
 
-                        <div class="relative" @click.outside="showDropdown = false">
-                            <input type="text"
-                                   wire:model.live.debounce.250ms="formBarang"
-                                   @focus="showDropdown = true"
-                                   @input="showDropdown = true"
-                                   class="w-full text-xs font-semibold px-3.5 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB] bg-white">
-
-                            @if($productSuggestions->isNotEmpty())
-                                <div x-show="showDropdown"
-                                     class="absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-100 max-h-48 overflow-y-auto divide-y divide-gray-50">
-                                    <div class="px-3 py-1.5 bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                                        Saran Master Produk (Klik untuk memilih)
+                                @if($productSuggestions->isNotEmpty())
+                                    <div class="absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-100 max-h-48 overflow-y-auto divide-y divide-gray-50">
+                                        @foreach($productSuggestions as $pSug)
+                                            <button type="button"
+                                                    wire:key="sug-prod-{{ $pSug->id }}"
+                                                    wire:click="selectProduct('{{ addslashes($pSug->nama_produk) }}')"
+                                                    class="w-full text-left px-3.5 py-2 text-xs hover:bg-purple-50 flex items-center justify-between transition-colors cursor-pointer">
+                                                <span class="font-bold text-gray-900">{{ $pSug->nama_produk }}</span>
+                                                <span class="text-gray-400 text-[10px] bg-gray-100 px-1.5 py-0.5 rounded font-mono">Pilih</span>
+                                            </button>
+                                        @endforeach
                                     </div>
-                                    @foreach($productSuggestions as $pSug)
-                                        <button type="button"
-                                                wire:click="selectProduct('{{ addslashes($pSug->nama_produk) }}'); showDropdown = false;"
-                                                class="w-full text-left px-3.5 py-2 text-xs hover:bg-purple-50 flex items-center justify-between transition-colors cursor-pointer">
-                                            <span class="font-bold text-gray-900">{{ $pSug->nama_produk }}</span>
-                                            <span class="text-gray-400 text-[10px] bg-gray-100 px-1.5 py-0.5 rounded font-mono">Pilih</span>
-                                        </button>
-                                    @endforeach
-                                </div>
-                            @endif
-                        </div>
-                        <p class="text-[10px] text-gray-400">Pencarian produk hanya mengambil nama barang dan tidak mengubah stok fisik.</p>
+                                @endif
+                            </div>
+                            <p class="text-[10px] text-gray-400">Pencarian produk mengambil nama barang dari Master Produk dan tidak mengubah stok.</p>
+                        @endif
                         @error('formBarang') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
@@ -674,6 +648,12 @@
 
 @push('styles')
 <style>
+    /* 1 Full Layar Height & Table Styling */
+    #klaim-garansi-table {
+        width: 100% !important;
+        height: calc(100vh - 310px) !important;
+        min-height: 520px !important;
+    }
     /* 2 Baris untuk Judul Kolom (TH) agar pas dan tidak truncate */
     #klaim-garansi-table .tabulator-header .tabulator-col {
         height: auto !important;
@@ -811,6 +791,7 @@
                     data: data,
                     layout: "fitColumns",
                     responsiveLayout: false,
+                    height: "calc(100vh - 310px)",
                     pagination: "local",
                     paginationSize: 200,
                     paginationSizeSelector: [200, 1000, 2000, 10000],
