@@ -843,7 +843,7 @@
                             title: "Nama",
                             field: "nama",
                             widthGrow: 2,
-                            minWidth: 100,
+                            minWidth: 90,
                             headerFilter: "input",
                             headerFilterPlaceholder: "",
                             formatter: (cell) => {
@@ -856,7 +856,7 @@
                             title: "Barang",
                             field: "barang",
                             widthGrow: 3,
-                            minWidth: 120,
+                            minWidth: 100,
                             headerFilter: "input",
                             headerFilterPlaceholder: "",
                             formatter: (cell) => `<span class="text-gray-700 block text-xs leading-snug truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
@@ -897,8 +897,8 @@
                         {
                             title: "Bruto",
                             field: "bruto",
-                            width: 78,
-                            minWidth: 70,
+                            width: 86,
+                            minWidth: 78,
                             hozAlign: "right",
                             headerHozAlign: "right",
                             formatter: (cell) => `<span class="font-mono font-bold text-gray-900">${self.formatAngka(cell.getValue())}</span>`
@@ -907,8 +907,8 @@
                         {
                             title: "DPP",
                             field: "dpp",
-                            width: 74,
-                            minWidth: 66,
+                            width: 82,
+                            minWidth: 74,
                             hozAlign: "right",
                             headerHozAlign: "right",
                             formatter: (cell) => `<span class="font-mono text-gray-600">${self.formatAngka(cell.getValue())}</span>`
@@ -917,8 +917,8 @@
                         {
                             title: "DPP Lain",
                             field: "dpp_lain",
-                            width: 74,
-                            minWidth: 66,
+                            width: 82,
+                            minWidth: 74,
                             hozAlign: "right",
                             headerHozAlign: "right",
                             formatter: (cell) => `<span class="font-mono text-gray-600">${self.formatAngka(cell.getValue())}</span>`
@@ -927,8 +927,8 @@
                         {
                             title: "PPN",
                             field: "ppn_nominal",
-                            width: 74,
-                            minWidth: 66,
+                            width: 82,
+                            minWidth: 74,
                             hozAlign: "right",
                             headerHozAlign: "right",
                             formatter: (cell) => `<span class="font-mono font-bold text-rose-600">${self.formatAngka(cell.getValue())}</span>`
