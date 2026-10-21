@@ -648,11 +648,15 @@
 
 @push('styles')
 <style>
-    /* 1 Full Layar Height & Table Styling */
+    /* 1 Full Layar Height & Table Styling (Tanpa Horizontal Scroll) */
     #klaim-garansi-table {
         width: 100% !important;
         height: calc(100vh - 310px) !important;
         min-height: 520px !important;
+        overflow-x: hidden !important;
+    }
+    #klaim-garansi-table .tabulator-tableholder {
+        overflow-x: hidden !important;
     }
     /* 2 Baris untuk Judul Kolom (TH) agar pas dan tidak truncate */
     #klaim-garansi-table .tabulator-header .tabulator-col {
@@ -660,19 +664,19 @@
         vertical-align: middle !important;
     }
     #klaim-garansi-table .tabulator-header .tabulator-col .tabulator-col-content {
-        padding: 6px 3px !important;
+        padding: 5px 2px !important;
         height: auto !important;
     }
     #klaim-garansi-table .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
         white-space: normal !important;
-        line-height: 1.25 !important;
+        line-height: 1.2 !important;
         text-overflow: clip !important;
         word-break: normal !important;
         overflow-wrap: break-word !important;
         max-height: none !important;
         display: block !important;
-        font-size: 10px !important;
-        letter-spacing: 0.02em !important;
+        font-size: 9.5px !important;
+        letter-spacing: 0.01em !important;
     }
     /* Group Header Collapsible Accordion Indicator */
     #klaim-garansi-table .tabulator-row.tabulator-group {
@@ -832,25 +836,25 @@
                             title: "No",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">No</div>`,
                             field: "no",
-                            width: 44,
-                            minWidth: 40,
+                            width: 36,
+                            minWidth: 32,
                             hozAlign: "center",
                             headerHozAlign: "center",
-                            formatter: (cell) => `<span class="font-mono font-bold text-slate-500">${cell.getValue()}</span>`
+                            formatter: (cell) => `<span class="font-mono font-bold text-slate-500 text-[11px]">${cell.getValue()}</span>`
                         },
                         // 1. Tanggal Selesai Klaim (Posisi 1 terdepan - default sort desc)
                         {
                             title: "Tanggal Selesai Klaim",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Tanggal Selesai<br>Klaim</div>`,
                             field: "tanggal_selesai_klaim",
-                            width: 135,
-                            minWidth: 115,
+                            width: 88,
+                            minWidth: 76,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const d = cell.getData();
                                 if (d.tanggal_selesai_klaim_formatted) {
-                                    return `<span class="inline-flex items-center px-2 py-0.5 rounded-md font-bold text-emerald-700 bg-emerald-50 border border-emerald-200">${d.tanggal_selesai_klaim_formatted}</span>`;
+                                    return `<span class="inline-flex items-center px-1.5 py-0.5 rounded font-bold text-[10.5px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200">${d.tanggal_selesai_klaim_formatted}</span>`;
                                 }
                                 return '<span class="text-gray-300 font-bold">-</span>';
                             }
@@ -860,13 +864,13 @@
                             title: "Tanggal barang masuk",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Tanggal Barang<br>Masuk</div>`,
                             field: "tanggal_masuk",
-                            width: 130,
-                            minWidth: 110,
+                            width: 88,
+                            minWidth: 76,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const d = cell.getData();
-                                return `<span class="font-semibold text-gray-800">${d.tanggal_masuk_formatted || '-'}</span>`;
+                                return `<span class="font-semibold text-gray-800 text-[10.5px] font-mono">${d.tanggal_masuk_formatted || '-'}</span>`;
                             }
                         },
                         // 3. Customer
@@ -874,14 +878,14 @@
                             title: "Customer",
                             titleFormatter: () => `<div class="leading-tight text-left font-extrabold uppercase">Customer</div>`,
                             field: "customer_nama",
-                            width: 140,
-                            minWidth: 120,
+                            minWidth: 95,
+                            widthGrow: 1,
                             formatter: (cell) => {
                                 const d = cell.getData();
                                 return `
-                                    <div class="leading-tight py-0.5">
+                                    <div class="leading-tight py-0.5 min-w-0">
                                         <div class="font-bold text-gray-900 truncate" title="${d.customer_nama}">${d.customer_nama}</div>
-                                        ${d.customer_kontak ? `<div class="text-[10.5px] text-gray-400 font-mono">${d.customer_kontak}</div>` : ''}
+                                        ${d.customer_kontak ? `<div class="text-[10px] text-gray-400 font-mono truncate">${d.customer_kontak}</div>` : ''}
                                     </div>
                                 `;
                             }
@@ -891,8 +895,8 @@
                             title: "Barang",
                             titleFormatter: () => `<div class="leading-tight text-left font-extrabold uppercase">Barang</div>`,
                             field: "barang",
-                            widthGrow: 1,
-                            minWidth: 130,
+                            minWidth: 100,
+                            widthGrow: 2,
                             formatter: (cell) => `<span class="font-bold text-gray-900 block truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
                         },
                         // 5. Keluhan
@@ -900,23 +904,23 @@
                             title: "Keluhan",
                             titleFormatter: () => `<div class="leading-tight text-left font-extrabold uppercase">Keluhan</div>`,
                             field: "keluhan",
-                            widthGrow: 1,
-                            minWidth: 150,
-                            formatter: (cell) => `<span class="text-gray-600 block text-xs leading-snug line-clamp-2" title="${cell.getValue()}">${cell.getValue()}</span>`
+                            minWidth: 110,
+                            widthGrow: 2,
+                            formatter: (cell) => `<span class="text-gray-600 block text-[11px] leading-tight truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
                         },
                         // 6. Distributor
                         {
                             title: "Distributor",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Distributor</div>`,
                             field: "distributor_nama",
-                            width: 130,
-                            minWidth: 110,
+                            width: 90,
+                            minWidth: 75,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const val = cell.getValue();
                                 if (!val || val === '-') return '<span class="text-gray-300 font-bold">-</span>';
-                                return `<span class="inline-block px-2 py-0.5 rounded text-[10.5px] font-bold bg-purple-50 text-[#5E17EB] border border-purple-200">${val}</span>`;
+                                return `<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-[#5E17EB] border border-purple-200 truncate max-w-full" title="${val}">${val}</span>`;
                             }
                         },
                         // 7. Tanggal Kirim
@@ -924,13 +928,13 @@
                             title: "Tanggal Kirim",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Tanggal<br>Kirim</div>`,
                             field: "tanggal_kirim",
-                            width: 110,
-                            minWidth: 95,
+                            width: 82,
+                            minWidth: 70,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const d = cell.getData();
-                                return d.tanggal_kirim_formatted ? `<span class="font-medium text-gray-700">${d.tanggal_kirim_formatted}</span>` : '<span class="text-gray-300 font-bold">-</span>';
+                                return d.tanggal_kirim_formatted ? `<span class="font-medium text-gray-700 text-[10.5px] font-mono">${d.tanggal_kirim_formatted}</span>` : '<span class="text-gray-300 font-bold">-</span>';
                             }
                         },
                         // 8. Tindakan
@@ -938,12 +942,12 @@
                             title: "Tindakan",
                             titleFormatter: () => `<div class="leading-tight text-left font-extrabold uppercase">Tindakan</div>`,
                             field: "tindakan",
-                            widthGrow: 1,
-                            minWidth: 130,
+                            minWidth: 100,
+                            widthGrow: 2,
                             formatter: (cell) => {
                                 const val = cell.getValue();
                                 if (!val || val === '-') return '<span class="text-gray-300 font-bold">-</span>';
-                                return `<span class="text-gray-700 block text-xs leading-snug line-clamp-2" title="${val}">${val}</span>`;
+                                return `<span class="text-gray-700 block text-[11px] leading-tight truncate" title="${val}">${val}</span>`;
                             }
                         },
                         // 9. Tanggal Barang Kembali
@@ -951,13 +955,13 @@
                             title: "Tanggal Barang Kembali",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Tanggal Barang<br>Kembali</div>`,
                             field: "tanggal_barang_kembali",
-                            width: 130,
-                            minWidth: 110,
+                            width: 88,
+                            minWidth: 76,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const d = cell.getData();
-                                return d.tanggal_barang_kembali_formatted ? `<span class="font-medium text-gray-700">${d.tanggal_barang_kembali_formatted}</span>` : '<span class="text-gray-300 font-bold">-</span>';
+                                return d.tanggal_barang_kembali_formatted ? `<span class="font-medium text-gray-700 text-[10.5px] font-mono">${d.tanggal_barang_kembali_formatted}</span>` : '<span class="text-gray-300 font-bold">-</span>';
                             }
                         },
                         // 10. Penerima Barang
@@ -965,14 +969,14 @@
                             title: "Penerima Barang",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Penerima<br>Barang</div>`,
                             field: "penerima_nama",
-                            width: 125,
-                            minWidth: 105,
+                            width: 85,
+                            minWidth: 72,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const val = cell.getValue();
                                 if (!val || val === '-') return '<span class="text-gray-300 font-bold">-</span>';
-                                return `<span class="font-semibold text-gray-800">${val}</span>`;
+                                return `<span class="font-semibold text-gray-800 text-[11px] truncate block" title="${val}">${val}</span>`;
                             }
                         },
                         // Aksi
@@ -980,8 +984,8 @@
                             title: "Aksi",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Aksi</div>`,
                             field: "id",
-                            width: 80,
-                            minWidth: 76,
+                            width: 70,
+                            minWidth: 66,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             headerSort: false,
