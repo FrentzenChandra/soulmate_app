@@ -62,3 +62,11 @@
 - Dinamis via Select Distinct: Nilai dari database (`pegawais.role`) digabung dengan 7 bagian baseline.
 - Form modal menyediakan opsi `+ Tambah Bagian Baru...` dengan input teks tambahan.
 - Pewarnaan badge cerdas otomatis berdasarkan jenis bagian (Laptop: Biru, Printer: Amber, Komputer: Purple, Bendahara: Emerald, Pajak: Rose, Stok: Cyan, Konten: Indigo, default: Slate/Gray).
+
+## 13. Universal SweetAlert Mutation Standard (POST, PUT, DELETE)
+- **Wajib SweetAlert2:** Seluruh aksi mutasi data (POST / Simpan Baru, PUT / Update/Edit, DELETE / Hapus) di seluruh modul WAJIB menggunakan dialog konfirmasi SweetAlert (`window.swalConfirm` / `Swal.fire`) sebelum request diproses, dan notifikasi SweetAlert Toast hijau (`swal:toast` / `window.swalToast`) saat berhasil.
+- **Konfirmasi POST:** Teks *"Simpan [Nama Data]? Pastikan rincian data sudah lengkap dan benar."* dengan tombol ungu `#5E17EB` (*"Ya, Simpan"*).
+- **Konfirmasi PUT:** Teks *"Perbarui [Nama Data]? Apakah Anda yakin ingin memperbarui data ini?"* dengan tombol ungu `#5E17EB` (*"Ya, Perbarui"*).
+- **Konfirmasi DELETE:** Teks bahaya *"Hapus [Nama Data]? Data akan dihapus secara permanen."* dengan tombol merah rose `#e11d48` (*"Ya, Hapus"*).
+- **Feedback:** Dispatch `$this->dispatch('swal:toast', ['type' => 'success', 'title' => '...', 'message' => '...'])` di backend Livewire setelah eksekusi berhasil.
+

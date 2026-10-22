@@ -226,6 +226,29 @@
   * **Aksi Ganti:** Tombol `Ganti` mereset nilai model yang terpilih dan pencarian, memunculkan kembali input autocomplete secara instan.
   * Menjamin 100% konsistensi alur seleksi data master di seluruh form aplikasi tanpa duplikasi kode atau tabulasi berlebih.
 
+## 29. Universal SweetAlert Mutation Standard (POST, PUT, DELETE)
+- **Wajib SweetAlert pada Seluruh Aksi Mutasi Data:**
+  * Seluruh aksi form dan tombol yang melakukan mutasi data (**POST / Tambah Data Baru**, **PUT/PATCH / Update/Edit Data**, dan **DELETE / Hapus Data**) di seluruh modul aplikasi **WAJIB menggunakan SweetAlert2** untuk dialog konfirmasi (*pre-action confirm*) dan notifikasi umpan balik (*post-action toast*).
+- **Standar Dialog Konfirmasi (Pre-Action Confirm):**
+  * **POST (Simpan Baru):** Menampilkan konfirmasi SweetAlert (`window.swalConfirm` / `Swal.fire` ikon `question`) bertema brand solid ungu `#5E17EB`:
+    - Judul: *"Simpan [Nama Data]?"*
+    - Teks: *"Pastikan rincian data sudah lengkap dan benar."*
+    - Tombol Aksi: *"Ya, Simpan"* (Warna brand solid `#5E17EB`) dan *"Batal"*.
+  * **PUT / PATCH (Perbarui / Edit):** Menampilkan konfirmasi SweetAlert (`window.swalConfirm` / `Swal.fire` ikon `question`) bertema brand solid ungu `#5E17EB`:
+    - Judul: *"Perbarui [Nama Data]?"*
+    - Teks: *"Apakah Anda yakin ingin memperbarui data ini?"*
+    - Tombol Aksi: *"Ya, Perbarui"* (Warna brand solid `#5E17EB`) dan *"Batal"*.
+  * **DELETE (Hapus Data):** Menampilkan konfirmasi bahaya SweetAlert (`window.swalConfirm` dengan `danger: true` / `Swal.fire` ikon `warning`):
+    - Judul: *"Hapus [Nama Data]?"*
+    - Teks: *"Data [Nama/Nomor Data] akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan."*
+    - Tombol Aksi: *"Ya, Hapus"* (Warna merah rose `#e11d48`) dan *"Batal"*.
+- **Standar Notifikasi Berhasil (Post-Action Feedback):**
+  * Setelah aksi berhasil diproses di backend Livewire, komponen **WAJIB men-dispatch event SweetAlert Toast** hijau (`$this->dispatch('swal:toast', ['type' => 'success', 'title' => 'Berhasil [Disimpan/Diperbarui/Dihapus]', 'message' => '...'])`).
+  * Notifikasi toast otomatis muncul di pojok kanan atas dengan timer 3.5 detik tanpa memblokir layar kerja pengguna.
+- **Sinergi dengan Standar Loading Kasir:**
+  * Setelah pengguna mengonfirmasi SweetAlert, tombol aksi form tetap wajib mempertahankan status disabled dan spinner loading Heroicons SVG (`wire:loading wire:target="..."`) hingga response Livewire selesai.
+
+
 
 
 

@@ -73,6 +73,13 @@ Semua tombol aksi form (POST/PUT/DELETE/Submit) wajib menggunakan Heroicons SVG 
 ### E. Skeleton Loader
 Tabel data dan katalog grid menampilkan `<x-table-skeleton />` / `<x-grid-skeleton />` shimmer `animate-pulse` saat request query/filter berlangsung.
 
+### F. Universal SweetAlert Mutation Standard (POST, PUT, DELETE)
+- **Konfirmasi Pre-Action:** Seluruh aksi mutasi data (POST / Simpan Baru, PUT / Update/Edit, DELETE / Hapus) di seluruh modul WAJIB menampilkan dialog konfirmasi SweetAlert2 (`window.swalConfirm` / `Swal.fire`) sebelum request/metode Livewire dijalankan.
+- **Warna Tombol Konfirmasi:**
+  * POST & PUT: Solid Brand Purple `#5E17EB` (*"Ya, Simpan"* / *"Ya, Perbarui"*).
+  * DELETE: Solid Rose Red `#e11d48` (*"Ya, Hapus"*).
+- **Notifikasi Post-Action:** Backend Livewire wajib men-dispatch `$this->dispatch('swal:toast', ['type' => 'success', 'title' => '...', 'message' => '...'])` untuk memunculkan toast hijau pastel di pojok kanan atas dengan timer 3.5 detik.
+
 ---
 
 ## 6. Standar Khusus Modul
