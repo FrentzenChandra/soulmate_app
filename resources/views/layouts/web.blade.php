@@ -132,13 +132,6 @@
                 </span>
                 <span x-cloak x-show="cartCount > 0" x-text="cartCount + ' item'" class="px-2 py-0.5 rounded-full text-xs font-black bg-[#5E17EB] text-white"></span>
             </a>
-            <div class="pt-3 border-t border-gray-100">
-                @auth
-                <a href="{{ route('dashboard') }}" class="block w-full text-center py-3 rounded-xl bg-gradient-to-r from-[#301ac4] via-[#5E17EB] to-[#db00df] text-white font-extrabold text-sm shadow-md">Dashboard Internal</a>
-                @else
-                <a href="{{ route('login') }}" class="block w-full text-center py-3 rounded-xl bg-gradient-to-r from-[#301ac4] via-[#5E17EB] to-[#db00df] text-white font-black text-sm shadow-md">LOGIN</a>
-                @endauth
-            </div>
         </div>
     </header>
 
