@@ -338,12 +338,22 @@ class Index extends Component
             $klaim = KlaimGaransi::findOrFail($this->klaimId);
             $klaim->update($payload);
             session()->flash('success', "Klaim Garansi {$klaim->no_klaim} berhasil diperbarui.");
+            $this->dispatch('swal:toast', [
+                'type' => 'success',
+                'title' => 'Berhasil Diperbarui',
+                'message' => "Klaim Garansi {$klaim->no_klaim} berhasil diperbarui.",
+            ]);
         } else {
             $payload['cabang_id'] = $cabangId;
             $payload['user_id'] = $user->id;
             $payload['no_klaim'] = KlaimGaransi::generateNoKlaim($cabangId, $this->tanggalMasuk);
             $klaim = KlaimGaransi::create($payload);
             session()->flash('success', "Klaim Garansi {$klaim->no_klaim} berhasil ditambahkan.");
+            $this->dispatch('swal:toast', [
+                'type' => 'success',
+                'title' => 'Berhasil Disimpan',
+                'message' => "Klaim Garansi {$klaim->no_klaim} berhasil ditambahkan.",
+            ]);
         }
 
         $this->closeModal();
@@ -388,24 +398,34 @@ class Index extends Component
         $this->modalDeleteOpen = true;
     }
 
-    public function deleteKlaim(): void
+    public function deleteKlaimDirect(int $id): void
     {
         $user = Auth::user();
         abort_if(! $user || (! $user->isOwner() && ! $user->can('klaim_garansi.delete')), 403, 'Akses hapus klaim dibatasi.');
 
-        if (! $this->deleteId) return;
-
-        $klaim = KlaimGaransi::find($this->deleteId);
+        $klaim = KlaimGaransi::find($id);
         if ($klaim) {
             $no = $klaim->no_klaim;
             $klaim->delete();
             session()->flash('success', "Klaim Garansi {$no} berhasil dihapus.");
+            $this->dispatch('swal:toast', [
+                'type' => 'success',
+                'title' => 'Berhasil Dihapus',
+                'message' => "Klaim Garansi {$no} berhasil dihapus.",
+            ]);
         }
 
         $this->modalDeleteOpen = false;
         $this->deleteId = null;
         $this->deleteNoKlaim = '';
         $this->dispatch('klaim-garansi-table-updated', data: $this->getTableData());
+    }
+
+    public function deleteKlaim(): void
+    {
+        if ($this->deleteId) {
+            $this->deleteKlaimDirect($this->deleteId);
+        }
     }
 
     // =========================================================================

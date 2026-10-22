@@ -233,8 +233,46 @@
                     </button>
                 </div>
 
-                <!-- Form Content -->
-                <form wire:submit.prevent="save" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                <!-- Form Content with SweetAlert Confirm -->
+                <form x-data="{
+                        confirmSubmit() {
+                            const isEdit = {{ $klaimId ? 'true' : 'false' }};
+                            const title = isEdit ? 'Perbarui Klaim Garansi?' : 'Simpan Klaim Garansi?';
+                            const text = isEdit ? 'Apakah Anda yakin ingin memperbarui data klaim ini?' : 'Pastikan rincian data klaim garansi sudah lengkap dan benar.';
+                            const confirmBtn = isEdit ? 'Ya, Perbarui' : 'Ya, Simpan';
+
+                            if (window.swalConfirm) {
+                                window.swalConfirm(title, text, {
+                                    confirmText: confirmBtn,
+                                    cancelText: 'Batal'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        $wire.save();
+                                    }
+                                });
+                            } else if (window.Swal) {
+                                window.Swal.fire({
+                                    title: title,
+                                    text: text,
+                                    icon: 'question',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#5E17EB',
+                                    cancelButtonColor: '#64748b',
+                                    confirmButtonText: confirmBtn,
+                                    cancelButtonText: 'Batal',
+                                    reverseButtons: true
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        $wire.save();
+                                    }
+                                });
+                            } else {
+                                $wire.save();
+                            }
+                        }
+                    }"
+                    @submit.prevent="confirmSubmit"
+                    class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
                     <!-- Tanggal Masuk (Required) -->
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1">
@@ -1053,8 +1091,44 @@
     };
 
     window.confirmDeleteKlaim = function(id, noKlaim) {
-        if (window.activeKlaimGaransiWire) {
-            window.activeKlaimGaransiWire.confirmDelete(id, noKlaim);
+        if (!window.activeKlaimGaransiWire) return;
+
+        const executeDelete = () => {
+            window.activeKlaimGaransiWire.deleteKlaimDirect(id);
+        };
+
+        if (window.swalConfirm) {
+            window.swalConfirm(
+                'Hapus Klaim Garansi?',
+                `Klaim Garansi ${noKlaim} akan dihapus secara permanen.`,
+                {
+                    danger: true,
+                    confirmText: 'Ya, Hapus',
+                    cancelText: 'Batal'
+                }
+            ).then((result) => {
+                if (result.isConfirmed) {
+                    executeDelete();
+                }
+            });
+        } else if (window.Swal) {
+            window.Swal.fire({
+                title: 'Hapus Klaim Garansi?',
+                text: `Klaim Garansi ${noKlaim} akan dihapus secara permanen.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    executeDelete();
+                }
+            });
+        } else if (confirm(`Hapus klaim garansi ${noKlaim}?`)) {
+            executeDelete();
         }
     };
 </script>
