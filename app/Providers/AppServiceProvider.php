@@ -3,9 +3,14 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,6 +39,17 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('viewPulse', function (User $user) {
             return $user->isOwner() || $user->hasRole('Owner');
+        });
+
+        // Rate Limiter untuk seluruh mutasi data Livewire (POST /livewire/update)
+        // Dihitung per User ID untuk staf toko agar tidak saling tabrakan di WiFi yang sama
+        RateLimiter::for('livewire-update', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        Livewire::setUpdateRoute(function ($handle) {
+            return Route::post('/livewire/update', $handle)
+                ->middleware(['web', 'throttle:livewire-update']);
         });
     }
 }

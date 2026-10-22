@@ -50,8 +50,8 @@ Route::get('/servis', WebServis::class)->name('web.servis');
 Route::get('/tentang-kami', WebTentangKami::class)->name('web.tentang-kami');
 Route::get('/kontak', WebKontak::class)->name('web.kontak');
 
-// Guest Routes (Authentication)
-Route::middleware('guest')->group(function () {
+// Guest Routes (Authentication - Dilindungi Throttle)
+Route::middleware(['guest', 'throttle:10,1'])->group(function () {
     Route::get('/login', Login::class)->name('login');
 });
 

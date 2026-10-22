@@ -40,9 +40,9 @@ class Login extends Component
     {
         $this->validate();
 
-        // 1. Native Laravel Rate Limiter (Anti Brute-Force - Ramah Pengujian)
+        // 1. Native Laravel Rate Limiter (Anti Brute-Force Maksimal 5x per menit per IP/Akun)
         $throttleKey = Str::transliterate(Str::lower($this->identity) . '|' . request()->ip());
-        if (RateLimiter::tooManyAttempts($throttleKey, 20)) {
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
             throw ValidationException::withMessages([
                 'identity' => "Terlalu banyak percobaan login gagal. Silakan tunggu {$seconds} detik.",
