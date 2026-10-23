@@ -1753,7 +1753,7 @@ window.getMetodeColorStyle = function(val) {
     }
     // 3. EDC (Kuning / Amber) -> EDC BRI, EDC BCA, EDC MANDIRI
     if (v.includes('edc')) {
-        return 'bg-amber-50 text-amber-700 border-amber-300';
+        return 'bg-amber-800 text-mist-50 border-amber-400';
     }
     // 4. CV (Oren) -> BRI CV, BCA CV, SUMSEL CV
     if (v.includes('cv')) {
@@ -1761,12 +1761,12 @@ window.getMetodeColorStyle = function(val) {
     }
     // 5. Rekening Personal (Pink) -> BCA Sri Listiani, MANDIRI Delly Sarli, BRI Razil Geo Taza
     if (
-        v.includes('sri listiani') || 
-        v.includes('delly sarli') || 
-        v.includes('delly') || 
-        v.includes('sri') || 
-        v.includes('razil') || 
-        v.includes('geo taza') || 
+        v.includes('sri listiani') ||
+        v.includes('delly sarli') ||
+        v.includes('delly') ||
+        v.includes('sri') ||
+        v.includes('razil') ||
+        v.includes('geo taza') ||
         v.includes('listiani')
     ) {
         return 'bg-pink-50 text-[#E6007A] border-pink-300';
