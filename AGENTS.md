@@ -162,7 +162,7 @@
   * Pada modul Transaksi (Transaksi FULL dan Transaksi Harian), rincian kolom **Item**, **Biaya**, **Modal**, **Laba**, dan **Pajak** WAJIB dijabarkan baris per baris per item secara sejajar (1-to-1).
   * **Kolom Pajak:** Tampilkan teks murni `PPN` atau `NON` tanpa badge background, tanpa persen, dan tanpa nominal.
   * **Pewarnaan Kolom Metode Pembayaran:**
-    - `Cash` / Tunai: **Ungu** (`bg-purple-50 text-[#5E17EB] border-purple-300`)
+    - `Cash` / Tunai: **Hijau** (`bg-emerald-50 text-emerald-700 border-emerald-300`)
     - `Gopay`: **Biru** (`bg-blue-50 text-[#0052FF] border-blue-300`)
     - Personal Rekening (`BCA Sri Listiani`, `MANDIRI Delly Sarli`, `BRI Razil Geo Taza`): **Pink** (`bg-pink-50 text-[#E6007A] border-pink-300`)
     - Rekening CV (`BRI CV`, `BCA CV`, `SUMSEL CV`): **Oren** (`bg-orange-50 text-orange-700 border-orange-300`)

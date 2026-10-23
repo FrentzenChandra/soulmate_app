@@ -1549,9 +1549,9 @@ window.getMetodeColorStyle = function(val) {
     if (!v || v === '-' || v === 'tanpa metode') {
         return 'bg-gray-100 text-gray-500 border-gray-300';
     }
-    // 1. Cash (Ungu)
+    // 1. Cash (Hijau)
     if (v.includes('cash') || v.includes('tunai')) {
-        return 'bg-purple-50 text-[#5E17EB] border-purple-300';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-300';
     }
     // 2. Gopay (Biru)
     if (v.includes('gopay')) {
