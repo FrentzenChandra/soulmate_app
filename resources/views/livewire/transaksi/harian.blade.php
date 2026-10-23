@@ -1235,7 +1235,7 @@ window.tabulatorTransaksiHarianTable = function(config) {
                         hozAlign: "left",
                         headerHozAlign: "left",
                         headerFilter: "list",
-                        headerFilterParams: { values: ["PPN", "Non PPN"], clearable: true },
+                        headerFilterParams: { values: ["PPN", "NON"], clearable: true },
                         headerFilterFunc: multiSelectFilterFunc,
                         formatter: (cell) => {
                             const d = cell.getData();
@@ -1245,14 +1245,14 @@ window.tabulatorTransaksiHarianTable = function(config) {
                             if (items.length === 0 || !isMulti) {
                                 const it = items[0] || {};
                                 const itemHasPpn = it.has_ppn !== undefined ? it.has_ppn : d.has_ppn;
-                                const taxLabel = itemHasPpn ? 'PPN' : 'Non PPN';
+                                const taxLabel = itemHasPpn ? 'PPN' : 'NON';
                                 const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
                                 return `<span class="text-[8px] font-black ${taxColor} uppercase tracking-wider">${taxLabel}</span>`;
                             }
 
                             const html = items.map(it => {
                                 const itemHasPpn = it.has_ppn !== undefined ? it.has_ppn : d.has_ppn;
-                                const taxLabel = itemHasPpn ? 'PPN' : 'Non PPN';
+                                const taxLabel = itemHasPpn ? 'PPN' : 'NON';
                                 const taxColor = itemHasPpn ? 'text-[#0052FF]' : 'text-pink-600';
                                 return `
                                     <div class="leading-tight py-0.5 min-h-[18px] text-[8px] font-black ${taxColor} uppercase tracking-wider">
@@ -1331,15 +1331,9 @@ window.tabulatorTransaksiHarianTable = function(config) {
                             const val = (d.metode_pembayaran || '').trim();
                             const currentId = d.metode_pembayaran_id;
                             const id = d.id;
-                            const isCash = val.toLowerCase().includes('cash') || val.toLowerCase().includes('tunai');
-                            const isEmpty = !val || val === '-' || val.toLowerCase() === 'tanpa metode';
-
-                            let colorStyle = 'bg-blue-50 text-[#0052FF] border-blue-300';
-                            if (isCash) {
-                                colorStyle = 'bg-pink-50 text-pink-700 border-pink-300';
-                            } else if (isEmpty) {
-                                colorStyle = 'bg-gray-100 text-gray-500 border-gray-300';
-                            }
+                            const colorStyle = (typeof window.getMetodeColorStyle === 'function')
+                                ? window.getMetodeColorStyle(val)
+                                : 'bg-gray-100 text-gray-500 border-gray-300';
 
                             if (config.canUpdateStatus || config.canEdit) {
                                 const options = (config.metodeList || []).map(m => {
@@ -1350,7 +1344,7 @@ window.tabulatorTransaksiHarianTable = function(config) {
                                 return `
                                     <div class="py-0.2 flex items-center justify-center">
                                         <select class="w-[68px] py-0 px-0.5 rounded text-[8.5px] font-bold border transition-all cursor-pointer text-center focus:ring-1 focus:ring-blue-200 ${colorStyle}"
-                                                onchange="window.updateMetodeHarianDirect(${id}, parseInt(this.value, 10))">
+                                                onchange="if (typeof window.getMetodeColorStyle === 'function') { this.className = 'w-[68px] py-0 px-0.5 rounded text-[8.5px] font-bold border transition-all cursor-pointer text-center focus:ring-1 focus:ring-blue-200 ' + window.getMetodeColorStyle(this.options[this.selectedIndex].text); } window.updateMetodeHarianDirect(${id}, parseInt(this.value, 10))">
                                             ${options}
                                         </select>
                                     </div>
@@ -1549,6 +1543,42 @@ window.deleteTransaksiHarianConfirm = (id, noTrx) => {
             if (holder && tableScroll > 0) holder.scrollTop = tableScroll;
         });
     }
+};
+window.getMetodeColorStyle = function(val) {
+    const v = (val || '').toLowerCase().trim();
+    if (!v || v === '-' || v === 'tanpa metode') {
+        return 'bg-gray-100 text-gray-500 border-gray-300';
+    }
+    // 1. Cash (Ungu)
+    if (v.includes('cash') || v.includes('tunai')) {
+        return 'bg-purple-50 text-[#5E17EB] border-purple-300';
+    }
+    // 2. Gopay (Biru)
+    if (v.includes('gopay')) {
+        return 'bg-blue-50 text-[#0052FF] border-blue-300';
+    }
+    // 3. EDC (Kuning / Amber) -> EDC BRI, EDC BCA, EDC MANDIRI
+    if (v.includes('edc')) {
+        return 'bg-amber-50 text-amber-700 border-amber-300';
+    }
+    // 4. CV (Oren) -> BRI CV, BCA CV, SUMSEL CV
+    if (v.includes('cv')) {
+        return 'bg-orange-50 text-orange-700 border-orange-300';
+    }
+    // 5. Rekening Personal (Pink) -> BCA Sri Listiani, MANDIRI Delly Sarli, BRI Razil Geo Taza
+    if (
+        v.includes('sri listiani') || 
+        v.includes('delly sarli') || 
+        v.includes('delly') || 
+        v.includes('sri') || 
+        v.includes('razil') || 
+        v.includes('geo taza') || 
+        v.includes('listiani')
+    ) {
+        return 'bg-pink-50 text-[#E6007A] border-pink-300';
+    }
+    // Fallback default
+    return 'bg-blue-50 text-[#0052FF] border-blue-300';
 };
 window.updateStatusHarianDirect = (id, status) => {
     if (window.activeTransaksiHarianWire) window.activeTransaksiHarianWire.updateStatusDirect(id, status);

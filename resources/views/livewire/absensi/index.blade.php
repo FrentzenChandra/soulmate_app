@@ -23,7 +23,7 @@
             </div>
             <div>
                 <h1 class="text-lg sm:text-xl font-black text-gray-900 tracking-tight">Absensi Staf</h1>
-                <p class="text-[11px] sm:text-xs text-gray-500 font-medium mt-0.5">Catat kehadiran harian via WiFi cabang resmi.</p>
+                <p class="text-[11px] sm:text-xs text-gray-500 font-medium mt-0.5">Catat kehadiran harian via WiFi Kantor resmi.</p>
             </div>
         </div>
 
@@ -91,12 +91,12 @@
             @if ($isWifiValid)
                 <span class="inline-flex items-center space-x-2 px-3 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span>WiFi Cabang Terhubung</span>
+                    <span>WiFi Kantor Terhubung</span>
                 </span>
             @else
                 <span class="inline-flex items-center space-x-2 px-3 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 shadow-2xs">
                     <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                    <span>Bukan Jaringan WiFi Cabang</span>
+                    <span>Bukan Jaringan WiFi Kantor</span>
                 </span>
             @endif
         </div>
@@ -124,7 +124,7 @@
                 </div>
 
             @elseif ($statusState === 'bukan_wifi')
-                <!-- Keadaan 4: Bukan WiFi Cabang (Abu-abu, Terkunci) -->
+                <!-- Keadaan 4: Bukan WiFi Kantor (Abu-abu, Terkunci) -->
                 <div class="relative w-36 h-36 sm:w-48 sm:h-48 rounded-full bg-gray-100 text-gray-400 ring-6 sm:ring-8 ring-gray-200 border border-gray-200 flex items-center justify-center shadow-2xs cursor-not-allowed select-none"
                      role="status"
                      aria-label="Absensi Terkunci">
@@ -135,7 +135,7 @@
                 <div class="mt-4 sm:mt-5 space-y-1 max-w-xs sm:max-w-sm mx-auto" aria-live="polite">
                     <p class="text-sm font-bold text-gray-700">Tombol Absensi Terkunci</p>
                     <p class="text-xs font-medium text-rose-600">
-                        Sambungkan perangkat ke jaringan WiFi cabang untuk melakukan absensi.
+                        Sambungkan perangkat ke jaringan WiFi Kantor untuk melakukan absensi.
                     </p>
                     <p class="text-[11px] text-gray-400 pt-1 break-all">
                         IP Anda: <span class="font-mono font-bold text-gray-600">{{ $clientIp }}</span>

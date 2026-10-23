@@ -160,7 +160,13 @@
 ## 21. Transaction Item Breakdown & Modal Sizing Standard
 - **Row-by-Row 1-to-1 Item Breakdown:**
   * Pada modul Transaksi (Transaksi FULL dan Transaksi Harian), rincian kolom **Item**, **Biaya**, **Modal**, **Laba**, dan **Pajak** WAJIB dijabarkan baris per baris per item secara sejajar (1-to-1).
-  * **Kolom Pajak:** Tampilkan teks murni `PPN` atau `Non PPN` tanpa badge background, tanpa persen, dan tanpa nominal.
+  * **Kolom Pajak:** Tampilkan teks murni `PPN` atau `NON` tanpa badge background, tanpa persen, dan tanpa nominal.
+  * **Pewarnaan Kolom Metode Pembayaran:**
+    - `Cash` / Tunai: **Ungu** (`bg-purple-50 text-[#5E17EB] border-purple-300`)
+    - `Gopay`: **Biru** (`bg-blue-50 text-[#0052FF] border-blue-300`)
+    - Personal Rekening (`BCA Sri Listiani`, `MANDIRI Delly Sarli`, `BRI Razil Geo Taza`): **Pink** (`bg-pink-50 text-[#E6007A] border-pink-300`)
+    - Rekening CV (`BRI CV`, `BCA CV`, `SUMSEL CV`): **Oren** (`bg-orange-50 text-orange-700 border-orange-300`)
+    - Mesin EDC (`EDC BRI`, `EDC BCA`, `EDC MANDIRI`): **Kuning** (`bg-amber-50 text-amber-700 border-amber-300`)
   * **Anti-Duplikasi Total:** Dilarang menampilkan baris total tambahan di dalam sel tabel masing-masing kolom (total transaksi sudah tertera di card metrik atau kolom ringkasan).
 - **Transaction Modal Form Sizing:**
   * Ukuran lebar modal input/edit transaksi (`$modalFormOpen`) di Transaksi FULL dan Transaksi Harian WAJIB menggunakan batas maksimal `sm:max-w-2xl` (bukan `sm:max-w-4xl`) agar proporsional, nyaman dilihat, dan ergonomis.

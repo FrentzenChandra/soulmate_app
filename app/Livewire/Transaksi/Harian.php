@@ -1102,7 +1102,7 @@ class Harian extends Component
                 $rowGrandTotal = ($this->ppnFilter === 'ppn') ? ($filteredSubtotalJual + $filteredPpnNominal) : (($this->ppnFilter === 'non_ppn') ? $filteredSubtotalJual : (float) $item->grand_total);
 
                 $rowHasPpn = ($this->ppnFilter === 'ppn') ? true : (($this->ppnFilter === 'non_ppn') ? false : ($parentHasPpn || collect($itemsList)->contains('has_ppn', true)));
-                $rowPajakLabel = $rowHasPpn ? 'PPN' : 'Non PPN';
+                $rowPajakLabel = $rowHasPpn ? 'PPN' : 'NON';
 
                 return [
                     'id' => (int) $item->id,
