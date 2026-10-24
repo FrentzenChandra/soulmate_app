@@ -807,7 +807,7 @@
                             minWidth: 38,
                             hozAlign: "center",
                             headerHozAlign: "center",
-                            formatter: (cell) => `<span class="font-mono font-bold text-slate-500">${cell.getValue()}</span>`
+                            formatter: (cell) => `<span class="font-mono font-bold text-black">${cell.getValue()}</span>`
                         },
                         // 2. STATUS SELESAI - INTERAKTIF DENGAN ICON TOGGLE
                         {
@@ -850,7 +850,7 @@
                             headerFilterPlaceholder: "",
                             formatter: (cell) => {
                                 const d = cell.getData();
-                                return `<span class="font-bold text-gray-900 block truncate text-xs" title="${d.nama}">${d.nama}</span>`;
+                                return `<span class="font-bold text-black block truncate text-xs" title="${d.nama}">${d.nama}</span>`;
                             }
                         },
                         // 4. BARANG - MENYERAP SISA LEBAR LAYAR
@@ -861,7 +861,7 @@
                             minWidth: 100,
                             headerFilter: "input",
                             headerFilterPlaceholder: "",
-                            formatter: (cell) => `<span class="text-gray-700 block text-xs leading-snug truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
+                            formatter: (cell) => `<span class="text-black font-medium block text-xs leading-snug truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
                         },
                         // 5. VIA - FIT TO CONTENT
                         {
@@ -873,9 +873,9 @@
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const val = (cell.getValue() || '').trim();
-                                if (!val || val === '-') return '<span class="text-gray-400 font-mono text-xs">-</span>';
+                                if (!val || val === '-') return '<span class="text-black font-bold font-mono text-xs">-</span>';
                                 const v = val.toLowerCase();
-                                let colorClass = 'bg-gray-100 text-gray-700 border-gray-200';
+                                let colorClass = 'bg-gray-100 text-black border-gray-300';
                                 if (v.includes('katalog')) {
                                     colorClass = 'bg-rose-50 text-rose-700 border-rose-200';
                                 } else if (v.includes('langsung')) {
@@ -896,8 +896,8 @@
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const val = (cell.getValue() || '').trim();
-                                if (!val || val === '-') return '<span class="text-gray-400 font-mono text-xs">-</span>';
-                                let colorClass = 'bg-gray-100 text-gray-700 border-gray-200';
+                                if (!val || val === '-') return '<span class="text-black font-bold font-mono text-xs">-</span>';
+                                let colorClass = 'bg-gray-100 text-black border-gray-300';
                                 if (val.includes('2')) {
                                     colorClass = 'bg-purple-50 text-[#5E17EB] border-purple-200';
                                 } else if (val.includes('3')) {
@@ -926,7 +926,7 @@
                             minWidth: 80,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-black text-gray-950 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-black text-black whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
                         // 9. DPP LAIN - WIDTH 92 & MINWIDTH 80
                         {
@@ -936,7 +936,7 @@
                             minWidth: 80,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-black text-gray-950 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-black text-black whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
                         // 10. PPN - WIDTH 92 & MINWIDTH 80
                         {
@@ -959,7 +959,7 @@
                             formatter: (cell) => {
                                 const d = cell.getData();
                                 const val = (d.jenis_pph || '').toLowerCase();
-                                let badgeClass = 'bg-gray-100 text-gray-600 border-gray-200';
+                                let badgeClass = 'bg-gray-100 text-black border-gray-300';
                                 if (val.includes('22')) {
                                     badgeClass = 'bg-amber-50 text-amber-700 border-amber-300';
                                 } else if (val.includes('23')) {

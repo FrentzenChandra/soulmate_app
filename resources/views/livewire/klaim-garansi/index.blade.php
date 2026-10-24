@@ -875,7 +875,7 @@
                             minWidth: 32,
                             hozAlign: "center",
                             headerHozAlign: "center",
-                            formatter: (cell) => `<span class="font-mono font-bold text-slate-500 text-[11px]">${cell.getValue()}</span>`
+                            formatter: (cell) => `<span class="font-mono font-bold text-black text-[11px]">${cell.getValue()}</span>`
                         },
                         // 1. Tanggal Selesai Klaim (Posisi 1 terdepan - default sort desc)
                         {
@@ -891,7 +891,7 @@
                                 if (d.tanggal_selesai_klaim_formatted) {
                                     return `<span class="inline-flex items-center px-1.5 py-0.5 rounded font-bold text-[10.5px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200">${d.tanggal_selesai_klaim_formatted}</span>`;
                                 }
-                                return '<span class="text-gray-300 font-bold">-</span>';
+                                return '<span class="text-black font-bold">-</span>';
                             }
                         },
                         // 2. Tanggal barang masuk (Posisi 2)
@@ -905,7 +905,7 @@
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const d = cell.getData();
-                                return `<span class="font-semibold text-gray-800 text-[10.5px] font-mono">${d.tanggal_masuk_formatted || '-'}</span>`;
+                                return `<span class="font-bold text-black text-[10.5px] font-mono">${d.tanggal_masuk_formatted || '-'}</span>`;
                             }
                         },
                         // 3. Customer
@@ -919,8 +919,8 @@
                                 const d = cell.getData();
                                 return `
                                     <div class="leading-tight py-0.5 min-w-0">
-                                        <div class="font-bold text-gray-900 truncate" title="${d.customer_nama}">${d.customer_nama}</div>
-                                        ${d.customer_kontak ? `<div class="text-[10px] text-gray-400 font-mono truncate">${d.customer_kontak}</div>` : ''}
+                                        <div class="font-bold text-black truncate" title="${d.customer_nama}">${d.customer_nama}</div>
+                                        ${d.customer_kontak ? `<div class="text-[10px] text-black font-mono font-medium truncate">${d.customer_kontak}</div>` : ''}
                                     </div>
                                 `;
                             }
@@ -932,7 +932,7 @@
                             field: "barang",
                             minWidth: 100,
                             widthGrow: 2,
-                            formatter: (cell) => `<span class="font-bold text-gray-900 block truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
+                            formatter: (cell) => `<span class="font-bold text-black block truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
                         },
                         // 5. Keluhan
                         {
@@ -941,7 +941,7 @@
                             field: "keluhan",
                             minWidth: 110,
                             widthGrow: 2,
-                            formatter: (cell) => `<span class="text-gray-600 block text-[11px] leading-tight truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
+                            formatter: (cell) => `<span class="text-black font-medium block text-[11px] leading-tight truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
                         },
                         // 6. Distributor
                         {
@@ -954,7 +954,7 @@
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const val = cell.getValue();
-                                if (!val || val === '-') return '<span class="text-gray-300 font-bold">-</span>';
+                                if (!val || val === '-') return '<span class="text-black font-bold">-</span>';
                                 return `<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-[#5E17EB] border border-purple-200 truncate max-w-full" title="${val}">${val}</span>`;
                             }
                         },
@@ -969,7 +969,7 @@
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const d = cell.getData();
-                                return d.tanggal_kirim_formatted ? `<span class="font-medium text-gray-700 text-[10.5px] font-mono">${d.tanggal_kirim_formatted}</span>` : '<span class="text-gray-300 font-bold">-</span>';
+                                return d.tanggal_kirim_formatted ? `<span class="font-bold text-black text-[10.5px] font-mono">${d.tanggal_kirim_formatted}</span>` : '<span class="text-black font-bold">-</span>';
                             }
                         },
                         // 8. Tindakan
@@ -981,8 +981,8 @@
                             widthGrow: 2,
                             formatter: (cell) => {
                                 const val = cell.getValue();
-                                if (!val || val === '-') return '<span class="text-gray-300 font-bold">-</span>';
-                                return `<span class="text-gray-700 block text-[11px] leading-tight truncate" title="${val}">${val}</span>`;
+                                if (!val || val === '-') return '<span class="text-black font-bold">-</span>';
+                                return `<span class="text-black font-medium block text-[11px] leading-tight truncate" title="${val}">${val}</span>`;
                             }
                         },
                         // 9. Tanggal Barang Kembali
@@ -996,7 +996,7 @@
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const d = cell.getData();
-                                return d.tanggal_barang_kembali_formatted ? `<span class="font-medium text-gray-700 text-[10.5px] font-mono">${d.tanggal_barang_kembali_formatted}</span>` : '<span class="text-gray-300 font-bold">-</span>';
+                                return d.tanggal_barang_kembali_formatted ? `<span class="font-bold text-black text-[10.5px] font-mono">${d.tanggal_barang_kembali_formatted}</span>` : '<span class="text-black font-bold">-</span>';
                             }
                         },
                         // 10. Penerima Barang
@@ -1010,8 +1010,8 @@
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const val = cell.getValue();
-                                if (!val || val === '-') return '<span class="text-gray-300 font-bold">-</span>';
-                                return `<span class="font-semibold text-gray-800 text-[11px] truncate block" title="${val}">${val}</span>`;
+                                if (!val || val === '-') return '<span class="text-black font-bold">-</span>';
+                                return `<span class="font-bold text-black text-[11px] truncate block" title="${val}">${val}</span>`;
                             }
                         },
                         // Aksi
