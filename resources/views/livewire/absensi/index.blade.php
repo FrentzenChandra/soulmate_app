@@ -144,6 +144,7 @@
 
             @else
                 <!-- Keadaan 1 & 2: Siap / Memproses -->
+                @can('absensi.submit')
                 <button type="button"
                         @click="doAbsen"
                         wire:loading.attr="disabled"
@@ -177,6 +178,17 @@
                         <p class="text-xs text-gray-500 mt-0.5">Sedang memverifikasi jaringan dan mencatat waktu</p>
                     </div>
                 </div>
+                @else
+                <div class="relative w-36 h-36 sm:w-48 sm:h-48 rounded-full bg-gray-100 text-gray-400 ring-6 sm:ring-8 ring-gray-200 border border-gray-200 flex items-center justify-center shadow-2xs select-none">
+                    <svg class="w-14 h-14 sm:w-20 sm:h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <div class="mt-4 sm:mt-5 space-y-1">
+                    <p class="text-sm font-bold text-gray-700">Akses Rekam Absen Dibatasi</p>
+                    <p class="text-xs text-gray-500">Akun Anda hanya memiliki izin melihat status absensi.</p>
+                </div>
+                @endcan
             @endif
 
         </div>

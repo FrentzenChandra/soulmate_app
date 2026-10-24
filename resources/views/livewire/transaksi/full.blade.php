@@ -1481,7 +1481,7 @@ window.tabulatorTransaksiFullTable = function(config) {
                             if (config.canUpdateStatus || config.canEdit) {
                                 const options = (config.metodeList || []).map(m => {
                                     const selected = (currentId && m.id == currentId) || (m.nama.toLowerCase() === val.toLowerCase()) ? 'selected' : '';
-                                    return `<option value="${m.id}" ${selected}>${m.nama}</option>`;
+                                    return `<option value="${m.id}" class="bg-white text-gray-900" ${selected}>${m.nama}</option>`;
                                 }).join('');
 
                                 return `
@@ -1751,9 +1751,9 @@ window.getMetodeColorStyle = function(val) {
     if (v.includes('gopay')) {
         return 'bg-blue-50 text-[#0052FF] border-blue-300';
     }
-    // 3. EDC (Kuning / Amber) -> EDC BRI, EDC BCA, EDC MANDIRI
+    // 3. EDC (Coklat Tua, Tulisan Putih) -> EDC BRI, EDC BCA, EDC MANDIRI
     if (v.includes('edc')) {
-        return 'bg-amber-800 text-mist-50 border-amber-400';
+        return 'bg-[#542A0C] text-white border-[#3B1D08]';
     }
     // 4. CV (Oren) -> BRI CV, BCA CV, SUMSEL CV
     if (v.includes('cv')) {

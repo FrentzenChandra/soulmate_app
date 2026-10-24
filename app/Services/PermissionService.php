@@ -520,6 +520,8 @@ class PermissionService
 
             'Operasional' => [
                 'dashboard.view',
+                'absensi.view',
+                'absensi.submit',
                 'kasir.produk.view',
                 'kasir.produk.create',
                 'kasir.produk.print',

@@ -26,9 +26,9 @@ class Index extends Component
     {
         $user = Auth::user();
 
-        // Otorisasi akses: Staf Cabang (Superadmin, Admin, Teknisi, Bendahara, Kasir) dan Owner
-        if (! $user->isOwner() && ! $user->hasAnyRole(['Superadmin', 'Admin', 'Teknisi', 'Bendahara', 'Kasir'])) {
-            abort(403, 'Akses absensi dibatasi untuk staf cabang.');
+        // Otorisasi akses dinamis Spatie (Rule 26)
+        if (! $user || (! $user->isOwner() && ! $user->can('absensi.view'))) {
+            abort(403, 'Akses absensi dibatasi.');
         }
 
         $this->refreshAttendanceStatus($service);
@@ -66,6 +66,10 @@ class Index extends Component
     public function submitAbsen(AbsensiService $service, ?string $clientDeviceId = null): void
     {
         $user = Auth::user();
+        if (! $user || (! $user->isOwner() && ! $user->can('absensi.submit'))) {
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan absensi.');
+        }
+
         $this->errorMessage = null;
         $this->successMessage = null;
 
