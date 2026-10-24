@@ -748,7 +748,7 @@
             table: null,
             tableData: config.tableData || [],
             quickSearch: '',
-            groupByDate: true,
+            groupByDate: false,
             tableSize: localStorage.getItem('soulmate_table_size') || 'M',
             rowCount: 0,
 

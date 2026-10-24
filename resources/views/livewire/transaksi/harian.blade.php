@@ -1557,9 +1557,9 @@ window.getMetodeColorStyle = function(val) {
     if (v.includes('gopay')) {
         return 'bg-blue-50 text-[#0052FF] border-blue-300';
     }
-    // 3. EDC (Coklat Tua, Tulisan Putih) -> EDC BRI, EDC BCA, EDC MANDIRI
+    // 3. EDC (Coklat Muda) -> EDC BRI, EDC BCA, EDC MANDIRI
     if (v.includes('edc')) {
-        return 'bg-[#542A0C] text-white border-[#3B1D08]';
+        return 'bg-amber-50 text-amber-800 border-amber-300';
     }
     // 4. CV (Oren) -> BRI CV, BCA CV, SUMSEL CV
     if (v.includes('cv')) {

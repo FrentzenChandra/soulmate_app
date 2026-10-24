@@ -166,7 +166,7 @@
     - `Gopay`: **Biru** (`bg-blue-50 text-[#0052FF] border-blue-300`)
     - Personal Rekening (`BCA Sri Listiani`, `MANDIRI Delly Sarli`, `BRI Razil Geo Taza`): **Pink** (`bg-pink-50 text-[#E6007A] border-pink-300`)
     - Rekening CV (`BRI CV`, `BCA CV`, `SUMSEL CV`): **Oren** (`bg-orange-50 text-orange-700 border-orange-300`)
-    - Mesin EDC (`EDC BRI`, `EDC BCA`, `EDC MANDIRI`): **Coklat Tua** (`bg-[#542A0C] text-white border-[#3B1D08]`)
+    - Mesin EDC (`EDC BRI`, `EDC BCA`, `EDC MANDIRI`): **Coklat Muda** (`bg-amber-50 text-amber-800 border-amber-300`)
   * **Anti-Duplikasi Total:** Dilarang menampilkan baris total tambahan di dalam sel tabel masing-masing kolom (total transaksi sudah tertera di card metrik atau kolom ringkasan).
 - **Transaction Modal Form Sizing:**
   * Ukuran lebar modal input/edit transaksi (`$modalFormOpen`) di Transaksi FULL dan Transaksi Harian WAJIB menggunakan batas maksimal `sm:max-w-2xl` (bukan `sm:max-w-4xl`) agar proporsional, nyaman dilihat, dan ergonomis.

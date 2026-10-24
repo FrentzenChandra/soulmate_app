@@ -872,23 +872,40 @@
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
-                                const val = cell.getValue();
+                                const val = (cell.getValue() || '').trim();
                                 if (!val || val === '-') return '<span class="text-gray-400 font-mono text-xs">-</span>';
-                                return `<span class="inline-block px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-blue-50 text-[#0052FF] border border-blue-200">${val}</span>`;
+                                const v = val.toLowerCase();
+                                let colorClass = 'bg-gray-100 text-gray-700 border-gray-200';
+                                if (v.includes('katalog')) {
+                                    colorClass = 'bg-rose-50 text-rose-700 border-rose-200';
+                                } else if (v.includes('langsung')) {
+                                    colorClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                                } else if (v.includes('siplah')) {
+                                    colorClass = 'bg-blue-50 text-[#0052FF] border-blue-200';
+                                }
+                                return `<span class="inline-block px-1.5 py-0.5 rounded text-[9.5px] font-bold border ${colorClass}">${val}</span>`;
                             }
                         },
                         // 6. KODE - FIT TO CONTENT
                         {
                             title: "Kode",
                             field: "kode",
-                            width: 48,
-                            minWidth: 44,
+                            width: 58,
+                            minWidth: 48,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
-                                const val = cell.getValue();
+                                const val = (cell.getValue() || '').trim();
                                 if (!val || val === '-') return '<span class="text-gray-400 font-mono text-xs">-</span>';
-                                return `<span class="font-mono font-bold text-gray-700 text-xs">${val}</span>`;
+                                let colorClass = 'bg-gray-100 text-gray-700 border-gray-200';
+                                if (val.includes('2')) {
+                                    colorClass = 'bg-purple-50 text-[#5E17EB] border-purple-200';
+                                } else if (val.includes('3')) {
+                                    colorClass = 'bg-orange-50 text-orange-700 border-orange-200';
+                                } else if (val.includes('4')) {
+                                    colorClass = 'bg-blue-50 text-[#0052FF] border-blue-200';
+                                }
+                                return `<span class="inline-block px-1.5 py-0.5 rounded text-[9.5px] font-bold border ${colorClass}">${val}</span>`;
                             }
                         },
                         // 7. BRUTO - WIDTH 92 & MINWIDTH 80
@@ -899,7 +916,7 @@
                             minWidth: 80,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-bold text-gray-900 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-bold text-[#5E17EB] whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
                         // 8. DPP - WIDTH 92 & MINWIDTH 80
                         {
@@ -909,7 +926,7 @@
                             minWidth: 80,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono text-gray-600 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-black text-gray-950 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
                         // 9. DPP LAIN - WIDTH 92 & MINWIDTH 80
                         {
@@ -919,7 +936,7 @@
                             minWidth: 80,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono text-gray-600 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-black text-gray-950 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
                         // 10. PPN - WIDTH 92 & MINWIDTH 80
                         {
@@ -929,7 +946,7 @@
                             minWidth: 80,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-bold text-rose-600 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-bold text-[#0052FF] whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
                         // 11. JENIS PPH - FIT TO CONTENT
                         {
@@ -959,7 +976,7 @@
                             minWidth: 80,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-bold text-amber-600 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-bold text-rose-600 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
                         // 13. NETTO - WIDTH 92 & MINWIDTH 80
                         {
@@ -969,7 +986,7 @@
                             minWidth: 80,
                             hozAlign: "right",
                             headerHozAlign: "right",
-                            formatter: (cell) => `<span class="font-mono font-black text-[#0052FF] whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
+                            formatter: (cell) => `<span class="font-mono font-black text-emerald-600 whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
                         // 14. AKSI - FIT TO CONTENT
                         {
