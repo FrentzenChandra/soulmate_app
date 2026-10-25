@@ -439,7 +439,7 @@
                         @error('formKeluhan') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
-                    <!-- Distributor & Tanggal Kirim -->
+                    <!-- Distributor & Penerima Barang -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1">
@@ -457,12 +457,16 @@
 
                         <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1">
-                                Tanggal Kirim
+                                Penerima Barang
                             </label>
-                            <input type="date"
-                                   wire:model="formTanggalKirim"
-                                   class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
-                            @error('formTanggalKirim') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
+                            <select wire:model="formPenerimaPegawaiId"
+                                    class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                                <option value="">Pilih Penerima (Pegawai)</option>
+                                @foreach($pegawais as $p)
+                                    <option value="{{ $p->id }}">{{ $p->nama }}</option>
+                                @endforeach
+                            </select>
+                            @error('formPenerimaPegawaiId') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
                         </div>
                     </div>
 
@@ -475,44 +479,6 @@
                                   rows="2"
                                   class="w-full text-xs font-semibold px-3.5 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]"></textarea>
                         @error('formTindakan') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
-                    </div>
-
-                    <!-- Tanggal Selesai Klaim & Tanggal Barang Kembali -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">
-                                Tanggal Selesai Klaim
-                            </label>
-                            <input type="date"
-                                   wire:model="formTanggalSelesaiKlaim"
-                                   class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
-                            @error('formTanggalSelesaiKlaim') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">
-                                Tanggal Barang Kembali
-                            </label>
-                            <input type="date"
-                                   wire:model="formTanggalBarangKembali"
-                                   class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
-                            @error('formTanggalBarangKembali') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
-
-                    <!-- Penerima Barang -->
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">
-                            Penerima Barang
-                        </label>
-                        <select wire:model="formPenerimaPegawaiId"
-                                class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
-                            <option value="">Pilih Penerima (Pegawai)</option>
-                            @foreach($pegawais as $p)
-                                <option value="{{ $p->id }}">{{ $p->nama }}</option>
-                            @endforeach
-                        </select>
-                        @error('formPenerimaPegawaiId') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Footer & Tombol Kasir Loading Standard (Rule 2) -->
@@ -866,32 +832,33 @@
                     },
                     placeholder: "Belum ada data klaim garansi.",
                     columns: [
-                        // NO
-                        {
-                            title: "No",
-                            titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">No</div>`,
-                            field: "no",
-                            width: 36,
-                            minWidth: 32,
-                            hozAlign: "center",
-                            headerHozAlign: "center",
-                            formatter: (cell) => `<span class="font-mono font-bold text-black text-[11px]">${cell.getValue()}</span>`
-                        },
-                        // 1. Tanggal Selesai Klaim (Posisi 1 terdepan - default sort desc)
+                        // 1. Tanggal Selesai Klaim (Posisi 1 terdepan - tombol centang / badge selesai)
                         {
                             title: "Tanggal Selesai Klaim",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Tanggal Selesai<br>Klaim</div>`,
                             field: "tanggal_selesai_klaim",
-                            width: 88,
-                            minWidth: 76,
+                            width: 104,
+                            minWidth: 88,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const d = cell.getData();
                                 if (d.tanggal_selesai_klaim_formatted) {
-                                    return `<span class="inline-flex items-center px-1.5 py-0.5 rounded font-bold text-[10.5px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200">${d.tanggal_selesai_klaim_formatted}</span>`;
+                                    return `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-bold text-[10.5px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200"><svg class="w-3 h-3 text-emerald-600 inline-block shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>${d.tanggal_selesai_klaim_formatted}</span>`;
                                 }
-                                return '<span class="text-black font-bold">-</span>';
+                                const safeNoKlaim = (d.no_klaim || '').replace(/'/g, "\\'");
+                                return `
+                                    <button
+                                        type="button"
+                                        onclick="window.confirmSelesaiKlaim(${d.id}, '${safeNoKlaim}')"
+                                        class="inline-flex items-center justify-center w-7 h-7 rounded-lg border-2 border-gray-300 hover:border-emerald-500 hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 transition-all cursor-pointer shadow-2xs active:scale-95 group"
+                                        title="Tandai Selesai Klaim Hari Ini"
+                                    >
+                                        <svg class="w-4 h-4 stroke-[2.5] group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </button>
+                                `;
                             }
                         },
                         // 2. Tanggal barang masuk (Posisi 2)
@@ -1087,6 +1054,47 @@
     window.openEditKlaim = function(id) {
         if (window.activeKlaimGaransiWire) {
             window.activeKlaimGaransiWire.openEditModal(id);
+        }
+    };
+
+    window.confirmSelesaiKlaim = function(id, noKlaim) {
+        if (!window.activeKlaimGaransiWire) return;
+
+        const executeSelesai = () => {
+            window.activeKlaimGaransiWire.tandaiSelesaiKlaim(id);
+        };
+
+        if (window.swalConfirm) {
+            window.swalConfirm(
+                'Selesaikan Klaim Garansi?',
+                `Tandai Klaim ${noKlaim} selesai pada tanggal hari ini?`,
+                {
+                    confirmText: 'Ya, Selesaikan',
+                    cancelText: 'Batal'
+                }
+            ).then((result) => {
+                if (result.isConfirmed) {
+                    executeSelesai();
+                }
+            });
+        } else if (window.Swal) {
+            window.Swal.fire({
+                title: 'Selesaikan Klaim Garansi?',
+                text: `Tandai Klaim ${noKlaim} selesai pada tanggal hari ini?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Selesaikan',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    executeSelesai();
+                }
+            });
+        } else if (confirm(`Tandai klaim ${noKlaim} selesai hari ini?`)) {
+            executeSelesai();
         }
     };
 

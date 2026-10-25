@@ -360,6 +360,26 @@ class Index extends Component
         $this->dispatch('klaim-garansi-table-updated', data: $this->getTableData());
     }
 
+    public function tandaiSelesaiKlaim(int $id): void
+    {
+        $user = Auth::user();
+        abort_if(! $user || (! $user->isOwner() && ! $user->can('klaim_garansi.edit')), 403, 'Akses edit klaim dibatasi.');
+
+        $klaim = KlaimGaransi::findOrFail($id);
+        $today = Carbon::today()->toDateString();
+        $klaim->update([
+            'tanggal_selesai_klaim' => $today,
+        ]);
+
+        $this->dispatch('swal:toast', [
+            'type' => 'success',
+            'title' => 'Klaim Selesai',
+            'message' => "Klaim {$klaim->no_klaim} berhasil ditandai selesai hari ini (" . Carbon::today()->format('d/m/Y') . ").",
+        ]);
+
+        $this->dispatch('klaim-garansi-table-updated', data: $this->getTableData());
+    }
+
     // =========================================================================
     // MODAL DETAIL & DELETE
     // =========================================================================
