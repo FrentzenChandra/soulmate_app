@@ -106,6 +106,18 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function sortBy(string $field): void
+    {
+        $this->perPage = 15;
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
+
     public function loadMore(): void
     {
         $this->perPage += 15;
@@ -749,12 +761,17 @@ class Index extends Component
         $totalItemJasa = ServisDetail::whereIn('servis_id', $servisIds)->where('jenis', 'jasa')->count();
         $totalItemSparepart = ServisDetail::whereIn('servis_id', $servisIds)->where('jenis', 'sparepart')->count();
 
-        // Sorting & Pagination
+        // Sorting & Infinite Loading
+        $totalItems = (clone $query)->count();
         $servisList = $query->orderBy($this->sortField, $this->sortDirection)
-            ->paginate($this->perPage);
+            ->take($this->perPage)
+            ->get();
+        $hasMore = $totalItems > $this->perPage;
 
         return view('livewire.servis.non-real.index', [
             'servisList' => $servisList,
+            'totalItems' => $totalItems,
+            'hasMore' => $hasMore,
             'cabangs' => $cabangs,
             'customerSuggestions' => $customerSuggestions,
             'masterServisSuggestions' => $masterServisSuggestions,

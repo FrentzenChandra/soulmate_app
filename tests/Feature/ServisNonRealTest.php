@@ -33,11 +33,7 @@ class ServisNonRealTest extends TestCase
     {
         parent::setUp();
 
-        Role::firstOrCreate(['name' => 'Owner', 'guard_name' => 'web']);
-        Role::firstOrCreate(['name' => 'Superadmin', 'guard_name' => 'web']);
-        Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
-        Role::firstOrCreate(['name' => 'Teknisi', 'guard_name' => 'web']);
-        Role::firstOrCreate(['name' => 'Kasir', 'guard_name' => 'web']);
+        $this->seed(\Database\Seeders\PermissionMatrixSeeder::class);
 
         $this->cabang = Cabang::create([
             'nama_cabang' => 'Soulmate Pusat PKP',
@@ -270,5 +266,42 @@ class ServisNonRealTest extends TestCase
             ->assertSeeHtml($invoiceUrl)
             ->assertDontSeeHtml('target="_blank"')
             ->assertDontSeeHtml('target=\'_blank\'');
+    }
+
+    public function test_servis_non_real_infinite_scroll_and_load_more(): void
+    {
+        $this->actingAs($this->user);
+
+        // Buat 20 unit servis non real
+        for ($i = 1; $i <= 20; $i++) {
+            ServisMasuk::create([
+                'no_servis' => sprintf('INV-SV-CBPKP-260926-%05d', $i + 20),
+                'cabang_id' => $this->cabang->id,
+                'customer_id' => $this->customer->id,
+                'created_by' => $this->user->id,
+                'kategori_perangkat' => 'laptop',
+                'tipe_unit' => 'Unit Non Real ' . $i,
+                'keluhan' => 'Keluhan ' . $i,
+                'status' => 'selesai',
+                'is_real' => false,
+                'tanggal_masuk' => now()->subMinutes($i),
+                'tanggal_selesai' => now(),
+                'total_biaya' => 100000,
+            ]);
+        }
+
+        // Test initial perPage = 15 & hasMore = true
+        $test = Livewire::test(ServisNonRealIndex::class)
+            ->assertViewHas('hasMore', true)
+            ->assertViewHas('totalItems', 20)
+            ->assertSee('Unit Non Real 1')
+            ->assertSee('Scroll atau klik untuk muat lebih banyak transaksi servis non real');
+
+        // Test loadMore() loads the remaining items
+        $test->call('loadMore')
+            ->assertSet('perPage', 30)
+            ->assertViewHas('hasMore', false)
+            ->assertSee('Seluruh')
+            ->assertSee('telah ditampilkan');
     }
 }

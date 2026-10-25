@@ -272,22 +272,16 @@
             </table>
         </div>
 
-        @if($servisList->hasPages())
-            <div class="p-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <p class="text-xs text-gray-500 font-semibold">
-                    Menampilkan {{ $servisList->firstItem() ?? 0 }} s/d {{ $servisList->lastItem() ?? 0 }} dari {{ $servisList->total() }} transaksi
-                </p>
-                @if($servisList->hasMorePages())
-                    <button type="button"
-                            wire:click="loadMore"
-                            wire:loading.attr="disabled"
-                            class="px-4 py-2 bg-purple-50 text-[#5E17EB] text-xs font-bold rounded-xl hover:bg-purple-100 transition-colors cursor-pointer flex items-center space-x-2">
-                        <span wire:loading.remove wire:target="loadMore">Muat Lebih Banyak</span>
-                        <span wire:loading wire:target="loadMore">Memuat...</span>
-                    </button>
-                @endif
-            </div>
-        @endif
+        <!-- Infinite Scroll Sentinel -->
+        <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
+            <x-infinite-scroll-sentinel
+                :has-more="$hasMore"
+                target="loadMore"
+                label="transaksi servis non real"
+                :current="$servisList->count()"
+                :total="$totalItems"
+                color="purple" />
+        </div>
     </div>
 
     <!-- ======================================================================= -->
