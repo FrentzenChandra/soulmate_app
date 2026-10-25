@@ -273,17 +273,6 @@
                     }"
                     @submit.prevent="confirmSubmit"
                     class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-                    <!-- Tanggal Masuk (Required) -->
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">
-                            Tanggal barang masuk <span class="text-rose-500 font-bold">*</span>
-                        </label>
-                        <input type="date"
-                               wire:model="tanggalMasuk"
-                               class="w-full text-xs font-semibold px-3.5 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
-                        @error('tanggalMasuk') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
-                    </div>
-
                     <!-- Customer Selection Standard (Rule 5) -->
                     <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-100 space-y-3">
                         <div class="flex items-center justify-between">

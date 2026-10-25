@@ -266,9 +266,14 @@ class Index extends Component
             $cabangId = $user->cabang_id ?? 1;
         }
 
+        // Pastikan tanggal masuk default ke hari pembuatan jika belum terisi
+        if (! $this->klaimId && empty($this->tanggalMasuk)) {
+            $this->tanggalMasuk = Carbon::today()->toDateString();
+        }
+
         // Validasi
         $rules = [
-            'tanggalMasuk' => 'required|date',
+            'tanggalMasuk' => 'nullable|date',
             'formBarang' => 'required|string|max:255',
             'formKeluhan' => 'required|string',
             'formMasterDistributorId' => 'nullable|exists:master_distributors,id',

@@ -203,6 +203,29 @@ class KlaimGaransiTest extends TestCase
         ]);
     }
 
+    public function test_can_create_klaim_garansi_defaults_tanggal_masuk_to_today(): void
+    {
+        $this->actingAs($this->owner);
+
+        $customer = Customer::create([
+            'cabang_id' => $this->cabang->id,
+            'nama' => 'Budi Santoso',
+            'no_hp' => '081234567890',
+        ]);
+
+        Livewire::test(KlaimGaransiIndex::class)
+            ->call('openCreateModal')
+            ->call('selectCustomer', $customer->id, $customer->nama, $customer->no_hp)
+            ->set('formBarang', 'Laptop ASUS TUF Gaming')
+            ->set('formKeluhan', 'Mati total tidak bisa dihidupkan')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $klaim = KlaimGaransi::where('customer_nama', 'Budi Santoso')->first();
+        $this->assertNotNull($klaim);
+        $this->assertEquals(Carbon::today()->toDateString(), $klaim->tanggal_masuk->toDateString());
+    }
+
     public function test_can_edit_klaim_garansi(): void
     {
         $this->actingAs($this->owner);
