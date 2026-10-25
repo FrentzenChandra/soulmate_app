@@ -26,6 +26,8 @@ class KlaimGaransi extends Model
         'master_distributor_id',
         'distributor_nama',
         'tanggal_kirim',
+        'pengirim_pegawai_id',
+        'pengirim_nama',
         'tindakan',
         'tanggal_selesai_klaim',
         'tanggal_barang_kembali',
@@ -58,6 +60,11 @@ class KlaimGaransi extends Model
     public function distributor()
     {
         return $this->belongsTo(MasterDistributor::class, 'master_distributor_id')->withTrashed();
+    }
+
+    public function pengirim()
+    {
+        return $this->belongsTo(Pegawai::class, 'pengirim_pegawai_id')->withTrashed();
     }
 
     public function penerima()

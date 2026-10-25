@@ -125,6 +125,13 @@ class KlaimGaransiTest extends TestCase
             'is_aktif' => true,
         ]);
 
+        $pengirim = Pegawai::create([
+            'cabang_id' => $this->cabang->id,
+            'nama' => 'Kurir Cepat Budi',
+            'role' => 'Operasional',
+            'is_aktif' => true,
+        ]);
+
         $produk = Produk::create([
             'nama_produk' => 'Motherboard ROG Strix B550',
             'barcode' => 'ROG-B550-TEST',
@@ -151,6 +158,7 @@ class KlaimGaransiTest extends TestCase
             ->set('formKeluhan', 'Port PCIe pertama tidak mendeteksi GPU secara intermiten')
             ->set('formMasterDistributorId', $distributor->id)
             ->set('formTanggalKirim', '2026-10-22')
+            ->set('formPengirimPegawaiId', $pengirim->id)
             ->set('formTindakan', 'Kirim unit ke distributor pusat Jakarta')
             ->set('formTanggalSelesaiKlaim', '2026-10-25')
             ->set('formTanggalBarangKembali', '2026-10-26')
@@ -164,6 +172,7 @@ class KlaimGaransiTest extends TestCase
             'customer_kontak' => '081299998888',
             'barang' => 'Motherboard ROG Strix B550',
             'distributor_nama' => 'ASUS Indonesia Service Center',
+            'pengirim_nama' => 'Kurir Cepat Budi',
             'penerima_nama' => 'Teknisi Handal Frentzen',
         ]);
 
@@ -250,6 +259,7 @@ class KlaimGaransiTest extends TestCase
             ->call('selectProduct', 'Monitor LG 27 Inch Upgrade')
             ->assertSet('formBarang', 'Monitor LG 27 Inch Upgrade')
             ->set('formTindakan', 'Panel LCD diganti baru oleh SC')
+            ->set('formPengirimPegawaiId', null)
             ->set('formTanggalSelesaiKlaim', '2026-10-21')
             ->call('save')
             ->assertHasNoErrors();

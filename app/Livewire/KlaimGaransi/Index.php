@@ -58,6 +58,7 @@ class Index extends Component
     // Distributor & Alur
     public ?int $formMasterDistributorId = null;
     public string $formTanggalKirim = '';
+    public ?int $formPengirimPegawaiId = null;
     public string $formTindakan = '';
     public string $formTanggalSelesaiKlaim = '';
     public string $formTanggalBarangKembali = '';
@@ -205,6 +206,7 @@ class Index extends Component
         $this->formMasterDistributorId = $klaim->master_distributor_id;
 
         $this->formTanggalKirim = $klaim->tanggal_kirim ? $klaim->tanggal_kirim->format('Y-m-d') : '';
+        $this->formPengirimPegawaiId = $klaim->pengirim_pegawai_id;
         $this->formTindakan = $klaim->tindakan ?? '';
         $this->formTanggalSelesaiKlaim = $klaim->tanggal_selesai_klaim ? $klaim->tanggal_selesai_klaim->format('Y-m-d') : '';
         $this->formTanggalBarangKembali = $klaim->tanggal_barang_kembali ? $klaim->tanggal_barang_kembali->format('Y-m-d') : '';
@@ -239,6 +241,7 @@ class Index extends Component
 
         $this->formMasterDistributorId = null;
         $this->formTanggalKirim = '';
+        $this->formPengirimPegawaiId = null;
         $this->formTindakan = '';
         $this->formTanggalSelesaiKlaim = '';
         $this->formTanggalBarangKembali = '';
@@ -277,6 +280,7 @@ class Index extends Component
             'formBarang' => 'required|string|max:255',
             'formKeluhan' => 'required|string',
             'formMasterDistributorId' => 'nullable|exists:master_distributors,id',
+            'formPengirimPegawaiId' => 'nullable|exists:pegawais,id',
             'formPenerimaPegawaiId' => 'nullable|exists:pegawais,id',
             'formTanggalKirim' => 'nullable|date',
             'formTanggalSelesaiKlaim' => 'nullable|date',
@@ -311,10 +315,15 @@ class Index extends Component
             $customerKontak = $customer->no_hp ?? '';
         }
 
-        // Snapshot nama distributor & penerima
+        // Snapshot nama distributor, pengirim & penerima
         $distributorNama = null;
         if ($this->formMasterDistributorId) {
             $distributorNama = MasterDistributor::where('id', $this->formMasterDistributorId)->value('nama');
+        }
+
+        $pengirimNama = null;
+        if ($this->formPengirimPegawaiId) {
+            $pengirimNama = Pegawai::where('id', $this->formPengirimPegawaiId)->value('nama');
         }
 
         $penerimaNama = null;
@@ -332,6 +341,8 @@ class Index extends Component
             'master_distributor_id' => $this->formMasterDistributorId ?: null,
             'distributor_nama' => $distributorNama,
             'tanggal_kirim' => $this->formTanggalKirim ?: null,
+            'pengirim_pegawai_id' => $this->formPengirimPegawaiId ?: null,
+            'pengirim_nama' => $pengirimNama,
             'tindakan' => trim($this->formTindakan) ?: null,
             'tanggal_selesai_klaim' => $this->formTanggalSelesaiKlaim ?: null,
             'tanggal_barang_kembali' => $this->formTanggalBarangKembali ?: null,
@@ -519,6 +530,7 @@ class Index extends Component
                       ->orWhereRaw('LOWER(barang) LIKE ?', [$word])
                       ->orWhereRaw('LOWER(keluhan) LIKE ?', [$word])
                       ->orWhereRaw('LOWER(distributor_nama) LIKE ?', [$word])
+                      ->orWhereRaw('LOWER(pengirim_nama) LIKE ?', [$word])
                       ->orWhereRaw('LOWER(tindakan) LIKE ?', [$word])
                       ->orWhereRaw('LOWER(penerima_nama) LIKE ?', [$word]);
                 });
@@ -537,6 +549,7 @@ class Index extends Component
             'keluhan',
             'distributor_nama',
             'tanggal_kirim',
+            'pengirim_nama',
             'tindakan',
             'tanggal_selesai_klaim',
             'tanggal_barang_kembali',
@@ -587,6 +600,7 @@ class Index extends Component
                 'distributor_nama' => $item->distributor_nama ?: '-',
                 'tanggal_kirim' => $item->tanggal_kirim,
                 'tanggal_kirim_formatted' => $tglKirimFormatted,
+                'pengirim_nama' => $item->pengirim_nama ?: '-',
                 'tindakan' => $item->tindakan ?: '-',
                 'tanggal_barang_kembali' => $item->tanggal_barang_kembali,
                 'tanggal_barang_kembali_formatted' => $tglKembaliFormatted,

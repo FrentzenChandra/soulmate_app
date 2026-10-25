@@ -428,8 +428,8 @@
                         @error('formKeluhan') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
-                    <!-- Distributor & Penerima Barang -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Distributor, Pengirim & Penerima Barang -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1">
                                 Distributor
@@ -442,6 +442,20 @@
                                 @endforeach
                             </select>
                             @error('formMasterDistributorId') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">
+                                Pengirim Barang
+                            </label>
+                            <select wire:model="formPengirimPegawaiId"
+                                    class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                                <option value="">Pilih Pengirim (Pegawai)</option>
+                                @foreach($pegawais as $p)
+                                    <option value="{{ $p->id }}">{{ $p->nama }}</option>
+                                @endforeach
+                            </select>
+                            @error('formPengirimPegawaiId') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
@@ -568,10 +582,14 @@
                         <p class="text-gray-800 font-normal mt-0.5 whitespace-pre-line">{{ $selectedKlaim->tindakan ?: '-' }}</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
+                    <div class="grid grid-cols-3 gap-3 pt-3 border-t border-gray-100">
                         <div>
                             <span class="text-[10px] font-bold text-gray-400 uppercase block">Tanggal Barang Kembali</span>
                             <span>{{ $selectedKlaim->tanggal_barang_kembali ? \Carbon\Carbon::parse($selectedKlaim->tanggal_barang_kembali)->format('d/m/Y') : '-' }}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase block">Pengirim Barang</span>
+                            <span class="font-bold text-gray-900">{{ $selectedKlaim->pengirim_nama ?: '-' }}</span>
                         </div>
                         <div>
                             <span class="text-[10px] font-bold text-gray-400 uppercase block">Penerima Barang</span>
@@ -746,6 +764,7 @@
                         row.barang || '',
                         row.keluhan || '',
                         row.distributor_nama || '',
+                        row.pengirim_nama || '',
                         row.tindakan || '',
                         row.penerima_nama || '',
                         row.tanggal_selesai_klaim_formatted || '',
@@ -942,7 +961,22 @@
                                 return `<span class="text-black font-medium block text-[11px] leading-tight truncate" title="${val}">${val}</span>`;
                             }
                         },
-                        // 8. Penerima Barang
+                        // 8. Pengirim Barang
+                        {
+                            title: "Pengirim Barang",
+                            titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Pengirim<br>Barang</div>`,
+                            field: "pengirim_nama",
+                            width: 85,
+                            minWidth: 72,
+                            hozAlign: "center",
+                            headerHozAlign: "center",
+                            formatter: (cell) => {
+                                const val = cell.getValue();
+                                if (!val || val === '-') return '<span class="text-black font-bold">-</span>';
+                                return `<span class="font-bold text-black text-[11px] truncate block" title="${val}">${val}</span>`;
+                            }
+                        },
+                        // 9. Penerima Barang
                         {
                             title: "Penerima Barang",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Penerima<br>Barang</div>`,
