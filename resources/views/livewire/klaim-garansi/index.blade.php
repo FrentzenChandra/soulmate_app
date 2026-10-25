@@ -967,21 +967,7 @@
                                 return `<span class="text-black font-medium block text-[11px] leading-tight truncate" title="${val}">${val}</span>`;
                             }
                         },
-                        // 9. Tanggal Barang Kembali
-                        {
-                            title: "Tanggal Barang Kembali",
-                            titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Tanggal Barang<br>Kembali</div>`,
-                            field: "tanggal_barang_kembali",
-                            width: 88,
-                            minWidth: 76,
-                            hozAlign: "center",
-                            headerHozAlign: "center",
-                            formatter: (cell) => {
-                                const d = cell.getData();
-                                return d.tanggal_barang_kembali_formatted ? `<span class="font-bold text-black text-[10.5px] font-mono">${d.tanggal_barang_kembali_formatted}</span>` : '<span class="text-black font-bold">-</span>';
-                            }
-                        },
-                        // 10. Penerima Barang
+                        // 9. Penerima Barang
                         {
                             title: "Penerima Barang",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Penerima<br>Barang</div>`,
