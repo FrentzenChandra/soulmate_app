@@ -398,7 +398,7 @@
                                     <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">2. Klasifikasi Pajak</span>
                                 </div>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
                                     <!-- Saluran Via Pajak -->
                                     <div>
                                         <label class="block font-bold text-gray-700 mb-1.5 text-xs">
@@ -445,18 +445,18 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                </div>
 
-                                <!-- Catatan (Opsional) -->
-                                <div class="pt-1">
-                                    <label class="block font-bold text-gray-700 mb-1.5 text-xs">
-                                        Catatan
-                                    </label>
-                                    <input
-                                        type="text"
-                                        wire:model="formCatatan"
-                                        class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all"
-                                    >
+                                    <!-- Catatan -->
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1.5 text-xs">
+                                            Catatan
+                                        </label>
+                                        <input
+                                            type="text"
+                                            wire:model="formCatatan"
+                                            class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all"
+                                        >
+                                    </div>
                                 </div>
                             </div>
 
