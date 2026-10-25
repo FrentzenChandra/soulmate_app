@@ -224,7 +224,7 @@ class Full extends Component
         $this->formKategoriPerangkat = 'laptop';
         $this->formNamaPelanggan = 'Konsumen';
         $this->formPegawaiId = null;
-        $this->formPegawaiIds = [];
+        $this->formPegawaiIds = [''];
         $this->generateDefaultNoTransaksi();
 
         // PPN Default jika ada yang aktif
@@ -265,7 +265,7 @@ class Full extends Component
         $this->formPegawaiId = $transaksi->pegawai_id;
         $this->formPegawaiIds = $transaksi->pegawais->isNotEmpty()
             ? $transaksi->pegawais->pluck('id')->all()
-            : ($transaksi->pegawai_id ? [$transaksi->pegawai_id] : []);
+            : ($transaksi->pegawai_id ? [$transaksi->pegawai_id] : ['']);
         $this->formCustomerType = $transaksi->customer_id ? 'langganan' : 'umum';
         $this->formCustomerId = $transaksi->customer_id;
         $this->formNamaPelanggan = $transaksi->nama_pelanggan ?: 'Konsumen';
@@ -321,7 +321,7 @@ class Full extends Component
         $this->formNamaPelanggan = 'Pelanggan Umum';
         $this->formNoHp = '';
         $this->formPegawaiId = null;
-        $this->formPegawaiIds = [];
+        $this->formPegawaiIds = [''];
         $this->formMetodePembayaranId = null;
         $this->formMetodePembayaran = 'Cash';
         $this->formPpnId = null;
@@ -391,6 +391,9 @@ class Full extends Component
         if (isset($this->formPegawaiIds[$index])) {
             unset($this->formPegawaiIds[$index]);
             $this->formPegawaiIds = array_values($this->formPegawaiIds);
+        }
+        if (empty($this->formPegawaiIds)) {
+            $this->formPegawaiIds = [''];
         }
     }
 

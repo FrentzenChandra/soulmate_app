@@ -220,7 +220,7 @@ class Harian extends Component
         $this->formKategoriPerangkat = 'laptop';
         $this->formNamaPelanggan = 'Konsumen';
         $this->formPegawaiId = null;
-        $this->formPegawaiIds = [];
+        $this->formPegawaiIds = [''];
         $this->generateDefaultNoTransaksi();
 
         $activePpn = MasterPpn::getAktifCached();
@@ -257,7 +257,7 @@ class Harian extends Component
         $this->formPegawaiId = $transaksi->pegawai_id;
         $this->formPegawaiIds = $transaksi->pegawais->isNotEmpty()
             ? $transaksi->pegawais->pluck('id')->all()
-            : ($transaksi->pegawai_id ? [$transaksi->pegawai_id] : []);
+            : ($transaksi->pegawai_id ? [$transaksi->pegawai_id] : ['']);
         $this->formCustomerType = $transaksi->customer_id ? 'langganan' : 'umum';
         $this->formCustomerId = $transaksi->customer_id;
         $this->formNamaPelanggan = $transaksi->nama_pelanggan ?: 'Konsumen';
@@ -310,7 +310,7 @@ class Harian extends Component
         $this->formTanggalOnly = '';
         $this->formJam = '';
         $this->formPegawaiId = null;
-        $this->formPegawaiIds = [];
+        $this->formPegawaiIds = [''];
         $this->formCustomerType = 'umum';
         $this->formCustomerId = null;
         $this->formCustomerSearch = '';
@@ -384,6 +384,9 @@ class Harian extends Component
         if (isset($this->formPegawaiIds[$index])) {
             unset($this->formPegawaiIds[$index]);
             $this->formPegawaiIds = array_values($this->formPegawaiIds);
+        }
+        if (empty($this->formPegawaiIds)) {
+            $this->formPegawaiIds = [''];
         }
     }
 
