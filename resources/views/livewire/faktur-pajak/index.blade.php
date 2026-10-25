@@ -340,17 +340,17 @@
                                 </div>
                             @endif
 
-                            <!-- Section 1: Informasi Rekanan & Pengadaan -->
+                            <!-- Section 1: Informasi Wajib Pajak -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">1. Informasi Rekanan &amp; Pengadaan</span>
+                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">1. Informasi Wajib Pajak</span>
                                 </div>
 
-                                <div class="space-y-3">
-                                    <!-- Rekanan / Instansi -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <!-- Nama Wajib Pajak -->
                                     <div class="relative">
                                         <label class="block font-bold text-gray-700 mb-1.5 text-xs">
-                                            Nama Rekanan / Instansi <span class="text-rose-500 font-bold">*</span>
+                                            Nama Wajib Pajak <span class="text-rose-500 font-bold">*</span>
                                         </label>
                                         <input
                                             type="text"
@@ -377,25 +377,25 @@
                                         @endif
                                     </div>
 
-                                    <!-- Uraian Barang / Pengadaan -->
+                                    <!-- Uraian Barang -->
                                     <div>
                                         <label class="block font-bold text-gray-700 mb-1.5 text-xs">
-                                            Uraian Barang / Pengadaan <span class="text-rose-500 font-bold">*</span>
+                                            Uraian Barang <span class="text-rose-500 font-bold">*</span>
                                         </label>
-                                        <textarea
+                                        <input
+                                            type="text"
                                             wire:model="formBarang"
-                                            rows="2"
                                             class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-900 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all"
-                                        ></textarea>
+                                        >
                                         @error('formBarang') <span class="text-rose-500 font-bold block mt-1">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Section 2: Saluran & Klasifikasi Pajak -->
+                            <!-- Section 2: Klasifikasi Pajak -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">2. Saluran &amp; Klasifikasi Pajak</span>
+                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">2. Klasifikasi Pajak</span>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -446,12 +446,24 @@
                                         </select>
                                     </div>
                                 </div>
+
+                                <!-- Catatan (Opsional) -->
+                                <div class="pt-1">
+                                    <label class="block font-bold text-gray-700 mb-1.5 text-xs">
+                                        Catatan
+                                    </label>
+                                    <input
+                                        type="text"
+                                        wire:model="formCatatan"
+                                        class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all"
+                                    >
+                                </div>
                             </div>
 
-                            <!-- Section 3: Nilai Finansial & Kalkulasi Otomatis -->
+                            <!-- Section 3: Nilai Finansial -->
                             <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">3. Nilai Finansial &amp; Kalkulasi Otomatis</span>
+                                    <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">3. Nilai Finansial</span>
                                 </div>
 
                                 <!-- Input Bruto -->
@@ -496,16 +508,6 @@
                                         <span class="text-base font-black font-mono text-[#0052FF]" x-text="formatRp(numNetto)"></span>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- Section 4: Catatan Tambahan -->
-                            <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-2">
-                                <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">4. Catatan (Opsional)</span>
-                                <input
-                                    type="text"
-                                    wire:model="formCatatan"
-                                    class="w-full px-3.5 py-2 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 text-xs focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB] transition-all"
-                                >
                             </div>
 
                         </div>
@@ -591,10 +593,10 @@
                             </div>
                         </div>
 
-                        <!-- Rincian Rekanan & Barang -->
+                        <!-- Rincian Wajib Pajak & Barang -->
                         <div class="space-y-2.5 bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80">
                             <div class="flex justify-between">
-                                <span class="text-gray-500 font-semibold">Rekanan / Instansi:</span>
+                                <span class="text-gray-500 font-semibold">Nama Wajib Pajak:</span>
                                 <span class="font-bold text-gray-900">{{ $selectedFaktur->nama_pajak_snapshot }}</span>
                             </div>
                             <div class="flex justify-between">
@@ -606,7 +608,7 @@
                                 <span class="font-bold text-gray-900">{{ $selectedFaktur->kode_pajak_snapshot ?: '-' }}</span>
                             </div>
                             <div class="pt-2 border-t border-gray-200/60">
-                                <span class="text-gray-500 font-semibold block mb-1">Uraian Barang / Pengadaan:</span>
+                                <span class="text-gray-500 font-semibold block mb-1">Uraian Barang:</span>
                                 <div class="p-3 bg-white rounded-xl border border-gray-200 text-gray-800 font-medium whitespace-pre-wrap">{{ $selectedFaktur->barang_snapshot }}</div>
                             </div>
                         </div>
