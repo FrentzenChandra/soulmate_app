@@ -156,8 +156,8 @@ Halaman antarmuka publik tanpa login untuk layar Smart TV di cabang:
   - 12 Sel Bulan (Jan &ndash; Des) HANYA menampilkan angka realisasi riil yang bersih (tanpa teks `/ <target>` dan tanpa badge persentase `%`).
   - Kolom Total YTD menampilkan total realisasi tahun berjalan, perbandingan target tahunan berjalan (`/ total_target_ytd`), dan badge persentase YTD (`≥ 150%` Over Target / Biru, `100% - 149%` Tercapai / Hijau, `< 100%` Belum Tercapai / Abu-abu).
   - Tanpa baris ringkasan footer `TOTAL DIVISI` (tabel ultra-clean dan padat).
-  - Realisasi ditarik otomatis dari `transaksi_fulls` (atau penyesuaian manual per cell bulan jika diperlukan melalui klik per sel).
-- **Tabel 2 — Target Per Pegawai (Staf Individu)**:
+  - Realisasi 100% otomatis ditarik riil: Divisi Teknis (Laptop, Printer, Komputer) dari `servis_masuks` berdasarkan `tanggal_ambil`, Divisi Admin dari `transaksi_fulls` (tipe penjualan, status Lunas berdasarkan `tanggal_lunas`). Seluruh sel tabel read-only tanpa edit manual.
+- **Tabel 2 — Bonus Per Pegawai (Staf Individu)**:
   - Menampilkan seluruh pegawai yang bertugas di cabang terpilih (`pegawais` cabang).
   - Realisasi murni 100% ditarik otomatis dari `transaksi_fulls` berdasarkan `pegawai_id`.
   - Read-only performance summary tanpa kolom target, tanpa modal edit per cell, dan tanpa badge status merah.

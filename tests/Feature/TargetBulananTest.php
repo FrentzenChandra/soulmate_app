@@ -177,67 +177,91 @@ class TargetBulananTest extends TestCase
             });
     }
 
-    public function test_superadmin_can_edit_monthly_custom_realisasi_divisi()
+    public function test_admin_division_auto_calculated_from_transaksi_full_penjualan_lunas_by_tanggal_lunas()
     {
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
 
-        // Setup annual target first for admin division
+        TransaksiFull::query()->delete();
+        TargetDivisi::query()->delete();
+
+        $cabangId = $superadmin->cabang_id ?: 1;
+
+        // 1. Setup annual target for admin division
         TargetDivisi::updateOrCreate(
-            ['cabang_id' => $superadmin->cabang_id ?: 1, 'divisi' => 'admin', 'tahun' => 2026],
-            ['target_bulanan' => 25]
+            ['cabang_id' => $cabangId, 'divisi' => 'admin', 'tahun' => 2026],
+            ['target_bulanan' => 10]
         );
 
-        Livewire::test(TargetBulananIndex::class)
-            ->set('filterTahun', 2026)
-            ->call('openEditCellDivisi', 'admin', 5)
-            ->assertSet('editDivisiKey', 'admin')
-            ->assertSet('editDivisiBulan', 5)
-            ->assertSet('targetSyaratBulananInfo', 25)
-            ->set('formRealisasiDivisi', 30)
-            ->call('simpanEditCellDivisi')
-            ->assertHasNoErrors()
-            ->assertSet('modalEditCellDivisiOpen', false);
+        // 2. Transaksi Penjualan Lunas in January 2026 -> SHOULD BE COUNTED in Month 1
+        TransaksiFull::create([
+            'no_transaksi' => 'INV-PJ-PKP-260110-00010',
+            'cabang_id' => $cabangId,
+            'nama_pelanggan' => 'Pelanggan Lunas Jan',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => '2026-01-10 10:00:00',
+            'tanggal_lunas' => '2026-01-10 10:00:00',
+            'total_modal' => 50000,
+            'total_jual' => 100000,
+            'grand_total' => 100000,
+            'status' => 'Lunas',
+            'metode_pembayaran' => 'Cash',
+        ]);
 
-        $targetDivisi = TargetDivisi::where('cabang_id', $superadmin->cabang_id ?: 1)
-            ->where('divisi', 'admin')
-            ->where('tahun', 2026)
-            ->first();
+        // 3. Transaksi Penjualan BON in January 2026 -> SHOULD NOT BE COUNTED
+        $bonTrx = TransaksiFull::create([
+            'no_transaksi' => 'INV-PJ-PKP-260115-00011',
+            'cabang_id' => $cabangId,
+            'nama_pelanggan' => 'Pelanggan Bon Jan',
+            'tipe_transaksi' => 'penjualan',
+            'tanggal' => '2026-01-15 11:00:00',
+            'tanggal_lunas' => null,
+            'total_modal' => 80000,
+            'total_jual' => 150000,
+            'grand_total' => 150000,
+            'status' => 'Bon',
+            'metode_pembayaran' => 'Cash',
+        ]);
 
-        $this->assertNotNull($targetDivisi);
-        $this->assertEquals(30, $targetDivisi->monthly_realisasi['5']);
+        // 4. Transaksi Servis Lunas in January 2026 -> SHOULD NOT BE COUNTED in Divisi Admin
+        TransaksiFull::create([
+            'no_transaksi' => 'INV-PJ-PKP-260120-00012',
+            'cabang_id' => $cabangId,
+            'nama_pelanggan' => 'Pelanggan Servis Jan',
+            'tipe_transaksi' => 'servis',
+            'tanggal' => '2026-01-20 14:00:00',
+            'tanggal_lunas' => '2026-01-20 14:00:00',
+            'total_modal' => 30000,
+            'total_jual' => 75000,
+            'grand_total' => 75000,
+            'status' => 'Lunas',
+            'metode_pembayaran' => 'Cash',
+        ]);
 
-        // Test rendering reflection
+        // Verify January has count 1 (only the paid sales transaction)
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
             ->assertViewHas('divisiMatrix', function ($divisiMatrix) {
                 return isset($divisiMatrix['admin'])
-                    && $divisiMatrix['admin']['months'][5]['target'] === 25
-                    && $divisiMatrix['admin']['months'][5]['count'] === 30
-                    && $divisiMatrix['admin']['months'][5]['percent'] === 120
-                    && $divisiMatrix['admin']['months'][5]['status'] === 'tercapai';
+                    && $divisiMatrix['admin']['months'][1]['count'] === 1
+                    && $divisiMatrix['admin']['months'][2]['count'] === 0;
             });
-    }
 
-    public function test_cannot_edit_cell_for_non_admin_divisions()
-    {
-        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
-        $this->actingAs($superadmin);
+        // 5. Now settle the BON transaction in February 2026 (tanggal_lunas = 2026-02-14)
+        $bonTrx->update([
+            'status' => 'Lunas',
+            'tanggal_lunas' => '2026-02-14 15:00:00',
+        ]);
 
+        // Verify February now has count 1, and January remains 1
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
-            ->call('openEditCellDivisi', 'laptop', 1)
-            ->assertStatus(403);
-
-        Livewire::test(TargetBulananIndex::class)
-            ->set('filterTahun', 2026)
-            ->call('openEditCellDivisi', 'printer', 1)
-            ->assertStatus(403);
-
-        Livewire::test(TargetBulananIndex::class)
-            ->set('filterTahun', 2026)
-            ->call('openEditCellDivisi', 'komputer', 1)
-            ->assertStatus(403);
+            ->assertViewHas('divisiMatrix', function ($divisiMatrix) {
+                return isset($divisiMatrix['admin'])
+                    && $divisiMatrix['admin']['months'][1]['count'] === 1
+                    && $divisiMatrix['admin']['months'][2]['count'] === 1
+                    && $divisiMatrix['admin']['total_ytd'] === 2;
+            });
     }
 
     public function test_technical_divisions_auto_calculated_from_servis_masuk_by_tanggal_ambil()
@@ -247,6 +271,7 @@ class TargetBulananTest extends TestCase
 
         ServisMasuk::query()->delete();
         TargetDivisi::query()->delete();
+        TransaksiFull::query()->delete();
 
         $cabangId = $superadmin->cabang_id ?: 1;
         $customer = Customer::create([
@@ -359,15 +384,12 @@ class TargetBulananTest extends TestCase
             ->assertHasNoErrors()
             ->assertSet('modalSetTargetTahunanDivisiOpen', false);
 
-        // Can edit cell realization for admin division
-        Livewire::test(TargetBulananIndex::class)
-            ->set('filterTahun', 2026)
-            ->call('openEditCellDivisi', 'admin', 1)
-            ->assertSet('modalEditCellDivisiOpen', true)
-            ->set('formRealisasiDivisi', 15)
-            ->call('simpanEditCellDivisi')
-            ->assertHasNoErrors()
-            ->assertSet('modalEditCellDivisiOpen', false);
+        $this->assertDatabaseHas('target_divisis', [
+            'cabang_id' => $teknisi->cabang_id ?: 1,
+            'tahun' => 2026,
+            'divisi' => 'admin',
+            'target_bulanan' => 40,
+        ]);
     }
 
     public function test_user_with_only_view_permission_cannot_manage_targets()

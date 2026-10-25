@@ -115,8 +115,8 @@ Sistem memiliki otorisasi bertingkat dengan pemisahan konteks yang ketat:
     * 12 Sel Bulan (Jan &ndash; Des) HANYA menampilkan angka realisasi riil yang bersih (tanpa teks `/ <target>` dan tanpa badge persentase `%`).
     * Kolom Total YTD menampilkan total realisasi tahun berjalan, perbandingan target tahunan berjalan (`/ total_target_ytd`), dan badge persentase YTD (`≥ 150%` Over Target / Biru, `100% - 149%` Tercapai / Hijau, `< 100%` Belum Tercapai / Abu-abu).
     * Tanpa baris ringkasan footer `TOTAL DIVISI` (tabel ultra-clean dan padat).
-    * Penyesuaian realisasi manual per bulan tetap didukung secara independen melalui klik per sel bulan.
-  - **Tabel 2: Target Per Pegawai (Staf Individu)**:
+    * Realisasi 100% otomatis ditarik riil: Divisi Teknis (Laptop, Printer, Komputer) dari `servis_masuks` berdasarkan `tanggal_ambil`, Divisi Admin dari `transaksi_fulls` (tipe penjualan, status Lunas berdasarkan `tanggal_lunas`). Seluruh sel tabel read-only tanpa edit manual.
+  - **Tabel 2: Bonus Per Pegawai (Staf Individu)**:
     * Realisasi murni 100% ditarik otomatis dari `transaksi_fulls` berdasarkan `pegawai_id`.
     * Tanpa kolom target/persyaratan, tanpa badge status merah, dan tanpa modal edit per sel (read-only real-time performance summary).
 - **Hak Akses Set Target:** Khusus role **Owner** dan **Superadmin**.

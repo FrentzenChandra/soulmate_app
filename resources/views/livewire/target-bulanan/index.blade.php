@@ -148,14 +148,12 @@
                                 </span>
                             </td>
 
-                            <!-- 12 Bulan (Khusus Divisi Admin yang Dapat Diedit Manual) -->
+                            <!-- 12 Bulan (Murni Realisasi Riil Otomatis) -->
                             @for($m = 1; $m <= 12; $m++)
                                 @php
                                     $cell = $d['months'][$m];
-                                    $isEditable = ($key === 'admin') && $canManageTarget;
                                 @endphp
-                                <td class="py-3 px-1 align-middle text-center {{ $isEditable ? 'cursor-pointer hover:bg-purple-100/60 transition-colors' : '' }}"
-                                    @if($isEditable) wire:click="openEditCellDivisi('{{ $key }}', {{ $m }})" title="Klik untuk edit realisasi {{ $d['name'] }} bulan {{ $bulanNames[$m] }}" @endif>
+                                <td class="py-3 px-1 align-middle text-center">
                                     @if(! $cell['has_data'])
                                         <span class="text-gray-300 font-mono font-bold text-xs leading-none">-</span>
                                     @else
@@ -231,7 +229,7 @@
                     <svg class="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 </div>
                 <div>
-                    <h2 class="text-sm font-black uppercase tracking-wider text-white">Target Per Pegawai</h2>
+                    <h2 class="text-sm font-black uppercase tracking-wider text-white">Bonus Per Pegawai</h2>
                     <p class="text-[11px] text-purple-200 font-medium">Realisasi transaksi riil per staf tahun {{ $filterTahun }}</p>
                 </div>
             </div>
@@ -492,80 +490,6 @@
                                 <svg wire:loading wire:target="simpanTargetTahunanDivisi" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                                 <span wire:loading.remove wire:target="simpanTargetTahunanDivisi">Simpan Target</span>
                                 <span wire:loading wire:target="simpanTargetTahunanDivisi">Menyimpan...</span>
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <!-- ============================================== -->
-    <!-- MODAL 2: EDIT TARGET & REALISASI CELL (DIVISI)  -->
-    <!-- ============================================== -->
-    @if($modalEditCellDivisiOpen)
-        <div wire:key="modal-edit-cell-divisi" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-            <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-xs transition-opacity" wire:click="$set('modalEditCellDivisiOpen', false)"></div>
-
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 text-xs">
-
-                    <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 text-white flex items-center justify-between rounded-t-3xl gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-10 h-10 rounded-2xl bg-white/15 text-white flex items-center justify-center border border-white/20 shrink-0">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-bold text-white tracking-tight">Edit Realisasi Divisi {{ $editDivisiName }}</h3>
-                                <p class="text-xs text-purple-200 font-medium">
-                                    Bulan {{ \Carbon\Carbon::createFromDate($filterTahun, $editDivisiBulan, 1)->translatedFormat('F') }} {{ $filterTahun }}
-                                </p>
-                            </div>
-                        </div>
-                        <button type="button" wire:click="$set('modalEditCellDivisiOpen', false)" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-
-                    <form wire:submit.prevent="simpanEditCellDivisi">
-                        <div class="p-6 space-y-4">
-                            <!-- Info Target Bulanan (Read-Only) -->
-                            <div class="p-3 bg-purple-50/60 rounded-2xl border border-purple-100 flex items-center justify-between">
-                                <span class="font-bold text-gray-700 text-xs">Target Bulanan:</span>
-                                <span class="font-mono font-black text-[#5E17EB] text-xs">{{ $targetSyaratBulananInfo }} Transaksi</span>
-                            </div>
-
-                            <!-- Realisasi Terjadi Divisi -->
-                            <div class="p-3.5 bg-gray-50 rounded-2xl border border-gray-200">
-                                <label class="block font-bold text-gray-800 mb-1">
-                                    Jumlah Transaksi (Realisasi) <span class="text-rose-500 font-bold">*</span>
-                                </label>
-                                <input type="number"
-                                       min="0"
-                                       wire:model="formRealisasiDivisi"
-                                       class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
-                                {{-- <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                                    Kosongkan / masukkan 0 jika ingin mengikuti tarikan otomatis dari Transaksi FULL.
-                                </span> --}}
-                                @error('formRealisasiDivisi')
-                                    <span class="text-rose-500 font-bold text-[10px] block mt-1">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="bg-gray-50 px-6 py-4 flex items-center justify-between rounded-b-3xl border-t border-gray-100">
-                            <button type="button"
-                                    wire:click="$set('modalEditCellDivisiOpen', false)"
-                                    class="px-4 py-2 rounded-xl bg-white border border-gray-200 font-bold text-gray-700 hover:bg-gray-100 cursor-pointer">
-                                Batal
-                            </button>
-                            <button type="submit"
-                                    wire:loading.attr="disabled"
-                                    class="px-5 py-2 rounded-xl bg-[#5E17EB] hover:bg-purple-700 text-white font-black shadow-md shadow-purple-900/20 transition-all cursor-pointer flex items-center space-x-1.5 disabled:opacity-50">
-                                <svg wire:loading wire:target="simpanEditCellDivisi" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                                <span wire:loading.remove wire:target="simpanEditCellDivisi">Simpan Perubahan</span>
-                                <span wire:loading wire:target="simpanEditCellDivisi">Menyimpan...</span>
                             </button>
                         </div>
                     </form>
