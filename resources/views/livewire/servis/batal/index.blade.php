@@ -610,8 +610,10 @@
                                 <select wire:model="targetStatus"
                                         class="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white font-bold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <option value="pengecekan">Pengecekan</option>
+                                    <option value="menunggu_konfirmasi">Menunggu Konfirmasi</option>
                                     <option value="perbaikan">Perbaikan</option>
-                                    <option value="selesai">Selesai </option>
+                                    <option value="menunggu_sparepart">Menunggu Sparepart</option>
+                                    <option value="selesai">Selesai</option>
                                     <option value="batal">Batal Servis</option>
                                 </select>
                             </div>

@@ -121,7 +121,9 @@ class ServisMasuk extends Model
     {
         return match ($this->status) {
             'pengecekan' => 'Pengecekan',
+            'menunggu_konfirmasi' => 'Menunggu Konfirmasi',
             'perbaikan', 'pengerjaan' => 'Perbaikan',
+            'menunggu_sparepart' => 'Menunggu Sparepart',
             'selesai' => 'Selesai',
             'sudah_diambil', 'sudah_dibayar' => 'Sudah Diambil',
             'batal' => 'Batal',
@@ -132,12 +134,14 @@ class ServisMasuk extends Model
     public function getStatusBadgeClassAttribute(): string
     {
         return match ($this->status) {
-            'pengecekan' => 'bg-amber-50 text-amber-700 border-amber-200',
-            'perbaikan', 'pengerjaan' => 'bg-blue-50 text-blue-700 border-blue-200',
-            'selesai' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-            'sudah_diambil', 'sudah_dibayar' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
-            'batal' => 'bg-rose-50 text-rose-700 border-rose-200',
-            default => 'bg-gray-50 text-gray-700 border-gray-200',
+            'pengecekan' => 'bg-amber-100 text-amber-800 border border-amber-300 font-black',
+            'menunggu_konfirmasi' => 'bg-amber-200 text-amber-950 border border-amber-400 font-black shadow-2xs',
+            'perbaikan', 'pengerjaan' => 'bg-blue-100 text-blue-800 border border-blue-300 font-black',
+            'menunggu_sparepart' => 'bg-blue-200 text-blue-950 border border-blue-400 font-black shadow-2xs',
+            'selesai' => 'bg-emerald-100 text-emerald-800 border border-emerald-300 font-black',
+            'sudah_diambil', 'sudah_dibayar' => 'bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold',
+            'batal' => 'bg-rose-100 text-rose-800 border border-rose-300 font-black',
+            default => 'bg-gray-100 text-gray-800 border border-gray-300 font-black',
         };
     }
 
@@ -147,7 +151,7 @@ class ServisMasuk extends Model
             'laptop' => 'Laptop',
             'printer' => 'Printer',
             'komputer', 'pc' => 'Komputer',
-            default => ucfirst($this->kategori_perangkat ?: 'Lainnya'),
+            default => ucfirst($this->kategori_perangkat ?: 'Komputer'),
         };
     }
 

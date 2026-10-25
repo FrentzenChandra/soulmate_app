@@ -155,7 +155,9 @@
                         class="w-full py-2.5 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all cursor-pointer">
                     <option value="semua">Semua Status Masuk</option>
                     <option value="pengecekan">Tahap Pengecekan</option>
+                    <option value="menunggu_konfirmasi">Tahap Menunggu Konfirmasi</option>
                     <option value="perbaikan">Tahap Perbaikan</option>
+                    <option value="menunggu_sparepart">Tahap Menunggu Sparepart</option>
                     <option value="selesai">Tahap Selesai</option>
                 </select>
             </div>
@@ -168,7 +170,6 @@
                     <option value="laptop">Laptop</option>
                     <option value="printer">Printer</option>
                     <option value="komputer">Komputer</option>
-                    <option value="lainnya">Lainnya</option>
                 </select>
                 <x-table-size-selector />
             </div>
@@ -331,7 +332,7 @@
 
                             <!-- Status -->
                             <td class="py-2.5 px-3 text-center whitespace-nowrap">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black {{ $item->status === 'pengecekan' ? 'bg-amber-100 text-amber-800 border border-amber-300' : ($item->status === 'selesai' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-blue-100 text-blue-800 border border-blue-300') }}">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] {{ $item->status_badge_class }}">
                                     {{ $item->status_label }}
                                 </span>
                             </td>
@@ -567,7 +568,7 @@
                             <div class="space-y-3">
                                 <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">2. Detail Perangkat &amp; Unit</span>
 
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <div class="grid grid-cols-3 gap-2">
                                     <button type="button"
                                             wire:click="$set('kategoriPerangkat', 'laptop')"
                                             class="py-2 px-3 rounded-xl font-bold border text-center transition-all cursor-pointer {{ $kategoriPerangkat === 'laptop' ? 'bg-purple-50 border-[#5E17EB] text-[#5E17EB] shadow-2xs font-black' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50' }}">
@@ -582,11 +583,6 @@
                                             wire:click="$set('kategoriPerangkat', 'komputer')"
                                             class="py-2 px-3 rounded-xl font-bold border text-center transition-all cursor-pointer {{ $kategoriPerangkat === 'komputer' ? 'bg-purple-50 border-[#5E17EB] text-[#5E17EB] shadow-2xs font-black' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50' }}">
                                         Komputer
-                                    </button>
-                                    <button type="button"
-                                            wire:click="$set('kategoriPerangkat', 'lainnya')"
-                                            class="py-2 px-3 rounded-xl font-bold border text-center transition-all cursor-pointer {{ $kategoriPerangkat === 'lainnya' ? 'bg-purple-50 border-[#5E17EB] text-[#5E17EB] shadow-2xs font-black' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50' }}">
-                                        Lainnya
                                     </button>
                                 </div>
 
@@ -877,7 +873,6 @@
                                     <option value="laptop">Laptop</option>
                                     <option value="printer">Printer</option>
                                     <option value="komputer">Komputer</option>
-                                    <option value="lainnya">Lainnya</option>
                                 </select>
                             </div>
 
@@ -1081,7 +1076,9 @@
                                 <select wire:model="updateStatus"
                                         class="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white font-bold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <option value="pengecekan">Pengecekan</option>
+                                    <option value="menunggu_konfirmasi">Menunggu Konfirmasi</option>
                                     <option value="perbaikan">Perbaikan</option>
+                                    <option value="menunggu_sparepart">Menunggu Sparepart</option>
                                     <option value="selesai">Selesai</option>
                                     <option value="batal">Batal Servis</option>
                                 </select>

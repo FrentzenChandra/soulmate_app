@@ -152,7 +152,7 @@ class Index extends Component
         if (! $this->servisToUbahStatus) return;
 
         $this->validate([
-            'targetStatus' => 'required|in:pengecekan,perbaikan,selesai,batal',
+            'targetStatus' => 'required|in:pengecekan,menunggu_konfirmasi,perbaikan,menunggu_sparepart,selesai,batal',
             'catatanUbahStatus' => 'nullable|string|max:500',
         ]);
 
@@ -181,10 +181,11 @@ class Index extends Component
 
             $statusLabel = match($newStatus) {
                 'pengecekan' => 'Pengecekan',
-                'perbaikan' => 'Perbaikan',
                 'menunggu_konfirmasi' => 'Menunggu Konfirmasi',
+                'perbaikan' => 'Perbaikan',
+                'menunggu_sparepart' => 'Menunggu Sparepart',
                 'selesai' => 'Selesai',
-                default => ucfirst($newStatus),
+                default => ucfirst(str_replace('_', ' ', $newStatus)),
             };
 
             ServisStatusLog::create([

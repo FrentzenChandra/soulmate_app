@@ -88,7 +88,7 @@ class AntrianDisplay extends Component
             $rawCounts = (clone $query)
                 ->select('kategori_perangkat', 'status', DB::raw('count(*) as total'))
                 ->whereIn('kategori_perangkat', ['laptop', 'printer', 'komputer'])
-                ->whereIn('status', ['pengecekan', 'perbaikan', 'selesai'])
+                ->whereIn('status', ['pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart', 'selesai'])
                 ->groupBy('kategori_perangkat', 'status')
                 ->get();
 
@@ -101,8 +101,14 @@ class AntrianDisplay extends Component
             foreach ($rawCounts as $row) {
                 $cat = strtolower((string) $row->kategori_perangkat);
                 $stat = strtolower((string) $row->status);
-                if (isset($counts[$cat][$stat])) {
-                    $counts[$cat][$stat] = (int) $row->total;
+                if (isset($counts[$cat])) {
+                    if (in_array($stat, ['pengecekan', 'menunggu_konfirmasi'])) {
+                        $counts[$cat]['pengecekan'] += (int) $row->total;
+                    } elseif (in_array($stat, ['perbaikan', 'pengerjaan', 'menunggu_sparepart'])) {
+                        $counts[$cat]['perbaikan'] += (int) $row->total;
+                    } elseif ($stat === 'selesai') {
+                        $counts[$cat]['selesai'] += (int) $row->total;
+                    }
                 }
             }
         }
@@ -112,8 +118,15 @@ class AntrianDisplay extends Component
         if ($this->modalListOpen && $this->selectedCategory && $this->selectedStatus) {
             $listQuery = ServisMasuk::with(['customer', 'teknisi'])
                 ->where('is_real', true)
-                ->where('kategori_perangkat', $this->selectedCategory)
-                ->where('status', $this->selectedStatus);
+                ->where('kategori_perangkat', $this->selectedCategory);
+
+            if ($this->selectedStatus === 'pengecekan') {
+                $listQuery->whereIn('status', ['pengecekan', 'menunggu_konfirmasi']);
+            } elseif ($this->selectedStatus === 'perbaikan') {
+                $listQuery->whereIn('status', ['perbaikan', 'pengerjaan', 'menunggu_sparepart']);
+            } else {
+                $listQuery->where('status', $this->selectedStatus);
+            }
 
             if ($this->cabangId) {
                 $listQuery->where('cabang_id', $this->cabangId);

@@ -134,11 +134,13 @@
         <!-- Filter Controls -->
         <div class="w-full lg:w-auto flex flex-wrap items-center gap-2">
             
-            <!-- Filter Status (5 Status Utama) -->
+            <!-- Filter Status -->
             <select wire:model.live="statusFilter" class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-700 focus:bg-white focus:ring-2 focus:ring-[#5E17EB]/20 focus:border-[#5E17EB]">
                 <option value="semua">Semua Status</option>
                 <option value="pengecekan">Pengecekan</option>
+                <option value="menunggu_konfirmasi">Menunggu Konfirmasi</option>
                 <option value="perbaikan">Perbaikan</option>
+                <option value="menunggu_sparepart">Menunggu Sparepart</option>
                 <option value="selesai">Selesai</option>
                 <option value="sudah_diambil">Sudah Diambil</option>
                 <option value="batal">Batal</option>
@@ -456,7 +458,9 @@
                         <label class="block text-gray-700 font-bold mb-1.5">Status Pengerjaan Saat Ini:</label>
                         <select wire:model="pengerjaanStatus" class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl font-bold text-gray-800 text-xs focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF]">
                             <option value="pengecekan">Pengecekan</option>
+                            <option value="menunggu_konfirmasi">Menunggu Konfirmasi</option>
                             <option value="perbaikan">Perbaikan</option>
+                            <option value="menunggu_sparepart">Menunggu Sparepart</option>
                             <option value="selesai">Selesai</option>
                             <option value="batal">Batal</option>
                         </select>

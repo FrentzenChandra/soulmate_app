@@ -246,25 +246,45 @@
                     $statusLabel = $servisFound->status_label;
 
                     $statusBadgeClass = match($statusRaw) {
-                        'pengecekan' => 'bg-amber-100 text-amber-800 border-amber-200',
-                        'perbaikan', 'pengerjaan' => 'bg-blue-100 text-blue-800 border-blue-200',
-                        'selesai' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
-                        'sudah_diambil', 'sudah_dibayar' => 'bg-purple-100 text-purple-800 border-purple-200',
-                        'batal' => 'bg-rose-100 text-rose-800 border-rose-200',
+                        'pengecekan' => 'bg-amber-100 text-amber-800 border-amber-300 font-black',
+                        'menunggu_konfirmasi' => 'bg-amber-200 text-amber-950 border border-amber-400 font-black shadow-2xs',
+                        'perbaikan', 'pengerjaan' => 'bg-blue-100 text-blue-800 border-blue-300 font-black',
+                        'menunggu_sparepart' => 'bg-blue-200 text-blue-950 border border-blue-400 font-black shadow-2xs',
+                        'selesai' => 'bg-emerald-100 text-emerald-800 border-emerald-300 font-black',
+                        'sudah_diambil', 'sudah_dibayar' => 'bg-purple-100 text-purple-800 border-purple-200 font-bold',
+                        'batal' => 'bg-rose-100 text-rose-800 border-rose-300 font-black',
                         default => 'bg-gray-100 text-gray-800 border-gray-200'
                     };
 
                     $step1Done = true;
-                    $step2Done = in_array($statusRaw, ['pengecekan', 'perbaikan', 'pengerjaan', 'selesai', 'sudah_diambil', 'sudah_dibayar']);
+
+                    $step2Done = in_array($statusRaw, ['pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart', 'selesai', 'sudah_diambil', 'sudah_dibayar']);
                     $step2Active = ($statusRaw === 'pengecekan');
 
-                    $step3Done = in_array($statusRaw, ['perbaikan', 'pengerjaan', 'selesai', 'sudah_diambil', 'sudah_dibayar']);
-                    $step3Active = in_array($statusRaw, ['perbaikan', 'pengerjaan']);
+                    $step3Done = in_array($statusRaw, ['menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart', 'selesai', 'sudah_diambil', 'sudah_dibayar']);
+                    $step3Active = ($statusRaw === 'menunggu_konfirmasi');
 
-                    $step4Done = in_array($statusRaw, ['selesai', 'sudah_diambil', 'sudah_dibayar']);
-                    $step4Active = ($statusRaw === 'selesai');
+                    $step4Done = in_array($statusRaw, ['perbaikan', 'pengerjaan', 'menunggu_sparepart', 'selesai', 'sudah_diambil', 'sudah_dibayar']);
+                    $step4Active = in_array($statusRaw, ['perbaikan', 'pengerjaan']);
 
-                    $step5Done = in_array($statusRaw, ['sudah_diambil', 'sudah_dibayar']);
+                    $step5Done = in_array($statusRaw, ['menunggu_sparepart', 'selesai', 'sudah_diambil', 'sudah_dibayar']);
+                    $step5Active = ($statusRaw === 'menunggu_sparepart');
+
+                    $step6Done = in_array($statusRaw, ['selesai', 'sudah_diambil', 'sudah_dibayar']);
+                    $step6Active = ($statusRaw === 'selesai');
+
+                    $step7Done = in_array($statusRaw, ['sudah_diambil', 'sudah_dibayar']);
+                    $step7Active = in_array($statusRaw, ['sudah_diambil', 'sudah_dibayar']);
+
+                    $progressWidth = match(true) {
+                        $step7Done => '100%',
+                        $step6Done => '83.3%',
+                        $step5Done => '66.6%',
+                        $step4Done => '50%',
+                        $step3Done => '33.3%',
+                        $step2Done => '16.6%',
+                        default => '0%',
+                    };
 
                     $kategoriLower = strtolower($servisFound->kategori_perangkat ?? '');
                 @endphp
@@ -272,7 +292,7 @@
                 <div class="bg-white rounded-3xl border border-gray-200/90 p-6 sm:p-8 shadow-xl shadow-purple-950/5 space-y-8">
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                         <!-- Unit Category Icon & Basic Info -->
-                        <div class="lg:col-span-5 flex flex-col sm:flex-row gap-5 items-start">
+                        <div class="lg:col-span-4 flex flex-col sm:flex-row gap-5 items-start">
                             <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100 border border-purple-200/60 p-4 shrink-0 flex flex-col items-center justify-center text-center shadow-inner">
                                 @if(str_contains($kategoriLower, 'printer'))
                                     <svg class="w-12 h-12 text-[#301ac4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -340,66 +360,96 @@
                             </div>
                         </div>
 
-                        <!-- 5-Step Progress Timeline -->
-                        <div class="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-gray-100 lg:pl-6 w-full">
-                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-4">Proses Pengerjaan</span>
+                        <!-- 7-Step Progress Timeline -->
+                        <div class="lg:col-span-5 border-t lg:border-t-0 lg:border-l border-gray-100 lg:pl-6 w-full">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-4">Proses Pengerjaan (7 Tahap)</span>
                             
                             <div class="flex items-center justify-between relative">
-                                <div class="absolute top-4 left-4 right-4 h-0.5 bg-gray-200 z-0"></div>
-                                <div class="absolute top-4 left-4 h-0.5 bg-[#5E17EB] z-0 transition-all duration-500"
-                                     style="width: {{ $step5Done ? '100%' : ($step4Done ? '75%' : ($step3Done ? '50%' : ($step2Done ? '25%' : '0%'))) }};"></div>
+                                <div class="absolute top-3.5 left-3 right-3 h-0.5 bg-gray-200 z-0"></div>
+                                <div class="absolute top-3.5 left-3 h-0.5 bg-[#5E17EB] z-0 transition-all duration-500"
+                                     style="width: {{ $progressWidth }};"></div>
 
                                 <!-- Step 1: Diterima -->
                                 <div class="flex flex-col items-center relative z-10 text-center">
-                                    <div class="w-8 h-8 rounded-full bg-[#5E17EB] text-white flex items-center justify-center shadow-xs">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#5E17EB] text-white flex items-center justify-center shadow-xs">
+                                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                     </div>
-                                    <span class="text-[11px] font-black text-[#0c1330] mt-2">Diterima</span>
-                                    <span class="text-[9px] text-gray-400 leading-tight">{{ $servisFound->tanggal_masuk ? $servisFound->tanggal_masuk->format('d M') : '-' }}</span>
+                                    <span class="text-[10px] sm:text-[11px] font-black text-[#0c1330] mt-1.5">Diterima</span>
+                                    <span class="text-[8px] sm:text-[9px] text-gray-400 leading-tight">{{ $servisFound->tanggal_masuk ? $servisFound->tanggal_masuk->format('d M') : '-' }}</span>
                                 </div>
 
                                 <!-- Step 2: Diagnosa -->
                                 <div class="flex flex-col items-center relative z-10 text-center">
-                                    <div class="w-8 h-8 rounded-full {{ $step2Done ? 'bg-[#5E17EB] text-white' : ($step2Active ? 'bg-[#5E17EB] text-white animate-pulse' : 'bg-gray-200 text-gray-400') }} flex items-center justify-center shadow-xs">
+                                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full {{ $step2Done && ! $step2Active ? 'bg-[#5E17EB] text-white' : ($step2Active ? 'bg-[#5E17EB] text-white ring-2 ring-purple-300 animate-pulse' : 'bg-gray-200 text-gray-400') }} flex items-center justify-center shadow-xs">
                                         @if($step2Done && ! $step2Active)
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                         @else
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                                         @endif
                                     </div>
-                                    <span class="text-[11px] font-black {{ $step2Done ? 'text-[#0c1330]' : 'text-gray-400' }} mt-2">Diagnosa</span>
-                                    <span class="text-[9px] text-gray-400 leading-tight">{{ $step2Done ? 'Pengecekan' : '-' }}</span>
+                                    <span class="text-[10px] sm:text-[11px] font-black {{ $step2Done ? 'text-[#0c1330]' : 'text-gray-400' }} mt-1.5">Diagnosa</span>
+                                    <span class="text-[8px] sm:text-[9px] text-gray-400 leading-tight">{{ $step2Active ? 'Dicek' : ($step2Done ? 'Selesai' : '-') }}</span>
                                 </div>
 
-                                <!-- Step 3: Perbaikan -->
+                                <!-- Step 3: Menunggu Konfirmasi -->
                                 <div class="flex flex-col items-center relative z-10 text-center">
-                                    <div class="w-8 h-8 rounded-full {{ $step3Done ? 'bg-[#5E17EB] text-white' : ($step3Active ? 'bg-[#5E17EB] text-white animate-pulse' : 'bg-gray-200 text-gray-400') }} flex items-center justify-center shadow-xs">
+                                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full {{ $step3Done && ! $step3Active ? 'bg-[#5E17EB] text-white' : ($step3Active ? 'bg-amber-500 text-white ring-2 ring-amber-300 animate-pulse' : 'bg-gray-200 text-gray-400') }} flex items-center justify-center shadow-xs">
                                         @if($step3Done && ! $step3Active)
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                         @else
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
+                                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                                         @endif
                                     </div>
-                                    <span class="text-[11px] font-black {{ $step3Done ? 'text-[#0c1330]' : 'text-gray-400' }} mt-2">Perbaikan</span>
-                                    <span class="text-[9px] text-gray-400 leading-tight">{{ $step3Active ? 'Dikerjakan' : ($step3Done ? 'Selesai' : '-') }}</span>
+                                    <span class="text-[10px] sm:text-[11px] font-black {{ $step3Done ? 'text-[#0c1330]' : 'text-gray-400' }} mt-1.5">Konfirmasi</span>
+                                    <span class="text-[8px] sm:text-[9px] text-gray-400 leading-tight">{{ $step3Active ? 'Menunggu' : ($step3Done ? 'Disetujui' : '-') }}</span>
                                 </div>
 
-                                <!-- Step 4: Siap Ambil -->
+                                <!-- Step 4: Perbaikan -->
                                 <div class="flex flex-col items-center relative z-10 text-center">
-                                    <div class="w-8 h-8 rounded-full {{ $step4Done ? 'bg-[#5E17EB] text-white' : ($step4Active ? 'bg-[#5E17EB] text-white animate-pulse' : 'bg-gray-200 text-gray-400') }} flex items-center justify-center shadow-xs">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full {{ $step4Done && ! $step4Active ? 'bg-[#5E17EB] text-white' : ($step4Active ? 'bg-[#5E17EB] text-white ring-2 ring-purple-300 animate-pulse' : 'bg-gray-200 text-gray-400') }} flex items-center justify-center shadow-xs">
+                                        @if($step4Done && ! $step4Active)
+                                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                        @else
+                                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
+                                        @endif
                                     </div>
-                                    <span class="text-[11px] font-black {{ $step4Done ? 'text-[#0c1330]' : 'text-gray-400' }} mt-2">Siap Ambil</span>
-                                    <span class="text-[9px] text-gray-400 leading-tight">{{ $servisFound->tanggal_selesai ? $servisFound->tanggal_selesai->format('d M') : '-' }}</span>
+                                    <span class="text-[10px] sm:text-[11px] font-black {{ $step4Done ? 'text-[#0c1330]' : 'text-gray-400' }} mt-1.5">Perbaikan</span>
+                                    <span class="text-[8px] sm:text-[9px] text-gray-400 leading-tight">{{ $step4Active ? 'Dikerjakan' : ($step4Done ? 'Selesai' : '-') }}</span>
                                 </div>
 
-                                <!-- Step 5: Selesai -->
+                                <!-- Step 5: Menunggu Sparepart -->
                                 <div class="flex flex-col items-center relative z-10 text-center">
-                                    <div class="w-8 h-8 rounded-full {{ $step5Done ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-400' }} flex items-center justify-center shadow-xs">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full {{ $step5Done && ! $step5Active ? 'bg-[#5E17EB] text-white' : ($step5Active ? 'bg-blue-600 text-white ring-2 ring-blue-300 animate-pulse' : 'bg-gray-200 text-gray-400') }} flex items-center justify-center shadow-xs">
+                                        @if($step5Done && ! $step5Active)
+                                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                        @else
+                                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                        @endif
                                     </div>
-                                    <span class="text-[11px] font-black {{ $step5Done ? 'text-emerald-700' : 'text-gray-400' }} mt-2">Selesai</span>
-                                    <span class="text-[9px] text-gray-400 leading-tight">{{ $servisFound->tanggal_ambil ? $servisFound->tanggal_ambil->format('d M') : '-' }}</span>
+                                    <span class="text-[10px] sm:text-[11px] font-black {{ $step5Done ? 'text-[#0c1330]' : 'text-gray-400' }} mt-1.5">Sparepart</span>
+                                    <span class="text-[8px] sm:text-[9px] text-gray-400 leading-tight">{{ $step5Active ? 'Menunggu' : ($step5Done ? 'Lengkap' : '-') }}</span>
+                                </div>
+
+                                <!-- Step 6: Siap Ambil -->
+                                <div class="flex flex-col items-center relative z-10 text-center">
+                                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full {{ $step6Done && ! $step6Active ? 'bg-[#5E17EB] text-white' : ($step6Active ? 'bg-[#5E17EB] text-white ring-2 ring-purple-300 animate-pulse' : 'bg-gray-200 text-gray-400') }} flex items-center justify-center shadow-xs">
+                                        @if($step6Done && ! $step6Active)
+                                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                        @else
+                                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        @endif
+                                    </div>
+                                    <span class="text-[10px] sm:text-[11px] font-black {{ $step6Done ? 'text-[#0c1330]' : 'text-gray-400' }} mt-1.5">Siap Ambil</span>
+                                    <span class="text-[8px] sm:text-[9px] text-gray-400 leading-tight">{{ $servisFound->tanggal_selesai ? $servisFound->tanggal_selesai->format('d M') : '-' }}</span>
+                                </div>
+
+                                <!-- Step 7: Selesai -->
+                                <div class="flex flex-col items-center relative z-10 text-center">
+                                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full {{ $step7Done ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-400' }} flex items-center justify-center shadow-xs">
+                                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    </div>
+                                    <span class="text-[10px] sm:text-[11px] font-black {{ $step7Done ? 'text-emerald-700' : 'text-gray-400' }} mt-1.5">Selesai</span>
+                                    <span class="text-[8px] sm:text-[9px] text-gray-400 leading-tight">{{ $servisFound->tanggal_ambil ? $servisFound->tanggal_ambil->format('d M') : '-' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -414,7 +464,7 @@
                             <div>
                                 <span class="font-bold text-[#301ac4] block">Catatan Terakhir:</span>
                                 <span class="text-gray-700 font-medium">
-                                    {{ $servisFound->catatan ?: ($servisFound->status === 'selesai' ? 'Unit telah selesai diperbaiki dan siap diambil di toko Soulmate Komputer.' : ($servisFound->status === 'sudah_diambil' ? 'Unit telah diambil oleh pelanggan. Terima kasih atas kepercayaan Anda.' : 'Unit sedang dalam penanganan teknisi kami.')) }}
+                                    {{ $servisFound->catatan ?: ($servisFound->status === 'menunggu_konfirmasi' ? 'Menunggu konfirmasi persetujuan estimasi biaya dan tindakan dari pelanggan.' : ($servisFound->status === 'menunggu_sparepart' ? 'Sedang menunggu ketersediaan komponen atau sparepart pengganti.' : ($servisFound->status === 'selesai' ? 'Unit telah selesai diperbaiki dan siap diambil di toko Soulmate Komputer.' : ($servisFound->status === 'sudah_diambil' ? 'Unit telah diambil oleh pelanggan. Terima kasih atas kepercayaan Anda.' : 'Unit sedang dalam penanganan teknisi kami.')))) }}
                                 </span>
                             </div>
                         </div>

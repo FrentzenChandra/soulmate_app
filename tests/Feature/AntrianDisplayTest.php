@@ -105,15 +105,74 @@ class AntrianDisplayTest extends TestCase
             ->call('toggleDemo')
             ->assertSet('useDemoNumbers', true)
             ->assertViewHas('counts', function ($counts) {
-                return $counts['laptop']['pengecekan'] === 3
-                    && $counts['laptop']['perbaikan'] === 5
-                    && $counts['laptop']['selesai'] === 12
-                    && $counts['printer']['pengecekan'] === 1
-                    && $counts['printer']['perbaikan'] === 2
-                    && $counts['printer']['selesai'] === 7
-                    && $counts['komputer']['pengecekan'] === 2
-                    && $counts['komputer']['perbaikan'] === 3
-                    && $counts['komputer']['selesai'] === 6;
+                return $counts['laptop']['pengecekan'] === 332
+                    && $counts['laptop']['perbaikan'] === 511
+                    && $counts['laptop']['selesai'] === 132
+                    && $counts['printer']['pengecekan'] === 142
+                    && $counts['printer']['perbaikan'] === 21
+                    && $counts['printer']['selesai'] === 723
+                    && $counts['komputer']['pengecekan'] === 24
+                    && $counts['komputer']['perbaikan'] === 334
+                    && $counts['komputer']['selesai'] === 623;
             });
+    }
+
+    public function test_antrian_aggregates_menunggu_konfirmasi_and_menunggu_sparepart(): void
+    {
+        $cabang = Cabang::create([
+            'kode_cabang' => 'CB-TEST2',
+            'nama_cabang' => 'Cabang Test 2',
+            'status' => 'aktif',
+        ]);
+
+        $user = User::factory()->create(['cabang_id' => $cabang->id]);
+        $customer = \App\Models\Customer::create([
+            'nama' => 'Test Customer 2',
+            'no_hp' => '08123456789',
+            'cabang_id' => $cabang->id,
+        ]);
+
+        // Status menunggu_konfirmasi -> harus masuk ke agregat 'pengecekan'
+        ServisMasuk::create([
+            'no_servis' => 'INV-SV-TEST2-261011-00001',
+            'cabang_id' => $cabang->id,
+            'customer_id' => $customer->id,
+            'created_by' => $user->id,
+            'kategori_perangkat' => 'laptop',
+            'tipe_unit' => 'Lenovo Yoga',
+            'keluhan' => 'Touchscreen rusak',
+            'status' => 'menunggu_konfirmasi',
+            'is_real' => true,
+            'tanggal_masuk' => now(),
+        ]);
+
+        // Status menunggu_sparepart -> harus masuk ke agregat 'perbaikan'
+        ServisMasuk::create([
+            'no_servis' => 'INV-SV-TEST2-261011-00002',
+            'cabang_id' => $cabang->id,
+            'customer_id' => $customer->id,
+            'created_by' => $user->id,
+            'kategori_perangkat' => 'laptop',
+            'tipe_unit' => 'MacBook Air',
+            'keluhan' => 'Ganti baterai',
+            'status' => 'menunggu_sparepart',
+            'is_real' => true,
+            'tanggal_masuk' => now(),
+        ]);
+
+        Livewire::test(AntrianDisplay::class, ['cabangId' => $cabang->id])
+            ->assertViewHas('counts', function ($counts) {
+                return $counts['laptop']['pengecekan'] === 1
+                    && $counts['laptop']['perbaikan'] === 1
+                    && $counts['laptop']['selesai'] === 0;
+            })
+            // Klik showList untuk pengecekan -> harus menampilkan Lenovo Yoga
+            ->call('showList', 'laptop', 'pengecekan')
+            ->assertSet('modalListOpen', true)
+            ->assertSee('Lenovo Yoga')
+            // Klik showList untuk perbaikan -> harus menampilkan MacBook Air
+            ->call('showList', 'laptop', 'perbaikan')
+            ->assertSet('modalListOpen', true)
+            ->assertSee('MacBook Air');
     }
 }

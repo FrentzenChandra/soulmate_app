@@ -506,9 +506,14 @@
                         @foreach($unitList as $unit)
                             <div class="py-3 flex items-center justify-between gap-4">
                                 <div>
-                                    <span class="inline-block px-2.5 py-0.5 text-xs font-mono font-bold bg-purple-50 text-purple-700 rounded-lg border border-purple-200">
-                                        {{ $unit->no_servis_frontend ?? $unit->no_servis }}
-                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-block px-2.5 py-0.5 text-xs font-mono font-bold bg-purple-50 text-purple-700 rounded-lg border border-purple-200">
+                                            {{ $unit->no_servis_frontend ?? $unit->no_servis }}
+                                        </span>
+                                        <span class="inline-block px-2 py-0.5 text-[10px] rounded-full {{ $unit->status_badge_class }}">
+                                            {{ $unit->status_label }}
+                                        </span>
+                                    </div>
                                     <h4 class="text-sm font-bold text-gray-900 mt-1">
                                         {{ $unit->tipe_unit ?? 'Unit ' . ucfirst($unit->kategori_perangkat) }}
                                     </h4>

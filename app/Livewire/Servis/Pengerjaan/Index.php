@@ -109,7 +109,7 @@ class Index extends Component
     {
         $this->activeServisId = $id;
         $this->activeServis = ServisMasuk::with(['customer', 'cabang', 'pembuat', 'details.masterServis', 'statusLogs.user'])->findOrFail($id);
-        $this->pengerjaanStatus = in_array($this->activeServis->status, ['pengecekan', 'perbaikan', 'pengerjaan', 'selesai', 'batal']) ? $this->activeServis->status : 'perbaikan';
+        $this->pengerjaanStatus = in_array($this->activeServis->status, ['pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart', 'selesai', 'batal']) ? $this->activeServis->status : 'perbaikan';
         $this->catatanPengerjaan = '';
         $this->resetBillingInput();
         $this->modalPengerjaanOpen = true;
@@ -200,7 +200,7 @@ class Index extends Component
         if (! $this->activeServis) return;
 
         $this->validate([
-            'pengerjaanStatus' => 'required|in:pengecekan,perbaikan,pengerjaan,selesai,batal',
+            'pengerjaanStatus' => 'required|in:pengecekan,menunggu_konfirmasi,perbaikan,pengerjaan,menunggu_sparepart,selesai,batal',
             'catatanPengerjaan' => 'nullable|string|max:500',
         ]);
 
@@ -447,7 +447,7 @@ class Index extends Component
         $metricsBase = clone $query;
         $allCurrent = $metricsBase->get();
 
-        $totalDalamProses = $allCurrent->whereIn('status', ['pengecekan', 'pengerjaan', 'menunggu_sparepart'])->count();
+        $totalDalamProses = $allCurrent->whereIn('status', ['pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart'])->count();
         $totalSiapAmbil = $allCurrent->where('status', 'selesai')->count();
         $totalSudahDiambil = $allCurrent->where('status', 'sudah_dibayar')->count();
         $totalOmzetServis = $allCurrent->where('status', 'sudah_dibayar')->sum('total_biaya');

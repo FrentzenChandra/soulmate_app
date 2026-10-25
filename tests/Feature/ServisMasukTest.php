@@ -27,11 +27,7 @@ class ServisMasukTest extends TestCase
     {
         parent::setUp();
 
-        Role::firstOrCreate(['name' => 'Owner', 'guard_name' => 'web']);
-        Role::firstOrCreate(['name' => 'Superadmin', 'guard_name' => 'web']);
-        Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
-        Role::firstOrCreate(['name' => 'Teknisi', 'guard_name' => 'web']);
-        Role::firstOrCreate(['name' => 'Kasir', 'guard_name' => 'web']);
+        $this->seed(\Database\Seeders\PermissionMatrixSeeder::class);
 
         $this->cabang1 = Cabang::create([
             'nama_cabang' => 'Soulmate Pusat PKP',
@@ -282,7 +278,7 @@ class ServisMasukTest extends TestCase
 
     public function test_selesai_unit_stays_in_servis_masuk_until_cetak_nota(): void
     {
-        $this->actingAs($this->admin);
+        $this->actingAs($this->teknisi);
 
         $cust = Customer::create(['cabang_id' => $this->cabang1->id, 'nama' => 'Rahmat', 'no_hp' => '0812334455']);
         $servis = ServisMasuk::create([
@@ -314,6 +310,7 @@ class ServisMasukTest extends TestCase
             ->assertSee('Lenovo ThinkPad X280');
 
         // 3. Cetak Nota faktur servis
+        $this->actingAs($this->admin);
         Livewire::test(ServisMasukIndex::class)
             ->call('cetakNota', $servis->id)
             ->assertDispatched('open-print-invoice');
@@ -353,7 +350,7 @@ class ServisMasukTest extends TestCase
 
     public function test_can_add_jasa_and_sparepart_items_in_tindakan_modal(): void
     {
-        $this->actingAs($this->admin);
+        $this->actingAs($this->teknisi);
 
         $cust = Customer::create(['cabang_id' => $this->cabang1->id, 'nama' => 'Rian Hidayat', 'no_hp' => '081234567899']);
         $servis = ServisMasuk::create([
@@ -449,5 +446,111 @@ class ServisMasukTest extends TestCase
 
         $stokCabang1->refresh();
         $this->assertEquals(10, $stokCabang1->jumlah);
+    }
+
+    public function test_kategori_perangkat_rejects_lainnya(): void
+    {
+        $this->actingAs($this->admin);
+
+        // Kategori 'lainnya' harus ditolak oleh validasi (hanya laptop, printer, komputer)
+        Livewire::test(ServisMasukIndex::class)
+            ->set('customerType', 'baru')
+            ->set('newCustomerNama', 'Pelanggan Uji')
+            ->set('newCustomerNoHp', '081234567890')
+            ->set('kategoriPerangkat', 'lainnya')
+            ->set('tipeUnit', 'Unit Lainnya')
+            ->set('keluhan', 'Mati total')
+            ->call('simpanServisMasuk')
+            ->assertHasErrors(['kategoriPerangkat']);
+
+        // Kategori 'laptop' harus diterima
+        Livewire::test(ServisMasukIndex::class)
+            ->set('customerType', 'baru')
+            ->set('newCustomerNama', 'Pelanggan Uji')
+            ->set('newCustomerNoHp', '081234567890')
+            ->set('kategoriPerangkat', 'laptop')
+            ->set('tipeUnit', 'Laptop Asus ROG')
+            ->set('keluhan', 'Mati total')
+            ->call('simpanServisMasuk')
+            ->assertHasNoErrors();
+    }
+
+    public function test_menunggu_konfirmasi_dan_menunggu_sparepart_status_and_badge_classes(): void
+    {
+        $this->actingAs($this->teknisi);
+
+        $cust = Customer::create(['cabang_id' => $this->cabang1->id, 'nama' => 'Doni', 'no_hp' => '081234567888']);
+        $servis = ServisMasuk::create([
+            'no_servis' => 'INV-SV-CBPKP-260915-00101',
+            'cabang_id' => $this->cabang1->id,
+            'customer_id' => $cust->id,
+            'created_by' => $this->admin->id,
+            'kategori_perangkat' => 'komputer',
+            'tipe_unit' => 'PC Gaming i7',
+            'keluhan' => 'No display',
+            'status' => 'pengecekan',
+            'tanggal_masuk' => now(),
+        ]);
+
+        // Cek badge warna status semula: pengecekan
+        $this->assertEquals('Pengecekan', $servis->status_label);
+        $this->assertStringContainsString('bg-amber-100', $servis->status_badge_class);
+        $this->assertStringContainsString('text-amber-800', $servis->status_badge_class);
+
+        // Ubah ke status baru: menunggu_konfirmasi
+        Livewire::test(ServisMasukIndex::class)
+            ->call('openStatusModal', $servis->id)
+            ->set('updateStatus', 'menunggu_konfirmasi')
+            ->set('updateCatatan', 'Menunggu konfirmasi pergantian PSU')
+            ->call('simpanUpdateStatus')
+            ->assertHasNoErrors();
+
+        $servis->refresh();
+        $this->assertEquals('menunggu_konfirmasi', $servis->status);
+        $this->assertEquals('Menunggu Konfirmasi', $servis->status_label);
+        // Status baru digelapkan sedikit: bg-amber-200 text-amber-950
+        $this->assertStringContainsString('bg-amber-200', $servis->status_badge_class);
+        $this->assertStringContainsString('text-amber-950', $servis->status_badge_class);
+
+        // Ubah ke perbaikan (warna semula)
+        Livewire::test(ServisMasukIndex::class)
+            ->call('openStatusModal', $servis->id)
+            ->set('updateStatus', 'perbaikan')
+            ->call('simpanUpdateStatus')
+            ->assertHasNoErrors();
+
+        $servis->refresh();
+        $this->assertEquals('perbaikan', $servis->status);
+        $this->assertEquals('Perbaikan', $servis->status_label);
+        $this->assertStringContainsString('bg-blue-100', $servis->status_badge_class);
+        $this->assertStringContainsString('text-blue-800', $servis->status_badge_class);
+
+        // Ubah ke status baru: menunggu_sparepart
+        Livewire::test(ServisMasukIndex::class)
+            ->call('openStatusModal', $servis->id)
+            ->set('updateStatus', 'menunggu_sparepart')
+            ->set('updateCatatan', 'Menunggu IC power tiba dari Jakarta')
+            ->call('simpanUpdateStatus')
+            ->assertHasNoErrors();
+
+        $servis->refresh();
+        $this->assertEquals('menunggu_sparepart', $servis->status);
+        $this->assertEquals('Menunggu Sparepart', $servis->status_label);
+        // Status baru digelapkan sedikit: bg-blue-200 text-blue-950
+        $this->assertStringContainsString('bg-blue-200', $servis->status_badge_class);
+        $this->assertStringContainsString('text-blue-950', $servis->status_badge_class);
+
+        // Ubah ke status selesai (warna semula)
+        Livewire::test(ServisMasukIndex::class)
+            ->call('openStatusModal', $servis->id)
+            ->set('updateStatus', 'selesai')
+            ->call('simpanUpdateStatus')
+            ->assertHasNoErrors();
+
+        $servis->refresh();
+        $this->assertEquals('selesai', $servis->status);
+        $this->assertEquals('Selesai', $servis->status_label);
+        $this->assertStringContainsString('bg-emerald-100', $servis->status_badge_class);
+        $this->assertStringContainsString('text-emerald-800', $servis->status_badge_class);
     }
 }

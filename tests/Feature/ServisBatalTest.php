@@ -24,11 +24,7 @@ class ServisBatalTest extends TestCase
     {
         parent::setUp();
 
-        Role::firstOrCreate(['name' => 'Owner']);
-        Role::firstOrCreate(['name' => 'Superadmin']);
-        Role::firstOrCreate(['name' => 'Admin']);
-        Role::firstOrCreate(['name' => 'Teknisi']);
-        Role::firstOrCreate(['name' => 'Kasir']);
+        $this->seed(\Database\Seeders\PermissionMatrixSeeder::class);
 
         $this->cabang1 = Cabang::create([
             'kode_cabang' => 'CB-PKP',

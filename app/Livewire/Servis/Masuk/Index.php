@@ -240,7 +240,7 @@ class Index extends Component
         }
 
         $rules = [
-            'kategoriPerangkat' => 'required|in:laptop,printer,komputer,lainnya',
+            'kategoriPerangkat' => 'required|in:laptop,printer,komputer',
             'tipeUnit' => 'required|string|max:150',
             'keluhan' => 'required|string|min:3',
             'kondisiBarang' => 'nullable|string|max:500',
@@ -410,7 +410,7 @@ class Index extends Component
 
         $this->validate([
             'editTipeUnit' => 'required|string|max:150',
-            'editKategoriPerangkat' => 'required|in:laptop,printer,komputer,lainnya',
+            'editKategoriPerangkat' => 'required|in:laptop,printer,komputer',
             'editKeluhan' => 'required|string|min:3',
         ]);
 
@@ -555,7 +555,7 @@ class Index extends Component
         if (! $this->servisToUpdate) return;
 
         $this->validate([
-            'updateStatus' => 'required|in:pengecekan,perbaikan,pengerjaan,selesai,sudah_diambil,sudah_dibayar,batal',
+            'updateStatus' => 'required|in:pengecekan,menunggu_konfirmasi,perbaikan,pengerjaan,menunggu_sparepart,selesai,sudah_diambil,sudah_dibayar,batal',
             'updateCatatan' => 'nullable|string|max:500',
         ]);
 
@@ -928,13 +928,17 @@ class Index extends Component
         // Filter Status di Servis Masuk
         if ($this->statusFilter === 'pengecekan') {
             $query->where('status', 'pengecekan');
+        } elseif ($this->statusFilter === 'menunggu_konfirmasi') {
+            $query->where('status', 'menunggu_konfirmasi');
         } elseif ($this->statusFilter === 'perbaikan') {
             $query->whereIn('status', ['perbaikan', 'pengerjaan']);
+        } elseif ($this->statusFilter === 'menunggu_sparepart') {
+            $query->where('status', 'menunggu_sparepart');
         } elseif ($this->statusFilter === 'selesai') {
             $query->where('status', 'selesai')->where('is_cetak_nota', false);
         } else {
             $query->where(function ($q) {
-                $q->whereIn('status', ['pengecekan', 'perbaikan', 'pengerjaan'])
+                $q->whereIn('status', ['pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart'])
                   ->orWhere(function ($sq) {
                       $sq->where('status', 'selesai')->where('is_cetak_nota', false);
                   });
@@ -971,8 +975,8 @@ class Index extends Component
         $allCurrent = $metricsBase->get();
 
         $totalUnitMasuk = $allCurrent->count();
-        $totalPengecekan = $allCurrent->where('status', 'pengecekan')->count();
-        $totalPengerjaan = $allCurrent->whereIn('status', ['perbaikan', 'pengerjaan'])->count();
+        $totalPengecekan = $allCurrent->whereIn('status', ['pengecekan', 'menunggu_konfirmasi'])->count();
+        $totalPengerjaan = $allCurrent->whereIn('status', ['perbaikan', 'pengerjaan', 'menunggu_sparepart'])->count();
         $totalSiapDiambil = $allCurrent->where('status', 'selesai')->where('is_cetak_nota', false)->count();
 
         // Sorting: Prioritaskan yang sedang diproses / selesai
