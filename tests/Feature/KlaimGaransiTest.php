@@ -240,7 +240,7 @@ class KlaimGaransiTest extends TestCase
         $this->assertEquals('2026-10-21', $klaim->fresh()->tanggal_selesai_klaim->format('Y-m-d'));
     }
 
-    public function test_can_tandai_selesai_klaim_with_today_date(): void
+    public function test_can_tandai_selesai_klaim_with_today_date_and_toggle_back(): void
     {
         $this->actingAs($this->owner);
 
@@ -257,6 +257,7 @@ class KlaimGaransiTest extends TestCase
 
         $this->assertNull($klaim->tanggal_selesai_klaim);
 
+        // 1. Tandai selesai -> hari ini
         Livewire::test(KlaimGaransiIndex::class)
             ->call('tandaiSelesaiKlaim', $klaim->id)
             ->assertDispatched('swal:toast')
@@ -266,6 +267,14 @@ class KlaimGaransiTest extends TestCase
             Carbon::today()->toDateString(),
             $klaim->fresh()->tanggal_selesai_klaim->toDateString()
         );
+
+        // 2. Toggle kembali -> null (Belum selesai)
+        Livewire::test(KlaimGaransiIndex::class)
+            ->call('tandaiSelesaiKlaim', $klaim->id)
+            ->assertDispatched('swal:toast')
+            ->assertDispatched('klaim-garansi-table-updated');
+
+        $this->assertNull($klaim->fresh()->tanggal_selesai_klaim);
     }
 
     public function test_can_soft_delete_klaim_garansi(): void

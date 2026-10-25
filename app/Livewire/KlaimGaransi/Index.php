@@ -366,18 +366,36 @@ class Index extends Component
         abort_if(! $user || (! $user->isOwner() && ! $user->can('klaim_garansi.edit')), 403, 'Akses edit klaim dibatasi.');
 
         $klaim = KlaimGaransi::findOrFail($id);
-        $today = Carbon::today()->toDateString();
-        $klaim->update([
-            'tanggal_selesai_klaim' => $today,
-        ]);
 
-        $this->dispatch('swal:toast', [
-            'type' => 'success',
-            'title' => 'Klaim Selesai',
-            'message' => "Klaim {$klaim->no_klaim} berhasil ditandai selesai hari ini (" . Carbon::today()->format('d/m/Y') . ").",
-        ]);
+        if ($klaim->tanggal_selesai_klaim) {
+            $klaim->update([
+                'tanggal_selesai_klaim' => null,
+            ]);
+
+            $this->dispatch('swal:toast', [
+                'type' => 'info',
+                'title' => 'Status Diperbarui',
+                'message' => "Tanggal selesai untuk klaim {$klaim->no_klaim} berhasil dibatalkan.",
+            ]);
+        } else {
+            $today = Carbon::today()->toDateString();
+            $klaim->update([
+                'tanggal_selesai_klaim' => $today,
+            ]);
+
+            $this->dispatch('swal:toast', [
+                'type' => 'success',
+                'title' => 'Klaim Selesai',
+                'message' => "Klaim {$klaim->no_klaim} berhasil ditandai selesai hari ini (" . Carbon::today()->format('d/m/Y') . ").",
+            ]);
+        }
 
         $this->dispatch('klaim-garansi-table-updated', data: $this->getTableData());
+    }
+
+    public function toggleSelesai(int $id): void
+    {
+        $this->tandaiSelesaiKlaim($id);
     }
 
     // =========================================================================

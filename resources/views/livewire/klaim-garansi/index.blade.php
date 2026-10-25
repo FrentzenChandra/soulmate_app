@@ -832,30 +832,45 @@
                     },
                     placeholder: "Belum ada data klaim garansi.",
                     columns: [
-                        // 1. Tanggal Selesai Klaim (Posisi 1 terdepan - tombol centang / badge selesai)
+                        // 1. Tanggal Selesai Klaim (Posisi 1 terdepan - tombol centang / tanggal persis Faktur Pajak)
                         {
                             title: "Tanggal Selesai Klaim",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Tanggal Selesai<br>Klaim</div>`,
                             field: "tanggal_selesai_klaim",
-                            width: 104,
+                            width: 106,
                             minWidth: 88,
                             hozAlign: "center",
                             headerHozAlign: "center",
                             formatter: (cell) => {
                                 const d = cell.getData();
-                                if (d.tanggal_selesai_klaim_formatted) {
-                                    return `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-bold text-[10.5px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200"><svg class="w-3 h-3 text-emerald-600 inline-block shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>${d.tanggal_selesai_klaim_formatted}</span>`;
-                                }
+                                const isSelesai = !!d.tanggal_selesai_klaim;
                                 const safeNoKlaim = (d.no_klaim || '').replace(/'/g, "\\'");
+
+                                if (isSelesai && d.tanggal_selesai_klaim_formatted) {
+                                    return `
+                                        <button
+                                            type="button"
+                                            onclick="window.toggleSelesaiConfirm(${d.id}, true, '${safeNoKlaim}')"
+                                            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg border bg-emerald-100 hover:bg-amber-100 text-emerald-700 hover:text-amber-700 border-emerald-300 hover:border-amber-300 font-bold text-[10.5px] font-mono transition-colors cursor-pointer shadow-2xs"
+                                            title="Selesai: ${d.tanggal_selesai_klaim_formatted} (Klik untuk batalkan)"
+                                        >
+                                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <span>${d.tanggal_selesai_klaim_formatted}</span>
+                                        </button>
+                                    `;
+                                }
+
                                 return `
                                     <button
                                         type="button"
-                                        onclick="window.confirmSelesaiKlaim(${d.id}, '${safeNoKlaim}')"
-                                        class="inline-flex items-center justify-center w-7 h-7 rounded-lg border-2 border-gray-300 hover:border-emerald-500 hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 transition-all cursor-pointer shadow-2xs active:scale-95 group"
-                                        title="Tandai Selesai Klaim Hari Ini"
+                                        onclick="window.toggleSelesaiConfirm(${d.id}, false, '${safeNoKlaim}')"
+                                        class="inline-flex items-center justify-center w-5.5 h-5.5 rounded-lg border bg-gray-100 hover:bg-emerald-100 text-gray-400 hover:text-emerald-700 border-gray-300 hover:border-emerald-300 transition-colors cursor-pointer shadow-2xs"
+                                        title="Tandai Selesai"
                                     >
-                                        <svg class="w-4 h-4 stroke-[2.5] group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                                         </svg>
                                     </button>
                                 `;
@@ -1057,46 +1072,48 @@
         }
     };
 
-    window.confirmSelesaiKlaim = function(id, noKlaim) {
+    window.toggleSelesaiConfirm = function(id, isSelesai, noKlaim) {
         if (!window.activeKlaimGaransiWire) return;
 
-        const executeSelesai = () => {
-            window.activeKlaimGaransiWire.tandaiSelesaiKlaim(id);
-        };
+        const title = isSelesai ? 'Tandai Belum Selesai?' : 'Selesaikan Klaim Garansi?';
+        const text = isSelesai
+            ? `Batalkan status selesai untuk klaim "${noKlaim}"?`
+            : `Tandai Klaim "${noKlaim}" selesai pada tanggal hari ini?`;
+        const confirmText = isSelesai ? 'Ya, Belum Selesai' : 'Ya, Selesaikan';
 
-        if (window.swalConfirm) {
-            window.swalConfirm(
-                'Selesaikan Klaim Garansi?',
-                `Tandai Klaim ${noKlaim} selesai pada tanggal hari ini?`,
-                {
-                    confirmText: 'Ya, Selesaikan',
-                    cancelText: 'Batal'
-                }
-            ).then((result) => {
-                if (result.isConfirmed) {
-                    executeSelesai();
+        if (typeof window.swalConfirm === 'function') {
+            window.swalConfirm(title, text, {
+                danger: isSelesai,
+                confirmText: confirmText,
+                cancelText: 'Batal'
+            }).then((res) => {
+                if (res.isConfirmed && window.activeKlaimGaransiWire) {
+                    window.activeKlaimGaransiWire.tandaiSelesaiKlaim(id);
                 }
             });
         } else if (window.Swal) {
             window.Swal.fire({
-                title: 'Selesaikan Klaim Garansi?',
-                text: `Tandai Klaim ${noKlaim} selesai pada tanggal hari ini?`,
-                icon: 'question',
+                title: title,
+                text: text,
+                icon: isSelesai ? 'warning' : 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#10b981',
+                confirmButtonColor: isSelesai ? '#f59e0b' : '#10b981',
                 cancelButtonColor: '#64748b',
-                confirmButtonText: 'Ya, Selesaikan',
+                confirmButtonText: confirmText,
                 cancelButtonText: 'Batal',
                 reverseButtons: true
             }).then((result) => {
-                if (result.isConfirmed) {
-                    executeSelesai();
+                if (result.isConfirmed && window.activeKlaimGaransiWire) {
+                    window.activeKlaimGaransiWire.tandaiSelesaiKlaim(id);
                 }
             });
-        } else if (confirm(`Tandai klaim ${noKlaim} selesai hari ini?`)) {
-            executeSelesai();
+        } else if (confirm(`${title}\n${text}`)) {
+            if (window.activeKlaimGaransiWire) {
+                window.activeKlaimGaransiWire.tandaiSelesaiKlaim(id);
+            }
         }
     };
+    window.confirmSelesaiKlaim = window.toggleSelesaiConfirm;
 
     window.confirmDeleteKlaim = function(id, noKlaim) {
         if (!window.activeKlaimGaransiWire) return;
