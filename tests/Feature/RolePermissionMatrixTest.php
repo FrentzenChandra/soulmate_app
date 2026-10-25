@@ -375,5 +375,67 @@ class RolePermissionMatrixTest extends TestCase
         $this->actingAs($teknisi);
         $this->get(route('klaim-garansi.index'))->assertForbidden();
     }
+
+    /**
+     * UJI EXHAUSTIVE: 6 Role Staf × 25 Rute Operasional Sidebar
+     * Memastikan 100% rute secara konsisten mengembalikan 200 OK jika memiliki izin,
+     * dan mengembalikan 403 Forbidden jika tidak memiliki izin.
+     */
+    public function test_exhaustive_matrix_all_roles_across_all_sidebar_routes(): void
+    {
+        $routesMap = [
+            'absensi.index' => 'absensi.view',
+            'kasir.produk' => 'kasir.produk.view',
+            'laporan.penjualan' => 'laporan.penjualan.view',
+            'servis.masuk' => 'servis.masuk.view',
+            'servis.keluar' => 'servis.keluar.view',
+            'servis.batal' => 'servis.batal.view',
+            'servis.non-real' => 'servis.non_real.view',
+            'transaksi.harian' => 'transaksi.harian.view',
+            'transaksi.full' => 'transaksi.full.view',
+            'faktur-pajak.index' => 'pajak.view',
+            'kas-keluar' => 'kas.keluar.view',
+            'saldo.index' => 'saldo.view',
+            'serial-number' => 'serial_number.view',
+            'target.bulanan' => 'target.bulanan.view',
+            'master.produk' => 'master.produk.view',
+            'cabang.stok' => 'cabang.stok.view',
+            'master.orang-pajak' => 'master.orang_pajak.view',
+            'master.customer' => 'master.customer.view',
+            'master.users' => 'master.users.view',
+            'master.servis' => 'master.servis.view',
+            'master.pegawai' => 'master.pegawai.view',
+            'master.distributor' => 'master.distributor.view',
+            'master.wifi-absen' => 'master.wifi_absensi.view',
+            'absensi.riwayat' => 'absensi.riwayat',
+            'klaim-garansi.index' => 'klaim_garansi.view',
+        ];
+
+        $roles = ['Superadmin', 'Teknisi', 'Admin', 'Bendahara', 'Operasional', 'Magang'];
+
+        foreach ($roles as $roleName) {
+            $user = $this->createStaff($roleName);
+            $this->actingAs($user);
+
+            foreach ($routesMap as $routeName => $permission) {
+                $hasPermission = $user->can($permission);
+                $response = $this->get(route($routeName));
+
+                if ($hasPermission) {
+                    $this->assertEquals(
+                        200,
+                        $response->status(),
+                        "Role [{$roleName}] SEHARUSNYA BISA akses rute [{$routeName}] dengan permission [{$permission}], tetapi mendapat {$response->status()}."
+                    );
+                } else {
+                    $this->assertEquals(
+                        403,
+                        $response->status(),
+                        "Role [{$roleName}] SEHARUSNYA DITOLAK (403) dari rute [{$routeName}] karena tidak punya permission [{$permission}], tetapi mendapat {$response->status()}."
+                    );
+                }
+            }
+        }
+    }
 }
 
