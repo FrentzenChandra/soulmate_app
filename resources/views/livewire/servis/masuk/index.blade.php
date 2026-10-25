@@ -200,7 +200,7 @@
          :class="'table-size-' + tableSize"
          class="card-custom bg-white overflow-hidden border border-gray-200 shadow-sm rounded-2xl">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse table-fixed min-w-[1100px]">
+            <table class="w-full text-left border-collapse table-fixed min-w-[1140px]">
                 <colgroup>
                     <col style="width: 130px;">
                     {{-- [NON-REAL HIDE] <col style="width: 90px;"> --}}
@@ -211,7 +211,7 @@
                     @if($isHQ)
                         <col style="width: 100px;">
                     @endif
-                    <col style="width: 120px;">
+                    <col style="width: 160px;">
                     <col style="width: 160px;">
                 </colgroup>
                 <thead>
@@ -246,7 +246,7 @@
                             @if($isHQ)
                                 <td class="py-2.5 px-3"><div class="h-3.5 bg-gray-200 rounded w-16"></div></td>
                             @endif
-                            <td class="py-2.5 px-3 text-center"><div class="h-5 bg-gray-200 rounded-full w-20 mx-auto"></div></td>
+                            <td class="py-2.5 px-3 text-center"><div class="h-5 bg-gray-200 rounded-full w-28 mx-auto"></div></td>
                             <td class="py-2.5 px-3 text-center"><div class="h-6 bg-gray-100 rounded w-28 mx-auto"></div></td>
                         </tr>
                     @endfor
@@ -332,7 +332,7 @@
 
                             <!-- Status -->
                             <td class="py-2.5 px-3 text-center whitespace-nowrap">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] {{ $item->status_badge_class }}">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] {{ $item->status_badge_class }}">
                                     {{ $item->status_label }}
                                 </span>
                             </td>
