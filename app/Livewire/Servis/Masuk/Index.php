@@ -324,7 +324,7 @@ class Index extends Component
                 'kelengkapan' => $kelengkapanString,
                 'keluhan' => trim($this->keluhan),
                 'kondisi_barang' => trim((string) $this->kondisiBarang) ?: null,
-                'status' => 'pengecekan',
+                'status' => 'antrean_masuk',
                 'is_real' => true,
                 'tanggal_masuk' => $tanggalMasuk,
                 'estimasi_biaya' => 0,
@@ -335,9 +335,9 @@ class Index extends Component
             ServisStatusLog::create([
                 'servis_id' => $servis->id,
                 'user_id' => Auth::id(),
-                'status' => 'pengecekan',
+                'status' => 'antrean_masuk',
                 'tanggal' => $tanggalMasuk,
-                'catatan' => 'Penerimaan unit servis baru di toko (Tahap Pengecekan/Diagnosa).' . (! $this->isReal ? ' [Servis Non-Real]' : ''),
+                'catatan' => 'Penerimaan unit servis baru di toko (Antrean Masuk).' . (! $this->isReal ? ' [Servis Non-Real]' : ''),
             ]);
 
             DB::commit();
@@ -555,7 +555,7 @@ class Index extends Component
         if (! $this->servisToUpdate) return;
 
         $this->validate([
-            'updateStatus' => 'required|in:pengecekan,menunggu_konfirmasi,perbaikan,pengerjaan,menunggu_sparepart,selesai,sudah_diambil,sudah_dibayar,batal',
+            'updateStatus' => 'required|in:antrean_masuk,pengecekan,menunggu_konfirmasi,perbaikan,pengerjaan,menunggu_sparepart,selesai,sudah_diambil,sudah_dibayar,batal',
             'updateCatatan' => 'nullable|string|max:500',
         ]);
 
@@ -926,7 +926,9 @@ class Index extends Component
         $query->where('is_real', true);
 
         // Filter Status di Servis Masuk
-        if ($this->statusFilter === 'pengecekan') {
+        if ($this->statusFilter === 'antrean_masuk') {
+            $query->where('status', 'antrean_masuk');
+        } elseif ($this->statusFilter === 'pengecekan') {
             $query->where('status', 'pengecekan');
         } elseif ($this->statusFilter === 'menunggu_konfirmasi') {
             $query->where('status', 'menunggu_konfirmasi');
@@ -938,7 +940,7 @@ class Index extends Component
             $query->where('status', 'selesai')->where('is_cetak_nota', false);
         } else {
             $query->where(function ($q) {
-                $q->whereIn('status', ['pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart'])
+                $q->whereIn('status', ['antrean_masuk', 'pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart'])
                   ->orWhere(function ($sq) {
                       $sq->where('status', 'selesai')->where('is_cetak_nota', false);
                   });
@@ -975,7 +977,7 @@ class Index extends Component
         $allCurrent = $metricsBase->get();
 
         $totalUnitMasuk = $allCurrent->count();
-        $totalPengecekan = $allCurrent->whereIn('status', ['pengecekan', 'menunggu_konfirmasi'])->count();
+        $totalPengecekan = $allCurrent->whereIn('status', ['antrean_masuk', 'pengecekan', 'menunggu_konfirmasi'])->count();
         $totalPengerjaan = $allCurrent->whereIn('status', ['perbaikan', 'pengerjaan', 'menunggu_sparepart'])->count();
         $totalSiapDiambil = $allCurrent->where('status', 'selesai')->where('is_cetak_nota', false)->count();
 

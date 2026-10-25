@@ -154,6 +154,7 @@
                 <select wire:model.live="statusFilter"
                         class="w-full py-2.5 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-bold text-gray-700 focus:bg-white focus:border-[#5E17EB] focus:ring-2 focus:ring-purple-100 transition-all cursor-pointer">
                     <option value="semua">Semua Status Masuk</option>
+                    <option value="antrean_masuk">Tahap Antrean Masuk</option>
                     <option value="pengecekan">Tahap Pengecekan</option>
                     <option value="menunggu_konfirmasi">Tahap Menunggu Konfirmasi</option>
                     <option value="perbaikan">Tahap Perbaikan</option>
@@ -260,7 +261,7 @@
                         <tr wire:key="servis-row-{{ $item->id }}" class="hover:bg-purple-50/30 transition-colors group {{ $item->status === 'selesai' ? 'bg-emerald-50/15' : '' }}">
 
                             <!-- No Tiket Servis -->
-                            <td class="py-2.5 px-3 whitespace-nowrap {{ $item->status === 'pengecekan' ? 'border-l-4 border-amber-500' : ($item->status === 'selesai' ? 'border-l-4 border-emerald-500' : 'border-l-4 border-blue-500') }}">
+                            <td class="py-2.5 px-3 whitespace-nowrap {{ $item->status_border_class }}">
                                 <span class="font-mono font-black text-gray-900 block group-hover:text-[#5E17EB] transition-colors leading-tight truncate">
                                     {{ $item->no_servis_frontend }}
                                 </span>
@@ -1075,6 +1076,7 @@
                                 <label class="block font-bold text-gray-700 mb-1.5">Pilih Status Baru <span class="text-rose-500">*</span></label>
                                 <select wire:model="updateStatus"
                                         class="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white font-bold text-gray-800 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
+                                    <option value="antrean_masuk">Antrean Masuk</option>
                                     <option value="pengecekan">Pengecekan</option>
                                     <option value="menunggu_konfirmasi">Menunggu Konfirmasi</option>
                                     <option value="perbaikan">Perbaikan</option>

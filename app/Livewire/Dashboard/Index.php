@@ -108,8 +108,8 @@ class Index extends Component
                 $totalCabangAktif = Cabang::where('status', 'aktif')->count();
                 $totalUserAktif = User::where('status', 'aktif')->count();
 
-                $countTotalAktif = ServisMasuk::where('is_real', true)->whereIn('status', ['pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart'])->count();
-                $countPengecekan = ServisMasuk::where('is_real', true)->whereIn('status', ['pengecekan', 'menunggu_konfirmasi'])->count();
+                $countTotalAktif = ServisMasuk::where('is_real', true)->whereIn('status', ['antrean_masuk', 'pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart'])->count();
+                $countPengecekan = ServisMasuk::where('is_real', true)->whereIn('status', ['antrean_masuk', 'pengecekan', 'menunggu_konfirmasi'])->count();
                 $countPengerjaan = ServisMasuk::where('is_real', true)->whereIn('status', ['perbaikan', 'pengerjaan', 'menunggu_sparepart'])->count();
 
                 $penjualanQuery = Penjualan::query()->where('is_real', true)->where('status', 'lunas');
@@ -123,7 +123,7 @@ class Index extends Component
 
                 foreach ($allCabangs as $c) {
                     $cOmzet = Penjualan::where('cabang_id', $c->id)->where('is_real', true)->where('status', 'lunas')->whereDate('tanggal', Carbon::today())->sum('total');
-                    $cServisAktif = ServisMasuk::where('cabang_id', $c->id)->where('is_real', true)->whereIn('status', ['pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart'])->count();
+                    $cServisAktif = ServisMasuk::where('cabang_id', $c->id)->where('is_real', true)->whereIn('status', ['antrean_masuk', 'pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart'])->count();
                     $cSuperadmin = $c->users->first()?->name ?? 'Belum ada Admin';
                     $cTotalStaff = User::where('cabang_id', $c->id)->where('status', 'aktif')->count();
 
@@ -255,7 +255,7 @@ class Index extends Component
                 ->whereYear('tanggal_masuk', $tahunServis)
                 ->whereMonth('tanggal_masuk', $bulanServis)
                 ->selectRaw("
-                    COUNT(CASE WHEN status IN ('pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart') OR (status = 'selesai' AND (is_cetak_nota = false OR is_cetak_nota IS NULL)) THEN 1 END) as total_masuk,
+                    COUNT(CASE WHEN status IN ('antrean_masuk', 'pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart') OR (status = 'selesai' AND (is_cetak_nota = false OR is_cetak_nota IS NULL)) THEN 1 END) as total_masuk,
                     COUNT(CASE WHEN status = 'selesai' AND is_cetak_nota = true AND tanggal_ambil IS NULL THEN 1 END) as selesai_belum_ambil,
                     COUNT(CASE WHEN status = 'batal' AND tanggal_ambil IS NULL THEN 1 END) as batal_belum_ambil
                 ")

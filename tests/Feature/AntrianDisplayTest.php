@@ -175,4 +175,43 @@ class AntrianDisplayTest extends TestCase
             ->assertSet('modalListOpen', true)
             ->assertSee('MacBook Air');
     }
+
+    public function test_antrian_aggregates_antrean_masuk_into_pengecekan(): void
+    {
+        $cabang = Cabang::create([
+            'kode_cabang' => 'CB-TEST3',
+            'nama_cabang' => 'Cabang Test 3',
+            'status' => 'aktif',
+        ]);
+
+        $user = User::factory()->create(['cabang_id' => $cabang->id]);
+        $customer = \App\Models\Customer::create([
+            'nama' => 'Test Customer 3',
+            'no_hp' => '08123456780',
+            'cabang_id' => $cabang->id,
+        ]);
+
+        // Status antrean_masuk -> harus masuk ke agregat 'pengecekan'
+        ServisMasuk::create([
+            'no_servis' => 'INV-SV-TEST3-261011-00001',
+            'cabang_id' => $cabang->id,
+            'customer_id' => $customer->id,
+            'created_by' => $user->id,
+            'kategori_perangkat' => 'komputer',
+            'tipe_unit' => 'PC Rakitan Gaming',
+            'keluhan' => 'Mati total',
+            'status' => 'antrean_masuk',
+            'is_real' => true,
+            'tanggal_masuk' => now(),
+        ]);
+
+        Livewire::test(AntrianDisplay::class, ['cabangId' => $cabang->id])
+            ->assertViewHas('counts', function ($counts) {
+                return $counts['komputer']['pengecekan'] === 1;
+            })
+            ->call('showList', 'komputer', 'pengecekan')
+            ->assertSet('modalListOpen', true)
+            ->assertSee('PC Rakitan Gaming')
+            ->assertSee('Antrean Masuk');
+    }
 }

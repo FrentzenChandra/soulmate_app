@@ -152,7 +152,7 @@ class Index extends Component
         if (! $this->servisToUbahStatus) return;
 
         $this->validate([
-            'targetStatus' => 'required|in:pengecekan,menunggu_konfirmasi,perbaikan,menunggu_sparepart,selesai,batal',
+            'targetStatus' => 'required|in:antrean_masuk,pengecekan,menunggu_konfirmasi,perbaikan,menunggu_sparepart,selesai,batal',
             'catatanUbahStatus' => 'nullable|string|max:500',
         ]);
 

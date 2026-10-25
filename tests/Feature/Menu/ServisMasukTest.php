@@ -110,7 +110,7 @@ class ServisMasukTest extends TestCase
             'cabang_id' => $this->cabang1->id,
             'customer_id' => $this->customer->id,
             'tipe_unit' => 'Asus ROG Strix G15',
-            'status' => 'pengecekan',
+            'status' => 'antrean_masuk',
         ]);
     }
 

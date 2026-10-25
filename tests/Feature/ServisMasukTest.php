@@ -126,7 +126,7 @@ class ServisMasukTest extends TestCase
         $this->assertNotNull($servis);
         $this->assertStringContainsString('INV-SV-CBPKP-', $servis->no_servis);
         $this->assertStringContainsString('SV-', $servis->no_servis_frontend);
-        $this->assertEquals('pengecekan', $servis->status);
+        $this->assertEquals('antrean_masuk', $servis->status);
         $this->assertEquals('Asus TUF Gaming FX505', $servis->tipe_unit);
         $this->assertStringContainsString('Adaptor / Charger', $servis->kelengkapan);
         $this->assertStringContainsString('Tas Ransel Asus', $servis->kelengkapan);
@@ -135,7 +135,7 @@ class ServisMasukTest extends TestCase
         // Verifikasi Status Log Awal
         $log = ServisStatusLog::where('servis_id', $servis->id)->first();
         $this->assertNotNull($log);
-        $this->assertEquals('pengecekan', $log->status);
+        $this->assertEquals('antrean_masuk', $log->status);
         $this->assertEquals($this->admin->id, $log->user_id);
     }
 
@@ -492,12 +492,26 @@ class ServisMasukTest extends TestCase
             'tanggal_masuk' => now(),
         ]);
 
-        // Cek badge warna status semula: pengecekan
+        // Cek badge warna status: pengecekan (Kuning)
         $this->assertEquals('Pengecekan', $servis->status_label);
         $this->assertStringContainsString('bg-amber-100', $servis->status_badge_class);
         $this->assertStringContainsString('text-amber-800', $servis->status_badge_class);
 
-        // Ubah ke status baru: menunggu_konfirmasi
+        // Ubah ke status antrean_masuk (Merah)
+        Livewire::test(ServisMasukIndex::class)
+            ->call('openStatusModal', $servis->id)
+            ->set('updateStatus', 'antrean_masuk')
+            ->set('updateCatatan', 'Menunggu antrean servis toko')
+            ->call('simpanUpdateStatus')
+            ->assertHasNoErrors();
+
+        $servis->refresh();
+        $this->assertEquals('antrean_masuk', $servis->status);
+        $this->assertEquals('Antrean Masuk', $servis->status_label);
+        $this->assertStringContainsString('bg-rose-100', $servis->status_badge_class);
+        $this->assertStringContainsString('text-rose-800', $servis->status_badge_class);
+
+        // Ubah ke status baru: menunggu_konfirmasi (Pink)
         Livewire::test(ServisMasukIndex::class)
             ->call('openStatusModal', $servis->id)
             ->set('updateStatus', 'menunggu_konfirmasi')
@@ -508,11 +522,10 @@ class ServisMasukTest extends TestCase
         $servis->refresh();
         $this->assertEquals('menunggu_konfirmasi', $servis->status);
         $this->assertEquals('Menunggu Konfirmasi', $servis->status_label);
-        // Status baru digelapkan sedikit: bg-amber-200 text-amber-950
-        $this->assertStringContainsString('bg-amber-200', $servis->status_badge_class);
-        $this->assertStringContainsString('text-amber-950', $servis->status_badge_class);
+        $this->assertStringContainsString('bg-pink-100', $servis->status_badge_class);
+        $this->assertStringContainsString('text-[#E6007A]', $servis->status_badge_class);
 
-        // Ubah ke perbaikan (warna semula)
+        // Ubah ke perbaikan (Biru)
         Livewire::test(ServisMasukIndex::class)
             ->call('openStatusModal', $servis->id)
             ->set('updateStatus', 'perbaikan')
@@ -523,9 +536,9 @@ class ServisMasukTest extends TestCase
         $this->assertEquals('perbaikan', $servis->status);
         $this->assertEquals('Perbaikan', $servis->status_label);
         $this->assertStringContainsString('bg-blue-100', $servis->status_badge_class);
-        $this->assertStringContainsString('text-blue-800', $servis->status_badge_class);
+        $this->assertStringContainsString('text-[#0052FF]', $servis->status_badge_class);
 
-        // Ubah ke status baru: menunggu_sparepart
+        // Ubah ke status baru: menunggu_sparepart (Ungu)
         Livewire::test(ServisMasukIndex::class)
             ->call('openStatusModal', $servis->id)
             ->set('updateStatus', 'menunggu_sparepart')
@@ -536,11 +549,10 @@ class ServisMasukTest extends TestCase
         $servis->refresh();
         $this->assertEquals('menunggu_sparepart', $servis->status);
         $this->assertEquals('Menunggu Sparepart', $servis->status_label);
-        // Status baru digelapkan sedikit: bg-blue-200 text-blue-950
-        $this->assertStringContainsString('bg-blue-200', $servis->status_badge_class);
-        $this->assertStringContainsString('text-blue-950', $servis->status_badge_class);
+        $this->assertStringContainsString('bg-purple-100', $servis->status_badge_class);
+        $this->assertStringContainsString('text-[#5E17EB]', $servis->status_badge_class);
 
-        // Ubah ke status selesai (warna semula)
+        // Ubah ke status selesai (Hijau)
         Livewire::test(ServisMasukIndex::class)
             ->call('openStatusModal', $servis->id)
             ->set('updateStatus', 'selesai')

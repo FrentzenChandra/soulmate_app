@@ -88,7 +88,7 @@ class AntrianDisplay extends Component
             $rawCounts = (clone $query)
                 ->select('kategori_perangkat', 'status', DB::raw('count(*) as total'))
                 ->whereIn('kategori_perangkat', ['laptop', 'printer', 'komputer'])
-                ->whereIn('status', ['pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart', 'selesai'])
+                ->whereIn('status', ['antrean_masuk', 'pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart', 'selesai'])
                 ->groupBy('kategori_perangkat', 'status')
                 ->get();
 
@@ -102,7 +102,7 @@ class AntrianDisplay extends Component
                 $cat = strtolower((string) $row->kategori_perangkat);
                 $stat = strtolower((string) $row->status);
                 if (isset($counts[$cat])) {
-                    if (in_array($stat, ['pengecekan', 'menunggu_konfirmasi'])) {
+                    if (in_array($stat, ['antrean_masuk', 'pengecekan', 'menunggu_konfirmasi'])) {
                         $counts[$cat]['pengecekan'] += (int) $row->total;
                     } elseif (in_array($stat, ['perbaikan', 'pengerjaan', 'menunggu_sparepart'])) {
                         $counts[$cat]['perbaikan'] += (int) $row->total;
@@ -121,7 +121,7 @@ class AntrianDisplay extends Component
                 ->where('kategori_perangkat', $this->selectedCategory);
 
             if ($this->selectedStatus === 'pengecekan') {
-                $listQuery->whereIn('status', ['pengecekan', 'menunggu_konfirmasi']);
+                $listQuery->whereIn('status', ['antrean_masuk', 'pengecekan', 'menunggu_konfirmasi']);
             } elseif ($this->selectedStatus === 'perbaikan') {
                 $listQuery->whereIn('status', ['perbaikan', 'pengerjaan', 'menunggu_sparepart']);
             } else {

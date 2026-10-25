@@ -120,10 +120,11 @@ class ServisMasuk extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
+            'antrean_masuk' => 'Antrean Masuk',
             'pengecekan' => 'Pengecekan',
             'menunggu_konfirmasi' => 'Menunggu Konfirmasi',
-            'perbaikan', 'pengerjaan' => 'Perbaikan',
             'menunggu_sparepart' => 'Menunggu Sparepart',
+            'perbaikan', 'pengerjaan' => 'Perbaikan',
             'selesai' => 'Selesai',
             'sudah_diambil', 'sudah_dibayar' => 'Sudah Diambil',
             'batal' => 'Batal',
@@ -134,14 +135,30 @@ class ServisMasuk extends Model
     public function getStatusBadgeClassAttribute(): string
     {
         return match ($this->status) {
+            'antrean_masuk' => 'bg-rose-100 text-rose-800 border border-rose-300 font-black',
             'pengecekan' => 'bg-amber-100 text-amber-800 border border-amber-300 font-black',
-            'menunggu_konfirmasi' => 'bg-amber-200 text-amber-950 border border-amber-400 font-black shadow-2xs',
-            'perbaikan', 'pengerjaan' => 'bg-blue-100 text-blue-800 border border-blue-300 font-black',
-            'menunggu_sparepart' => 'bg-blue-200 text-blue-950 border border-blue-400 font-black shadow-2xs',
+            'menunggu_konfirmasi' => 'bg-pink-100 text-[#E6007A] border border-pink-300 font-black',
+            'menunggu_sparepart' => 'bg-purple-100 text-[#5E17EB] border border-purple-300 font-black',
+            'perbaikan', 'pengerjaan' => 'bg-blue-100 text-[#0052FF] border border-blue-300 font-black',
             'selesai' => 'bg-emerald-100 text-emerald-800 border border-emerald-300 font-black',
             'sudah_diambil', 'sudah_dibayar' => 'bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold',
             'batal' => 'bg-rose-100 text-rose-800 border border-rose-300 font-black',
             default => 'bg-gray-100 text-gray-800 border border-gray-300 font-black',
+        };
+    }
+
+    public function getStatusBorderClassAttribute(): string
+    {
+        return match ($this->status) {
+            'antrean_masuk' => 'border-l-4 border-rose-500',
+            'pengecekan' => 'border-l-4 border-amber-500',
+            'menunggu_konfirmasi' => 'border-l-4 border-pink-500',
+            'menunggu_sparepart' => 'border-l-4 border-purple-500',
+            'perbaikan', 'pengerjaan' => 'border-l-4 border-blue-500',
+            'selesai' => 'border-l-4 border-emerald-500',
+            'sudah_diambil', 'sudah_dibayar' => 'border-l-4 border-indigo-500',
+            'batal' => 'border-l-4 border-rose-600',
+            default => 'border-l-4 border-gray-400',
         };
     }
 

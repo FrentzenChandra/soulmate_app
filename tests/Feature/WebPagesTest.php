@@ -238,13 +238,13 @@ class WebPagesTest extends TestCase
             ->assertSee('Pengecekan')
             ->assertSee('John Doe')
             ->assertSee('Proses Pengerjaan (7 Tahap)')
-            ->assertSee('Diterima')
-            ->assertSee('Diagnosa')
+            ->assertSee('Antrean Masuk')
+            ->assertSee('Pengecekan')
             ->assertSee('Konfirmasi')
-            ->assertSee('Perbaikan')
             ->assertSee('Sparepart')
-            ->assertSee('Siap Ambil')
-            ->assertSee('Selesai');
+            ->assertSee('Perbaikan')
+            ->assertSee('Selesai')
+            ->assertSee('Diambil');
 
         // Test search by frontend formatted code SV-261011-00001
         Livewire::test(Servis::class)
