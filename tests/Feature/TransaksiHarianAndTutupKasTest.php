@@ -234,6 +234,7 @@ class TransaksiHarianAndTutupKasTest extends TestCase
     public function test_user_without_edit_or_delete_permission_is_blocked_from_mutations()
     {
         $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
+        $admin->roles()->detach();
         // Give only view permission
         $admin->syncPermissions(['transaksi.harian.view']);
         $this->actingAs($admin);
@@ -289,6 +290,7 @@ class TransaksiHarianAndTutupKasTest extends TestCase
         \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'transaksi.harian.view', 'guard_name' => 'web']);
 
         $admin = User::where('email', 'admin.pkp@soulmate.test')->first();
+        $admin->roles()->detach();
         // Give view and status permissions only (no edit permission)
         $admin->syncPermissions(['transaksi.harian.view', 'transaksi.harian.status']);
         $this->actingAs($admin);

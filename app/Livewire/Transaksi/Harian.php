@@ -62,6 +62,7 @@ class Harian extends Component
     public string $formTanggalOnly = '';
     public string $formJam = '';
     public ?int $formPegawaiId = null;
+    public array $formPegawaiIds = [];
     public string $formCustomerType = 'umum';
     public ?int $formCustomerId = null;
     public string $formCustomerSearch = '';
@@ -219,6 +220,7 @@ class Harian extends Component
         $this->formKategoriPerangkat = 'laptop';
         $this->formNamaPelanggan = 'Konsumen';
         $this->formPegawaiId = null;
+        $this->formPegawaiIds = [];
         $this->generateDefaultNoTransaksi();
 
         $activePpn = MasterPpn::getAktifCached();
@@ -242,7 +244,7 @@ class Harian extends Component
         $user = Auth::user();
         abort_if(! $user || (! $user->isOwner() && ! $user->can('transaksi.harian.edit')), 403, 'Akses edit transaksi dibatasi.');
 
-        $transaksi = TransaksiFull::with(['details', 'customer'])->findOrFail($id);
+        $transaksi = TransaksiFull::with(['details', 'customer', 'pegawais'])->findOrFail($id);
         $this->resetForm();
 
         $this->transaksiId = $transaksi->id;
@@ -253,6 +255,9 @@ class Harian extends Component
         $this->formTanggalOnly = $transaksi->tanggal ? $transaksi->tanggal->toDateString() : now()->toDateString();
         $this->formJam = $transaksi->tanggal ? $transaksi->tanggal->format('H:i') : now()->format('H:i');
         $this->formPegawaiId = $transaksi->pegawai_id;
+        $this->formPegawaiIds = $transaksi->pegawais->isNotEmpty()
+            ? $transaksi->pegawais->pluck('id')->all()
+            : ($transaksi->pegawai_id ? [$transaksi->pegawai_id] : []);
         $this->formCustomerType = $transaksi->customer_id ? 'langganan' : 'umum';
         $this->formCustomerId = $transaksi->customer_id;
         $this->formNamaPelanggan = $transaksi->nama_pelanggan ?: 'Konsumen';
@@ -305,6 +310,7 @@ class Harian extends Component
         $this->formTanggalOnly = '';
         $this->formJam = '';
         $this->formPegawaiId = null;
+        $this->formPegawaiIds = [];
         $this->formCustomerType = 'umum';
         $this->formCustomerId = null;
         $this->formCustomerSearch = '';
@@ -366,6 +372,19 @@ class Harian extends Component
         $this->formNamaPelanggan = $nama;
         $this->formNoHp = $noHp ?? '';
         $this->formCustomerSearch = $nama;
+    }
+
+    public function addPegawaiField(): void
+    {
+        $this->formPegawaiIds[] = '';
+    }
+
+    public function removePegawaiField(int $index): void
+    {
+        if (isset($this->formPegawaiIds[$index])) {
+            unset($this->formPegawaiIds[$index]);
+            $this->formPegawaiIds = array_values($this->formPegawaiIds);
+        }
     }
 
     public function updatedFormPpnId($value): void
@@ -591,7 +610,9 @@ class Harian extends Component
                 }
             }
 
-            $pegawaiId = $this->formPegawaiId ? (int) $this->formPegawaiId : null;
+            $rawPegawaiIds = ! empty($this->formPegawaiIds) ? (array) $this->formPegawaiIds : ($this->formPegawaiId ? [$this->formPegawaiId] : []);
+            $validPegawaiIds = array_values(array_filter(array_unique(array_map('intval', $rawPegawaiIds))));
+            $pegawaiId = $validPegawaiIds[0] ?? null;
 
             $data = [
                 'cabang_id' => $cabangId,
@@ -626,6 +647,8 @@ class Harian extends Component
             } else {
                 $transaksi = TransaksiFull::create($data);
             }
+
+            $transaksi->pegawais()->sync($validPegawaiIds);
 
             foreach ($this->items as $row) {
                 $qty = (int) $row['qty'];
@@ -704,7 +727,7 @@ class Harian extends Component
 
     public function openDetailModal(int $id): void
     {
-        $this->selectedTransaksi = TransaksiFull::with(['details.produk', 'customer', 'cabang', 'pegawai', 'ppn', 'userInput', 'pelunas'])->findOrFail($id);
+        $this->selectedTransaksi = TransaksiFull::with(['details.produk', 'customer', 'cabang', 'pegawai', 'pegawais', 'ppn', 'userInput', 'pelunas'])->findOrFail($id);
         $this->modalDetailOpen = true;
     }
 
@@ -892,6 +915,7 @@ class Harian extends Component
                         $sq->whereRaw('LOWER(transaksi_fulls.no_transaksi) LIKE ?', [$pattern])
                            ->orWhereRaw('LOWER(transaksi_fulls.nama_pelanggan) LIKE ?', [$pattern])
                            ->orWhereRaw('LOWER(COALESCE(transaksi_fulls.no_hp, \'\')) LIKE ?', [$pattern])
+                           ->orWhereHas('pegawais', fn ($pq) => $pq->whereRaw('LOWER(nama) LIKE ?', [$pattern]))
                            ->orWhereHas('pegawai', fn ($pq) => $pq->whereRaw('LOWER(nama) LIKE ?', [$pattern]))
                            ->orWhereHas('details', fn ($dq) => $dq->whereRaw('LOWER(nama_item) LIKE ?', [$pattern]));
                     });
@@ -985,6 +1009,7 @@ class Harian extends Component
 
             $trxIds = $allCurrent->pluck('id')->all();
             $detailsByTrx = [];
+            $pegawaisByTrx = [];
             if (! empty($trxIds)) {
                 $rawDetails = DB::table('transaksi_full_details as d')
                     ->leftJoin('master_ppns as mp', 'mp.id', '=', 'd.ppn_id')
@@ -1009,9 +1034,19 @@ class Harian extends Component
                 foreach ($rawDetails as $d) {
                     $detailsByTrx[$d->transaksi_full_id][] = $d;
                 }
+
+                $rawPegawais = DB::table('transaksi_full_pegawai as tfp')
+                    ->join('pegawais as pg', 'pg.id', '=', 'tfp.pegawai_id')
+                    ->whereIn('tfp.transaksi_full_id', $trxIds)
+                    ->select(['tfp.transaksi_full_id', 'pg.id', 'pg.nama'])
+                    ->get();
+
+                foreach ($rawPegawais as $pRow) {
+                    $pegawaisByTrx[$pRow->transaksi_full_id][] = $pRow->nama;
+                }
             }
 
-            $tableData = $allCurrent->map(function ($item) use ($detailsByTrx) {
+            $tableData = $allCurrent->map(function ($item) use ($detailsByTrx, $pegawaisByTrx) {
                 $tglStr = $item->tanggal ? (string) $item->tanggal : '';
                 $tglLunasStr = $item->tanggal_lunas ? (string) $item->tanggal_lunas : '';
 
@@ -1104,6 +1139,9 @@ class Harian extends Component
                 $rowHasPpn = ($this->ppnFilter === 'ppn') ? true : (($this->ppnFilter === 'non_ppn') ? false : ($parentHasPpn || collect($itemsList)->contains('has_ppn', true)));
                 $rowPajakLabel = $rowHasPpn ? 'PPN' : 'NON';
 
+                $pgList = $pegawaisByTrx[$item->id] ?? [];
+                $petugasNama = ! empty($pgList) ? implode(', ', $pgList) : ($item->pegawai_nama ?: 'Tanpa Pegawai');
+
                 return [
                     'id' => (int) $item->id,
                     'no_transaksi' => TransaksiFull::formatNoTransaksiFrontend($item->no_transaksi),
@@ -1112,7 +1150,7 @@ class Harian extends Component
                     'waktu_epoch' => $waktuEpoch,
                     'jam' => $jam,
                     'tanggal_group' => $tglGroup,
-                    'petugas' => $item->pegawai_nama ?: 'Tanpa Pegawai',
+                    'petugas' => $petugasNama,
                     'user_input' => $item->user_input_name ?: 'System',
                     'pelunas_nama' => $pelunasNama,
                     'tanggal_lunas' => $tglLunasFormatted,

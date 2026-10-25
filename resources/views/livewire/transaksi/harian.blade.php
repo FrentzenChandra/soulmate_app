@@ -664,10 +664,10 @@
                             </div>
 
                             <!-- Section 3: Pembayaran, Status, Pegawai & Catatan -->
-                            <div class="bg-gray-50/80 p-3.5 rounded-2xl border border-gray-200/80 space-y-2.5">
+                            <div class="bg-gray-50/80 p-3.5 rounded-2xl border border-gray-200/80 space-y-3">
                                 <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">3. Pembayaran, Status, Pegawai &amp; Catatan</span>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5 items-start">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-start">
                                     <!-- 1. Status Transaksi -->
                                     <div>
                                         <label class="block font-bold text-gray-700 mb-1 text-[10px]">Status <span class="text-rose-500 font-bold">*</span></label>
@@ -691,134 +691,60 @@
                                         @error('formMetodePembayaran') <span class="text-rose-500 font-bold text-[10px] block mt-0.5">{{ $message }}</span> @enderror
                                     </div>
 
-                                    <!-- 3. Pegawai / Petugas (Custom Dropdown UI dengan Search) -->
-                                    <div x-data="{
-                                        open: false,
-                                        search: '',
-                                        selectedId: @entangle('formPegawaiId').live,
-                                        users: @js($pegawaiList->map(fn($p) => [
-                                            'id' => $p->id,
-                                            'name' => $p->nama,
-                                            'role' => $p->role
-                                        ])),
-                                        get selectedUser() {
-                                            return this.users.find(u => u.id == this.selectedId) || { id: null, name: 'Tanpa Pegawai', role: '-' };
-                                        },
-                                        get filteredUsers() {
-                                            if (!this.search.trim()) return this.users;
-                                            const q = this.search.toLowerCase();
-                                            return this.users.filter(u => u.name.toLowerCase().includes(q) || u.role.toLowerCase().includes(q));
-                                        },
-                                        select(id) {
-                                            this.selectedId = id;
-                                            this.open = false;
-                                            this.search = '';
-                                        }
-                                    }" class="relative" @click.outside="open = false; search = ''">
-                                        <label class="block font-bold text-gray-700 mb-1 text-[10px]">Pegawai</label>
-
-                                        <!-- Trigger Button -->
-                                        <button type="button"
-                                                @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
-                                                class="w-full px-2.5 py-1 rounded-xl border border-gray-300 bg-white text-gray-900 flex items-center justify-between gap-1.5 shadow-2xs hover:border-[#0052FF] focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF] transition-all cursor-pointer text-left min-h-[34px]">
-                                            <div class="flex items-center gap-1.5 min-w-0">
-                                                <div class="w-5 h-5 rounded-md flex items-center justify-center font-black text-[9px] shrink-0"
-                                                     :class="selectedUser.id ? 'bg-blue-100 text-[#0052FF]' : 'bg-gray-100 text-gray-500'">
-                                                    <span x-text="selectedUser.id ? selectedUser.name.charAt(0).toUpperCase() : '-'"></span>
-                                                </div>
-                                                <div class="min-w-0 leading-tight">
-                                                    <span class="block truncate text-[11px] font-bold" :class="selectedUser.id ? 'text-gray-900' : 'text-gray-500'" x-text="selectedUser.name"></span>
-                                                    <span class="block truncate text-[9px] font-semibold text-gray-400 capitalize" x-text="selectedUser.role"></span>
-                                                </div>
-                                            </div>
-                                            <svg class="w-3.5 h-3.5 text-gray-400 transition-transform shrink-0" :class="open ? 'rotate-180 text-[#0052FF]' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                        </button>
-
-                                        <!-- Custom Dropdown Menu (Dropup) -->
-                                        <div x-show="open"
-                                             x-transition:enter="transition ease-out duration-100"
-                                             x-transition:enter-start="transform opacity-0 scale-95"
-                                             x-transition:enter-end="transform opacity-100 scale-100"
-                                             x-transition:leave="transition ease-in duration-75"
-                                             x-transition:leave-start="transform opacity-100 scale-100"
-                                             x-transition:leave-end="transform opacity-0 scale-95"
-                                             class="absolute z-50 left-0 right-0 bottom-full mb-1.5 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden divide-y divide-gray-100 max-h-56 overflow-y-auto custom-scrollbar"
-                                             style="display: none;">
-
-                                            <!-- Search Box (Zero Placeholder) -->
-                                            <div class="p-1.5 border-b border-gray-100 bg-gray-50/80 sticky top-0 z-10">
-                                                <div class="relative">
-                                                    <span class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none text-gray-400">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                                    </span>
-                                                    <input type="text"
-                                                           x-model="search"
-                                                           x-ref="searchInput"
-                                                           @keydown.escape="open = false; search = ''"
-                                                           class="w-full pl-7 pr-2 py-1 rounded-lg border border-gray-200 bg-white font-semibold text-gray-900 text-[11px] focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]"
-                                                           aria-label="Cari Pegawai">
-                                                </div>
-                                            </div>
-
-                                            <!-- User List -->
-                                            <div class="divide-y divide-gray-100">
-                                                <!-- Opsi Tanpa Pegawai / Kosong -->
-                                                <button type="button"
-                                                        @click="select(null)"
-                                                        class="w-full px-2.5 py-1.5 text-left flex items-center justify-between gap-1.5 hover:bg-blue-50/70 transition-colors cursor-pointer"
-                                                        :class="!selectedId ? 'bg-blue-50 text-[#0052FF]' : 'text-gray-800'">
-                                                    <div class="flex items-center gap-1.5 min-w-0">
-                                                        <div class="w-5 h-5 rounded-md flex items-center justify-center font-black text-[9px] shrink-0"
-                                                             :class="!selectedId ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-100 text-gray-500'">
-                                                            -
-                                                        </div>
-                                                        <div class="min-w-0 leading-tight">
-                                                            <span class="block truncate font-bold text-[11px]" :class="!selectedId ? 'text-[#0052FF]' : 'text-gray-700'">Tanpa Pegawai</span>
-                                                            <span class="block truncate text-[9px] font-semibold text-gray-400">-</span>
-                                                        </div>
-                                                    </div>
-                                                    <template x-if="!selectedId">
-                                                        <svg class="w-3.5 h-3.5 text-[#0052FF] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                                    </template>
-                                                </button>
-
-                                                <template x-for="user in filteredUsers" :key="user.id">
-                                                    <button type="button"
-                                                            @click="select(user.id)"
-                                                            class="w-full px-2.5 py-1.5 text-left flex items-center justify-between gap-1.5 hover:bg-blue-50/70 transition-colors cursor-pointer"
-                                                            :class="user.id == selectedId ? 'bg-blue-50 text-[#0052FF]' : 'text-gray-800'">
-                                                        <div class="flex items-center gap-1.5 min-w-0">
-                                                            <div class="w-5 h-5 rounded-md flex items-center justify-center font-black text-[9px] shrink-0"
-                                                                 :class="user.id == selectedId ? 'bg-[#0052FF] text-white shadow-2xs' : 'bg-gray-100 text-gray-700'">
-                                                                <span x-text="user.name.charAt(0).toUpperCase()"></span>
-                                                            </div>
-                                                            <div class="min-w-0 leading-tight">
-                                                                <span class="block truncate font-bold text-[11px]" :class="user.id == selectedId ? 'text-[#0052FF]' : 'text-gray-900'" x-text="user.name"></span>
-                                                                <span class="block truncate text-[9px] font-semibold text-gray-400 capitalize" x-text="user.role"></span>
-                                                            </div>
-                                                        </div>
-                                                        <template x-if="user.id == selectedId">
-                                                            <svg class="w-3.5 h-3.5 text-[#0052FF] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                                        </template>
-                                                    </button>
-                                                </template>
-
-                                                <template x-if="filteredUsers.length === 0">
-                                                    <div class="p-2.5 text-center text-[11px] text-gray-400 font-medium">
-                                                        Pegawai tidak ditemukan
-                                                    </div>
-                                                </template>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 4. Catatan Transaksi -->
+                                    <!-- 3. Catatan Transaksi -->
                                     <div>
                                         <label class="block font-bold text-gray-700 mb-1 text-[10px]">Catatan</label>
                                         <input type="text"
                                                wire:model="formCatatan"
                                                class="w-full px-2.5 py-1.5 rounded-xl border border-gray-300 bg-white font-semibold text-gray-800 text-xs focus:ring-2 focus:ring-blue-200 focus:border-[#0052FF]">
                                     </div>
+                                </div>
+
+                                <!-- 4. Petugas / Pegawai Multi-Select -->
+                                <div class="pt-2 border-t border-gray-200/60 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <label class="block font-bold text-gray-700 text-[10px]">
+                                            Petugas (Bisa lebih dari 1 pegawai)
+                                        </label>
+                                        <button type="button"
+                                                wire:click="addPegawaiField"
+                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-[#0052FF] hover:bg-blue-100 font-bold text-[11px] transition-colors cursor-pointer border border-blue-200">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                                            <span>+ Tambah Pegawai</span>
+                                        </button>
+                                    </div>
+
+                                    @if (empty($formPegawaiIds))
+                                        <div class="p-2.5 bg-white rounded-xl border border-dashed border-gray-300 text-center text-gray-400 text-xs flex items-center justify-center gap-2">
+                                            <span>Belum ada pegawai ditugaskan (opsional).</span>
+                                            <button type="button" wire:click="addPegawaiField" class="text-[#0052FF] font-bold hover:underline cursor-pointer">
+                                                Pilih Pegawai
+                                            </button>
+                                        </div>
+                                    @else
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                            @foreach ($formPegawaiIds as $index => $pegawaiVal)
+                                                <div class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-gray-300 shadow-2xs">
+                                                    <div class="w-6 h-6 rounded-lg bg-blue-100 text-[#0052FF] font-black text-[10px] flex items-center justify-center shrink-0">
+                                                        {{ $index + 1 }}
+                                                    </div>
+                                                    <select wire:model="formPegawaiIds.{{ $index }}"
+                                                            class="w-full py-1 px-1.5 text-xs font-bold text-gray-900 bg-transparent border-0 focus:ring-0 cursor-pointer">
+                                                        <option value="">-- Pilih Pegawai --</option>
+                                                        @foreach ($pegawaiList as $p)
+                                                            <option value="{{ $p->id }}">{{ $p->nama }} ({{ $p->role }})</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <button type="button"
+                                                            wire:click="removePegawaiField({{ $index }})"
+                                                            class="p-1 text-gray-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
+                                                            title="Hapus Pegawai">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -899,7 +825,9 @@
                             </div>
                             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
                                 <span class="text-[10px] font-bold text-gray-900 uppercase block">Petugas</span>
-                                <span class="font-bold text-gray-900 block mt-0.5">{{ $selectedTransaksi->pegawai?->nama ?? '-' }}</span>
+                                <span class="font-bold text-gray-900 block mt-0.5">
+                                    {{ $selectedTransaksi->pegawais->isNotEmpty() ? $selectedTransaksi->pegawais->pluck('nama')->implode(', ') : ($selectedTransaksi->pegawai?->nama ?? '-') }}
+                                </span>
                             </div>
                         </div>
 

@@ -197,14 +197,21 @@ class Index extends Component
             }
         };
 
-        // Rekap Pegawai: Group by bulan & pegawai_id
-        $pegawaiRawCounts = TransaksiFull::query()
-            ->selectRaw("{$monthExpr} as bulan, pegawai_id, COUNT(*) as total")
-            ->whereYear('tanggal', $tahun)
-            ->where('status', '!=', 'Batal')
-            ->whereNotNull('pegawai_id')
-            ->tap($cabangScope)
-            ->groupByRaw("{$monthExpr}, pegawai_id")
+        // Rekap Pegawai: Group by bulan & pegawai_id (dari tabel pivot transaksi_full_pegawai)
+        $pegawaiMonthExpr = match ($driver) {
+            'pgsql', 'postgres' => 'EXTRACT(MONTH FROM tf.tanggal)::integer',
+            'sqlite' => "CAST(strftime('%m', tf.tanggal) AS INTEGER)",
+            default => 'MONTH(tf.tanggal)',
+        };
+
+        $pegawaiRawCounts = DB::table('transaksi_full_pegawai as tfp')
+            ->join('transaksi_fulls as tf', 'tf.id', '=', 'tfp.transaksi_full_id')
+            ->selectRaw("{$pegawaiMonthExpr} as bulan, tfp.pegawai_id, COUNT(*) as total")
+            ->whereYear('tf.tanggal', $tahun)
+            ->where('tf.status', '!=', 'Batal')
+            ->when(! $isHQ, fn ($q) => $q->where('tf.cabang_id', $cabangId))
+            ->when($isHQ && $this->cabangFilter !== 'semua' && ! empty($this->cabangFilter), fn ($q) => $q->where('tf.cabang_id', (int) $this->cabangFilter))
+            ->groupByRaw("{$pegawaiMonthExpr}, tfp.pegawai_id")
             ->get();
 
         $pegawaiMap = [];

@@ -386,7 +386,7 @@ class PermissionService
         $all = self::getAllPermissionNames();
 
         return [
-            'Superadmin' => $all, // Superadmin default: semua diizinkan
+            'Superadmin' => array_values(array_filter($all, fn ($p) => ! str_starts_with($p, 'transaksi.harian.'))), // Superadmin menggunakan Transaksi FULL, bukan Transaksi Harian
 
             'Teknisi' => [
                 'dashboard.view',

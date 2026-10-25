@@ -7,7 +7,9 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class TransaksiFull extends Model
 {
@@ -16,6 +18,25 @@ class TransaksiFull extends Model
     protected static function booted(): void
     {
         static::saved(function (TransaksiFull $model) {
+            // Auto sync single pegawai_id to pivot if not already in pivot
+            if ($model->pegawai_id) {
+                try {
+                    if (! DB::table('transaksi_full_pegawai')
+                        ->where('transaksi_full_id', $model->id)
+                        ->where('pegawai_id', $model->pegawai_id)
+                        ->exists()) {
+                        DB::table('transaksi_full_pegawai')->insert([
+                            'transaksi_full_id' => $model->id,
+                            'pegawai_id' => $model->pegawai_id,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                } catch (\Throwable $e) {
+                    // Ignore duplicate key or pivot table sync issues
+                }
+            }
+
             try {
                 event(new TransaksiUpdated(
                     $model->id,
@@ -104,6 +125,11 @@ class TransaksiFull extends Model
         return $this->belongsTo(Pegawai::class, 'pegawai_id');
     }
 
+    public function pegawais(): BelongsToMany
+    {
+        return $this->belongsToMany(Pegawai::class, 'transaksi_full_pegawai')->withTimestamps();
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
@@ -179,7 +205,11 @@ class TransaksiFull extends Model
      */
     public function toTabulatorRow(): array
     {
-        $this->loadMissing(['details', 'userInput', 'pelunas', 'pegawai']);
+        $this->loadMissing(['details', 'userInput', 'pelunas', 'pegawai', 'pegawais']);
+
+        $petugasNama = $this->pegawais->isNotEmpty()
+            ? $this->pegawais->pluck('nama')->implode(', ')
+            : ($this->pegawai?->nama ?? 'Tanpa Pegawai');
 
         return [
             'id' => $this->id,
@@ -189,7 +219,7 @@ class TransaksiFull extends Model
             'waktu_epoch' => $this->tanggal ? $this->tanggal->timestamp : 0,
             'jam' => $this->tanggal ? $this->tanggal->format('H:i') : '-',
             'tanggal_group' => $this->tanggal ? $this->tanggal->translatedFormat('l, d F Y') : '-',
-            'petugas' => $this->pegawai?->nama ?? 'Tanpa Pegawai',
+            'petugas' => $petugasNama,
             'user_input' => $this->userInput?->name ?? 'System',
             'pelunas_nama' => ($this->status === 'Lunas' && $this->pelunas_user_id && $this->pelunas) ? $this->pelunas->name : null,
             'tanggal_lunas' => $this->tanggal_lunas ? $this->tanggal_lunas->format('d/m/Y H:i') : '-',
