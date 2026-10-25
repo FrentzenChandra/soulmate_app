@@ -929,21 +929,7 @@
                                 return `<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-[#5E17EB] border border-purple-200 truncate max-w-full" title="${val}">${val}</span>`;
                             }
                         },
-                        // 7. Tanggal Kirim
-                        {
-                            title: "Tanggal Kirim",
-                            titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Tanggal<br>Kirim</div>`,
-                            field: "tanggal_kirim",
-                            width: 82,
-                            minWidth: 70,
-                            hozAlign: "center",
-                            headerHozAlign: "center",
-                            formatter: (cell) => {
-                                const d = cell.getData();
-                                return d.tanggal_kirim_formatted ? `<span class="font-bold text-black text-[10.5px] font-mono">${d.tanggal_kirim_formatted}</span>` : '<span class="text-black font-bold">-</span>';
-                            }
-                        },
-                        // 8. Tindakan
+                        // 7. Tindakan
                         {
                             title: "Tindakan",
                             titleFormatter: () => `<div class="leading-tight text-left font-extrabold uppercase">Tindakan</div>`,
@@ -956,7 +942,7 @@
                                 return `<span class="text-black font-medium block text-[11px] leading-tight truncate" title="${val}">${val}</span>`;
                             }
                         },
-                        // 9. Penerima Barang
+                        // 8. Penerima Barang
                         {
                             title: "Penerima Barang",
                             titleFormatter: () => `<div class="leading-tight text-center font-extrabold uppercase">Penerima<br>Barang</div>`,
