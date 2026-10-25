@@ -10,6 +10,51 @@ class PermissionService
     public static function getModuleSchema(): array
     {
         return [
+            'absensi_kehadiran' => [
+                'group_label' => 'Presensi & Kehadiran Harian',
+                'description' => 'Akses presensi harian masuk berbasis jaringan WiFi cabang',
+                'modules' => [
+                    'absensi_harian' => [
+                        'label' => 'Absensi Harian',
+                        'route' => 'absensi.index',
+                        'main_permission' => 'absensi.view',
+                        'description' => 'Akses tombol absensi masuk harian menggunakan jaringan WiFi toko',
+                        'actions' => [
+                            'absensi.submit' => 'Lakukan Absen Masuk',
+                        ],
+                    ],
+                ],
+            ],
+
+            'kasir_penjualan' => [
+                'group_label' => 'Kasir POS & Penjualan',
+                'description' => 'Akses transaksi kasir produk, penjualan langsung, dan laporan penjualan',
+                'modules' => [
+                    'kasir_pos' => [
+                        'label' => 'Kasir POS',
+                        'route' => 'kasir.produk',
+                        'main_permission' => 'kasir.produk.view',
+                        'description' => 'Layar POS kasir penjualan produk langsung dan cetak struk',
+                        'actions' => [
+                            'kasir.produk.create' => 'Proses Transaksi & Pembayaran',
+                            'kasir.produk.print' => 'Cetak Sales Invoice / Nota',
+                            'kasir.produk.customer' => 'Registrasi Pelanggan Baru Cepat',
+                        ],
+                    ],
+                    'laporan_penjualan' => [
+                        'label' => 'Riwayat & Laporan Penjualan',
+                        'route' => 'laporan.penjualan',
+                        'main_permission' => 'laporan.penjualan.view',
+                        'description' => 'Riwayat seluruh penjualan real dan non-real per periode',
+                        'actions' => [
+                            'laporan.penjualan.detail' => 'Lihat Detail Item Transaksi',
+                            'laporan.penjualan.print' => 'Cetak Ulang Nota Penjualan',
+                            'laporan.penjualan.retur' => 'Retur Stok Barang (Transaksi Real)',
+                        ],
+                    ],
+                ],
+            ],
+
             'layanan_servis' => [
                 'group_label' => 'Layanan Servis & Reparasi',
                 'description' => 'Akses modul pengerjaan unit servis, penerimaan, dan status faktur',
@@ -64,48 +109,6 @@ class PermissionService
                             'servis.non_real.edit' => 'Edit Data Servis Non-Real',
                             'servis.non_real.delete' => 'Hapus Servis Non-Real',
                             'servis.non_real.print' => 'Cetak Nota Non-Real',
-                        ],
-                    ],
-                    'klaim_garansi' => [
-                        'label' => 'Klaim Garansi',
-                        'route' => 'klaim-garansi.index',
-                        'main_permission' => 'klaim_garansi.view',
-                        'description' => 'Pencatatan dan pelacakan alur klaim garansi produk ke distributor',
-                        'actions' => [
-                            'klaim_garansi.detail' => 'Lihat Detail Klaim Garansi',
-                            'klaim_garansi.create' => 'Input Klaim Garansi Baru (POST)',
-                            'klaim_garansi.edit' => 'Edit / Perbarui Data Klaim (PUT)',
-                            'klaim_garansi.delete' => 'Hapus Data Klaim Garansi (DELETE)',
-                            'klaim_garansi.export_excel' => 'Export Laporan Excel (.xlsx)',
-                        ],
-                    ],
-                ],
-            ],
-
-            'kasir_penjualan' => [
-                'group_label' => 'Kasir POS & Penjualan',
-                'description' => 'Akses transaksi kasir produk, penjualan langsung, dan laporan penjualan',
-                'modules' => [
-                    'kasir_pos' => [
-                        'label' => 'Kasir POS',
-                        'route' => 'kasir.produk',
-                        'main_permission' => 'kasir.produk.view',
-                        'description' => 'Layar POS kasir penjualan produk langsung dan cetak struk',
-                        'actions' => [
-                            'kasir.produk.create' => 'Proses Transaksi & Pembayaran',
-                            'kasir.produk.print' => 'Cetak Sales Invoice / Nota',
-                            'kasir.produk.customer' => 'Registrasi Pelanggan Baru Cepat',
-                        ],
-                    ],
-                    'laporan_penjualan' => [
-                        'label' => 'Riwayat & Laporan Penjualan',
-                        'route' => 'laporan.penjualan',
-                        'main_permission' => 'laporan.penjualan.view',
-                        'description' => 'Riwayat seluruh penjualan real dan non-real per periode',
-                        'actions' => [
-                            'laporan.penjualan.detail' => 'Lihat Detail Item Transaksi',
-                            'laporan.penjualan.print' => 'Cetak Ulang Nota Penjualan',
-                            'laporan.penjualan.retur' => 'Retur Stok Barang (Transaksi Real)',
                         ],
                     ],
                 ],
@@ -202,15 +205,6 @@ class PermissionService
                 'group_label' => 'Master Data & Pengaturan Toko',
                 'description' => 'Katalog produk, servis, data pelanggan, pegawai, dan referensi sistem',
                 'modules' => [
-                    'cabang_stok' => [
-                        'label' => 'Manajemen Stok',
-                        'route' => 'cabang.stok',
-                        'main_permission' => 'cabang.stok.view',
-                        'description' => 'Monitoring stok barang cabang dan penyesuaian kuantiti',
-                        'actions' => [
-                            'cabang.stok.adjust' => 'Penyesuaian / Koreksi Stok',
-                        ],
-                    ],
                     'master_produk' => [
                         'label' => 'Master Produk',
                         'route' => 'master.produk',
@@ -222,15 +216,24 @@ class PermissionService
                             'master.produk.delete' => 'Hapus Produk',
                         ],
                     ],
-                    'master_servis' => [
-                        'label' => 'Master Servis',
-                        'route' => 'master.servis',
-                        'main_permission' => 'master.servis.view',
-                        'description' => 'Katalog tarif jasa servis, estimasi biaya, dan kategori servis',
+                    'cabang_stok' => [
+                        'label' => 'Manajemen Stok',
+                        'route' => 'cabang.stok',
+                        'main_permission' => 'cabang.stok.view',
+                        'description' => 'Monitoring stok barang cabang dan penyesuaian kuantiti',
                         'actions' => [
-                            'master.servis.create' => 'Tambah Jasa Servis',
-                            'master.servis.edit' => 'Edit Jasa Servis',
-                            'master.servis.delete' => 'Hapus Jasa Servis',
+                            'cabang.stok.adjust' => 'Penyesuaian / Koreksi Stok',
+                        ],
+                    ],
+                    'master_orang_pajak' => [
+                        'label' => 'Master WP',
+                        'route' => 'master.orang-pajak',
+                        'main_permission' => 'master.orang_pajak.view',
+                        'description' => 'Database rekanan dan pihak wajib pajak (WP)',
+                        'actions' => [
+                            'master.orang_pajak.create' => 'Tambah Data WP',
+                            'master.orang_pajak.edit' => 'Edit Data WP',
+                            'master.orang_pajak.delete' => 'Hapus Data WP',
                         ],
                     ],
                     'master_customer' => [
@@ -244,17 +247,6 @@ class PermissionService
                             'master.customer.delete' => 'Hapus Pelanggan',
                         ],
                     ],
-                    'master_pegawai' => [
-                        'label' => 'Master Pegawai',
-                        'route' => 'master.pegawai',
-                        'main_permission' => 'master.pegawai.view',
-                        'description' => 'Daftar teknisi dan pegawai operasional toko',
-                        'actions' => [
-                            'master.pegawai.create' => 'Tambah Pegawai',
-                            'master.pegawai.edit' => 'Edit Pegawai',
-                            'master.pegawai.delete' => 'Hapus Pegawai',
-                        ],
-                    ],
                     'master_users' => [
                         'label' => 'Master Pengguna',
                         'route' => 'master.users',
@@ -264,6 +256,28 @@ class PermissionService
                             'master.users.create' => 'Tambah Akun Login Baru',
                             'master.users.edit' => 'Edit Akun Pengguna',
                             'master.users.delete' => 'Hapus Akun Pengguna',
+                        ],
+                    ],
+                    'master_servis' => [
+                        'label' => 'Master Servis',
+                        'route' => 'master.servis',
+                        'main_permission' => 'master.servis.view',
+                        'description' => 'Katalog tarif jasa servis, estimasi biaya, dan kategori servis',
+                        'actions' => [
+                            'master.servis.create' => 'Tambah Jasa Servis',
+                            'master.servis.edit' => 'Edit Jasa Servis',
+                            'master.servis.delete' => 'Hapus Jasa Servis',
+                        ],
+                    ],
+                    'master_pegawai' => [
+                        'label' => 'Master Pegawai',
+                        'route' => 'master.pegawai',
+                        'main_permission' => 'master.pegawai.view',
+                        'description' => 'Daftar teknisi dan pegawai operasional toko',
+                        'actions' => [
+                            'master.pegawai.create' => 'Tambah Pegawai',
+                            'master.pegawai.edit' => 'Edit Pegawai',
+                            'master.pegawai.delete' => 'Hapus Pegawai',
                         ],
                     ],
                     'master_settings' => [
@@ -277,17 +291,6 @@ class PermissionService
                             'master.settings.delete' => 'Hapus Opsi Referensi',
                         ],
                     ],
-                    'master_orang_pajak' => [
-                        'label' => 'Master Orang Pajak',
-                        'route' => 'master.orang-pajak',
-                        'main_permission' => 'master.orang_pajak.view',
-                        'description' => 'Database rekanan dan pihak wajib pajak',
-                        'actions' => [
-                            'master.orang_pajak.create' => 'Tambah Orang Pajak',
-                            'master.orang_pajak.edit' => 'Edit Orang Pajak',
-                            'master.orang_pajak.delete' => 'Hapus Orang Pajak',
-                        ],
-                    ],
                     'master_distributor' => [
                         'label' => 'Master Distributor',
                         'route' => 'master.distributor',
@@ -299,30 +302,6 @@ class PermissionService
                             'master.distributor.delete' => 'Hapus Data Distributor',
                         ],
                     ],
-                ],
-            ],
-            'absensi_kehadiran' => [
-                'group_label' => 'Absensi & Kehadiran Staf',
-                'description' => 'Pencatatan absensi harian berbasis jaringan WiFi cabang dan rekapitulasi riwayat kehadiran',
-                'modules' => [
-                    'absensi_harian' => [
-                        'label' => 'Absensi Harian',
-                        'route' => 'absensi.index',
-                        'main_permission' => 'absensi.view',
-                        'description' => 'Akses tombol absensi masuk harian menggunakan jaringan WiFi toko',
-                        'actions' => [
-                            'absensi.submit' => 'Lakukan Absen Masuk',
-                        ],
-                    ],
-                    'absensi_riwayat' => [
-                        'label' => 'Riwayat Absensi',
-                        'route' => 'absensi.riwayat',
-                        'main_permission' => 'absensi.riwayat',
-                        'description' => 'Monitoring dan rekapitulasi riwayat absensi staf',
-                        'actions' => [
-                            'absensi.riwayat.export' => 'Ekspor Rekap Absensi',
-                        ],
-                    ],
                     'wifi_absensi' => [
                         'label' => 'Master WiFi Absensi',
                         'route' => 'master.wifi-absen',
@@ -332,6 +311,42 @@ class PermissionService
                             'master.wifi_absensi.create' => 'Tambah IP WiFi',
                             'master.wifi_absensi.edit' => 'Edit Data WiFi',
                             'master.wifi_absensi.delete' => 'Hapus IP WiFi',
+                        ],
+                    ],
+                ],
+            ],
+
+            'absensi_staf' => [
+                'group_label' => 'Absensi Staf',
+                'description' => 'Monitoring dan rekapitulasi riwayat absensi staf cabang',
+                'modules' => [
+                    'absensi_riwayat' => [
+                        'label' => 'Riwayat Absensi',
+                        'route' => 'absensi.riwayat',
+                        'main_permission' => 'absensi.riwayat',
+                        'description' => 'Monitoring dan rekapitulasi riwayat absensi staf',
+                        'actions' => [
+                            'absensi.riwayat.export' => 'Ekspor Rekap Absensi',
+                        ],
+                    ],
+                ],
+            ],
+
+            'garansi' => [
+                'group_label' => 'Garansi Produk',
+                'description' => 'Pencatatan dan pelacakan alur klaim garansi produk ke distributor',
+                'modules' => [
+                    'klaim_garansi' => [
+                        'label' => 'Klaim Garansi',
+                        'route' => 'klaim-garansi.index',
+                        'main_permission' => 'klaim_garansi.view',
+                        'description' => 'Pencatatan dan pelacakan alur klaim garansi produk ke distributor',
+                        'actions' => [
+                            'klaim_garansi.detail' => 'Lihat Detail Klaim Garansi',
+                            'klaim_garansi.create' => 'Input Klaim Garansi Baru (POST)',
+                            'klaim_garansi.edit' => 'Edit / Perbarui Data Klaim (PUT)',
+                            'klaim_garansi.delete' => 'Hapus Data Klaim Garansi (DELETE)',
+                            'klaim_garansi.export_excel' => 'Export Laporan Excel (.xlsx)',
                         ],
                     ],
                 ],
