@@ -52,6 +52,19 @@ class PermissionService
                             'laporan.penjualan.retur' => 'Retur Stok Barang (Transaksi Real)',
                         ],
                     ],
+                    'servis_non_real' => [
+                        'label' => 'Servis Non-Real',
+                        'route' => 'servis.non-real',
+                        'main_permission' => 'servis.non_real.view',
+                        'description' => 'Pencatatan nota servis khusus non-real',
+                        'actions' => [
+                            'servis.non_real.detail' => 'Detail Servis Non-Real',
+                            'servis.non_real.create' => 'Tambah Servis Non-Real',
+                            'servis.non_real.edit' => 'Edit Data Servis Non-Real',
+                            'servis.non_real.delete' => 'Hapus Servis Non-Real',
+                            'servis.non_real.print' => 'Cetak Nota Non-Real',
+                        ],
+                    ],
                 ],
             ],
 
@@ -96,19 +109,6 @@ class PermissionService
                             'servis.batal.ubah_status' => 'Pulihkan / Ubah Status Servis',
                             'servis.batal.ambil' => 'Serah Terima Unit Batal',
                             'servis.batal.print' => 'Cetak Nota / Tanda Terima Batal',
-                        ],
-                    ],
-                    'servis_non_real' => [
-                        'label' => 'Servis Non-Real',
-                        'route' => 'servis.non-real',
-                        'main_permission' => 'servis.non_real.view',
-                        'description' => 'Pencatatan nota servis khusus non-real',
-                        'actions' => [
-                            'servis.non_real.detail' => 'Detail Servis Non-Real',
-                            'servis.non_real.create' => 'Tambah Servis Non-Real',
-                            'servis.non_real.edit' => 'Edit Data Servis Non-Real',
-                            'servis.non_real.delete' => 'Hapus Servis Non-Real',
-                            'servis.non_real.print' => 'Cetak Nota Non-Real',
                         ],
                     ],
                 ],
@@ -225,6 +225,19 @@ class PermissionService
                             'cabang.stok.adjust' => 'Penyesuaian / Koreksi Stok',
                         ],
                     ],
+                    'klaim_garansi' => [
+                        'label' => 'Klaim Garansi',
+                        'route' => 'klaim-garansi.index',
+                        'main_permission' => 'klaim_garansi.view',
+                        'description' => 'Pencatatan dan pelacakan alur klaim garansi produk ke distributor',
+                        'actions' => [
+                            'klaim_garansi.detail' => 'Lihat Detail Klaim Garansi',
+                            'klaim_garansi.create' => 'Input Klaim Garansi Baru (POST)',
+                            'klaim_garansi.edit' => 'Edit / Perbarui Data Klaim (PUT)',
+                            'klaim_garansi.delete' => 'Hapus Data Klaim Garansi (DELETE)',
+                            'klaim_garansi.export_excel' => 'Export Laporan Excel (.xlsx)',
+                        ],
+                    ],
                     'master_orang_pajak' => [
                         'label' => 'Master WP',
                         'route' => 'master.orang-pajak',
@@ -327,26 +340,6 @@ class PermissionService
                         'description' => 'Monitoring dan rekapitulasi riwayat absensi staf',
                         'actions' => [
                             'absensi.riwayat.export' => 'Ekspor Rekap Absensi',
-                        ],
-                    ],
-                ],
-            ],
-
-            'garansi' => [
-                'group_label' => 'Garansi Produk',
-                'description' => 'Pencatatan dan pelacakan alur klaim garansi produk ke distributor',
-                'modules' => [
-                    'klaim_garansi' => [
-                        'label' => 'Klaim Garansi',
-                        'route' => 'klaim-garansi.index',
-                        'main_permission' => 'klaim_garansi.view',
-                        'description' => 'Pencatatan dan pelacakan alur klaim garansi produk ke distributor',
-                        'actions' => [
-                            'klaim_garansi.detail' => 'Lihat Detail Klaim Garansi',
-                            'klaim_garansi.create' => 'Input Klaim Garansi Baru (POST)',
-                            'klaim_garansi.edit' => 'Edit / Perbarui Data Klaim (PUT)',
-                            'klaim_garansi.delete' => 'Hapus Data Klaim Garansi (DELETE)',
-                            'klaim_garansi.export_excel' => 'Export Laporan Excel (.xlsx)',
                         ],
                     ],
                 ],

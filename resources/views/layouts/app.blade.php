@@ -260,7 +260,13 @@
                         @endif
                     </a>
 
-
+                    @can('klaim_garansi.view')
+                    <a href="{{ route('klaim-garansi.index') }}"
+                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('klaim-garansi*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('klaim-garansi*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        <span>Klaim Garansi</span>
+                    </a>
+                    @endcan
 
                     <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Layanan Servis</p>
 
@@ -280,12 +286,6 @@
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('servis.batal*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('servis.batal*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Servis Batal
-                    </a>
-
-                    <a href="{{ route('servis.non-real') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('servis.non-real*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('servis.non-real*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Servis Non Real
                     </a>
 
 
@@ -359,12 +359,12 @@
 
                     <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Laporan Global</p>
 
-                    <div x-data="{ open: {{ request()->routeIs('laporan.penjualan*') ? 'true' : 'false' }} }" class="space-y-1">
+                    <div x-data="{ open: {{ (request()->routeIs('laporan.penjualan*') || request()->routeIs('servis.non-real*')) ? 'true' : 'false' }} }" class="space-y-1">
                         <button @click="open = !open"
                             type="button"
-                            class="w-full group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('laporan.penjualan*') ? 'bg-gray-800/80 text-white' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                            class="w-full group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ (request()->routeIs('laporan.penjualan*') || request()->routeIs('servis.non-real*')) ? 'bg-gray-800/80 text-white' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                             <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-3 {{ request()->routeIs('laporan.penjualan*') ? 'text-[#5E17EB]' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                <svg class="w-5 h-5 mr-3 {{ (request()->routeIs('laporan.penjualan*') || request()->routeIs('servis.non-real*')) ? 'text-[#5E17EB]' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                 <span>Laporan Penjualan</span>
                             </div>
                             <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -381,6 +381,11 @@
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('laporan.penjualan*') && request('tipeTransaksiFilter') === 'non_real' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('laporan.penjualan*') && request('tipeTransaksiFilter') === 'non_real' ? 'bg-white' : 'bg-amber-400' }} mr-2.5"></span>
                                 <span>Nota Non-Real</span>
+                            </a>
+                            <a href="{{ route('servis.non-real') }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('servis.non-real*') ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('servis.non-real*') ? 'bg-white' : 'bg-amber-400' }} mr-2.5"></span>
+                                <span>Servis Non Real</span>
                             </a>
                             <a href="{{ route('laporan.penjualan', ['tipeTransaksiFilter' => 'semua']) }}"
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('laporan.penjualan*') && (request('tipeTransaksiFilter') === 'semua' || !request('tipeTransaksiFilter')) ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
@@ -509,15 +514,6 @@
                     </a>
                     @endcan
 
-                    <!-- Garansi (HQ) -->
-                    @can('klaim_garansi.view')
-                    <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Garansi</p>
-                    <a href="{{ route('klaim-garansi.index') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('klaim-garansi*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('klaim-garansi*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                        <span>Klaim Garansi</span>
-                    </a>
-                    @endcan
 
                 @else
                     <!-- ============================================== -->
@@ -548,7 +544,7 @@
                     @endcan
 
                     <!-- 2. Kasir & Penjualan -->
-                    @canany(['kasir.produk.view', 'laporan.penjualan.view'])
+                    @canany(['kasir.produk.view', 'laporan.penjualan.view', 'servis.non_real.view'])
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Kasir & Penjualan</p>
 
                     @can('kasir.produk.view')
@@ -559,13 +555,13 @@
                     </a>
                     @endcan
 
-                    @can('laporan.penjualan.view')
-                    <div x-data="{ open: {{ request()->routeIs('laporan.penjualan*') ? 'true' : 'false' }} }" class="space-y-1">
+                    @canany(['laporan.penjualan.view', 'servis.non_real.view'])
+                    <div x-data="{ open: {{ (request()->routeIs('laporan.penjualan*') || request()->routeIs('servis.non-real*')) ? 'true' : 'false' }} }" class="space-y-1">
                         <button @click="open = !open"
                             type="button"
-                            class="w-full group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('laporan.penjualan*') ? 'bg-gray-800/80 text-white' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                            class="w-full group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ (request()->routeIs('laporan.penjualan*') || request()->routeIs('servis.non-real*')) ? 'bg-gray-800/80 text-white' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                             <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-3 {{ request()->routeIs('laporan.penjualan*') ? 'text-[#0052FF]' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                <svg class="w-5 h-5 mr-3 {{ (request()->routeIs('laporan.penjualan*') || request()->routeIs('servis.non-real*')) ? 'text-[#0052FF]' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                 <span>Riwayat Transaksi</span>
                             </div>
                             <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -573,6 +569,7 @@
                             </svg>
                         </button>
                         <div x-show="open" x-cloak class="pl-8 pr-2 space-y-1 py-1">
+                            @can('laporan.penjualan.view')
                             <a href="{{ route('laporan.penjualan', ['tipeTransaksiFilter' => 'real']) }}"
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('laporan.penjualan*') && request('tipeTransaksiFilter') === 'real' ? 'bg-[#0052FF] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('laporan.penjualan*') && request('tipeTransaksiFilter') === 'real' ? 'bg-white' : 'bg-emerald-400' }} mr-2.5"></span>
@@ -583,18 +580,28 @@
                                 <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('laporan.penjualan*') && request('tipeTransaksiFilter') === 'non_real' ? 'bg-white' : 'bg-amber-400' }} mr-2.5"></span>
                                 <span>Nota Non-Real</span>
                             </a>
+                            @endcan
+                            @can('servis.non_real.view')
+                            <a href="{{ route('servis.non-real') }}"
+                                class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('servis.non-real*') ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('servis.non-real*') ? 'bg-white' : 'bg-amber-400' }} mr-2.5"></span>
+                                <span>Servis Non Real</span>
+                            </a>
+                            @endcan
+                            @can('laporan.penjualan.view')
                             <a href="{{ route('laporan.penjualan', ['tipeTransaksiFilter' => 'semua']) }}"
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('laporan.penjualan*') && (request('tipeTransaksiFilter') === 'semua' || !request('tipeTransaksiFilter')) ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('laporan.penjualan*') && (request('tipeTransaksiFilter') === 'semua' || !request('tipeTransaksiFilter')) ? 'bg-white' : 'bg-gray-400' }} mr-2.5"></span>
                                 <span>Semua Transaksi</span>
                             </a>
+                            @endcan
                         </div>
                     </div>
-                    @endcan
+                    @endcanany
                     @endcanany
 
                     <!-- 3. Layanan Servis -->
-                    @canany(['servis.masuk.view', 'servis.keluar.view', 'servis.batal.view', 'servis.non_real.view'])
+                    @canany(['servis.masuk.view', 'servis.keluar.view', 'servis.batal.view'])
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Layanan Servis</p>
 
                     @can('servis.masuk.view')
@@ -618,14 +625,6 @@
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('servis.batal*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('servis.batal*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Servis Batal
-                    </a>
-                    @endcan
-
-                    @can('servis.non_real.view')
-                    <a href="{{ route('servis.non-real') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('servis.non-real*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('servis.non-real*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Servis Non Real
                     </a>
                     @endcan
 
@@ -695,7 +694,7 @@
                     @endcanany
 
                     <!-- 5. Master Data -->
-                    @canany(['master.produk.view', 'cabang.stok.view', 'master.orang_pajak.view', 'master.customer.view', 'master.users.view', 'master.servis.view', 'master.pegawai.view', 'master.settings.view', 'master.distributor.view', 'master.wifi_absensi.view'])
+                    @canany(['master.produk.view', 'cabang.stok.view', 'klaim_garansi.view', 'master.orang_pajak.view', 'master.customer.view', 'master.users.view', 'master.servis.view', 'master.pegawai.view', 'master.settings.view', 'master.distributor.view', 'master.wifi_absensi.view'])
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Master Data</p>
 
                     @can('master.produk.view')
@@ -716,6 +715,14 @@
                         @if($emptyStockSidebarCount > 0)
                             <span class="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold border border-rose-500/30">{{ $emptyStockSidebarCount }}</span>
                         @endif
+                    </a>
+                    @endcan
+
+                    @can('klaim_garansi.view')
+                    <a href="{{ route('klaim-garansi.index') }}"
+                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('klaim-garansi*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('klaim-garansi*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        <span>Klaim Garansi</span>
                     </a>
                     @endcan
 
@@ -835,15 +842,6 @@
                     </a>
                     @endcan
 
-                    <!-- Garansi (Branch) -->
-                    @can('klaim_garansi.view')
-                    <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Garansi</p>
-                    <a href="{{ route('klaim-garansi.index') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('klaim-garansi*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('klaim-garansi*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                        Klaim Garansi
-                    </a>
-                    @endcan
 
                     <!-- 6. Layar Toko -->
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Layar Toko</p>

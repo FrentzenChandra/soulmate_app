@@ -16,7 +16,7 @@ class PermissionServiceTest extends TestCase
 
         $this->assertIsArray($schema);
 
-        // 7 Grup Modul dalam urutan persis sidebar
+        // 6 Grup Modul dalam urutan persis sidebar
         $expectedGroups = [
             'absensi_kehadiran',
             'kasir_penjualan',
@@ -24,10 +24,16 @@ class PermissionServiceTest extends TestCase
             'kas_keuangan',
             'master_data',
             'absensi_staf',
-            'garansi',
         ];
 
         $this->assertEquals($expectedGroups, array_keys($schema), 'Urutan grup modul harus persis 1-to-1 dengan susunan sidebar.');
+
+        // Verifikasi servis_non_real berada di kasir_penjualan
+        $this->assertArrayHasKey('servis_non_real', $schema['kasir_penjualan']['modules']);
+        $this->assertArrayNotHasKey('servis_non_real', $schema['layanan_servis']['modules']);
+
+        // Verifikasi klaim_garansi berada di master_data
+        $this->assertArrayHasKey('klaim_garansi', $schema['master_data']['modules']);
 
         foreach ($schema as $groupKey => $group) {
             $this->assertArrayHasKey('group_label', $group, "Grup {$groupKey} wajib memiliki group_label");
@@ -106,9 +112,10 @@ class PermissionServiceTest extends TestCase
         $expectedRoles = ['Superadmin', 'Teknisi', 'Admin', 'Bendahara', 'Operasional', 'Magang'];
         $this->assertEquals($expectedRoles, array_keys($presets));
 
-        // 1. Superadmin wajib memiliki 100% seluruh permissions
-        $this->assertCount(count($allPermissions), $presets['Superadmin']);
-        $this->assertEquals($allPermissions, $presets['Superadmin']);
+        // 1. Superadmin memiliki seluruh permissions KECUALI transaksi.harian.* (karena menggunakan Transaksi FULL)
+        $expectedSuperadminPerms = array_values(array_filter($allPermissions, fn ($p) => ! str_starts_with($p, 'transaksi.harian.')));
+        $this->assertCount(count($expectedSuperadminPerms), $presets['Superadmin']);
+        $this->assertEquals($expectedSuperadminPerms, $presets['Superadmin']);
 
         // 2. Setiap role hanya boleh memiliki permission yang terdaftar di schema
         foreach ($presets as $roleName => $perms) {
