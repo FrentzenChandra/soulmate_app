@@ -60,6 +60,11 @@ class KlaimGaransiTest extends TestCase
             'status' => 'aktif',
         ]);
         $this->admin->assignRole('Admin');
+
+        foreach (['klaim_garansi.view', 'klaim_garansi.create', 'klaim_garansi.edit', 'klaim_garansi.delete', 'klaim_garansi.detail'] as $perm) {
+            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
+        }
+        $this->admin->givePermissionTo(['klaim_garansi.view', 'klaim_garansi.create', 'klaim_garansi.edit', 'klaim_garansi.delete', 'klaim_garansi.detail']);
     }
 
     public function test_guests_cannot_access_klaim_garansi_or_distributor(): void
@@ -158,11 +163,9 @@ class KlaimGaransiTest extends TestCase
             ->set('formKeluhan', 'Port PCIe pertama tidak mendeteksi GPU secara intermiten')
             ->set('formMasterDistributorId', $distributor->id)
             ->set('formTanggalKirim', '2026-10-22')
-            ->set('formPengirimPegawaiId', $pengirim->id)
             ->set('formTindakan', 'Kirim unit ke distributor pusat Jakarta')
             ->set('formTanggalSelesaiKlaim', '2026-10-25')
             ->set('formTanggalBarangKembali', '2026-10-26')
-            ->set('formPenerimaPegawaiId', $pegawai->id)
             ->call('save')
             ->assertHasNoErrors();
 
@@ -172,8 +175,8 @@ class KlaimGaransiTest extends TestCase
             'customer_kontak' => '081299998888',
             'barang' => 'Motherboard ROG Strix B550',
             'distributor_nama' => 'ASUS Indonesia Service Center',
-            'pengirim_nama' => 'Kurir Cepat Budi',
-            'penerima_nama' => 'Teknisi Handal Frentzen',
+            'pengirim_nama' => 'Owner Utama',
+            'penerima_nama' => null,
         ]);
 
         $klaim = KlaimGaransi::where('customer_nama', 'Pelanggan Setia Antigravity')->first();
@@ -233,6 +236,8 @@ class KlaimGaransiTest extends TestCase
         $klaim = KlaimGaransi::where('customer_nama', 'Budi Santoso')->first();
         $this->assertNotNull($klaim);
         $this->assertEquals(Carbon::today()->toDateString(), $klaim->tanggal_masuk->toDateString());
+        $this->assertEquals($this->owner->name, $klaim->pengirim_nama);
+        $this->assertNull($klaim->penerima_nama);
     }
 
     public function test_can_edit_klaim_garansi(): void
@@ -247,6 +252,7 @@ class KlaimGaransiTest extends TestCase
             'customer_nama' => 'Andi Wijaya',
             'barang' => 'Monitor LG 24 Inch',
             'keluhan' => 'Layar bergaris vertikal',
+            'pengirim_nama' => 'Pengirim Awal',
         ]);
 
         Livewire::test(KlaimGaransiIndex::class)
@@ -259,7 +265,6 @@ class KlaimGaransiTest extends TestCase
             ->call('selectProduct', 'Monitor LG 27 Inch Upgrade')
             ->assertSet('formBarang', 'Monitor LG 27 Inch Upgrade')
             ->set('formTindakan', 'Panel LCD diganti baru oleh SC')
-            ->set('formPengirimPegawaiId', null)
             ->set('formTanggalSelesaiKlaim', '2026-10-21')
             ->call('save')
             ->assertHasNoErrors();
@@ -268,6 +273,7 @@ class KlaimGaransiTest extends TestCase
             'id' => $klaim->id,
             'barang' => 'Monitor LG 27 Inch Upgrade',
             'tindakan' => 'Panel LCD diganti baru oleh SC',
+            'pengirim_nama' => 'Pengirim Awal',
         ]);
 
         $this->assertEquals('2026-10-21', $klaim->fresh()->tanggal_selesai_klaim->format('Y-m-d'));
@@ -290,7 +296,7 @@ class KlaimGaransiTest extends TestCase
 
         $this->assertNull($klaim->tanggal_selesai_klaim);
 
-        // 1. Tandai selesai -> hari ini
+        // 1. Tandai selesai -> hari ini & penerima = user login
         Livewire::test(KlaimGaransiIndex::class)
             ->call('tandaiSelesaiKlaim', $klaim->id)
             ->assertDispatched('swal:toast')
@@ -300,14 +306,74 @@ class KlaimGaransiTest extends TestCase
             Carbon::today()->toDateString(),
             $klaim->fresh()->tanggal_selesai_klaim->toDateString()
         );
+        $this->assertEquals($this->owner->name, $klaim->fresh()->penerima_nama);
+        $this->assertEquals(
+            Carbon::today()->toDateString(),
+            $klaim->fresh()->tanggal_barang_kembali->toDateString()
+        );
 
-        // 2. Toggle kembali -> null (Belum selesai)
+        // 2. Toggle kembali -> null (Belum selesai & penerima null)
         Livewire::test(KlaimGaransiIndex::class)
             ->call('tandaiSelesaiKlaim', $klaim->id)
             ->assertDispatched('swal:toast')
             ->assertDispatched('klaim-garansi-table-updated');
 
         $this->assertNull($klaim->fresh()->tanggal_selesai_klaim);
+        $this->assertNull($klaim->fresh()->penerima_nama);
+        $this->assertNull($klaim->fresh()->penerima_pegawai_id);
+    }
+
+    public function test_auto_assigns_pegawai_id_when_matching_pegawai_record_exists(): void
+    {
+        $pegawaiOwner = Pegawai::create([
+            'cabang_id' => $this->cabang->id,
+            'nama' => $this->owner->name,
+            'role' => 'Superadmin',
+            'is_aktif' => true,
+        ]);
+
+        $pegawaiAdmin = Pegawai::create([
+            'cabang_id' => $this->cabang->id,
+            'nama' => $this->admin->name,
+            'role' => 'Admin',
+            'is_aktif' => true,
+        ]);
+
+        // 1. Admin login dan buat klaim baru
+        $this->actingAs($this->admin);
+
+        $customer = Customer::create([
+            'cabang_id' => $this->cabang->id,
+            'nama' => 'Siti Badriah',
+            'no_hp' => '081299998888',
+        ]);
+
+        Livewire::test(KlaimGaransiIndex::class)
+            ->call('openCreateModal')
+            ->call('selectCustomer', $customer->id, $customer->nama, $customer->no_hp)
+            ->set('formBarang', 'Printer Canon G2010')
+            ->set('formKeluhan', 'Head macet')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $klaim = KlaimGaransi::where('customer_nama', 'Siti Badriah')->first();
+        $this->assertNotNull($klaim);
+        $this->assertEquals($this->admin->name, $klaim->pengirim_nama);
+        $this->assertEquals($pegawaiAdmin->id, $klaim->pengirim_pegawai_id);
+        $this->assertNull($klaim->penerima_nama);
+        $this->assertNull($klaim->penerima_pegawai_id);
+
+        // 2. Owner login dan tandai selesai via tombol centang
+        $this->actingAs($this->owner);
+
+        Livewire::test(KlaimGaransiIndex::class)
+            ->call('tandaiSelesaiKlaim', $klaim->id)
+            ->assertDispatched('swal:toast');
+
+        $fresh = $klaim->fresh();
+        $this->assertEquals($this->owner->name, $fresh->penerima_nama);
+        $this->assertEquals($pegawaiOwner->id, $fresh->penerima_pegawai_id);
+        $this->assertEquals(Carbon::today()->toDateString(), $fresh->tanggal_selesai_klaim->toDateString());
     }
 
     public function test_can_soft_delete_klaim_garansi(): void

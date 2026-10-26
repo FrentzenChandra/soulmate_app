@@ -250,6 +250,23 @@ class Index extends Component
         $this->resetErrorBag();
     }
 
+    /**
+     * Helper resolve pegawai ID dan nama dari User login
+     */
+    private function resolvePegawaiData(\App\Models\User $user, int $cabangId): array
+    {
+        $pegawaiId = Pegawai::where('nama', $user->name)
+            ->where(function ($q) use ($cabangId) {
+                $q->where('cabang_id', $cabangId)->orWhereNull('cabang_id');
+            })
+            ->value('id') ?? Pegawai::where('nama', $user->name)->value('id');
+
+        return [
+            'pegawai_id' => $pegawaiId,
+            'nama' => $user->name,
+        ];
+    }
+
     public function save(): void
     {
         $user = Auth::user();
@@ -280,8 +297,6 @@ class Index extends Component
             'formBarang' => 'required|string|max:255',
             'formKeluhan' => 'required|string',
             'formMasterDistributorId' => 'nullable|exists:master_distributors,id',
-            'formPengirimPegawaiId' => 'nullable|exists:pegawais,id',
-            'formPenerimaPegawaiId' => 'nullable|exists:pegawais,id',
             'formTanggalKirim' => 'nullable|date',
             'formTanggalSelesaiKlaim' => 'nullable|date',
             'formTanggalBarangKembali' => 'nullable|date',
@@ -315,20 +330,10 @@ class Index extends Component
             $customerKontak = $customer->no_hp ?? '';
         }
 
-        // Snapshot nama distributor, pengirim & penerima
+        // Snapshot nama distributor
         $distributorNama = null;
         if ($this->formMasterDistributorId) {
             $distributorNama = MasterDistributor::where('id', $this->formMasterDistributorId)->value('nama');
-        }
-
-        $pengirimNama = null;
-        if ($this->formPengirimPegawaiId) {
-            $pengirimNama = Pegawai::where('id', $this->formPengirimPegawaiId)->value('nama');
-        }
-
-        $penerimaNama = null;
-        if ($this->formPenerimaPegawaiId) {
-            $penerimaNama = Pegawai::where('id', $this->formPenerimaPegawaiId)->value('nama');
         }
 
         $payload = [
@@ -341,13 +346,9 @@ class Index extends Component
             'master_distributor_id' => $this->formMasterDistributorId ?: null,
             'distributor_nama' => $distributorNama,
             'tanggal_kirim' => $this->formTanggalKirim ?: null,
-            'pengirim_pegawai_id' => $this->formPengirimPegawaiId ?: null,
-            'pengirim_nama' => $pengirimNama,
             'tindakan' => trim($this->formTindakan) ?: null,
             'tanggal_selesai_klaim' => $this->formTanggalSelesaiKlaim ?: null,
             'tanggal_barang_kembali' => $this->formTanggalBarangKembali ?: null,
-            'penerima_pegawai_id' => $this->formPenerimaPegawaiId ?: null,
-            'penerima_nama' => $penerimaNama,
         ];
 
         if ($this->klaimId) {
@@ -360,9 +361,15 @@ class Index extends Component
                 'message' => "Klaim Garansi {$klaim->no_klaim} berhasil diperbarui.",
             ]);
         } else {
+            $pengirim = $this->resolvePegawaiData($user, $cabangId);
             $payload['cabang_id'] = $cabangId;
             $payload['user_id'] = $user->id;
             $payload['no_klaim'] = KlaimGaransi::generateNoKlaim($cabangId, $this->tanggalMasuk);
+            $payload['pengirim_pegawai_id'] = $pengirim['pegawai_id'];
+            $payload['pengirim_nama'] = $pengirim['nama'];
+            $payload['penerima_pegawai_id'] = null;
+            $payload['penerima_nama'] = null;
+
             $klaim = KlaimGaransi::create($payload);
             session()->flash('success', "Klaim Garansi {$klaim->no_klaim} berhasil ditambahkan.");
             $this->dispatch('swal:toast', [
@@ -386,6 +393,8 @@ class Index extends Component
         if ($klaim->tanggal_selesai_klaim) {
             $klaim->update([
                 'tanggal_selesai_klaim' => null,
+                'penerima_pegawai_id' => null,
+                'penerima_nama' => null,
             ]);
 
             $this->dispatch('swal:toast', [
@@ -395,14 +404,19 @@ class Index extends Component
             ]);
         } else {
             $today = Carbon::today()->toDateString();
+            $penerima = $this->resolvePegawaiData($user, $klaim->cabang_id);
+
             $klaim->update([
                 'tanggal_selesai_klaim' => $today,
+                'penerima_pegawai_id' => $penerima['pegawai_id'],
+                'penerima_nama' => $penerima['nama'],
+                'tanggal_barang_kembali' => $klaim->tanggal_barang_kembali ? $klaim->tanggal_barang_kembali->format('Y-m-d') : $today,
             ]);
 
             $this->dispatch('swal:toast', [
                 'type' => 'success',
                 'title' => 'Klaim Selesai',
-                'message' => "Klaim {$klaim->no_klaim} berhasil ditandai selesai hari ini (" . Carbon::today()->format('d/m/Y') . ").",
+                'message' => "Klaim {$klaim->no_klaim} berhasil ditandai selesai hari ini (" . Carbon::today()->format('d/m/Y') . ") oleh {$penerima['nama']}.",
             ]);
         }
 

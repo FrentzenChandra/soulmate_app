@@ -428,49 +428,19 @@
                         @error('formKeluhan') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
-                    <!-- Distributor, Pengirim & Penerima Barang -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">
-                                Distributor
-                            </label>
-                            <select wire:model="formMasterDistributorId"
-                                    class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
-                                <option value="">Pilih Distributor</option>
-                                @foreach($distributors as $d)
-                                    <option value="{{ $d->id }}">{{ $d->nama }}</option>
-                                @endforeach
-                            </select>
-                            @error('formMasterDistributorId') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">
-                                Pengirim Barang
-                            </label>
-                            <select wire:model="formPengirimPegawaiId"
-                                    class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
-                                <option value="">Pilih Pengirim (Pegawai)</option>
-                                @foreach($pegawais as $p)
-                                    <option value="{{ $p->id }}">{{ $p->nama }}</option>
-                                @endforeach
-                            </select>
-                            @error('formPengirimPegawaiId') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">
-                                Penerima Barang
-                            </label>
-                            <select wire:model="formPenerimaPegawaiId"
-                                    class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
-                                <option value="">Pilih Penerima (Pegawai)</option>
-                                @foreach($pegawais as $p)
-                                    <option value="{{ $p->id }}">{{ $p->nama }}</option>
-                                @endforeach
-                            </select>
-                            @error('formPenerimaPegawaiId') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
-                        </div>
+                    <!-- Distributor -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">
+                            Distributor
+                        </label>
+                        <select wire:model="formMasterDistributorId"
+                                class="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                            <option value="">Pilih Distributor</option>
+                            @foreach($distributors as $d)
+                                <option value="{{ $d->id }}">{{ $d->nama }}</option>
+                            @endforeach
+                        </select>
+                        @error('formMasterDistributorId') <span class="text-[11px] font-semibold text-rose-500 mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Tindakan -->
