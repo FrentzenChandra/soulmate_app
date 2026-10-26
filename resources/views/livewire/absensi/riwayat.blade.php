@@ -204,16 +204,16 @@
                            'text-xs': tableSize === 'md',
                            'text-[13px]': tableSize === 'lg'
                        }">
-                    <thead class="bg-gray-50/80 border-b border-gray-200 text-gray-600 uppercase font-black tracking-wider text-[10px]">
+                    <thead class="bg-gray-50/80 border-b border-gray-200 text-gray-900 uppercase font-black tracking-wider text-[10px]">
                         <tr>
-                            <th class="py-3.5 px-4 font-black">Tanggal</th>
-                            <th class="py-3.5 px-4 font-black">Hari</th>
-                            <th class="py-3.5 px-4 font-black">Nama Staf</th>
-                            <th class="py-3.5 px-4 font-black text-center">Shift</th>
-                            <th class="py-3.5 px-4 font-black">Jam Absen</th>
-                            <th class="py-3.5 px-4 font-black text-center">Status</th>
+                            <th class="py-3.5 px-4 font-black text-gray-900">Tanggal</th>
+                            <th class="py-3.5 px-4 font-black text-gray-900">Hari</th>
+                            <th class="py-3.5 px-4 font-black text-gray-900">Nama Staf</th>
+                            <th class="py-3.5 px-4 font-black text-gray-900 text-center">Shift</th>
+                            <th class="py-3.5 px-4 font-black text-gray-900">Jam Absen</th>
+                            <th class="py-3.5 px-4 font-black text-gray-900 text-center">Status</th>
                             @if ($isOwner)
-                                <th class="py-3.5 px-4 font-black">Cabang</th>
+                                <th class="py-3.5 px-4 font-black text-gray-900">Cabang</th>
                             @endif
                         </tr>
                     </thead>
@@ -226,12 +226,12 @@
                         @forelse ($absensis as $item)
                             <tr class="hover:bg-purple-50/20 transition-colors">
                                 <!-- Tanggal -->
-                                <td class="py-3 px-4 font-semibold text-gray-800 whitespace-nowrap">
+                                <td class="py-3 px-4 font-bold text-gray-900 whitespace-nowrap">
                                     {{ $item->tanggal->translatedFormat('d M Y') }}
                                 </td>
 
                                 <!-- Hari -->
-                                <td class="py-3 px-4 font-bold text-gray-600 whitespace-nowrap">
+                                <td class="py-3 px-4 font-bold text-gray-900 whitespace-nowrap">
                                     {{ $item->tanggal->translatedFormat('l') }}
                                 </td>
 
@@ -244,7 +244,7 @@
                                         <div>
                                             <span>{{ $item->user?->name ?? 'Staf Terhapus' }}</span>
                                             @if($item->user?->trashed())
-                                                <span class="text-[9px] px-1.5 py-0.2 rounded bg-gray-100 text-gray-500 font-semibold ml-1">Nonaktif</span>
+                                                <span class="text-[9px] px-1.5 py-0.2 rounded bg-gray-100 text-gray-900 font-bold ml-1">Nonaktif</span>
                                             @endif
                                         </div>
                                     </div>
@@ -265,7 +265,7 @@
 
                                 <!-- Jam Absen -->
                                 <td class="py-3 px-4 whitespace-nowrap">
-                                    <span class="font-mono font-bold text-gray-800">
+                                    <span class="font-mono font-bold text-gray-900">
                                         {{ $item->waktu_absen->format('H:i') }} WIB
                                     </span>
                                 </td>
@@ -300,7 +300,7 @@
 
                                 <!-- Cabang (Khusus Owner) -->
                                 @if ($isOwner)
-                                    <td class="py-3 px-4 text-xs font-semibold text-gray-600 whitespace-nowrap">
+                                    <td class="py-3 px-4 text-xs font-bold text-gray-900 whitespace-nowrap">
                                         {{ $item->cabang?->nama_cabang ?? '-' }}
                                     </td>
                                 @endif
@@ -463,15 +463,15 @@
                                        'text-xs': tableSize === 'md',
                                        'text-[13px]': tableSize === 'lg'
                                    }">
-                                <thead class="bg-white border-b border-gray-100 text-gray-400 uppercase font-black tracking-wider text-[10px]">
+                                <thead class="bg-white border-b border-gray-100 text-gray-900 uppercase font-black tracking-wider text-[10px]">
                                     <tr>
-                                        <th class="py-3 px-5">Nama Pegawai</th>
-                                        <th class="py-3 px-4 text-center">Total Hadir</th>
-                                        <th class="py-3 px-4 text-center">Tepat Waktu</th>
-                                        <th class="py-3 px-4 text-center">Keterlambatan</th>
-                                        <th class="py-3 px-4 text-center">Akumulasi Terlambat</th>
+                                        <th class="py-3 px-5 font-black text-gray-900">Nama Pegawai</th>
+                                        <th class="py-3 px-4 font-black text-gray-900 text-center">Total Hadir</th>
+                                        <th class="py-3 px-4 font-black text-gray-900 text-center">Tepat Waktu</th>
+                                        <th class="py-3 px-4 font-black text-gray-900 text-center">Keterlambatan</th>
+                                        <th class="py-3 px-4 font-black text-gray-900 text-center">Akumulasi Terlambat</th>
                                         @if($isOwner)
-                                            <th class="py-3 px-5 text-right">Cabang</th>
+                                            <th class="py-3 px-5 font-black text-gray-900 text-right">Cabang</th>
                                         @endif
                                     </tr>
                                 </thead>
@@ -487,15 +487,15 @@
                                                     <div>
                                                         <span class="block leading-tight">{{ $staf->name }}</span>
                                                         @if($staf->trashed())
-                                                            <span class="text-[9px] px-1.5 py-0.2 rounded bg-gray-100 text-gray-500 font-semibold">Nonaktif</span>
+                                                            <span class="text-[9px] px-1.5 py-0.2 rounded bg-gray-100 text-gray-900 font-bold">Nonaktif</span>
                                                         @endif
                                                     </div>
                                                 </div>
                                             </td>
 
                                             <!-- Total Hadir -->
-                                            <td class="py-3.5 px-4 text-center font-mono font-bold text-gray-800">
-                                                <span class="px-2.5 py-1 rounded-lg bg-gray-100 text-gray-700">
+                                            <td class="py-3.5 px-4 text-center font-mono font-bold text-gray-900">
+                                                <span class="px-2.5 py-1 rounded-lg bg-gray-100 text-gray-900 font-bold">
                                                     {{ $staf->total_hadir }} Hari
                                                 </span>
                                             </td>
@@ -521,7 +521,7 @@
                                                         </svg>
                                                     </button>
                                                 @else
-                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-500">
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-900">
                                                         0 Kali
                                                     </span>
                                                 @endif
@@ -534,7 +534,7 @@
                                                         {{ $staf->total_menit_terlambat }} Menit
                                                     </span>
                                                 @else
-                                                    <span class="text-gray-400 font-normal">
+                                                    <span class="text-gray-900 font-bold">
                                                         0 Menit
                                                     </span>
                                                 @endif
@@ -542,7 +542,7 @@
 
                                             <!-- Cabang (Owner Only) -->
                                             @if($isOwner)
-                                                <td class="py-3.5 px-5 text-right font-medium text-gray-600">
+                                                <td class="py-3.5 px-5 text-right font-bold text-gray-900">
                                                     {{ $staf->cabang?->nama_cabang ?? '-' }}
                                                 </td>
                                             @endif
@@ -598,13 +598,13 @@
                     <div class="p-6">
                         <div class="overflow-x-auto rounded-2xl border border-gray-200/80">
                             <table class="w-full text-left text-xs border-collapse">
-                                <thead class="bg-gray-50/80 border-b border-gray-200 text-gray-500 uppercase font-black text-[10px] tracking-wider">
+                                <thead class="bg-gray-50/80 border-b border-gray-200 text-gray-900 uppercase font-black text-[10px] tracking-wider">
                                     <tr>
-                                        <th class="py-3 px-4">Tanggal</th>
-                                        <th class="py-3 px-3 text-center">Shift</th>
-                                        <th class="py-3 px-3 text-center">Target Masuk</th>
-                                        <th class="py-3 px-3 text-center">Waktu Absen</th>
-                                        <th class="py-3 px-4 text-right">Terlambat</th>
+                                        <th class="py-3 px-4 font-black text-gray-900">Tanggal</th>
+                                        <th class="py-3 px-3 font-black text-gray-900 text-center">Shift</th>
+                                        <th class="py-3 px-3 font-black text-gray-900 text-center">Target Masuk</th>
+                                        <th class="py-3 px-3 font-black text-gray-900 text-center">Waktu Absen</th>
+                                        <th class="py-3 px-4 font-black text-gray-900 text-right">Terlambat</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100 bg-white">
@@ -612,7 +612,7 @@
                                         <tr class="hover:bg-rose-50/30 transition-colors">
                                             <td class="py-3 px-4 font-bold text-gray-900 whitespace-nowrap">
                                                 <div>{{ $late->tanggal->translatedFormat('d M Y') }}</div>
-                                                <div class="text-[10px] text-gray-400 font-normal">{{ $late->tanggal->translatedFormat('l') }}</div>
+                                                <div class="text-[10px] text-gray-900 font-bold">{{ $late->tanggal->translatedFormat('l') }}</div>
                                             </td>
                                             <td class="py-3 px-3 text-center whitespace-nowrap">
                                                 @if(($late->shift->value ?? $late->shift) === 'sore')
@@ -625,10 +625,10 @@
                                                     </span>
                                                 @endif
                                             </td>
-                                            <td class="py-3 px-3 text-center font-mono font-semibold text-gray-600 whitespace-nowrap">
+                                            <td class="py-3 px-3 text-center font-mono font-bold text-gray-900 whitespace-nowrap">
                                                 {{ $late->snapshot_jam_masuk ? substr((string) $late->snapshot_jam_masuk, 0, 5) : '-' }}
                                             </td>
-                                            <td class="py-3 px-3 text-center font-mono font-bold text-gray-800 whitespace-nowrap">
+                                            <td class="py-3 px-3 text-center font-mono font-bold text-gray-900 whitespace-nowrap">
                                                 {{ $late->waktu_absen->format('H:i') }}
                                             </td>
                                             <td class="py-3 px-4 text-right font-mono font-extrabold whitespace-nowrap">
