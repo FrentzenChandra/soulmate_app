@@ -118,27 +118,6 @@
                 </div>
             </div>
 
-            <!-- Role Badge / User Info Pill -->
-            <div class="px-4 py-2.5 mx-3 my-2.5 rounded-xl bg-gray-900/90 border border-gray-800 flex items-center justify-between">
-                <div class="flex items-center space-x-2.5 truncate">
-                    <div class="w-2.5 h-2.5 rounded-full {{ auth()->user()->isOwner() ? 'bg-purple-400 shadow-sm shadow-purple-400' : 'bg-emerald-400 shadow-sm shadow-emerald-400' }} animate-pulse"></div>
-                    <div class="truncate">
-                        <p class="text-xs font-bold text-gray-200 truncate">{{ auth()->user()->name }}</p>
-                        <p class="text-[11px] font-medium">
-                            @if(auth()->user()->isOwner())
-                                @if(session('active_branch_id', 'hq') === 'hq')
-                                    <span class="text-purple-300 font-semibold">Owner · Konteks HQ</span>
-                                @else
-                                    <span class="text-blue-300 font-semibold">Owner · Mode Cabang</span>
-                                @endif
-                            @else
-                                <span class="text-gray-400">{{ auth()->user()->role_name }} · Soulmate Komputer</span>
-                            @endif
-                        </p>
-                    </div>
-                </div>
-            </div>
-
             <!-- Navigation Links with Fading Bottom -->
             <div class="relative flex-1 min-h-0 flex flex-col">
                 <nav x-data x-init="$nextTick(() => {
@@ -152,7 +131,7 @@
                         $watch('sidebarOpen', val => { if (val) setTimeout(scrollToActive, 150); });
                         $watch('sidebarCollapsed', val => { if (!val) setTimeout(scrollToActive, 150); });
                     })"
-                    class="flex-1 px-3 py-1 space-y-1 overflow-y-auto no-scrollbar pb-8">
+                    class="flex-1 px-3 pt-3 pb-8 space-y-1 overflow-y-auto no-scrollbar">
 
                 @php
                     $isOwner = auth()->user()->isOwner();
@@ -516,16 +495,6 @@
 
 
                 @else
-                    <!-- ============================================== -->
-                    <!-- SIDEBAR: KONTEKS OPERASIONAL (STAFF & CABANG)  -->
-                    <!-- ============================================== -->
-                    <p class="px-3 pt-3 pb-1 text-[10px] font-extrabold tracking-wider text-blue-400 uppercase flex items-center justify-between">
-                        <span>{{ $isOwner ? 'Operasional Cabang' : 'Menu Utama' }}</span>
-                        @if($isOwner)
-                            <span class="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded font-bold">Mode Cabang</span>
-                        @endif
-                    </p>
-
                     <!-- 1. Dashboard -->
                     <a href="{{ route('dashboard') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('dashboard') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
