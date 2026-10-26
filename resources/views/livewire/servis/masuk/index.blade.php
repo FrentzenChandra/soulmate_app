@@ -303,7 +303,7 @@
                             <!-- Perangkat -->
                             <td class="py-2.5 px-3 max-w-xs">
                                 <div class="flex items-center space-x-1.5 truncate">
-                                    <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider shrink-0 {{ $item->kategori_perangkat === 'laptop' ? 'bg-blue-100 text-blue-700' : ($item->kategori_perangkat === 'komputer' ? 'bg-purple-100 text-purple-700' : ($item->kategori_perangkat === 'printer' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-700')) }}">
+                                    <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider shrink-0 {{ $item->kategori_badge_class }}">
                                         {{ $item->kategori_perangkat_label }}
                                     </span>
                                     <span class="font-bold text-gray-900 truncate" title="{{ $item->tipe_unit }}">

@@ -172,6 +172,16 @@ class ServisMasuk extends Model
         };
     }
 
+    public function getKategoriBadgeClassAttribute(): string
+    {
+        return match (strtolower($this->kategori_perangkat ?? '')) {
+            'laptop' => 'bg-purple-100 text-[#5E17EB] border border-purple-200',
+            'printer' => 'bg-pink-100 text-[#E6007A] border border-pink-200',
+            'komputer', 'pc' => 'bg-amber-100 text-amber-800 border border-amber-200',
+            default => 'bg-gray-100 text-gray-700 border border-gray-200',
+        };
+    }
+
     public function getTotalJasaAttribute(): float
     {
         return (float) $this->details->filter(function ($d) {

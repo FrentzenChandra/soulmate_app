@@ -565,4 +565,19 @@ class ServisMasukTest extends TestCase
         $this->assertStringContainsString('bg-emerald-100', $servis->status_badge_class);
         $this->assertStringContainsString('text-emerald-800', $servis->status_badge_class);
     }
+
+    public function test_kategori_badge_classes_laptop_ungu_printer_pink_komputer_kuning(): void
+    {
+        $laptop = new ServisMasuk(['kategori_perangkat' => 'laptop']);
+        $this->assertStringContainsString('bg-purple-100', $laptop->kategori_badge_class);
+        $this->assertStringContainsString('text-[#5E17EB]', $laptop->kategori_badge_class);
+
+        $printer = new ServisMasuk(['kategori_perangkat' => 'printer']);
+        $this->assertStringContainsString('bg-pink-100', $printer->kategori_badge_class);
+        $this->assertStringContainsString('text-[#E6007A]', $printer->kategori_badge_class);
+
+        $komputer = new ServisMasuk(['kategori_perangkat' => 'komputer']);
+        $this->assertStringContainsString('bg-amber-100', $komputer->kategori_badge_class);
+        $this->assertStringContainsString('text-amber-800', $komputer->kategori_badge_class);
+    }
 }
