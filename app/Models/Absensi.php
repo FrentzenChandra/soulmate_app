@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ShiftType;
+use App\Enums\StatusKehadiran;
 use Database\Factories\AbsensiFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,6 +31,11 @@ class Absensi extends Model
         'user_id',
         'tanggal',
         'waktu_absen',
+        'shift',
+        'status_kehadiran',
+        'menit_keterlambatan',
+        'snapshot_jam_masuk',
+        'snapshot_toleransi_menit',
         'ip_address',
         'device_id',
         'user_agent',
@@ -44,6 +51,10 @@ class Absensi extends Model
         return [
             'tanggal' => 'date',
             'waktu_absen' => 'datetime',
+            'shift' => ShiftType::class,
+            'status_kehadiran' => StatusKehadiran::class,
+            'menit_keterlambatan' => 'integer',
+            'snapshot_toleransi_menit' => 'integer',
         ];
     }
 

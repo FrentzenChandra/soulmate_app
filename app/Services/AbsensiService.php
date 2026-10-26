@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Enums\ShiftType;
+use App\Enums\StatusKehadiran;
 use App\Models\Absensi;
+use App\Models\JamKerja;
 use App\Models\User;
 use App\Models\WifiAbsen;
 use Carbon\Carbon;
@@ -131,6 +134,68 @@ class AbsensiService
     }
 
     /**
+     * Evaluasi klasifikasi shift dan status keterlambatan absensi (Strict Window v1.0 + Toleransi 2 Menit Opsi A).
+     */
+    public function evaluasiKehadiran(Carbon $waktu, ?int $cabangId = null): array
+    {
+        $jamStr = $waktu->format('H:i:s');
+
+        // 1. Tentukan Shift berdasarkan Cutoff
+        $rulePagi = JamKerja::getRuleFor(ShiftType::Pagi, $cabangId);
+        $cutoff = $rulePagi?->jam_cutoff ?? '13:00:00';
+
+        if ($jamStr < $cutoff) {
+            $shift = ShiftType::Pagi;
+            $rule = $rulePagi;
+            $defaultMulai = '07:00:00';
+            $defaultMasuk = '08:00:00';
+        } else {
+            $shift = ShiftType::Sore;
+            $rule = JamKerja::getRuleFor(ShiftType::Sore, $cabangId);
+            $defaultMulai = '13:00:00';
+            $defaultMasuk = '14:00:00';
+        }
+
+        $jamMulai = $rule?->jam_mulai ?? $defaultMulai;
+        $jamMasuk = $rule?->jam_masuk ?? $defaultMasuk;
+        $toleransiMenit = (int) ($rule?->toleransi_menit ?? 2);
+
+        // Batas waktu toleransi (contoh: 08:00:00 + 2 menit = 08:02:59)
+        $targetCarbon = Carbon::createFromFormat('Y-m-d H:i:s', $waktu->toDateString() . ' ' . $jamMasuk, 'Asia/Jakarta');
+        $toleransiCarbon = $targetCarbon->copy()->addMinutes($toleransiMenit)->endOfMinute(); // :59 detik
+
+        $mulaiCarbon = Carbon::createFromFormat('Y-m-d H:i:s', $waktu->toDateString() . ' ' . $jamMulai, 'Asia/Jakarta');
+
+        if ($waktu->lt($mulaiCarbon)) {
+            // Strict Window: Masuk sebelum jam_mulai dianggap Terlambat (di luar window resmi)
+            $status = StatusKehadiran::Terlambat;
+            $menitTelat = (int) $waktu->diffInMinutes($mulaiCarbon, false);
+            if ($menitTelat < 0) {
+                $menitTelat = abs($menitTelat);
+            }
+        } elseif ($waktu->lte($toleransiCarbon)) {
+            // Masuk dalam window tepat waktu (jam_mulai s/d jam_masuk + toleransi)
+            $status = StatusKehadiran::TepatWaktu;
+            $menitTelat = 0;
+        } else {
+            // Melewati toleransi (misal >= 08:03:00 atau >= 14:03:00)
+            $status = StatusKehadiran::Terlambat;
+            $menitTelat = (int) $targetCarbon->diffInMinutes($waktu, false);
+            if ($menitTelat < 0) {
+                $menitTelat = 0;
+            }
+        }
+
+        return [
+            'shift' => $shift,
+            'status_kehadiran' => $status,
+            'menit_keterlambatan' => $menitTelat,
+            'snapshot_jam_masuk' => $jamMasuk,
+            'snapshot_toleransi_menit' => $toleransiMenit,
+        ];
+    }
+
+    /**
      * Lakukan pencatatan absensi masuk untuk user.
      * Waktu diset ke Asia/Jakarta. Validasi IP dilakukan langsung di dalam service.
      * Memvalidasi device_id agar 1 perangkat tidak dapat dipakai untuk absensi user lain di hari yang sama.
@@ -172,13 +237,21 @@ class AbsensiService
             }
         }
 
-        // 4. Catat absensi baru
+        // 4. Evaluasi status keterlambatan & shift
+        $evaluasi = $this->evaluasiKehadiran($now, $user->cabang_id);
+
+        // 5. Catat absensi baru
         try {
             return Absensi::create([
                 'cabang_id' => $user->cabang_id,
                 'user_id' => $user->id,
                 'tanggal' => $now->toDateString(),
                 'waktu_absen' => $now,
+                'shift' => $evaluasi['shift']->value,
+                'status_kehadiran' => $evaluasi['status_kehadiran']->value,
+                'menit_keterlambatan' => $evaluasi['menit_keterlambatan'],
+                'snapshot_jam_masuk' => $evaluasi['snapshot_jam_masuk'],
+                'snapshot_toleransi_menit' => $evaluasi['snapshot_toleransi_menit'],
                 'ip_address' => $clientIp,
                 'device_id' => ! empty($deviceId) ? trim(substr($deviceId, 0, 64)) : null,
                 'user_agent' => $agent ? substr($agent, 0, 255) : null,

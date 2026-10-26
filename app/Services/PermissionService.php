@@ -339,6 +339,7 @@ class PermissionService
                         'main_permission' => 'absensi.riwayat',
                         'description' => 'Monitoring dan rekapitulasi riwayat absensi staf',
                         'actions' => [
+                            'absensi.rekap.view' => 'Akses Tab Rekap Keterlambatan Pegawai',
                             'absensi.riwayat.export' => 'Ekspor Rekap Absensi',
                         ],
                     ],

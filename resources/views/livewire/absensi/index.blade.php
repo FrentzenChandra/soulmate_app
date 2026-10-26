@@ -118,7 +118,30 @@
                     <p class="text-xs font-bold text-gray-600">
                         Jam {{ $todayAbsensi['jam_absen'] ?? '' }} WIB &bull; {{ $todayAbsensi['tanggal'] ?? '' }}
                     </p>
-                    <p class="text-[11px] text-gray-400 font-medium max-w-xs sm:max-w-sm mx-auto">
+                    <div class="pt-2 flex items-center justify-center gap-2">
+                        @if(($todayAbsensi['shift'] ?? '') === 'sore')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-50 text-[#5E17EB] border border-purple-200">
+                                Shift Sore
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-[#0052FF] border border-blue-200">
+                                Shift Pagi
+                            </span>
+                        @endif
+
+                        @if(($todayAbsensi['status_kehadiran'] ?? '') === 'terlambat')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5"></span>
+                                Terlambat (+{{ $todayAbsensi['menit_keterlambatan'] ?? 0 }}m)
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                Tepat Waktu
+                            </span>
+                        @endif
+                    </div>
+                    <p class="text-[11px] text-gray-400 font-medium max-w-xs sm:max-w-sm mx-auto pt-1">
                         Kehadiran Anda hari ini telah tercatat secara sah di sistem.
                     </p>
                 </div>

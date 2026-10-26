@@ -73,6 +73,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/via-pajak', \App\Livewire\Master\ViaPajak\Index::class)->name('via-pajak');
             Route::get('/kode-pajak', \App\Livewire\Master\KodePajak\Index::class)->name('kode-pajak');
             Route::get('/pph', \App\Livewire\Master\Pph\Index::class)->name('pph');
+            Route::get('/jam-kerja', \App\Livewire\Master\JamKerja\Index::class)->name('jam-kerja');
         });
 
         // Owner & Superadmin / Permission: master.users.view & master.settings.view

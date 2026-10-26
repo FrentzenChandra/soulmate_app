@@ -270,5 +270,114 @@ class RiwayatAbsensiTest extends TestCase
             ->assertOk()
             ->assertDontSee(route('absensi.riwayat'));
     }
+
+    // =========================================================================
+    // TAHAP 4: REKAP BULANAN & HAK AKSES PER ROLE
+    // =========================================================================
+
+    public function test_rekap_tab_displays_role_ordering_and_excludes_superadmin_owner(): void
+    {
+        $superadmin = $this->actingAsRole('Superadmin', ['name' => 'Budi Superadmin'], $this->cabang1);
+
+        $stafOp = $this->actingAsRole('Operasional', ['name' => 'Staf Operasional Satu'], $this->cabang1);
+        $stafBen = $this->actingAsRole('Bendahara', ['name' => 'Staf Bendahara Satu'], $this->cabang1);
+        $stafTek = $this->actingAsRole('Teknisi', ['name' => 'Staf Teknisi Satu'], $this->cabang1);
+        $stafAdm = $this->actingAsRole('Admin', ['name' => 'Staf Admin Satu'], $this->cabang1);
+        $stafMag = $this->actingAsRole('Magang', ['name' => 'Staf Magang Satu'], $this->cabang1);
+
+        $today = Carbon::now('Asia/Jakarta');
+
+        // Catat absensi terlambat untuk Teknisi
+        Absensi::create([
+            'cabang_id' => $this->cabang1->id,
+            'user_id' => $stafTek->id,
+            'tanggal' => $today->toDateString(),
+            'waktu_absen' => $today->copy()->setTime(8, 15, 0),
+            'shift' => 'pagi',
+            'status_kehadiran' => 'terlambat',
+            'menit_keterlambatan' => 15,
+            'snapshot_jam_masuk' => '08:00:00',
+            'snapshot_toleransi_menit' => 2,
+            'ip_address' => '127.0.0.1',
+        ]);
+
+        $this->actingAs($superadmin);
+
+        Livewire::test(AbsensiRiwayat::class)
+            ->call('switchTab', 'rekap_bulanan')
+            ->assertSee('Divisi Operasional')
+            ->assertSee('Divisi Bendahara')
+            ->assertSee('Divisi Teknisi')
+            ->assertSee('Divisi Admin')
+            ->assertSee('Divisi Magang')
+            ->assertSee('Staf Operasional Satu')
+            ->assertSee('Staf Bendahara Satu')
+            ->assertSee('Staf Teknisi Satu')
+            ->assertSee('Staf Admin Satu')
+            ->assertSee('Staf Magang Satu')
+            ->assertSee('15 Menit')
+            ->assertDontSee('Budi Superadmin'); // Superadmin tidak ikut rekap absensi
+    }
+
+    public function test_staff_without_rekap_permission_only_sees_self_in_rekap(): void
+    {
+        $staf1 = $this->actingAsRole('Admin', ['name' => 'Staff Saya Sendiri'], $this->cabang1);
+        $staf2 = $this->actingAsRole('Admin', ['name' => 'Staff Orang Lain'], $this->cabang1);
+
+        $this->actingAs($staf1);
+
+        Livewire::test(AbsensiRiwayat::class)
+            ->call('switchTab', 'rekap_bulanan')
+            ->assertSee('Staff Saya Sendiri')
+            ->assertDontSee('Staff Orang Lain');
+    }
+
+    public function test_staff_with_direct_permission_can_view_branch_team_rekap(): void
+    {
+        $staf1 = $this->actingAsRole('Admin', ['name' => 'Staff Pemimpin Tim'], $this->cabang1);
+        $staf2 = $this->actingAsRole('Teknisi', ['name' => 'Anggota Tim'], $this->cabang1);
+
+        $staf1->givePermissionTo('absensi.rekap.view');
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $this->actingAs($staf1);
+
+        Livewire::test(AbsensiRiwayat::class)
+            ->call('switchTab', 'rekap_bulanan')
+            ->assertSee('Staff Pemimpin Tim')
+            ->assertSee('Anggota Tim');
+    }
+
+    public function test_late_detail_modal_opens_and_shows_late_occurrences(): void
+    {
+        $superadmin = $this->actingAsRole('Superadmin', [], $this->cabang1);
+        $staf = $this->actingAsRole('Teknisi', ['name' => 'Randi Teknisi'], $this->cabang1);
+
+        $today = Carbon::now('Asia/Jakarta');
+
+        Absensi::create([
+            'cabang_id' => $this->cabang1->id,
+            'user_id' => $staf->id,
+            'tanggal' => $today->toDateString(),
+            'waktu_absen' => $today->copy()->setTime(8, 25, 0),
+            'shift' => 'pagi',
+            'status_kehadiran' => 'terlambat',
+            'menit_keterlambatan' => 25,
+            'snapshot_jam_masuk' => '08:00:00',
+            'snapshot_toleransi_menit' => 2,
+            'ip_address' => '127.0.0.1',
+        ]);
+
+        $this->actingAs($superadmin);
+
+        Livewire::test(AbsensiRiwayat::class)
+            ->call('switchTab', 'rekap_bulanan')
+            ->call('openDetailLate', $staf->id)
+            ->assertSet('modalDetailLateOpen', true)
+            ->assertSee('Rincian Keterlambatan: Randi Teknisi')
+            ->assertSee('+25 Menit')
+            ->call('closeDetailLate')
+            ->assertSet('modalDetailLateOpen', false);
+    }
 }
 

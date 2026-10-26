@@ -84,6 +84,11 @@ class User extends Authenticatable
         return $this->belongsTo(Cabang::class);
     }
 
+    public function absensis(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Absensi::class);
+    }
+
     public function isOwner(): bool
     {
         return $this->hasRole('Owner');

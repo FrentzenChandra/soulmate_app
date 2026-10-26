@@ -48,6 +48,9 @@ class Index extends Component
                 'jam_absen' => $absen->waktu_absen->format('H:i'),
                 'tanggal' => $absen->tanggal->translatedFormat('d F Y'),
                 'ip_address' => $absen->ip_address,
+                'shift' => $absen->shift instanceof \App\Enums\ShiftType ? $absen->shift->value : (string) $absen->shift,
+                'status_kehadiran' => $absen->status_kehadiran instanceof \App\Enums\StatusKehadiran ? $absen->status_kehadiran->value : (string) $absen->status_kehadiran,
+                'menit_keterlambatan' => (int) $absen->menit_keterlambatan,
             ];
             $this->statusState = 'sudah_absen';
             $this->isWifiValid = true;
@@ -87,6 +90,9 @@ class Index extends Component
                 'jam_absen' => $absen->waktu_absen->format('H:i'),
                 'tanggal' => $absen->tanggal->translatedFormat('d F Y'),
                 'ip_address' => $absen->ip_address,
+                'shift' => $absen->shift instanceof \App\Enums\ShiftType ? $absen->shift->value : (string) $absen->shift,
+                'status_kehadiran' => $absen->status_kehadiran instanceof \App\Enums\StatusKehadiran ? $absen->status_kehadiran->value : (string) $absen->status_kehadiran,
+                'menit_keterlambatan' => (int) $absen->menit_keterlambatan,
             ];
             $this->statusState = 'sudah_absen';
             $this->successMessage = 'Absensi berhasil dicatat pada jam ' . $absen->waktu_absen->format('H:i') . ' WIB.';

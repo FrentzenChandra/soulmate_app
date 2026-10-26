@@ -156,7 +156,7 @@ class AbsensiTest extends TestCase
         Livewire::test(AbsensiIndex::class)
             ->assertSet('statusState', 'siap')
             ->assertSee('Tekan untuk absen')
-            ->assertSee('WiFi Cabang Terhubung')
+            ->assertSee('WiFi Kantor Terhubung')
             ->call('submitAbsen')
             ->assertSet('statusState', 'sudah_absen')
             ->assertSee('Sudah selesai absen');
