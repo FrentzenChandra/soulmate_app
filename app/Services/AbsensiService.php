@@ -134,24 +134,28 @@ class AbsensiService
     }
 
     /**
-     * Evaluasi klasifikasi shift dan status keterlambatan absensi (Strict Window v1.0 + Toleransi 2 Menit Opsi A).
+     * Evaluasi klasifikasi shift dan status keterlambatan absensi 24 jam.
+     * Mendeteksi: Terlalu Awal (Kecepetan), Tepat Waktu, Terlambat, dan Terlambat Kritis.
      */
     public function evaluasiKehadiran(Carbon $waktu, ?int $cabangId = null): array
     {
         $jamStr = $waktu->format('H:i:s');
 
-        // 1. Tentukan Shift berdasarkan Cutoff
+        // 1. Tentukan Shift berdasarkan rentang waktu 24 jam (Pagi: 00:00 - 12:59:59, Sore: 13:00 - 23:59:59)
         $rulePagi = JamKerja::getRuleFor(ShiftType::Pagi, $cabangId);
-        $cutoff = $rulePagi?->jam_cutoff ?? '13:00:00';
+        $ruleSore = JamKerja::getRuleFor(ShiftType::Sore, $cabangId);
 
-        if ($jamStr < $cutoff) {
+        $rentangMulaiSore = $ruleSore?->jam_rentang_mulai ?? '13:00:00';
+        $rentangMulaiSoreStr = strlen((string) $rentangMulaiSore) === 5 ? $rentangMulaiSore . ':00' : (string) $rentangMulaiSore;
+
+        if ($jamStr < $rentangMulaiSoreStr) {
             $shift = ShiftType::Pagi;
             $rule = $rulePagi;
             $defaultMulai = '07:00:00';
             $defaultMasuk = '08:00:00';
         } else {
             $shift = ShiftType::Sore;
-            $rule = JamKerja::getRuleFor(ShiftType::Sore, $cabangId);
+            $rule = $ruleSore;
             $defaultMulai = '13:00:00';
             $defaultMasuk = '14:00:00';
         }
@@ -159,30 +163,33 @@ class AbsensiService
         $jamMulai = $rule?->jam_mulai ?? $defaultMulai;
         $jamMasuk = $rule?->jam_masuk ?? $defaultMasuk;
         $toleransiMenit = (int) ($rule?->toleransi_menit ?? 2);
+        $batasKritisMenit = (int) ($rule?->batas_kritis_menit ?? 120);
 
         // Batas waktu toleransi (contoh: 08:00:00 + 2 menit = 08:02:59)
         $targetCarbon = Carbon::createFromFormat('Y-m-d H:i:s', $waktu->toDateString() . ' ' . $jamMasuk, 'Asia/Jakarta');
         $toleransiCarbon = $targetCarbon->copy()->addMinutes($toleransiMenit)->endOfMinute(); // :59 detik
-
         $mulaiCarbon = Carbon::createFromFormat('Y-m-d H:i:s', $waktu->toDateString() . ' ' . $jamMulai, 'Asia/Jakarta');
 
         if ($waktu->lt($mulaiCarbon)) {
-            // Strict Window: Masuk sebelum jam_mulai dianggap Terlambat (di luar window resmi)
-            $status = StatusKehadiran::Terlambat;
-            $menitTelat = (int) $waktu->diffInMinutes($mulaiCarbon, false);
-            if ($menitTelat < 0) {
-                $menitTelat = abs($menitTelat);
-            }
+            // Hadir lebih awal dari jam buka wajar (Kecepetan / Early Bird) - Diakui Tepat Waktu (0 menit telat)
+            $status = StatusKehadiran::TerlaluAwal;
+            $menitTelat = 0;
         } elseif ($waktu->lte($toleransiCarbon)) {
-            // Masuk dalam window tepat waktu (jam_mulai s/d jam_masuk + toleransi)
+            // Hadir dalam window tepat waktu resmi
             $status = StatusKehadiran::TepatWaktu;
             $menitTelat = 0;
         } else {
-            // Melewati toleransi (misal >= 08:03:00 atau >= 14:03:00)
-            $status = StatusKehadiran::Terlambat;
+            // Melewati batas toleransi keterlambatan
             $menitTelat = (int) $targetCarbon->diffInMinutes($waktu, false);
             if ($menitTelat < 0) {
                 $menitTelat = 0;
+            }
+
+            // Klasifikasi apakah terlambat wajar atau terlambat kritis
+            if ($menitTelat > $batasKritisMenit) {
+                $status = StatusKehadiran::TerlambatKritis;
+            } else {
+                $status = StatusKehadiran::Terlambat;
             }
         }
 

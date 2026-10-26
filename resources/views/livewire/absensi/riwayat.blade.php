@@ -272,10 +272,23 @@
 
                                 <!-- Status Kehadiran -->
                                 <td class="py-3 px-4 text-center whitespace-nowrap">
-                                    @if(($item->status_kehadiran->value ?? $item->status_kehadiran) === 'terlambat')
+                                    @php
+                                        $statusVal = $item->status_kehadiran instanceof \App\Enums\StatusKehadiran ? $item->status_kehadiran->value : (string) $item->status_kehadiran;
+                                    @endphp
+                                    @if($statusVal === 'terlambat_kritis')
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-300">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
+                                            Kritis (+{{ $item->menit_keterlambatan }}m)
+                                        </span>
+                                    @elseif($statusVal === 'terlambat')
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
                                             <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5"></span>
                                             Terlambat (+{{ $item->menit_keterlambatan }}m)
+                                        </span>
+                                    @elseif($statusVal === 'terlalu_awal')
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-blue-50 text-[#0052FF] border border-blue-200">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#0052FF] mr-1.5"></span>
+                                            Lebih Awal
                                         </span>
                                     @else
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -618,8 +631,16 @@
                                             <td class="py-3 px-3 text-center font-mono font-bold text-gray-800 whitespace-nowrap">
                                                 {{ $late->waktu_absen->format('H:i') }}
                                             </td>
-                                            <td class="py-3 px-4 text-right font-mono font-extrabold text-rose-600 whitespace-nowrap">
-                                                +{{ $late->menit_keterlambatan }} Menit
+                                            <td class="py-3 px-4 text-right font-mono font-extrabold whitespace-nowrap">
+                                                @if(($late->status_kehadiran->value ?? $late->status_kehadiran) === 'terlambat_kritis')
+                                                    <span class="text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 text-[11px]">
+                                                        +{{ $late->menit_keterlambatan }}m (Kritis)
+                                                    </span>
+                                                @else
+                                                    <span class="text-rose-600">
+                                                        +{{ $late->menit_keterlambatan }} Menit
+                                                    </span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @empty

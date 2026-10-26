@@ -106,10 +106,12 @@ class MasterJamKerjaTest extends TestCase
             ->call('openCreateModal')
             ->set('cabang_id', $this->cabang1->id)
             ->set('nama_shift', 'pagi')
+            ->set('jam_rentang_mulai', '00:00')
             ->set('jam_mulai', '07:30')
             ->set('jam_masuk', '08:30')
             ->set('toleransi_menit', 5)
-            ->set('jam_cutoff', '13:00')
+            ->set('batas_kritis_menit', 120)
+            ->set('jam_cutoff', '12:59')
             ->call('save')
             ->assertHasNoErrors()
             ->assertSet('modalOpen', false);
@@ -132,10 +134,12 @@ class MasterJamKerjaTest extends TestCase
             ->call('openCreateModal')
             ->set('cabang_id', null)
             ->set('nama_shift', 'pagi')
+            ->set('jam_rentang_mulai', '00:00')
             ->set('jam_mulai', '07:00')
             ->set('jam_masuk', '08:00')
             ->set('toleransi_menit', 2)
-            ->set('jam_cutoff', '13:00')
+            ->set('batas_kritis_menit', 120)
+            ->set('jam_cutoff', '12:59')
             ->call('save')
             ->assertHasErrors(['nama_shift']);
     }

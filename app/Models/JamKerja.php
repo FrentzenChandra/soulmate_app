@@ -16,9 +16,11 @@ class JamKerja extends Model
     protected $fillable = [
         'cabang_id',
         'nama_shift',
+        'jam_rentang_mulai',
         'jam_mulai',
         'jam_masuk',
         'toleransi_menit',
+        'batas_kritis_menit',
         'jam_cutoff',
         'is_aktif',
         'created_by',
@@ -30,6 +32,7 @@ class JamKerja extends Model
         return [
             'nama_shift' => ShiftType::class,
             'toleransi_menit' => 'integer',
+            'batas_kritis_menit' => 'integer',
             'is_aktif' => 'boolean',
         ];
     }

@@ -28,7 +28,7 @@
                 <span class="text-[#5E17EB] font-bold">Master Jam Masuk</span>
             </div>
             <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Master Jam Masuk Pegawai</h1>
-            <p class="text-xs text-gray-500 mt-0.5">Atur jam mulai absen, target jam masuk, toleransi keterlambatan, dan batas shift global atau khusus cabang.</p>
+            <p class="text-xs text-gray-500 mt-0.5">Atur rentang jam shift 24 jam, batas kedatangan awal, target jam masuk, dan toleransi keterlambatan.</p>
         </div>
 
         <button wire:click="openCreateModal"
@@ -68,15 +68,16 @@
                     <tr>
                         <th class="py-3.5 px-5">Lingkup Cabang</th>
                         <th class="py-3.5 px-4 text-center">Shift</th>
-                        <th class="py-3.5 px-4">Jam Absen</th>
-                        <th class="py-3.5 px-4 text-center">Toleransi</th>
-                        <th class="py-3.5 px-4 text-center">Batas Cutoff</th>
+                        <th class="py-3.5 px-4">Rentang Shift</th>
+                        <th class="py-3.5 px-4">Buka Wajar</th>
+                        <th class="py-3.5 px-4">Target Masuk</th>
+                        <th class="py-3.5 px-4 text-center">Batas Kritis</th>
                         <th class="py-3.5 px-4 text-center">Status</th>
                         <th class="py-3.5 px-4">Diubah Terakhir</th>
                         <th class="py-3.5 px-5 text-right">Aksi</th>
                     </tr>
                 </thead>
-                <x-table-skeleton :columns="8" :rows="3" target="cabangFilter" />
+                <x-table-skeleton :columns="9" :rows="3" target="cabangFilter" />
                 <tbody wire:loading.remove wire:target="cabangFilter" class="divide-y divide-gray-100">
                     @forelse($jamKerjas as $rule)
                         <tr class="hover:bg-gray-50/80 transition-colors">
@@ -108,27 +109,30 @@
                                 @endif
                             </td>
 
-                            <!-- Jam Absen -->
+                            <!-- Rentang Shift -->
+                            <td class="py-4 px-4 font-mono font-bold text-gray-800">
+                                <span class="text-[#5E17EB]">{{ substr((string) ($rule->jam_rentang_mulai ?? '00:00'), 0, 5) }}</span>
+                                <span class="text-gray-400 font-normal">s/d</span>
+                                <span class="text-[#5E17EB]">{{ substr((string) $rule->jam_cutoff, 0, 5) }}</span>
+                            </td>
+
+                            <!-- Buka Wajar -->
+                            <td class="py-4 px-4 font-mono font-semibold text-gray-700">
+                                {{ substr((string) $rule->jam_mulai, 0, 5) }}
+                                <span class="text-[10px] text-gray-400 block font-sans">Sebelum ini: Awal</span>
+                            </td>
+
+                            <!-- Target Masuk -->
                             <td class="py-4 px-4 font-semibold text-gray-800">
-                                <div class="flex items-center space-x-1.5">
-                                    <span class="text-gray-500 font-normal">Mulai:</span>
-                                    <span class="font-bold font-mono">{{ substr((string) $rule->jam_mulai, 0, 5) }}</span>
-                                    <span class="text-gray-400">&bull;</span>
-                                    <span class="text-gray-500 font-normal">Masuk:</span>
-                                    <span class="font-bold font-mono text-[#5E17EB]">{{ substr((string) $rule->jam_masuk, 0, 5) }}</span>
-                                </div>
+                                <span class="font-mono font-bold text-emerald-700">{{ substr((string) $rule->jam_masuk, 0, 5) }}</span>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 font-mono font-bold ml-1">+{{ $rule->toleransi_menit }}m</span>
                             </td>
 
-                            <!-- Toleransi -->
-                            <td class="py-4 px-4 text-center font-bold text-gray-700">
-                                <span class="px-2 py-0.5 rounded-md bg-gray-100 text-gray-800 font-mono text-xs">
-                                    +{{ $rule->toleransi_menit }} Menit
+                            <!-- Batas Kritis -->
+                            <td class="py-4 px-4 text-center">
+                                <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 font-mono text-xs font-bold border border-amber-200">
+                                    > {{ $rule->batas_kritis_menit ?? 120 }} Menit
                                 </span>
-                            </td>
-
-                            <!-- Cutoff -->
-                            <td class="py-4 px-4 text-center font-mono font-bold text-gray-600">
-                                {{ substr((string) $rule->jam_cutoff, 0, 5) }}
                             </td>
 
                             <!-- Status -->
@@ -179,7 +183,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="py-12 text-center text-gray-400">
+                            <td colspan="9" class="py-12 text-center text-gray-400">
                                 <div class="flex flex-col items-center justify-center space-y-2">
                                     <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     <span class="font-bold text-xs">Belum ada aturan shift jam masuk.</span>
@@ -199,7 +203,7 @@
 
             <div class="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
-
+                    
                     <!-- Header Modal -->
                     <div class="bg-[#5E17EB] px-6 sm:px-7 py-5 sm:py-6 text-white flex items-center justify-between rounded-t-3xl gap-4 shadow-xs">
                         <div class="flex items-center gap-3.5 min-w-0">
@@ -210,7 +214,7 @@
                                 <h3 class="text-base font-bold text-white tracking-tight leading-snug" id="modal-title">
                                     {{ $isEditMode ? 'Edit Aturan Jam Masuk' : 'Tambah Aturan Jam Masuk' }}
                                 </h3>
-                                <p class="text-xs text-purple-200 font-medium mt-0.5">Konfigurasi jadwal kerja dan batas waktu</p>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">Konfigurasi rentang shift, target jam, dan batas kritis</p>
                             </div>
                         </div>
                         <button wire:click="closeModal" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
@@ -242,7 +246,7 @@
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                     Shift Kerja <span class="text-rose-500">*</span>
                                 </label>
-                                <select wire:model="nama_shift"
+                                <select wire:model.live="nama_shift"
                                         class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('nama_shift') border-rose-500 @enderror">
                                     <option value="pagi">Shift Pagi</option>
                                     <option value="sore">Shift Sore</option>
@@ -250,33 +254,57 @@
                                 @error('nama_shift') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Grid Waktu Absen -->
+                            <!-- Rentang Shift (Dari - Sampai) -->
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Jam Mulai <span class="text-rose-500">*</span>
+                                        Dari Jam <span class="text-rose-500">*</span>
+                                    </label>
+                                    <input type="time"
+                                           wire:model="jam_rentang_mulai"
+                                           class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('jam_rentang_mulai') border-rose-500 @enderror">
+                                    @error('jam_rentang_mulai') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                        Sampai Jam <span class="text-rose-500">*</span>
+                                    </label>
+                                    <input type="time"
+                                           wire:model="jam_cutoff"
+                                           class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('jam_cutoff') border-rose-500 @enderror">
+                                    @error('jam_cutoff') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+
+                            <!-- Buka Toko Wajar & Target Jam Masuk -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                        Buka Wajar <span class="text-rose-500">*</span>
                                     </label>
                                     <input type="time"
                                            wire:model="jam_mulai"
                                            class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('jam_mulai') border-rose-500 @enderror">
+                                    <span class="text-[10px] text-gray-400 block mt-0.5">Sebelum jam ini: Lebih Awal</span>
                                     @error('jam_mulai') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Jam Target Masuk <span class="text-rose-500">*</span>
+                                        Target Masuk <span class="text-rose-500">*</span>
                                     </label>
                                     <input type="time"
                                            wire:model="jam_masuk"
                                            class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('jam_masuk') border-rose-500 @enderror">
+                                    <span class="text-[10px] text-gray-400 block mt-0.5">Batas jam kerja dimulai</span>
                                     @error('jam_masuk') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
                             </div>
 
-                            <!-- Toleransi & Cutoff -->
+                            <!-- Toleransi & Batas Kritis -->
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Toleransi Menit <span class="text-rose-500">*</span>
+                                        Toleransi (Menit) <span class="text-rose-500">*</span>
                                     </label>
                                     <input type="number"
                                            min="0"
@@ -287,12 +315,15 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Batas Cutoff <span class="text-rose-500">*</span>
+                                        Batas Kritis (Menit) <span class="text-rose-500">*</span>
                                     </label>
-                                    <input type="time"
-                                           wire:model="jam_cutoff"
-                                           class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('jam_cutoff') border-rose-500 @enderror">
-                                    @error('jam_cutoff') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    <input type="number"
+                                           min="10"
+                                           max="720"
+                                           wire:model="batas_kritis_menit"
+                                           class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] @error('batas_kritis_menit') border-rose-500 @enderror">
+                                    <span class="text-[10px] text-gray-400 block mt-0.5">> batas ini: Kritis (Amber)</span>
+                                    @error('batas_kritis_menit') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
                             </div>
 
@@ -333,4 +364,3 @@
     @endif
 
 </div>
-

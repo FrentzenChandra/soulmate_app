@@ -278,9 +278,9 @@ class Riwayat extends Component
             ->selectRaw("
                 user_id,
                 COUNT(*) as total_hadir,
-                SUM(CASE WHEN status_kehadiran = 'tepat_waktu' THEN 1 ELSE 0 END) as total_tepat_waktu,
-                SUM(CASE WHEN status_kehadiran = 'terlambat' THEN 1 ELSE 0 END) as total_terlambat,
-                SUM(CASE WHEN status_kehadiran = 'terlambat' THEN menit_keterlambatan ELSE 0 END) as total_menit_terlambat
+                SUM(CASE WHEN status_kehadiran IN ('tepat_waktu', 'terlalu_awal') THEN 1 ELSE 0 END) as total_tepat_waktu,
+                SUM(CASE WHEN status_kehadiran IN ('terlambat', 'terlambat_kritis') THEN 1 ELSE 0 END) as total_terlambat,
+                SUM(CASE WHEN status_kehadiran IN ('terlambat', 'terlambat_kritis') THEN menit_keterlambatan ELSE 0 END) as total_menit_terlambat
             ")
             ->groupBy('user_id')
             ->get()
@@ -336,7 +336,7 @@ class Riwayat extends Component
             $lateDetails = Absensi::where('user_id', $this->selectedUserId)
                 ->whereYear('tanggal', $this->rekapTahun)
                 ->whereMonth('tanggal', $this->rekapBulan)
-                ->where('status_kehadiran', 'terlambat')
+                ->whereIn('status_kehadiran', ['terlambat', 'terlambat_kritis'])
                 ->latest('tanggal')
                 ->get();
         }
