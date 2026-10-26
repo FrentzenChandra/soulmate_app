@@ -106,4 +106,12 @@ class FakturPajakTest extends TestCase
 
         $this->assertNull(FakturPajak::find($faktur->id));
     }
+
+    public function test_open_create_modal_has_empty_form_bruto(): void
+    {
+        Livewire::actingAs($this->owner)
+            ->test(Index::class)
+            ->call('openCreateModal')
+            ->assertSet('formBruto', '');
+    }
 }

@@ -46,7 +46,7 @@ class Index extends Component
     public string $formViaPajak = 'E-Katalog';
     public ?int $formMasterKodePajakId = null;
     public string $formKodePajak = '';
-    public string $formBruto = '0';
+    public string $formBruto = '';
     public ?int $formMasterPphId = null;
     public string $formJenisPph = 'Non-PPh';
     public float $formPphPersen = 0.00;
@@ -246,6 +246,7 @@ class Index extends Component
         ]);
 
         $this->formTanggal = now()->toDateString();
+        $this->formBruto = '';
         $this->isEditMode = false;
 
         // Default Via Pajak
