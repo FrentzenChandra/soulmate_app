@@ -789,7 +789,8 @@
                         return bTime - aTime;
                     },
                     initialSort: [
-                        { column: "tanggal_selesai_klaim", dir: "desc" }
+                        { column: "tanggal_masuk", dir: "desc" },
+                        { column: "id", dir: "desc" }
                     ],
                     dataFiltered: function(filters, rows) {
                         self.rowCount = rows.length;
@@ -877,12 +878,7 @@
                             widthGrow: 1,
                             formatter: (cell) => {
                                 const d = cell.getData();
-                                return `
-                                    <div class="leading-tight py-0.5 min-w-0">
-                                        <div class="font-bold text-black truncate" title="${d.customer_nama}">${d.customer_nama}</div>
-                                        ${d.customer_kontak ? `<div class="text-[10px] text-black font-mono font-medium truncate">${d.customer_kontak}</div>` : ''}
-                                    </div>
-                                `;
+                                return `<span class="font-bold text-black block truncate" title="${d.customer_nama}">${d.customer_nama}</span>`;
                             }
                         },
                         // 4. Barang (Menyerap ruang)
@@ -901,7 +897,7 @@
                             field: "keluhan",
                             minWidth: 110,
                             widthGrow: 2,
-                            formatter: (cell) => `<span class="text-black font-medium block text-[11px] leading-tight truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
+                            formatter: (cell) => `<span class="font-bold text-black block truncate" title="${cell.getValue()}">${cell.getValue()}</span>`
                         },
                         // 6. Distributor
                         {
@@ -928,7 +924,7 @@
                             formatter: (cell) => {
                                 const val = cell.getValue();
                                 if (!val || val === '-') return '<span class="text-black font-bold">-</span>';
-                                return `<span class="text-black font-medium block text-[11px] leading-tight truncate" title="${val}">${val}</span>`;
+                                return `<span class="font-bold text-black block truncate" title="${val}">${val}</span>`;
                             }
                         },
                         // 8. Pengirim Barang

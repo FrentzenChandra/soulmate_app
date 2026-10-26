@@ -376,6 +376,40 @@ class KlaimGaransiTest extends TestCase
         $this->assertEquals(Carbon::today()->toDateString(), $fresh->tanggal_selesai_klaim->toDateString());
     }
 
+    public function test_table_data_sorts_by_latest_tanggal_masuk_and_latest_id(): void
+    {
+        $this->actingAs($this->owner);
+
+        // Klaim 1: tanggal lama
+        $klaimLama = KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'user_id' => $this->owner->id,
+            'no_klaim' => 'KG-OLD-001',
+            'tanggal_masuk' => '2026-10-01',
+            'customer_nama' => 'Pelanggan Lama',
+            'barang' => 'RAM DDR4 8GB',
+            'keluhan' => 'Bluescreen',
+        ]);
+
+        // Klaim 2: tanggal baru
+        $klaimBaru = KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'user_id' => $this->owner->id,
+            'no_klaim' => 'KG-NEW-002',
+            'tanggal_masuk' => '2026-10-25',
+            'customer_nama' => 'Pelanggan Baru',
+            'barang' => 'SSD NVMe 1TB',
+            'keluhan' => 'Not detected',
+        ]);
+
+        $test = Livewire::test(KlaimGaransiIndex::class)
+            ->set('periodeMode', 'semua');
+
+        $data = $test->instance()->getTableData();
+        $this->assertNotEmpty($data);
+        $this->assertEquals($klaimBaru->id, $data[0]['id'], 'Klaim dengan tanggal masuk terbaru harus berada di baris pertama');
+    }
+
     public function test_can_soft_delete_klaim_garansi(): void
     {
         $this->actingAs($this->owner);
