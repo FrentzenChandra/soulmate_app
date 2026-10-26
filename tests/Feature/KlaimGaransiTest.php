@@ -376,30 +376,42 @@ class KlaimGaransiTest extends TestCase
         $this->assertEquals(Carbon::today()->toDateString(), $fresh->tanggal_selesai_klaim->toDateString());
     }
 
-    public function test_table_data_sorts_by_latest_tanggal_masuk_and_latest_id(): void
+    public function test_table_data_sorts_by_priority_tanggal_selesai_desc_then_tanggal_masuk_desc(): void
     {
         $this->actingAs($this->owner);
 
-        // Klaim 1: tanggal lama
-        $klaimLama = KlaimGaransi::create([
+        // Klaim 1: belum selesai, tanggal masuk 2026-10-01
+        $klaim1 = KlaimGaransi::create([
             'cabang_id' => $this->cabang->id,
             'user_id' => $this->owner->id,
             'no_klaim' => 'KG-OLD-001',
             'tanggal_masuk' => '2026-10-01',
-            'customer_nama' => 'Pelanggan Lama',
+            'customer_nama' => 'Pelanggan 1',
             'barang' => 'RAM DDR4 8GB',
             'keluhan' => 'Bluescreen',
         ]);
 
-        // Klaim 2: tanggal baru
-        $klaimBaru = KlaimGaransi::create([
+        // Klaim 2: belum selesai, tanggal masuk 2026-10-25
+        $klaim2 = KlaimGaransi::create([
             'cabang_id' => $this->cabang->id,
             'user_id' => $this->owner->id,
             'no_klaim' => 'KG-NEW-002',
             'tanggal_masuk' => '2026-10-25',
-            'customer_nama' => 'Pelanggan Baru',
+            'customer_nama' => 'Pelanggan 2',
             'barang' => 'SSD NVMe 1TB',
             'keluhan' => 'Not detected',
+        ]);
+
+        // Klaim 3: selesai tanggal 2026-10-26, tanggal masuk 2026-10-10
+        $klaim3 = KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'user_id' => $this->owner->id,
+            'no_klaim' => 'KG-DONE-003',
+            'tanggal_masuk' => '2026-10-10',
+            'customer_nama' => 'Pelanggan 3',
+            'barang' => 'VGA RTX 3060',
+            'keluhan' => 'Artefak',
+            'tanggal_selesai_klaim' => '2026-10-26',
         ]);
 
         $test = Livewire::test(KlaimGaransiIndex::class)
@@ -407,7 +419,13 @@ class KlaimGaransiTest extends TestCase
 
         $data = $test->instance()->getTableData();
         $this->assertNotEmpty($data);
-        $this->assertEquals($klaimBaru->id, $data[0]['id'], 'Klaim dengan tanggal masuk terbaru harus berada di baris pertama');
+
+        // Prioritas 1: tanggal_selesai_klaim DESC -> $klaim3 harus paling atas
+        $this->assertEquals($klaim3->id, $data[0]['id'], 'Klaim dengan tanggal selesai klaim harus berada di baris pertama');
+
+        // Prioritas 2: untuk yang belum selesai, tanggal_masuk DESC -> $klaim2 lebih baru dari $klaim1
+        $this->assertEquals($klaim2->id, $data[1]['id'], 'Klaim dengan tanggal masuk terbaru berada di baris berikutnya');
+        $this->assertEquals($klaim1->id, $data[2]['id'], 'Klaim dengan tanggal masuk lama berada di baris terakhir');
     }
 
     public function test_can_soft_delete_klaim_garansi(): void

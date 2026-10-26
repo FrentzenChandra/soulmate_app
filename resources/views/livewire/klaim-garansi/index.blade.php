@@ -789,8 +789,8 @@
                         return bTime - aTime;
                     },
                     initialSort: [
-                        { column: "tanggal_masuk", dir: "desc" },
-                        { column: "id", dir: "desc" }
+                        { column: "tanggal_selesai_klaim", dir: "desc" },
+                        { column: "tanggal_masuk", dir: "desc" }
                     ],
                     dataFiltered: function(filters, rows) {
                         self.rowCount = rows.length;

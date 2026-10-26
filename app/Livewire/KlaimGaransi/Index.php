@@ -570,8 +570,10 @@ class Index extends Component
             'penerima_nama',
         ]);
 
-        // Default Sort: Tanggal Masuk terbaru & ID Klaim terbaru di paling atas
-        $query->orderByDesc('tanggal_masuk')
+        // Default Sort: Prioritas 1 Tanggal Selesai Klaim DESC, Prioritas 2 Tanggal Masuk DESC, ID DESC
+        $query->orderByRaw('CASE WHEN tanggal_selesai_klaim IS NULL THEN 1 ELSE 0 END ASC')
+              ->orderByDesc('tanggal_selesai_klaim')
+              ->orderByDesc('tanggal_masuk')
               ->orderByDesc('id');
 
         return $query;
@@ -587,13 +589,13 @@ class Index extends Component
             $tglKirimFormatted = $item->tanggal_kirim ? Carbon::parse($item->tanggal_kirim)->format('d/m/Y') : '';
             $tglKembaliFormatted = $item->tanggal_barang_kembali ? Carbon::parse($item->tanggal_barang_kembali)->format('d/m/Y') : '';
 
-            $tglGroup = $item->tanggal_masuk
-                ? Carbon::parse($item->tanggal_masuk)->translatedFormat('l, d F Y')
-                : '-';
+            $tglGroup = $item->tanggal_selesai_klaim
+                ? Carbon::parse($item->tanggal_selesai_klaim)->translatedFormat('l, d F Y')
+                : ($item->tanggal_masuk ? Carbon::parse($item->tanggal_masuk)->translatedFormat('l, d F Y') : '-');
 
-            $epochSort = $item->tanggal_masuk
-                ? strtotime($item->tanggal_masuk)
-                : 0;
+            $epochSort = $item->tanggal_selesai_klaim
+                ? strtotime($item->tanggal_selesai_klaim)
+                : ($item->tanggal_masuk ? strtotime($item->tanggal_masuk) : 0);
 
             return [
                 'no' => $index + 1,
