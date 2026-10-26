@@ -123,6 +123,7 @@ class MasterUserSoftDeleteTest extends TestCase
 
         // Before delete, staff is visible on index
         Livewire::test(MasterUserIndex::class)
+            ->set('search', $staff->name)
             ->assertSee($staff->name);
 
         // Delete staff
@@ -130,6 +131,7 @@ class MasterUserSoftDeleteTest extends TestCase
 
         // After soft-delete, staff is excluded from index
         Livewire::test(MasterUserIndex::class)
+            ->set('search', $staff->name)
             ->assertDontSee($staff->name);
     }
 

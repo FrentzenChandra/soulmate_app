@@ -4,12 +4,14 @@ namespace App\Livewire\Master\User;
 
 use App\Livewire\Traits\WithSorting;
 use App\Models\Cabang;
+use App\Models\Pegawai;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -52,11 +54,44 @@ class Index extends Component
 
     public string $no_hp = '';
 
+    public ?string $tanggal_mulai_bekerja = null;
+
+    public ?string $tanggal_lahir = null;
+
+    public string $bagian = '';
+
     public string $status = 'aktif';
 
     public $foto = null;
 
     public ?string $existing_foto_url = null;
+
+    public array $defaultBagians = [
+        'Teknisi Laptop',
+        'Teknisi Printer',
+        'Teknisi Komputer',
+        'Bendahara',
+        'Admin Pajak',
+        'Admin Stok',
+        'Admin Konten',
+    ];
+
+    #[Computed]
+    public function bagianOptions(): array
+    {
+        $fromDb = Pegawai::distinct()
+            ->whereNotNull('role')
+            ->where('role', '!=', '')
+            ->pluck('role')
+            ->toArray();
+
+        return collect(array_merge($this->defaultBagians, $fromDb))
+            ->map(fn ($item) => trim($item))
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+    }
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -113,7 +148,7 @@ class Index extends Component
         abort_if(! $currentUser->isOwner() && ! $currentUser->can('master.users.create'), 403, 'Akses tambah pengguna dibatasi.');
 
         $this->resetValidation();
-        $this->reset(['userId', 'name', 'email', 'username', 'password', 'no_hp', 'foto', 'existing_foto_url']);
+        $this->reset(['userId', 'name', 'email', 'username', 'password', 'no_hp', 'foto', 'existing_foto_url', 'tanggal_mulai_bekerja', 'tanggal_lahir', 'bagian']);
 
         if (! $currentUser->isOwner()) {
             $this->cabang_id = $currentUser->cabang_id;
@@ -155,6 +190,9 @@ class Index extends Component
         $this->role_name = $roleName === 'Kasir' ? 'Admin' : $roleName;
         $this->cabang_id = $user->cabang_id;
         $this->no_hp = $user->no_hp ?? '';
+        $this->tanggal_mulai_bekerja = $user->tanggal_mulai_bekerja?->format('Y-m-d');
+        $this->tanggal_lahir = $user->tanggal_lahir?->format('Y-m-d');
+        $this->bagian = $user->bagian ?? '';
         $this->status = $user->status;
         $this->existing_foto_url = $user->foto_url;
         $this->foto = null;
@@ -267,6 +305,9 @@ class Index extends Component
                 ? 'nullable'
                 : 'required|exists:cabangs,id',
             'no_hp' => 'nullable|string|max:20',
+            'tanggal_mulai_bekerja' => 'nullable|date',
+            'tanggal_lahir' => 'nullable|date',
+            'bagian' => 'nullable|string|max:50',
             'status' => 'required|in:aktif,nonaktif',
             'foto' => 'nullable|image|max:4096',
         ];
@@ -329,6 +370,9 @@ class Index extends Component
                 'email' => $validated['email'],
                 'cabang_id' => $validated['cabang_id'],
                 'no_hp' => $validated['no_hp'],
+                'tanggal_mulai_bekerja' => $validated['tanggal_mulai_bekerja'] ?: null,
+                'tanggal_lahir' => $validated['tanggal_lahir'] ?: null,
+                'bagian' => $validated['bagian'] ?: null,
                 'status' => $validated['status'],
             ];
 
@@ -366,6 +410,9 @@ class Index extends Component
                 'password' => Hash::make($validated['password']),
                 'cabang_id' => $validated['cabang_id'],
                 'no_hp' => $validated['no_hp'],
+                'tanggal_mulai_bekerja' => $validated['tanggal_mulai_bekerja'] ?: null,
+                'tanggal_lahir' => $validated['tanggal_lahir'] ?: null,
+                'bagian' => $validated['bagian'] ?: null,
                 'status' => $validated['status'],
                 'foto_url' => $fotoPath,
             ];
@@ -515,13 +562,14 @@ class Index extends Component
                             $sq->whereRaw('LOWER(name) LIKE ?', [$pattern])
                                 ->orWhereRaw('LOWER(username) LIKE ?', [$pattern])
                                 ->orWhereRaw('LOWER(email) LIKE ?', [$pattern])
-                                ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$pattern]);
+                                ->orWhereRaw('LOWER(COALESCE(no_hp, \'\')) LIKE ?', [$pattern])
+                                ->orWhereRaw('LOWER(COALESCE(bagian, \'\')) LIKE ?', [$pattern]);
                         });
                     }
                 });
             });
 
-        $allowedSorts = ['name', 'username', 'email', 'cabang_id', 'no_hp', 'status', 'created_at', 'id'];
+        $allowedSorts = ['name', 'username', 'email', 'cabang_id', 'no_hp', 'status', 'bagian', 'tanggal_mulai_bekerja', 'tanggal_lahir', 'created_at', 'id'];
         $sortColumn = in_array($this->sortField, $allowedSorts) ? $this->sortField : 'name';
         $sortDir = strtolower($this->sortDirection) === 'desc' ? 'desc' : 'asc';
 

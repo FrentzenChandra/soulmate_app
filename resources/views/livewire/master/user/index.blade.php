@@ -111,17 +111,20 @@
                 <thead class="bg-gray-50/80 border-b border-gray-100 text-gray-400 uppercase font-extrabold text-[10px] tracking-wider">
                     <tr>
                         <x-th-sort field="name" :sortField="$sortField" :sortDirection="$sortDirection" class="px-5">Nama Pengguna</x-th-sort>
-                        <x-th-sort field="username" :sortField="$sortField" :sortDirection="$sortDirection">Username & Email</x-th-sort>
-                        <th class="py-3.5 px-4 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Tipe Role</th>
+                        <x-th-sort field="username" :sortField="$sortField" :sortDirection="$sortDirection">Kredensial</x-th-sort>
+                        <th class="py-3.5 px-4 text-center font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Role</th>
+                        <x-th-sort field="bagian" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Bagian</x-th-sort>
+                        <x-th-sort field="tanggal_mulai_bekerja" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Mulai Bekerja</x-th-sort>
+                        <x-th-sort field="tanggal_lahir" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Ulang Tahun</x-th-sort>
                         @if($isOwner)
-                            <x-th-sort field="cabang_id" :sortField="$sortField" :sortDirection="$sortDirection">Wilayah Tugas / Cabang</x-th-sort>
+                            <x-th-sort field="cabang_id" :sortField="$sortField" :sortDirection="$sortDirection">Cabang</x-th-sort>
                         @endif
-                        <x-th-sort field="no_hp" :sortField="$sortField" :sortDirection="$sortDirection">No. HP</x-th-sort>
+                        <x-th-sort field="no_hp" :sortField="$sortField" :sortDirection="$sortDirection">Kontak</x-th-sort>
                         <x-th-sort field="status" :sortField="$sortField" :sortDirection="$sortDirection" align="center">Status</x-th-sort>
                         <th class="py-3.5 px-5 text-right font-extrabold text-[10px] tracking-wider uppercase text-gray-400">Aksi</th>
                     </tr>
                 </thead>
-                <x-table-skeleton :columns="$isOwner ? 7 : 6" :rows="6" target="search, roleFilter, cabangFilter, statusFilter, sortField, sortDirection" />
+                <x-table-skeleton :columns="$isOwner ? 10 : 9" :rows="6" target="search, roleFilter, cabangFilter, statusFilter, sortField, sortDirection" />
                 <tbody wire:loading.remove wire:target="search, roleFilter, cabangFilter, statusFilter, sortField, sortDirection" class="divide-y divide-gray-100">
                     @forelse($users as $u)
                         @php
@@ -192,6 +195,55 @@
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-pink-50 text-pink-700 font-extrabold text-[11px] border border-pink-200">
                                         <span>Admin</span>
                                     </span>
+                                @endif
+                            </td>
+
+                            <!-- Bagian Badge -->
+                            <td class="py-4 px-4 text-center whitespace-nowrap">
+                                @if($u->bagian)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-bold text-[11px] border {{ $u->bagian_badge_class }}">
+                                        {{ $u->bagian }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-300">-</span>
+                                @endif
+                            </td>
+
+                            <!-- Mulai Bekerja -->
+                            <td class="py-4 px-4 text-center whitespace-nowrap">
+                                @if($u->tanggal_mulai_bekerja)
+                                    @php
+                                        $yearsWork = (int) $u->tanggal_mulai_bekerja->diffInYears(now());
+                                        $monthsWork = (int) $u->tanggal_mulai_bekerja->diffInMonths(now()) % 12;
+                                    @endphp
+                                    <div class="flex flex-col items-center">
+                                        <span class="font-bold text-gray-800">{{ $u->tanggal_mulai_bekerja->format('d/m/Y') }}</span>
+                                        <span class="text-[10px] text-gray-400 font-medium">
+                                            @if($yearsWork > 0)
+                                                {{ $yearsWork }} thn {{ $monthsWork > 0 ? $monthsWork . ' bln' : '' }}
+                                            @elseif($monthsWork > 0)
+                                                {{ $monthsWork }} bulan
+                                            @else
+                                                Baru bergabung
+                                            @endif
+                                        </span>
+                                    </div>
+                                @else
+                                    <span class="text-gray-300">-</span>
+                                @endif
+                            </td>
+
+                            <!-- Ulang Tahun -->
+                            <td class="py-4 px-4 text-center whitespace-nowrap">
+                                @if($u->tanggal_lahir)
+                                    <div class="flex flex-col items-center">
+                                        <span class="font-bold text-gray-800">{{ $u->tanggal_lahir->format('d/m/Y') }}</span>
+                                        <span class="text-[10px] text-purple-600 font-semibold">
+                                            {{ $u->tanggal_lahir->format('d M') }} ({{ $u->tanggal_lahir->age }} thn)
+                                        </span>
+                                    </div>
+                                @else
+                                    <span class="text-gray-300">-</span>
                                 @endif
                             </td>
 
@@ -281,7 +333,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $isOwner ? 7 : 6 }}" class="py-12 text-center">
+                            <td colspan="{{ $isOwner ? 10 : 9 }}" class="py-12 text-center">
                                 <div class="flex flex-col items-center justify-center text-gray-400">
                                     <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                                     <p class="font-bold text-gray-600">Tidak ada pengguna ditemukan</p>
@@ -498,7 +550,7 @@
                                                         <button type="button"
                                                                 wire:click="cancelUploadFoto"
                                                                 class="text-[11px] font-bold text-rose-600 hover:text-rose-800 hover:underline cursor-pointer">
-                                                            Batal / Pilih Ulang
+                                                            Pilih Ulang
                                                         </button>
                                                     </div>
                                                 </div>
@@ -537,7 +589,7 @@
                                     @error('foto') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
 
-                                <!-- Input Nama Lengkap & No WhatsApp -->
+                                <!-- Input Nama Lengkap & WhatsApp -->
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                                     <div>
                                         <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
@@ -551,12 +603,53 @@
 
                                     <div>
                                         <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                            No. WhatsApp / HP
+                                            WhatsApp
                                         </label>
                                         <input type="text"
                                                wire:model="no_hp"
                                                class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 {{ $isOwner ? 'focus:ring-[#5E17EB] focus:border-[#5E17EB]' : 'focus:ring-[#0052FF] focus:border-[#0052FF]' }} @error('no_hp') border-rose-500 @enderror">
                                         @error('no_hp') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
+
+                                <!-- Input Bagian Penugasan -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                            Bagian
+                                        </label>
+                                        <span class="text-[10px] text-gray-400 font-semibold">Tersinkronisasi otomatis dari Master Pegawai</span>
+                                    </div>
+                                    <select wire:model="bagian"
+                                            class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 {{ $isOwner ? 'focus:ring-[#5E17EB] focus:border-[#5E17EB]' : 'focus:ring-[#0052FF] focus:border-[#0052FF]' }} @error('bagian') border-rose-500 @enderror">
+                                        <option value="">-- Pilih Bagian (Opsional) --</option>
+                                        @foreach($this->bagianOptions as $b)
+                                            <option value="{{ $b }}">{{ $b }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('bagian') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                </div>
+
+                                <!-- Input Tanggal Mulai Bekerja & Tanggal Lahir -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            Tanggal Mulai Bekerja
+                                        </label>
+                                        <input type="date"
+                                               wire:model="tanggal_mulai_bekerja"
+                                               class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 {{ $isOwner ? 'focus:ring-[#5E17EB] focus:border-[#5E17EB]' : 'focus:ring-[#0052FF] focus:border-[#0052FF]' }} @error('tanggal_mulai_bekerja') border-rose-500 @enderror">
+                                        @error('tanggal_mulai_bekerja') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            Tanggal Lahir
+                                        </label>
+                                        <input type="date"
+                                               wire:model="tanggal_lahir"
+                                               class="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 {{ $isOwner ? 'focus:ring-[#5E17EB] focus:border-[#5E17EB]' : 'focus:ring-[#0052FF] focus:border-[#0052FF]' }} @error('tanggal_lahir') border-rose-500 @enderror">
+                                        @error('tanggal_lahir') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                             </div>

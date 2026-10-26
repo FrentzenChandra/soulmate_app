@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Events\TransaksiUpdated;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -115,6 +114,11 @@ class TransaksiFull extends Model
         return $this->belongsTo(User::class, 'user_id')->withTrashed();
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->userInput();
+    }
+
     public function pelunas(): BelongsTo
     {
         return $this->belongsTo(User::class, 'pelunas_user_id')->withTrashed();
@@ -160,11 +164,11 @@ class TransaksiFull extends Model
         $raw = (string) $raw;
 
         if (preg_match('/(?:INV-)?(PJ|SV)-[A-Za-z0-9_-]+?-(\d+-\d+)$/i', $raw, $matches)) {
-            return strtoupper($matches[1]) . '-' . $matches[2];
+            return strtoupper($matches[1]).'-'.$matches[2];
         }
 
         if (preg_match('/^INV-([A-Za-z]+)-[A-Za-z0-9_-]+-(\d+-\d+)$/i', $raw, $matches)) {
-            return strtoupper($matches[1]) . '-' . $matches[2];
+            return strtoupper($matches[1]).'-'.$matches[2];
         }
 
         return str_replace('INV-', '', $raw);
@@ -226,7 +230,7 @@ class TransaksiFull extends Model
             'jam_lunas' => $this->tanggal_lunas ? $this->tanggal_lunas->format('H:i') : '-',
             'pelanggan' => $this->nama_pelanggan,
             'no_hp' => $this->no_hp ?: '-',
-            'items_list' => $this->details->map(fn($d) => [
+            'items_list' => $this->details->map(fn ($d) => [
                 'qty' => (int) $d->qty,
                 'nama' => $d->nama_item,
                 'harga_modal' => (float) $d->harga_modal,
@@ -238,7 +242,7 @@ class TransaksiFull extends Model
                 'ppn_persen' => (float) $d->ppn_persen,
                 'ppn_nominal' => (float) $d->ppn_nominal,
             ])->values()->all(),
-            'rincian_item' => $this->details->map(fn($d) => $d->qty . 'x ' . $d->nama_item)->implode(', ') ?: 'Tanpa item',
+            'rincian_item' => $this->details->map(fn ($d) => $d->qty.'x '.$d->nama_item)->implode(', ') ?: 'Tanpa item',
             'metode_pembayaran_id' => $this->metode_pembayaran_id,
             'metode_pembayaran' => $this->metode_pembayaran ?: '-',
             'total_modal' => (float) $this->total_modal,

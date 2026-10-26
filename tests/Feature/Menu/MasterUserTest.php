@@ -4,6 +4,7 @@ namespace Tests\Feature\Menu;
 
 use App\Livewire\Master\User\Index as MasterUserIndex;
 use App\Models\Cabang;
+use App\Models\Pegawai;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -13,7 +14,7 @@ use Tests\Traits\InteractsWithRolesAndPermissions;
 
 class MasterUserTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithRolesAndPermissions;
+    use InteractsWithRolesAndPermissions, RefreshDatabase;
 
     public static function roleAccessProvider(): array
     {
@@ -233,5 +234,82 @@ class MasterUserTest extends TestCase
 
         $this->assertEquals('nonaktif', $staff->fresh()->status);
     }
-}
 
+    public function test_dapat_menyimpan_tanggal_mulai_bekerja_tanggal_lahir_dan_bagian(): void
+    {
+        $superadmin = $this->actingAsRole('Superadmin');
+
+        Livewire::test(MasterUserIndex::class)
+            ->call('openCreateModal')
+            ->set('name', 'Staf Tanggal Dan Bagian')
+            ->set('username', 'staftglbagian')
+            ->set('email', 'staftglbagian@soulmate.test')
+            ->set('password', 'password123')
+            ->set('role_name', 'Teknisi')
+            ->set('bagian', 'Teknisi Laptop')
+            ->set('tanggal_mulai_bekerja', '2023-05-15')
+            ->set('tanggal_lahir', '1998-08-20')
+            ->set('status', 'aktif')
+            ->call('save')
+            ->assertSet('modalOpen', false)
+            ->assertDispatched('swal:success');
+
+        $savedUser = User::where('username', 'staftglbagian')->firstOrFail();
+        $this->assertEquals('Teknisi Laptop', $savedUser->bagian);
+        $this->assertEquals('2023-05-15', $savedUser->tanggal_mulai_bekerja->format('Y-m-d'));
+        $this->assertEquals('1998-08-20', $savedUser->tanggal_lahir->format('Y-m-d'));
+    }
+
+    public function test_dapat_mengedit_tanggal_mulai_bekerja_tanggal_lahir_dan_bagian(): void
+    {
+        $superadmin = $this->actingAsRole('Superadmin');
+
+        $staff = User::create([
+            'name' => 'Staf Edit Dates',
+            'username' => 'stafeditdates',
+            'email' => 'stafeditdates@soulmate.test',
+            'password' => bcrypt('password'),
+            'cabang_id' => $superadmin->cabang_id,
+            'status' => 'aktif',
+            'bagian' => 'Admin Stok',
+            'tanggal_mulai_bekerja' => '2022-01-10',
+            'tanggal_lahir' => '1995-12-05',
+        ]);
+        $staff->assignRole('Admin');
+
+        Livewire::test(MasterUserIndex::class)
+            ->call('openEditModal', $staff->id)
+            ->assertSet('bagian', 'Admin Stok')
+            ->assertSet('tanggal_mulai_bekerja', '2022-01-10')
+            ->assertSet('tanggal_lahir', '1995-12-05')
+            ->set('bagian', 'Bendahara')
+            ->set('tanggal_mulai_bekerja', '2021-06-01')
+            ->set('tanggal_lahir', '1994-03-15')
+            ->call('save')
+            ->assertSet('modalOpen', false)
+            ->assertDispatched('swal:success');
+
+        $staff->refresh();
+        $this->assertEquals('Bendahara', $staff->bagian);
+        $this->assertEquals('2021-06-01', $staff->tanggal_mulai_bekerja->format('Y-m-d'));
+        $this->assertEquals('1994-03-15', $staff->tanggal_lahir->format('Y-m-d'));
+    }
+
+    public function test_bagian_options_ditarik_dinamis_dari_master_pegawai(): void
+    {
+        $superadmin = $this->actingAsRole('Superadmin');
+
+        Pegawai::create([
+            'nama' => 'Bambang Teknisi Jaringan',
+            'role' => 'Teknisi Jaringan Unik',
+            'cabang_id' => $superadmin->cabang_id,
+            'is_aktif' => true,
+        ]);
+
+        $component = Livewire::test(MasterUserIndex::class);
+        $bagianOptions = $component->instance()->bagianOptions();
+
+        $this->assertContains('Teknisi Laptop', $bagianOptions);
+        $this->assertContains('Teknisi Jaringan Unik', $bagianOptions);
+    }
+}

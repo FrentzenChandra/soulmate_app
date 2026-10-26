@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -39,6 +40,9 @@ class User extends Authenticatable
         'username',
         'password',
         'cabang_id',
+        'tanggal_mulai_bekerja',
+        'tanggal_lahir',
+        'bagian',
         'no_hp',
         'status',
         'foto_url',
@@ -76,6 +80,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'tanggal_mulai_bekerja' => 'date',
+            'tanggal_lahir' => 'date',
         ];
     }
 
@@ -84,7 +90,7 @@ class User extends Authenticatable
         return $this->belongsTo(Cabang::class);
     }
 
-    public function absensis(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function absensis(): HasMany
     {
         return $this->hasMany(Absensi::class);
     }
@@ -145,5 +151,40 @@ class User extends Authenticatable
     public function getRoleNameAttribute(): string
     {
         return $this->getRoleNames()->first() ?? 'Staff';
+    }
+
+    public function getBagianBadgeClassAttribute(): string
+    {
+        $val = strtolower($this->bagian ?? '');
+
+        if (str_contains($val, 'laptop')) {
+            return 'bg-blue-100 text-blue-700 border-blue-200';
+        }
+        if (str_contains($val, 'printer')) {
+            return 'bg-amber-100 text-amber-800 border-amber-200';
+        }
+        if (str_contains($val, 'komputer') || str_contains($val, 'pc')) {
+            return 'bg-purple-100 text-[#5E17EB] border-purple-200';
+        }
+        if (str_contains($val, 'bendahara')) {
+            return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        }
+        if (str_contains($val, 'pajak')) {
+            return 'bg-rose-100 text-rose-800 border-rose-200';
+        }
+        if (str_contains($val, 'stok')) {
+            return 'bg-cyan-100 text-cyan-800 border-cyan-200';
+        }
+        if (str_contains($val, 'konten')) {
+            return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+        }
+        if (str_contains($val, 'teknisi')) {
+            return 'bg-teal-100 text-teal-800 border-teal-200';
+        }
+        if (str_contains($val, 'admin')) {
+            return 'bg-blue-100 text-[#0052FF] border-blue-200';
+        }
+
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
 }
