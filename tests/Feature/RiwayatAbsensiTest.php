@@ -188,5 +188,46 @@ class RiwayatAbsensiTest extends TestCase
         $component->call('setPeriodeMode', 'semua');
         $this->assertEquals(2, $component->viewData('filteredCount'));
     }
+
+    public function test_infinite_scroll_load_more_increments_per_page(): void
+    {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $this->actingAs($owner);
+
+        $component = Livewire::test(RiwayatIndex::class);
+        $this->assertEquals(15, $component->get('perPage'));
+
+        $component->call('loadMore');
+        $this->assertEquals(30, $component->get('perPage'));
+
+        // Reset on mode change
+        $component->call('setPeriodeMode', 'semua');
+        $this->assertEquals(15, $component->get('perPage'));
+    }
+
+    public function test_infinite_loading_ui_presence(): void
+    {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $user = User::where('email', 'teknisi.pkp@soulmate.test')->first();
+
+        // Create 20 records on different dates so hasMorePages is true (> 15)
+        for ($i = 0; $i < 20; $i++) {
+            Absensi::create([
+                'cabang_id' => $user->cabang_id,
+                'user_id' => $user->id,
+                'tanggal' => now()->subDays($i)->toDateString(),
+                'waktu_absen' => now()->subDays($i)->setTime(8, 0, 0),
+                'ip_address' => '127.0.0.1',
+            ]);
+        }
+
+        $this->actingAs($owner);
+
+        Livewire::test(RiwayatIndex::class)
+            ->call('setPeriodeMode', 'semua')
+            ->assertSee('wire:intersect="loadMore"', false)
+            ->assertSee('Memuat riwayat kehadiran berikutnya...', false)
+            ->assertSee('#5E17EB', false);
+    }
 }
 

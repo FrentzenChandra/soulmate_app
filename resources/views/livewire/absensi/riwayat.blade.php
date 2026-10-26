@@ -250,10 +250,23 @@
             </table>
         </div>
 
-        <!-- Pagination -->
-        @if ($absensis->hasPages())
-            <div class="p-4 border-t border-gray-100 bg-gray-50/50">
-                {{ $absensis->links() }}
+        <!-- Infinite Loading -->
+        @if ($absensis->hasMorePages())
+            <div wire:intersect="loadMore" class="p-6 flex flex-col items-center justify-center border-t border-gray-100 bg-gray-50/40">
+                <div wire:loading wire:target="loadMore" class="flex flex-col items-center justify-center space-y-2 py-2">
+                    <svg class="animate-spin w-5 h-5 text-[#5E17EB]" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span class="text-xs font-bold text-gray-500 animate-pulse">Memuat riwayat kehadiran berikutnya...</span>
+                </div>
+                <div wire:loading.remove wire:target="loadMore" class="text-xs font-semibold text-gray-400">
+                    Gulir ke bawah untuk memuat lebih banyak
+                </div>
+            </div>
+        @elseif ($absensis->count() > 0 && !$absensis->hasMorePages())
+            <div class="py-4 text-center border-t border-gray-100 bg-gray-50/40">
+                <span class="text-xs font-semibold text-gray-400">Semua data riwayat absensi telah ditampilkan</span>
             </div>
         @endif
     </div>

@@ -7,10 +7,12 @@ use App\Models\Cabang;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Lazy]
 #[Title('Riwayat Absensi')]
 #[Layout('layouts.app')]
 class Riwayat extends Component
@@ -42,13 +44,25 @@ class Riwayat extends Component
         $this->filterTahun = (int) $now->format('Y');
     }
 
+    public function placeholder(): \Illuminate\Contracts\View\View
+    {
+        return view('livewire.absensi.riwayat-skeleton');
+    }
+
+    public function loadMore(): void
+    {
+        $this->perPage += 15;
+    }
+
     public function updatingSearch(): void
     {
+        $this->perPage = 15;
         $this->resetPage();
     }
 
     public function updatingCabangFilter(): void
     {
+        $this->perPage = 15;
         $this->resetPage();
     }
 
@@ -59,6 +73,7 @@ class Riwayat extends Component
 
     public function setPeriodeMode(string $mode): void
     {
+        $this->perPage = 15;
         $this->periodeMode = $mode;
         $now = Carbon::now('Asia/Jakarta');
 
