@@ -119,6 +119,14 @@ class Index extends Component
 
         $this->sortField = 'tanggal_masuk';
         $this->sortDirection = 'desc';
+
+        // Auto-default filter kategori berdasarkan bagian user jika tidak diset via URL
+        if (! request()->has('kategoriFilter') && $user) {
+            $defaultKategori = $user->defaultKategoriPerangkat();
+            if ($defaultKategori) {
+                $this->kategoriFilter = $defaultKategori;
+            }
+        }
     }
 
     #[On('echo:servis-updates,.ServisStatusUpdated')]
@@ -204,7 +212,8 @@ class Index extends Component
         $this->customerSearch = '';
         $this->newCustomerNama = '';
         $this->newCustomerNoHp = '';
-        $this->kategoriPerangkat = 'laptop';
+        $defaultKategori = Auth::user()?->defaultKategoriPerangkat();
+        $this->kategoriPerangkat = $defaultKategori ?? 'laptop';
         $this->tipeUnit = '';
         $this->kelengkapanChips = ['Unit'];
         $this->customKelengkapan = '';

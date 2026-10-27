@@ -79,6 +79,14 @@ class Index extends Component
 
         $this->sortField = 'tanggal_masuk';
         $this->sortDirection = 'desc';
+
+        // Auto-default filter kategori berdasarkan bagian user jika tidak diset via URL
+        if (! request()->has('kategoriFilter') && $user) {
+            $defaultKategori = $user->defaultKategoriPerangkat();
+            if ($defaultKategori) {
+                $this->kategoriFilter = $defaultKategori;
+            }
+        }
     }
 
     #[On('echo:servis-updates,.ServisStatusUpdated')]

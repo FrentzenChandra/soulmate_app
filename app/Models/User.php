@@ -187,4 +187,21 @@ class User extends Authenticatable
 
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
+
+    public function defaultKategoriPerangkat(): ?string
+    {
+        $val = strtolower($this->bagian ?? '');
+
+        if (str_contains($val, 'laptop')) {
+            return 'laptop';
+        }
+        if (str_contains($val, 'printer')) {
+            return 'printer';
+        }
+        if (str_contains($val, 'komputer') || str_contains($val, 'pc')) {
+            return 'komputer';
+        }
+
+        return null;
+    }
 }

@@ -248,4 +248,58 @@ class ServisMasukTest extends TestCase
             ->assertOk()
             ->assertSee(route('servis.masuk'));
     }
+
+    // =========================================================================
+    // TAHAP 4: AUTO-DEFAULT FILTER KATEGORI BERDASARKAN BAGIAN USER
+    // =========================================================================
+
+    public function test_user_bagian_teknisi_laptop_defaults_kategori_filter_to_laptop(): void
+    {
+        $this->actingAsRole('Teknisi', ['bagian' => 'Teknisi Laptop'], $this->cabang1);
+
+        Livewire::test(ServisMasukIndex::class)
+            ->assertSet('kategoriFilter', 'laptop');
+    }
+
+    public function test_user_bagian_teknisi_printer_defaults_kategori_filter_to_printer(): void
+    {
+        $this->actingAsRole('Teknisi', ['bagian' => 'Teknisi Printer'], $this->cabang1);
+
+        Livewire::test(ServisMasukIndex::class)
+            ->assertSet('kategoriFilter', 'printer');
+    }
+
+    public function test_user_bagian_teknisi_komputer_defaults_kategori_filter_to_komputer(): void
+    {
+        $this->actingAsRole('Teknisi', ['bagian' => 'Teknisi Komputer'], $this->cabang1);
+
+        Livewire::test(ServisMasukIndex::class)
+            ->assertSet('kategoriFilter', 'komputer');
+    }
+
+    public function test_user_without_device_bagian_defaults_kategori_filter_to_semua(): void
+    {
+        $this->actingAsRole('Teknisi', ['bagian' => 'Bendahara'], $this->cabang1);
+
+        Livewire::test(ServisMasukIndex::class)
+            ->assertSet('kategoriFilter', 'semua');
+    }
+
+    public function test_explicit_url_query_param_overrides_user_bagian_default(): void
+    {
+        $this->actingAsRole('Teknisi', ['bagian' => 'Teknisi Laptop'], $this->cabang1);
+
+        Livewire::withQueryParams(['kategoriFilter' => 'printer'])
+            ->test(ServisMasukIndex::class)
+            ->assertSet('kategoriFilter', 'printer');
+    }
+
+    public function test_create_modal_kategori_perangkat_defaults_to_user_bagian(): void
+    {
+        $this->actingAsRole('Teknisi', ['bagian' => 'Teknisi Printer'], $this->cabang1);
+
+        Livewire::test(ServisMasukIndex::class)
+            ->call('openCreateModal')
+            ->assertSet('kategoriPerangkat', 'printer');
+    }
 }
