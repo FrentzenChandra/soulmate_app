@@ -1,5 +1,12 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteCond %{HTTP:Connection} upgrade [NC]
+    RewriteRule ^app/(.*) ws://127.0.0.1:8080/app/$1 [P,L]
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
 
     # Arahkan seluruh request ke folder public
     RewriteCond %{REQUEST_URI} !^/public/
