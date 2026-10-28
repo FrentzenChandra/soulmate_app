@@ -229,5 +229,66 @@ class RiwayatAbsensiTest extends TestCase
             ->assertSee('Memuat riwayat kehadiran berikutnya...', false)
             ->assertSee('#5E17EB', false);
     }
+
+    public function test_inactive_and_soft_deleted_users_are_excluded_from_riwayat_absensi(): void
+    {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $teknisiPkp = User::where('email', 'teknisi.pkp@soulmate.test')->first();
+
+        // 1. Buat user non-aktif
+        $inactiveUser = User::create([
+            'name' => 'Staf Non Aktif Testing',
+            'email' => 'nonaktif@soulmate.test',
+            'username' => 'nonaktif_test',
+            'password' => bcrypt('password'),
+            'cabang_id' => $teknisiPkp->cabang_id,
+            'status' => 'nonaktif',
+        ]);
+        $inactiveUser->assignRole('Teknisi');
+
+        // Buat absensi untuk user non-aktif
+        Absensi::create([
+            'cabang_id' => $inactiveUser->cabang_id,
+            'user_id' => $inactiveUser->id,
+            'tanggal' => now()->toDateString(),
+            'waktu_absen' => now(),
+            'ip_address' => '127.0.0.1',
+        ]);
+
+        // 2. Buat user yang di-soft delete
+        $deletedUser = User::create([
+            'name' => 'Staf Terhapus Testing',
+            'email' => 'terhapus@soulmate.test',
+            'username' => 'terhapus_test',
+            'password' => bcrypt('password'),
+            'cabang_id' => $teknisiPkp->cabang_id,
+            'status' => 'aktif',
+        ]);
+        $deletedUser->assignRole('Teknisi');
+        $deletedUser->delete(); // Soft delete
+
+        // Buat absensi untuk user terhapus
+        Absensi::create([
+            'cabang_id' => $deletedUser->cabang_id,
+            'user_id' => $deletedUser->id,
+            'tanggal' => now()->toDateString(),
+            'waktu_absen' => now(),
+            'ip_address' => '127.0.0.1',
+        ]);
+
+        $this->actingAs($owner);
+
+        // Verifikasi di Tab 1 (Log Harian)
+        Livewire::test(RiwayatIndex::class)
+            ->call('setPeriodeMode', 'semua')
+            ->assertDontSee('Staf Non Aktif Testing')
+            ->assertDontSee('Staf Terhapus Testing');
+
+        // Verifikasi di Tab 2 (Rekap Bulanan)
+        Livewire::test(RiwayatIndex::class)
+            ->call('switchTab', 'rekap_bulanan')
+            ->assertDontSee('Staf Non Aktif Testing')
+            ->assertDontSee('Staf Terhapus Testing');
+    }
 }
 

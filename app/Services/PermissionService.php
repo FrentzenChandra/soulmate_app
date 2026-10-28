@@ -157,6 +157,23 @@ class PermissionService
                             'pajak.export_pdf' => 'Export Dokumen PDF',
                         ],
                     ],
+                    'slip_gaji' => [
+                        'label' => 'Slip Gaji',
+                        'route' => 'slip-gaji.index',
+                        'main_permission' => 'gaji.view',
+                        'description' => 'Pembuatan, penyalinan, finalisasi slip gaji staf, dan cetak PDF',
+                        'actions' => [
+                            'gaji.create' => 'Buat & Salin Slip Gaji',
+                            'gaji.edit' => 'Edit Komponen Slip Gaji',
+                            'gaji.finalize' => 'Finalkan Slip Gaji',
+                            'gaji.delete' => 'Hapus Slip Gaji (Draft)',
+                            'gaji.export_pdf' => 'Unduh Dokumen PDF',
+                            'gaji.alert' => 'Lihat Alert Kenaikan 6 Bulan',
+                            'gaji.reopen' => 'Buka Kembali Slip Final (Owner)',
+                            'gaji.tarif.edit' => 'Atur Tarif Global (Owner)',
+                            'gaji.pokok.edit' => 'Ubah Gaji Pokok & Tarif Per Hari (Owner)',
+                        ],
+                    ],
                     'kas_keluar' => [
                         'label' => 'Kas Keluar',
                         'route' => 'kas-keluar',
@@ -486,6 +503,13 @@ class PermissionService
                 'absensi.view',
                 'absensi.submit',
                 'absensi.riwayat',
+                'gaji.view',
+                'gaji.create',
+                'gaji.edit',
+                'gaji.finalize',
+                'gaji.delete',
+                'gaji.export_pdf',
+                'gaji.alert',
             ],
 
             'Bendahara' => [
@@ -530,6 +554,13 @@ class PermissionService
                 'absensi.view',
                 'absensi.submit',
                 'absensi.riwayat',
+                'gaji.view',
+                'gaji.create',
+                'gaji.edit',
+                'gaji.finalize',
+                'gaji.delete',
+                'gaji.export_pdf',
+                'gaji.alert',
             ],
 
             'Operasional' => [
@@ -563,6 +594,13 @@ class PermissionService
                 'klaim_garansi.detail',
                 'klaim_garansi.create',
                 'klaim_garansi.edit',
+                'gaji.view',
+                'gaji.create',
+                'gaji.edit',
+                'gaji.finalize',
+                'gaji.delete',
+                'gaji.export_pdf',
+                'gaji.alert',
             ],
 
             'Magang' => [

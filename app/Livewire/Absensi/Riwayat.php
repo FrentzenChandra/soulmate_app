@@ -162,7 +162,7 @@ class Riwayat extends Component
 
     public function openDetailLate(int $userId): void
     {
-        $targetUser = User::withTrashed()->findOrFail($userId);
+        $targetUser = User::where('status', 'aktif')->whereNull('deleted_at')->findOrFail($userId);
         $this->selectedUserId = $targetUser->id;
         $this->selectedUserName = $targetUser->name;
         $this->modalDetailLateOpen = true;
@@ -196,9 +196,13 @@ class Riwayat extends Component
         $cabangs = $isOwner ? Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get() : collect();
 
         // -------------------------------------------------------------
-        // TAB 1: LOG HARIAN
+        // TAB 1: LOG HARIAN (Hanya Staf Aktif & Belum Terhapus)
         // -------------------------------------------------------------
-        $query = Absensi::with(['user', 'cabang'])->latest('waktu_absen');
+        $query = Absensi::with(['user', 'cabang'])
+            ->whereHas('user', function ($q) {
+                $q->where('status', 'aktif')->whereNull('deleted_at');
+            })
+            ->latest('waktu_absen');
 
         // Scoping peran
         if (! $isOwner) {
@@ -230,7 +234,10 @@ class Riwayat extends Component
         $absensis = $query->paginate($this->perPage);
 
         // Metrik Ringkasan Log Harian
-        $metricQuery = Absensi::query();
+        $metricQuery = Absensi::query()
+            ->whereHas('user', function ($q) {
+                $q->where('status', 'aktif')->whereNull('deleted_at');
+            });
         if (! $isOwner) {
             if ($isSuperadmin) {
                 $metricQuery->where('cabang_id', $user->cabang_id);
@@ -246,9 +253,11 @@ class Riwayat extends Component
         $filteredCount = (clone $query)->count();
 
         // -------------------------------------------------------------
-        // TAB 2: REKAP BULANAN PER ROLE
+        // TAB 2: REKAP BULANAN PER ROLE (Hanya Staf Aktif & Belum Terhapus)
         // -------------------------------------------------------------
-        $userQuery = User::query()->withTrashed();
+        $userQuery = User::query()
+            ->where('status', 'aktif')
+            ->whereNull('deleted_at');
 
         // Superadmin & Owner tidak melakukan absen, exclude dari baris staf
         $userQuery->whereDoesntHave('roles', function ($q) {
