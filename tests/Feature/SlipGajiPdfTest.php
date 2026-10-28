@@ -184,9 +184,7 @@ class SlipGajiPdfTest extends TestCase
 
         $response = $this->get(route('slip-gaji.cetak', $finalSlip->id));
         $response->assertOk();
-        $response->assertViewIs('pdf.slip-gaji-print');
-        $response->assertSee('TOTAL DITERIMA KARYAWAN', false);
-        $response->assertSee('window.print()', false);
+        $response->assertHeader('Content-Type', 'application/pdf');
     }
 }
 

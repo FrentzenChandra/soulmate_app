@@ -365,8 +365,8 @@ class SlipGajiService
             return '0 Bulan';
         }
 
-        $years = $start->diffInYears($target);
-        $months = $start->copy()->addYears($years)->diffInMonths($target);
+        $years = (int) $start->diffInYears($target);
+        $months = (int) $start->copy()->addYears($years)->diffInMonths($target);
 
         $parts = [];
         if ($years > 0) {
@@ -393,8 +393,8 @@ class SlipGajiService
             return '0 Tahun';
         }
 
-        $years = $birthDate->diffInYears($target);
-        $months = $birthDate->copy()->addYears($years)->diffInMonths($target);
+        $years = (int) $birthDate->diffInYears($target);
+        $months = (int) $birthDate->copy()->addYears($years)->diffInMonths($target);
 
         $parts = [];
         if ($years > 0) {

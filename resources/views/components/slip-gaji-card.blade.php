@@ -56,8 +56,8 @@
             </div>
 
             <!-- Main Slanted Banner -->
-            <div class="relative bg-gradient-to-r from-[#5E17EB] via-[#8B2FF5] to-[#E6007A] text-white rounded-2xl sm:rounded-r-2xl px-5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between sm:space-x-5 shadow-md shadow-purple-900/20 w-full sm:w-auto"
-                 style="clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);">
+            <div class="relative text-white rounded-2xl sm:rounded-r-2xl px-5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between sm:space-x-5 shadow-md shadow-purple-900/20 w-full sm:w-auto"
+                 style="background: linear-gradient(to right, #5E17EB, #8B2FF5, #E6007A) !important; clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);">
                 <div class="pr-3">
                     <span class="text-base sm:text-lg font-black tracking-wider block leading-tight">SLIP GAJI</span>
                     <span class="text-[9.5px] font-bold text-white/90 uppercase tracking-[0.2em] block">KARYAWAN</span>
@@ -136,7 +136,8 @@
     <!-- ======================================================== -->
     <div class="space-y-1 mb-3.5">
         <!-- Header Bar Ungu-Pink dengan Ikon -->
-        <div class="bg-gradient-to-r from-[#5E17EB] to-[#E6007A] text-white rounded-xl px-3.5 py-2 grid grid-cols-12 gap-2 items-center text-[11px] font-black uppercase tracking-wider shadow-2xs">
+        <div class="text-white rounded-xl px-3.5 py-2 grid grid-cols-12 gap-2 items-center text-[11px] font-black uppercase tracking-wider shadow-2xs"
+             style="background: linear-gradient(to right, #5E17EB, #E6007A) !important;">
             <div class="col-span-6 flex items-center space-x-1.5">
                 <svg class="w-3.5 h-3.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -270,14 +271,16 @@
         </div>
 
         <!-- Strip Highlight Kuning Total Penghasilan Bruto (Sesuai Gambar) -->
-        <div class="bg-[#FEF3C7] border border-[#FDE68A] rounded-xl px-3.5 py-2 flex items-center justify-between shadow-2xs mt-1.5">
+        <div class="rounded-xl px-3.5 py-2 flex items-center justify-between shadow-2xs mt-1.5"
+             style="background-color: #FEF3C7 !important; border: 1.5px solid #FDE68A !important;">
             <div class="flex items-center space-x-2">
                 <svg class="w-4 h-4 text-amber-700 shrink-0" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path>
                 </svg>
                 <span class="text-xs font-black text-black uppercase tracking-wider">Total Penghasilan Bruto</span>
             </div>
-            <div class="bg-[#FACC15] border border-amber-400/80 rounded-lg px-3 py-1 shadow-2xs">
+            <div class="rounded-lg px-3 py-1 shadow-2xs"
+                 style="background-color: #FACC15 !important; border: 1px solid #EAB308 !important;">
                 <span class="font-mono font-black text-xs sm:text-sm text-black">
                     Rp {{ number_format($slip->total_bruto, 0, ',', '.') }}
                 </span>
@@ -291,7 +294,8 @@
     @if($potonganItems->isNotEmpty() || (float)$slip->total_pengurangan > 0 || !$slip->isFinal())
     <div class="space-y-1 mb-3.5">
         <!-- Header Bar Merah dengan Ikon -->
-        <div class="bg-gradient-to-r from-rose-600 to-rose-500 text-white rounded-xl px-3.5 py-2 grid grid-cols-12 gap-2 items-center text-[11px] font-black uppercase tracking-wider shadow-2xs">
+        <div class="text-white rounded-xl px-3.5 py-2 grid grid-cols-12 gap-2 items-center text-[11px] font-black uppercase tracking-wider shadow-2xs"
+             style="background: linear-gradient(to right, #E11D48, #F43F5E) !important;">
             <div class="col-span-6 flex items-center space-x-1.5">
                 <svg class="w-3.5 h-3.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -344,7 +348,8 @@
         </div>
 
         <!-- Strip Highlight Merah Total Pengurangan -->
-        <div class="bg-[#FEE2E2] border border-[#FECACA] rounded-xl px-3.5 py-2 flex items-center justify-between shadow-2xs mt-1.5">
+        <div class="rounded-xl px-3.5 py-2 flex items-center justify-between shadow-2xs mt-1.5"
+             style="background-color: #FEE2E2 !important; border: 1.5px solid #FECACA !important;">
             <div class="flex items-center space-x-2">
                 <svg class="w-4 h-4 text-rose-700 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
@@ -361,7 +366,8 @@
     <!-- ======================================================== -->
     <!-- 5. STRIP UTAMA TOTAL DITERIMA KARYAWAN (HIJAU VIBRANT)  -->
     <!-- ======================================================== -->
-    <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl sm:rounded-2xl px-4 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between text-white shadow-md shadow-emerald-900/15 my-3.5">
+    <div class="rounded-xl sm:rounded-2xl px-4 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between text-white shadow-md shadow-emerald-900/15 my-3.5"
+         style="background: linear-gradient(to right, #059669, #0D9488) !important;">
         <div class="flex items-center space-x-2.5 sm:space-x-3">
             <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
