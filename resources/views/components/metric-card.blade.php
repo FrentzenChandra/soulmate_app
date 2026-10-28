@@ -32,16 +32,26 @@
             'box' => 'bg-pink-50 text-[#E6007A] border-pink-100',
             'text' => 'text-[#E6007A]',
         ],
+        'gray' => [
+            'border' => 'border-l-gray-900',
+            'box' => 'bg-gray-100 text-gray-900 border-gray-300',
+            'text' => 'text-gray-900',
+        ],
+        'black' => [
+            'border' => 'border-l-gray-900',
+            'box' => 'bg-gray-100 text-gray-900 border-gray-300',
+            'text' => 'text-gray-900',
+        ],
     ][$color] ?? [
-        'border' => 'border-l-gray-400',
-        'box' => 'bg-gray-50 text-gray-700 border-gray-200',
+        'border' => 'border-l-gray-900',
+        'box' => 'bg-gray-100 text-gray-900 border-gray-300',
         'text' => 'text-gray-900',
     ];
 @endphp
 
 <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 border-l-4 {{ $colorConfig['border'] }} shadow-xs hover:shadow-sm transition-all flex flex-col justify-between">
     <div class="flex items-center justify-between">
-        <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">{{ $label }}</span>
+        <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">{{ $label }}</span>
         <div class="w-8 h-8 rounded-xl {{ $colorConfig['box'] }} border flex items-center justify-center shrink-0">
             @if (isset($icon))
                 {{ $icon }}
@@ -65,7 +75,7 @@
             {{ $value }}
         </span>
         @if ($unit)
-            <span class="text-[11px] font-bold text-gray-500 block mt-0.5">{{ $unit }}</span>
+            <span class="text-[11px] font-extrabold text-gray-900 block mt-0.5">{{ $unit }}</span>
         @endif
     </div>
 </div>
