@@ -583,6 +583,31 @@ class Index extends Component
         $orangOptions = MasterOrangPajak::where('is_aktif', true)->orderBy('nama')->get();
         $cabangs = $user->isOwner() ? Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get() : collect([]);
 
+        // Ringkasan 3 Metrik Terkunci di Bulan Berjalan (Asia/Jakarta)
+        $nowJakarta = Carbon::now('Asia/Jakarta');
+        $startOfMonth = $nowJakarta->copy()->startOfMonth()->toDateString();
+        $endOfMonth = $nowJakarta->copy()->endOfMonth()->toDateString() . ' 23:59:59';
+
+        $summaryQuery = FakturPajak::query()
+            ->whereBetween('faktur_pajaks.tanggal', [$startOfMonth, $endOfMonth]);
+
+        // Isolasi Cabang: Non-Owner cabangnya sendiri, Owner mengikuti cabang aktif
+        if (! $user->isOwner()) {
+            $summaryQuery->where('faktur_pajaks.cabang_id', $user->cabang_id);
+        } elseif ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
+            $summaryQuery->where('faktur_pajaks.cabang_id', $this->cabangFilter);
+        }
+
+        $summary = $summaryQuery
+            ->toBase()
+            ->selectRaw('COALESCE(SUM(bruto), 0) as total_bruto, COALESCE(SUM(ppn_nominal), 0) as total_ppn, COALESCE(SUM(pph_nominal), 0) as total_pph')
+            ->first();
+
+        $totalBruto = (float) ($summary->total_bruto ?? 0);
+        $totalPpn = (float) ($summary->total_ppn ?? 0);
+        $totalPph = (float) ($summary->total_pph ?? 0);
+        $namaBulanBerjalan = $nowJakarta->locale('id')->translatedFormat('F Y');
+
         return view('livewire.faktur-pajak.index', [
             'tableData' => $tableData,
             'viaOptions' => $viaOptions,
@@ -592,6 +617,10 @@ class Index extends Component
             'cabangs' => $cabangs,
             'isOwner' => $user->isOwner(),
             'isHQ' => $user->isOwner(),
+            'totalBruto' => $totalBruto,
+            'totalPpn' => $totalPpn,
+            'totalPph' => $totalPph,
+            'namaBulanBerjalan' => $namaBulanBerjalan,
         ]);
     }
 }
