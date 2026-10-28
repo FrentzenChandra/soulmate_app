@@ -40,5 +40,27 @@ class SlipGajiPdfController extends Controller
             ? $pdf->download($filename)
             : $pdf->stream($filename);
     }
+
+    public function cetak(Request $request, int $slip)
+    {
+        $user = Auth::user();
+        abort_if(! $user || (! $user->isOwner() && ! $user->can('gaji.export_pdf')), 403, 'Akses cetak slip gaji dibatasi.');
+
+        $slipGaji = SlipGaji::with(['user', 'cabang', 'items'])->findOrFail($slip);
+
+        // Isolasi Cabang
+        if (! $user->isOwner() && (int) $user->cabang_id !== (int) $slipGaji->cabang_id) {
+            abort(403, 'Akses slip gaji cabang lain dibatasi.');
+        }
+
+        // Hanya slip Final yang boleh dicetak
+        if (! $slipGaji->isFinal()) {
+            abort(400, 'Hanya slip gaji berstatus Final yang dapat dicetak.');
+        }
+
+        return view('pdf.slip-gaji-print', [
+            'slip' => $slipGaji,
+        ]);
+    }
 }
 

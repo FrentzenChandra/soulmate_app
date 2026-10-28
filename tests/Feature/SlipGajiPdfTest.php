@@ -156,5 +156,37 @@ class SlipGajiPdfTest extends TestCase
         $view->assertDontSee('Lembur/Performa');
         $view->assertDontSee('Servisan Selesai');
     }
+
+    public function test_authorized_user_can_access_cetak_view_with_option_2(): void
+    {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $staf = User::where('email', 'teknisi.pkp@soulmate.test')->first();
+
+        $finalSlip = SlipGaji::create([
+            'no_slip' => 'SLIP/PKP/2026/10/002',
+            'cabang_id' => $staf->cabang_id,
+            'user_id' => $staf->id,
+            'periode_bulan' => 10,
+            'periode_tahun' => 2026,
+            'status' => 'final',
+            'nama_staf_snapshot' => $staf->name,
+            'bagian_snapshot' => 'Teknisi Laptop',
+            'gaji_pokok' => 2500000,
+            'total_bruto' => 2500000,
+            'total_pengurangan' => 0,
+            'total_diterima' => 2500000,
+            'created_by' => $owner->id,
+            'finalized_by' => $owner->id,
+            'finalized_at' => now(),
+        ]);
+
+        $this->actingAs($owner);
+
+        $response = $this->get(route('slip-gaji.cetak', $finalSlip->id));
+        $response->assertOk();
+        $response->assertViewIs('pdf.slip-gaji-print');
+        $response->assertSee('TOTAL DITERIMA KARYAWAN', false);
+        $response->assertSee('window.print()', false);
+    }
 }
 

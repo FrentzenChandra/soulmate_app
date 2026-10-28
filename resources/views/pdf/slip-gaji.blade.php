@@ -6,7 +6,7 @@
     <style>
         @page {
             size: portrait;
-            margin: 8mm 14mm 10mm 14mm;
+            margin: 6mm 12mm 8mm 12mm;
         }
         * {
             box-sizing: border-box;
@@ -17,7 +17,7 @@
         }
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 9pt;
+            font-size: 8.5pt;
             color: #000000;
             line-height: 1.3;
             background: #ffffff;
@@ -38,149 +38,249 @@
             table-layout: fixed;
         }
 
-        /* Header */
-        .header-box {
-            border-bottom: 2px solid #000000;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
+        /* 1. Header */
+        .header-table {
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1.5px solid #E2E8F0;
         }
-        .logo-img {
-            max-height: 48px;
-            width: auto;
-        }
-        .company-title {
+        .company-title-brand {
             font-size: 14pt;
             font-weight: 900;
             letter-spacing: 0.5px;
-            line-height: 1.1;
+            color: #5E17EB;
+            display: inline;
         }
-        .company-subtitle {
-            font-size: 8pt;
-            font-weight: bold;
-            margin-top: 2px;
-        }
-        .doc-title {
+        .company-title-dark {
             font-size: 14pt;
             font-weight: 900;
-            letter-spacing: 1px;
-            text-align: right;
+            letter-spacing: 0.5px;
+            color: #000000;
+            display: inline;
         }
-        .doc-period {
-            font-size: 9pt;
+        .company-subtitle {
+            font-size: 7.5pt;
             font-weight: bold;
-            text-align: right;
-            margin-top: 2px;
+            color: #64748B;
+            margin-top: 3px;
+            letter-spacing: 0.5px;
+        }
+        .banner-box {
+            background: #5E17EB;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #ffffff;
+        }
+        .banner-title {
+            font-size: 12pt;
+            font-weight: 900;
+            letter-spacing: 0.8px;
+            color: #ffffff;
+            line-height: 1.1;
+        }
+        .banner-sub {
+            font-size: 7pt;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #E9D5FF;
+        }
+        .banner-pill {
+            background: #ffffff;
+            color: #5E17EB;
+            font-weight: 900;
+            font-size: 8pt;
+            padding: 3px 8px;
+            border-radius: 12px;
+            text-align: center;
+            display: inline-block;
+            text-transform: uppercase;
         }
 
-        /* Profile Box */
-        .profile-table {
-            margin-bottom: 14px;
-            border: 1px solid #000000;
-            background: #ffffff;
+        /* 2. Profile Box */
+        .profile-box {
+            margin-bottom: 10px;
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            background: #F8FAFC;
+            padding: 6px 10px;
         }
         .profile-table td {
-            padding: 4px 8px;
-            font-size: 8.5pt;
+            padding: 2.5px 4px;
+            font-size: 8pt;
             vertical-align: top;
         }
         .profile-label {
-            width: 110px;
+            width: 95px;
             font-weight: bold;
+            color: #475569;
         }
         .profile-separator {
-            width: 12px;
+            width: 10px;
             text-align: center;
+            color: #94A3B8;
         }
         .profile-value {
+            font-weight: bold;
+            color: #000000;
+        }
+        .profile-badge {
+            color: #475569;
             font-weight: normal;
+            font-size: 7.5pt;
         }
 
-        /* Section Headings */
-        .section-header {
-            background: #f0f0f0;
-            border-top: 1.5px solid #000000;
-            border-bottom: 1px solid #000000;
-            padding: 4px 8px;
-            font-size: 8.5pt;
+        /* 3. Section Tables */
+        .section-table {
+            margin-bottom: 8px;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .header-penerimaan {
+            background: #5E17EB;
+            color: #ffffff;
+        }
+        .header-penerimaan th {
+            color: #ffffff;
+            padding: 5px 8px;
+            font-size: 8pt;
             font-weight: 900;
             letter-spacing: 0.5px;
+            border: none;
+        }
+        .header-pengurangan {
+            background: #E11D48;
+            color: #ffffff;
+        }
+        .header-pengurangan th {
+            color: #ffffff;
+            padding: 5px 8px;
+            font-size: 8pt;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            border: none;
         }
 
-        /* Items Tables */
-        .data-table {
-            margin-bottom: 12px;
-            border-left: 1px solid #000000;
-            border-right: 1px solid #000000;
-            border-bottom: 1px solid #000000;
-        }
-        .data-table th {
-            background: #f8f8f8;
-            border-bottom: 1px solid #000000;
-            padding: 4px 8px;
-            font-size: 8pt;
-            font-weight: bold;
-        }
-        .data-table td {
+        .item-row td {
             padding: 3.5px 8px;
-            font-size: 8.5pt;
-            border-bottom: 1px dotted #cccccc;
+            font-size: 8pt;
+            border-bottom: 1px solid #F1F5F9;
         }
-        .data-table tr:last-child td {
-            border-bottom: none;
+        .item-bullet {
+            color: #5E17EB;
+            font-size: 9pt;
+            padding-right: 4px;
         }
-        .subtotal-row td {
-            background: #f4f4f4;
-            border-top: 1.5px solid #000000 !important;
-            border-bottom: none !important;
+        .item-bullet-red {
+            color: #E11D48;
+            font-size: 9pt;
+            padding-right: 4px;
+        }
+
+        /* Highlight Strips */
+        .strip-bruto td {
+            background: #FEF3C7;
+            border-top: 1px solid #FDE68A !important;
             padding: 5px 8px;
             font-weight: 900;
-            font-size: 9pt;
+            font-size: 8.5pt;
+            color: #000000;
+        }
+        .strip-pengurangan td {
+            background: #FEE2E2;
+            border-top: 1px solid #FECACA !important;
+            padding: 5px 8px;
+            font-weight: 900;
+            font-size: 8.5pt;
+            color: #000000;
+        }
+        .amount-red {
+            color: #E11D48 !important;
         }
 
-        /* Grandtotal Box */
-        .grandtotal-table {
-            margin-top: 4px;
-            margin-bottom: 16px;
-            border: 2px solid #000000;
-            background: #ffffff;
+        /* 4. Grandtotal Box */
+        .grandtotal-box {
+            background: #059669;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-top: 6px;
+            margin-bottom: 12px;
+            color: #ffffff;
         }
-        .grandtotal-table td {
-            padding: 8px 10px;
+        .grandtotal-box td {
+            color: #ffffff;
+            vertical-align: middle;
         }
         .grandtotal-label {
-            font-size: 11pt;
+            font-size: 10.5pt;
             font-weight: 900;
             letter-spacing: 0.5px;
+            color: #ffffff;
+        }
+        .grandtotal-sub {
+            font-size: 7pt;
+            color: #D1FAE5;
+            margin-top: 1px;
         }
         .grandtotal-amount {
-            font-size: 13pt;
+            font-size: 14pt;
             font-weight: 900;
             text-align: right;
+            color: #ffffff;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
-        /* Signatures */
-        .signature-table {
-            margin-top: 20px;
-        }
-        .signature-table td {
-            vertical-align: top;
-            text-align: center;
-            font-size: 8.5pt;
-        }
-        .sign-line {
-            display: inline-block;
-            width: 150px;
-            border-bottom: 1px solid #000000;
-            margin-top: 45px;
-            margin-bottom: 4px;
-        }
-        .footer-note {
-            margin-top: 14px;
+        /* 5. Footer Box */
+        .footer-table {
             padding-top: 8px;
-            border-top: 1px dashed #000000;
-            font-size: 8pt;
-            text-align: center;
+            border-top: 1px solid #E2E8F0;
+        }
+        .footer-table td {
+            vertical-align: top;
+        }
+        .terima-kasih-title {
+            font-family: "Times New Roman", Times, serif;
             font-style: italic;
+            font-size: 13pt;
+            font-weight: 900;
+            color: #5E17EB;
+            margin-bottom: 2px;
+        }
+        .terima-kasih-text {
+            font-size: 7.5pt;
+            color: #475569;
+            font-weight: bold;
+            max-width: 240px;
+            line-height: 1.25;
+        }
+        .watermark-slogan {
+            font-size: 8.5pt;
+            font-weight: 900;
+            color: #CBD5E1;
+            letter-spacing: 2px;
+            text-align: center;
+            text-transform: uppercase;
+            padding-top: 10px;
+        }
+        .signature-title {
+            font-size: 7.5pt;
+            font-weight: bold;
+            color: #000000;
+            text-align: center;
+        }
+        .signature-line {
+            display: inline-block;
+            width: 140px;
+            border-bottom: 1px solid #94A3B8;
+            margin-top: 36px;
+            margin-bottom: 2px;
+        }
+        .signature-name {
+            font-size: 8pt;
+            font-weight: 900;
+            color: #000000;
+            text-align: center;
+            text-transform: uppercase;
         }
     </style>
 </head>
@@ -194,10 +294,7 @@
     $tanggalMulaiBekerja = $slip->tanggal_mulai_bekerja_snapshot ? $slip->tanggal_mulai_bekerja_snapshot->translatedFormat('F Y') : '-';
     $masaKerja = $slip->masa_kerja_snapshot ?: '-';
     $periodeNama = \Carbon\Carbon::createFromDate($slip->periode_tahun, $slip->periode_bulan, 1)->translatedFormat('F Y');
-
-    // Logo base64
-    $logoPath = public_path('images/logo_bulat.png');
-    $logoData = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
+    $periodeUpper = strtoupper($periodeNama);
 
     // Evaluasi apakah ada item yang menggunakan kuantiti Hari
     $hasHari = ((float)$slip->uang_makan_total > 0 || (float)$slip->uang_transport_total > 0);
@@ -206,100 +303,114 @@
     $potonganItems = $slip->items->filter(fn($it) => (float)$it->nominal > 0);
 @endphp
 
-    <!-- Header Box -->
-    <table class="w-full table-fixed header-box">
+    <!-- 1. Header (Logo Kiri + Banner Ungu Kanan) -->
+    <table class="w-full header-table">
         <tr>
-            <td style="width: 55%; vertical-align: middle;">
-                <table style="width: auto;">
+            <td style="width: 58%; vertical-align: middle;">
+                <table style="width: 100%;">
                     <tr>
-                        @if($logoData)
-                        <td style="vertical-align: middle; padding-right: 10px; width: 48px;">
-                            <img src="{{ $logoData }}" class="logo-img" alt="Logo">
+                        <td style="width: 44px; vertical-align: middle; padding-right: 8px;">
+                            <div style="width: 40px; height: 40px; background: #5E17EB; border-radius: 8px; text-align: center; line-height: 40px; color: #ffffff; font-weight: 900; font-size: 16pt;">
+                                S
+                            </div>
                         </td>
-                        @endif
                         <td style="vertical-align: middle;">
-                            <div class="company-title">SOULMATE KOMPUTER</div>
-                            <div class="company-subtitle">{{ $cabang->nama_cabang ?? 'Pusat' }} &bull; {{ $cabang->alamat ?? 'Pangkalpinang' }}</div>
+                            <div>
+                                <span class="company-title-brand">SOULMATE</span>
+                                <span class="company-title-dark"> KOMPUTER</span>
+                            </div>
+                            <div class="company-subtitle">
+                                LAPTOP &bull; KOMPUTER &bull; PRINTER &bull; CCTV &bull; SERVICE
+                            </div>
                         </td>
                     </tr>
                 </table>
             </td>
-            <td style="width: 45%; vertical-align: middle; text-align: right;">
-                <div class="doc-title">SLIP GAJI KARYAWAN</div>
-                <div class="doc-period">PERIODE: {{ strtoupper($periodeNama) }}</div>
-                <div style="font-size: 7.5pt; margin-top: 2px;">No: {{ $slip->no_slip }}</div>
-            </td>
-        </tr>
-    </table>
-
-    <!-- Profil Karyawan Box -->
-    <table class="w-full table-fixed profile-table">
-        <tr>
-            <td style="width: 50%;">
-                <table>
+            <td style="width: 42%; vertical-align: middle; text-align: right;">
+                <table class="banner-box" style="width: 100%;">
                     <tr>
-                        <td class="profile-label">Nama Karyawan</td>
-                        <td class="profile-separator">:</td>
-                        <td class="profile-value font-bold">{{ $namaStaf }}</td>
-                    </tr>
-                    <tr>
-                        <td class="profile-label">Jabatan</td>
-                        <td class="profile-separator">:</td>
-                        <td class="profile-value">{{ $jabatan }}</td>
-                    </tr>
-                    <tr>
-                        <td class="profile-label">Tanggal Lahir</td>
-                        <td class="profile-separator">:</td>
-                        <td class="profile-value">{{ $tanggalLahir }} ({{ $usia }})</td>
-                    </tr>
-                </table>
-            </td>
-            <td style="width: 50%;">
-                <table>
-                    <tr>
-                        <td class="profile-label">Periode Gaji</td>
-                        <td class="profile-separator">:</td>
-                        <td class="profile-value font-bold">{{ $periodeNama }}</td>
-                    </tr>
-                    <tr>
-                        <td class="profile-label">Masa Kerja</td>
-                        <td class="profile-separator">:</td>
-                        <td class="profile-value">{{ $tanggalMulaiBekerja }} ({{ $masaKerja }})</td>
-                    </tr>
-                    <tr>
-                        <td class="profile-label">Status Slip</td>
-                        <td class="profile-separator">:</td>
-                        <td class="profile-value font-bold uppercase">{{ $slip->status }}</td>
+                        <td style="vertical-align: middle; text-align: left;">
+                            <div class="banner-title">SLIP GAJI</div>
+                            <div class="banner-sub">KARYAWAN</div>
+                        </td>
+                        <td style="vertical-align: middle; text-align: right;">
+                            <span class="banner-pill">{{ $periodeUpper }}</span>
+                        </td>
                     </tr>
                 </table>
             </td>
         </tr>
     </table>
 
-    <!-- 1. TABEL PENERIMAAN -->
-    <table class="w-full table-fixed data-table">
+    <!-- 2. Profil Karyawan Box -->
+    <div class="profile-box">
+        <table class="w-full table-fixed profile-table">
+            <tr>
+                <td style="width: 50%;">
+                    <table style="width: 100%;">
+                        <tr>
+                            <td class="profile-label">Nama Karyawan</td>
+                            <td class="profile-separator">:</td>
+                            <td class="profile-value">{{ $namaStaf }}</td>
+                        </tr>
+                        <tr>
+                            <td class="profile-label">Jabatan</td>
+                            <td class="profile-separator">:</td>
+                            <td class="profile-value">{{ $jabatan }}</td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="width: 50%;">
+                    <table style="width: 100%;">
+                        <tr>
+                            <td class="profile-label">Tanggal Lahir</td>
+                            <td class="profile-separator">:</td>
+                            <td class="profile-value">
+                                {{ $tanggalLahir }}
+                                @if($usia !== '-')
+                                    <span class="profile-badge">({{ $usia }})</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="profile-label">Periode Gaji</td>
+                            <td class="profile-separator">:</td>
+                            <td class="profile-value">{{ $periodeNama }}</td>
+                        </tr>
+                        <tr>
+                            <td class="profile-label">Masa Kerja</td>
+                            <td class="profile-separator">:</td>
+                            <td class="profile-value">
+                                {{ $tanggalMulaiBekerja }}
+                                @if($masaKerja !== '-')
+                                    <span class="profile-badge">({{ $masaKerja }})</span>
+                                @endif
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 3. TABEL PENERIMAAN -->
+    <table class="w-full table-fixed section-table">
         <thead>
-            <tr class="section-header">
-                <th colspan="{{ $hasHari ? 4 : 2 }}" class="text-left uppercase">Penerimaan</th>
+            <tr class="header-penerimaan">
+                <th class="text-left" style="width: {{ $hasHari ? '50%' : '75%' }};">PENERIMAAN</th>
+                @if($hasHari)
+                    <th class="text-center" style="width: 14%;">Hari</th>
+                    <th class="text-right" style="width: 18%;">Per Hari</th>
+                @endif
+                <th class="text-right" style="width: {{ $hasHari ? '18%' : '25%' }};">Jumlah</th>
             </tr>
-            @if($hasHari)
-            <tr>
-                <th class="text-left" style="width: 48%;">Keterangan</th>
-                <th class="text-center" style="width: 14%;">Hari</th>
-                <th class="text-right" style="width: 18%;">Per Hari</th>
-                <th class="text-right" style="width: 20%;">Jumlah</th>
-            </tr>
-            @else
-            <tr>
-                <th class="text-left" style="width: 75%;">Keterangan</th>
-                <th class="text-right" style="width: 25%;">Jumlah</th>
-            </tr>
-            @endif
         </thead>
         <tbody>
             <!-- Gaji Pokok (Selalu Tampil) -->
-            <tr>
-                <td class="font-bold">Gaji Pokok</td>
+            <tr class="item-row">
+                <td class="font-bold">
+                    <span class="item-bullet">&bull;</span> Gaji Pokok
+                </td>
                 @if($hasHari)
                     <td class="text-center">-</td>
                     <td class="text-right">-</td>
@@ -309,144 +420,177 @@
 
             {{-- Uang Makan (Hanya tampil jika nominal > 0) --}}
             @if((float)$slip->uang_makan_total > 0)
-            <tr>
-                <td>Uang Makan</td>
+            <tr class="item-row">
+                <td class="font-bold">
+                    <span class="item-bullet">&bull;</span> Uang Makan
+                </td>
                 @if($hasHari)
-                    <td class="text-center">{{ $slip->uang_makan_hari }} Hari</td>
+                    <td class="text-center font-bold">{{ $slip->uang_makan_hari }} Hari</td>
                     <td class="text-right">Rp {{ number_format($slip->uang_makan_per_hari, 0, ',', '.') }}</td>
                 @endif
-                <td class="text-right">Rp {{ number_format($slip->uang_makan_total, 0, ',', '.') }}</td>
+                <td class="text-right font-bold">Rp {{ number_format($slip->uang_makan_total, 0, ',', '.') }}</td>
             </tr>
             @endif
 
             {{-- Uang Transportasi (Hanya tampil jika nominal > 0) --}}
             @if((float)$slip->uang_transport_total > 0)
-            <tr>
-                <td>Uang Transportasi</td>
+            <tr class="item-row">
+                <td class="font-bold">
+                    <span class="item-bullet">&bull;</span> Uang Transportasi
+                </td>
                 @if($hasHari)
-                    <td class="text-center">{{ $slip->uang_transport_hari }} Hari</td>
+                    <td class="text-center font-bold">{{ $slip->uang_transport_hari }} Hari</td>
                     <td class="text-right">Rp {{ number_format($slip->uang_transport_per_hari, 0, ',', '.') }}</td>
                 @endif
-                <td class="text-right">Rp {{ number_format($slip->uang_transport_total, 0, ',', '.') }}</td>
+                <td class="text-right font-bold">Rp {{ number_format($slip->uang_transport_total, 0, ',', '.') }}</td>
             </tr>
             @endif
 
             {{-- Tunjangan (Hanya tampil jika nominal > 0) --}}
             @if((float)$slip->tunjangan_nominal > 0)
-            <tr>
-                <td>{{ $slip->tunjangan_nama ?: 'Tunjangan' }}</td>
+            <tr class="item-row">
+                <td class="font-bold">
+                    <span class="item-bullet">&bull;</span> {{ $slip->tunjangan_nama ?: 'Tunjangan' }}
+                </td>
                 @if($hasHari)
                     <td class="text-center">-</td>
                     <td class="text-right">-</td>
                 @endif
-                <td class="text-right">Rp {{ number_format($slip->tunjangan_nominal, 0, ',', '.') }}</td>
+                <td class="text-right font-bold">Rp {{ number_format($slip->tunjangan_nominal, 0, ',', '.') }}</td>
             </tr>
             @endif
 
             {{-- Bonus (Hanya tampil jika nominal > 0) --}}
             @if((float)$slip->bonus_nominal > 0)
-            <tr>
-                <td>Bonus</td>
+            <tr class="item-row">
+                <td class="font-bold">
+                    <span class="item-bullet">&bull;</span> Bonus
+                </td>
                 @if($hasHari)
                     <td class="text-center">-</td>
                     <td class="text-right">-</td>
                 @endif
-                <td class="text-right">Rp {{ number_format($slip->bonus_nominal, 0, ',', '.') }}</td>
+                <td class="text-right font-bold">Rp {{ number_format($slip->bonus_nominal, 0, ',', '.') }}</td>
             </tr>
             @endif
 
             {{-- Lembur/Performa (Hanya tampil jika nominal > 0) --}}
             @if((float)$slip->lembur_performa_nominal > 0)
-            <tr>
-                <td>Lembur/Performa</td>
+            <tr class="item-row">
+                <td class="font-bold">
+                    <span class="item-bullet">&bull;</span> Lembur/Performa
+                </td>
                 @if($hasHari)
                     <td class="text-center">-</td>
                     <td class="text-right">-</td>
                 @endif
-                <td class="text-right">Rp {{ number_format($slip->lembur_performa_nominal, 0, ',', '.') }}</td>
+                <td class="text-right font-bold">Rp {{ number_format($slip->lembur_performa_nominal, 0, ',', '.') }}</td>
             </tr>
             @endif
 
             {{-- Servisan Selesai (Hanya tampil jika nominal > 0) --}}
             @if((float)$slip->servisan_selesai_nominal > 0)
-            <tr>
-                <td>Servisan Selesai</td>
+            <tr class="item-row">
+                <td class="font-bold">
+                    <span class="item-bullet">&bull;</span> Servisan Selesai
+                </td>
                 @if($hasHari)
                     <td class="text-center">-</td>
                     <td class="text-right">-</td>
                 @endif
-                <td class="text-right">Rp {{ number_format($slip->servisan_selesai_nominal, 0, ',', '.') }}</td>
+                <td class="text-right font-bold">Rp {{ number_format($slip->servisan_selesai_nominal, 0, ',', '.') }}</td>
             </tr>
             @endif
         </tbody>
         <tfoot>
-            <tr class="subtotal-row">
-                <td colspan="{{ $hasHari ? 3 : 1 }}" class="uppercase">Total Penghasilan Bruto</td>
+            <tr class="strip-bruto">
+                <td colspan="{{ $hasHari ? 3 : 1 }}" class="uppercase">TOTAL PENGHASILAN BRUTO</td>
                 <td class="text-right">Rp {{ number_format($slip->total_bruto, 0, ',', '.') }}</td>
             </tr>
         </tfoot>
     </table>
 
-    {{-- 2. TABEL PENGURANGAN (Hanya Tampil Jika Ada Potongan) --}}
+    <!-- 4. TABEL PENGURANGAN (Hanya Tampil Jika Ada Potongan) -->
     @if($potonganItems->isNotEmpty())
-    <table class="w-full table-fixed data-table">
+    <table class="w-full table-fixed section-table">
         <thead>
-            <tr class="section-header">
-                <th colspan="2" class="text-left uppercase">Pengurangan</th>
-            </tr>
-            <tr>
-                <th class="text-left" style="width: 75%;">Keterangan</th>
-                <th class="text-right" style="width: 25%;">Jumlah</th>
+            <tr class="header-pengurangan">
+                <th class="text-left" style="width: {{ $hasHari ? '50%' : '75%' }};">PENGURANGAN</th>
+                @if($hasHari)
+                    <th class="text-center" style="width: 14%;">Hari</th>
+                    <th class="text-right" style="width: 18%;">Per Hari</th>
+                @endif
+                <th class="text-right" style="width: {{ $hasHari ? '18%' : '25%' }};">Jumlah</th>
             </tr>
         </thead>
         <tbody>
             @foreach($potonganItems as $potongan)
-            <tr>
-                <td>{{ $potongan->nama_item ?: $potongan->kategori }}</td>
-                <td class="text-right">Rp {{ number_format($potongan->nominal, 0, ',', '.') }}</td>
+            <tr class="item-row">
+                <td class="font-bold">
+                    <span class="item-bullet-red">&bull;</span> {{ $potongan->nama_item ?: ($potongan->kategori ?: 'Potongan') }}
+                </td>
+                @if($hasHari)
+                    <td class="text-center">-</td>
+                    <td class="text-right">-</td>
+                @endif
+                <td class="text-right font-bold amount-red">Rp {{ number_format($potongan->nominal, 0, ',', '.') }}</td>
             </tr>
             @endforeach
         </tbody>
         <tfoot>
-            <tr class="subtotal-row">
-                <td class="uppercase">Total Pengurangan</td>
-                <td class="text-right">Rp {{ number_format($slip->total_pengurangan, 0, ',', '.') }}</td>
+            <tr class="strip-pengurangan">
+                <td colspan="{{ $hasHari ? 3 : 1 }}" class="uppercase">TOTAL PENGURANGAN</td>
+                <td class="text-right amount-red">Rp {{ number_format($slip->total_pengurangan, 0, ',', '.') }}</td>
             </tr>
         </tfoot>
     </table>
     @endif
 
-    {{-- 3. GRAND TOTAL BOX (Label Opsi A: Total Diterima) --}}
-    <table class="w-full table-fixed grandtotal-table">
+    <!-- 5. GRAND TOTAL BOX (TOTAL DITERIMA KARYAWAN) -->
+    <table class="w-full grandtotal-box">
         <tr>
-            <td class="grandtotal-label uppercase">TOTAL DITERIMA</td>
-            <td class="grandtotal-amount">Rp {{ number_format($slip->total_diterima, 0, ',', '.') }}</td>
-        </tr>
-    </table>
-
-    <!-- Tanda Tangan -->
-    <table class="w-full table-fixed signature-table">
-        <tr>
-            <td style="width: 50%;">
-                <div>Penerima,</div>
-                <div class="sign-line"></div>
-                <div class="font-bold">{{ $namaStaf }}</div>
-                <div style="font-size: 7.5pt;">Karyawan</div>
+            <td style="width: 60%; vertical-align: middle;">
+                <div class="grandtotal-label uppercase">TOTAL DITERIMA KARYAWAN</div>
+                <div class="grandtotal-sub">Gaji bersih yang dibayarkan ke staf</div>
             </td>
-            <td style="width: 50%;">
-                <div>{{ $cabang->kota ?? 'Pangkalpinang' }}, {{ $periodeNama }}</div>
-                <div style="margin-top: 2px;">Manajemen Soulmate Komputer,</div>
-                <div class="sign-line"></div>
-                <div class="font-bold">{{ $slip->finalizedBy ? $slip->finalizedBy->name : 'Finance / HR' }}</div>
-                <div style="font-size: 7.5pt;">Pengelola</div>
+            <td style="width: 40%; vertical-align: middle; text-align: right;">
+                <div class="grandtotal-amount">Rp {{ number_format($slip->total_diterima, 0, ',', '.') }}</div>
             </td>
         </tr>
     </table>
 
-    <!-- Footer Note -->
-    <div class="footer-note">
-        Terima Kasih atas dedikasi dan kerja keras Anda untuk kemajuan Soulmate Komputer.
-    </div>
+    <!-- 6. FOOTER (UCAPAN TERIMA KASIH, WATERMARK, TANDA TANGAN) -->
+    <table class="w-full footer-table">
+        <tr>
+            <!-- Sisi Kiri: Ucapan Terima Kasih -->
+            <td style="width: 45%;">
+                <div class="terima-kasih-title">Terima Kasih</div>
+                <div class="terima-kasih-text">
+                    Atas dedikasi dari kerja keras Anda untuk kemajuan Soulmate Komputer.
+                </div>
+            </td>
+
+            <!-- Tengah: Slogan Watermark -->
+            <td style="width: 25%; text-align: center;">
+                <div class="watermark-slogan">
+                    BERSAMA LEBIH MAJU
+                </div>
+            </td>
+
+            <!-- Sisi Kanan: Tanda Tangan -->
+            <td style="width: 30%; text-align: center;">
+                <div class="signature-title">
+                    Pangkalpinang, {{ $periodeNama }}
+                </div>
+                <div>
+                    <span class="signature-line"></span>
+                </div>
+                <div class="signature-name">
+                    Manajemen Soulmate Komputer
+                </div>
+            </td>
+        </tr>
+    </table>
+
 </body>
 </html>
-

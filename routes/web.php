@@ -201,6 +201,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/slip-gaji/buat', \App\Livewire\SlipGaji\Form::class)->name('slip-gaji.create')->middleware('can:gaji.view');
     Route::get('/slip-gaji/{slip}', \App\Livewire\SlipGaji\Form::class)->name('slip-gaji.edit')->middleware('can:gaji.view');
     Route::get('/slip-gaji/{slip}/pdf', [\App\Http\Controllers\SlipGajiPdfController::class, 'exportPdf'])->name('slip-gaji.pdf')->middleware('can:gaji.export_pdf');
+    Route::get('/slip-gaji/{slip}/cetak', [\App\Http\Controllers\SlipGajiPdfController::class, 'cetak'])->name('slip-gaji.cetak')->middleware('can:gaji.export_pdf');
 
     Route::post('/logout', function () {
         Auth::logout();
