@@ -755,8 +755,11 @@ class Form extends Component
             ->orderBy('name')
             ->get();
 
+        $slipModel = $this->slipId ? SlipGaji::with(['items', 'user', 'cabang'])->find($this->slipId) : null;
+
         return view('livewire.slip-gaji.form', [
             'stafs' => $stafs,
+            'slipModel' => $slipModel,
         ]);
     }
 }

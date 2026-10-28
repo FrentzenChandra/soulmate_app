@@ -70,6 +70,24 @@ class Index extends Component
     public ?int $deleteSlipId = null;
     public string $deleteSlipNo = '';
 
+    // State Modal Preview Slip Gaji (1:1 Sesuai Gambar)
+    public bool $modalPreviewOpen = false;
+    public ?SlipGaji $previewSlip = null;
+
+    public function showSlipPreview(int $slipId): void
+    {
+        $this->previewSlip = SlipGaji::with(['items', 'user', 'cabang'])->find($slipId);
+        if ($this->previewSlip) {
+            $this->modalPreviewOpen = true;
+        }
+    }
+
+    public function closePreviewModal(): void
+    {
+        $this->modalPreviewOpen = false;
+        $this->previewSlip = null;
+    }
+
     public function mount(?SlipGajiService $service = null): void
     {
         $service = $service ?? app(SlipGajiService::class);

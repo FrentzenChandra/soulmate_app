@@ -97,6 +97,14 @@
     </div>
     @endif
 
+    @if($slipId && $isFinal && $slipModel)
+        <!-- ============================================== -->
+        <!-- DETAIL TAMPILAN 1:1 SLIP GAJI FINAL (MOCKUP)   -->
+        <!-- ============================================== -->
+        <div class="py-2">
+            <x-slip-gaji-card :slip="$slipModel" />
+        </div>
+    @else
     <!-- Card 1: Data Karyawan -->
     <div class="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-xs space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-gray-100">
@@ -436,22 +444,11 @@
                 <div class="grid grid-cols-12 gap-2 items-center py-1 px-2 rounded-xl hover:bg-gray-50/50">
                     <div class="col-span-5 sm:col-span-6">
                         @if(!$isFinal)
-                            <div class="flex items-center space-x-2">
-                                <select wire:model.live="penguranganItems.{{ $index }}.kategori"
-                                        class="bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-black cursor-pointer">
-                                    <option value="Hutang">Hutang</option>
-                                    <option value="Kasbon">Kasbon</option>
-                                    <option value="Denda">Denda</option>
-                                    <option value="Lainnya">Lainnya</option>
-                                </select>
-                                @if(($item['kategori'] ?? '') === 'Lainnya')
-                                    <input type="text"
-                                           wire:model.live.debounce.300ms="penguranganItems.{{ $index }}.nama_item"
-                                           class="px-2 py-1.5 font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg flex-1">
-                                @endif
-                            </div>
+                            <input type="text"
+                                   wire:model.live.debounce.300ms="penguranganItems.{{ $index }}.nama_item"
+                                   class="w-full px-2.5 py-1.5 font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg focus:border-[#5E17EB] focus:bg-white transition-colors">
                         @else
-                            <span class="text-xs font-bold text-black">{{ $item['nama_item'] ?? $item['kategori'] }}</span>
+                            <span class="text-xs font-bold text-black">{{ $item['nama_item'] ?: 'Potongan' }}</span>
                         @endif
                     </div>
                     <div class="col-span-2 text-center">
@@ -573,4 +570,5 @@
             </div>
         </div>
     </div>
+    @endif
 </div>

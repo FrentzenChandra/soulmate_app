@@ -36,3 +36,4 @@
            @if($disabled) disabled @endif
            {{ $attributes->whereDoesntStartWith('wire:model')->merge(['class' => 'w-full px-2.5 py-1.5 text-right font-mono font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg focus:border-[#5E17EB] focus:bg-white transition-colors ' . $inputClass]) }}>
 </div>
+

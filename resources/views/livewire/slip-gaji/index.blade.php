@@ -250,15 +250,20 @@
                             </td>
                             <td class="px-4 py-3 text-center whitespace-nowrap">
                                 <div class="inline-flex items-center space-x-1.5">
-                                    <a href="{{ route('slip-gaji.edit', $slip->id) }}"
-                                       class="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-100 text-black transition-all"
-                                       title="{{ $slip->isFinal() ? 'Lihat Detail' : 'Edit Slip' }}">
-                                        @if ($slip->isFinal())
-                                             <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                        @else
+                                    @if ($slip->isFinal())
+                                        <button type="button"
+                                                wire:click="showSlipPreview({{ $slip->id }})"
+                                                class="p-1.5 rounded-lg border border-gray-200 hover:bg-purple-50 text-[#5E17EB] transition-all cursor-pointer"
+                                                title="Lihat Slip Gaji (1:1 Sesuai Desain)">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        </button>
+                                    @else
+                                        <a href="{{ route('slip-gaji.edit', $slip->id) }}"
+                                           class="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-100 text-black transition-all cursor-pointer"
+                                           title="Edit Draft Slip">
                                             <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                        @endif
-                                    </a>
+                                        </a>
+                                    @endif
 
                                     @if ($slip->isFinal())
                                         @can('gaji.export_pdf')
@@ -542,6 +547,40 @@
                             class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black cursor-pointer">
                         Ya, Hapus
                     </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- ============================================== -->
+    <!-- MODAL PREVIEW SLIP GAJI (1:1 SESUAI DESAIN)    -->
+    <!-- ============================================== -->
+    @if ($modalPreviewOpen && $previewSlip)
+        <div class="fixed inset-0 z-50 overflow-y-auto bg-black/75 flex items-center justify-center p-3 sm:p-6 backdrop-blur-xs">
+            <div class="bg-white rounded-3xl max-w-4xl w-full p-4 sm:p-6 space-y-4 shadow-2xl border border-gray-200">
+                <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-[#5E17EB]"></span>
+                        <span class="text-xs font-black uppercase tracking-wider text-black">Preview Slip Gaji &bull; {{ $previewSlip->no_slip }}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        @can('gaji.export_pdf')
+                        <a href="{{ route('slip-gaji.pdf', $previewSlip->id) }}" target="_blank"
+                           class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#5E17EB] text-white hover:bg-purple-800 shadow-sm transition-all cursor-pointer">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                            </svg>
+                            <span>Cetak PDF</span>
+                        </a>
+                        @endcan
+                        <button type="button" wire:click="closePreviewModal" class="p-1.5 rounded-xl text-black hover:bg-gray-100 transition-colors cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-y-auto max-h-[80vh] p-1">
+                    <x-slip-gaji-card :slip="$previewSlip" />
                 </div>
             </div>
         </div>
