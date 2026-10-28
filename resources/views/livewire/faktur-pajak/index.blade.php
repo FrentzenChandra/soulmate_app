@@ -58,10 +58,6 @@
                             <div class="w-8 h-8 bg-gray-100 rounded-xl"></div>
                         </div>
                         <div class="h-7 bg-gray-200 rounded w-40 mt-3"></div>
-                        <div class="flex items-center gap-1.5 mt-2.5">
-                            <div class="w-3.5 h-3.5 bg-gray-200 rounded"></div>
-                            <div class="h-3 bg-gray-100 rounded w-28"></div>
-                        </div>
                     </div>
                 @endfor
             </div>
@@ -74,19 +70,16 @@
                     label="Total Bruto"
                     :value="'Rp ' . number_format($totalBruto, 0, ',', '.')"
                     color="purple"
-                    :month="$namaBulanBerjalan"
                 />
                 <x-metric-card
                     label="Total PPN"
                     :value="'Rp ' . number_format($totalPpn, 0, ',', '.')"
                     color="blue"
-                    :month="$namaBulanBerjalan"
                 />
                 <x-metric-card
                     label="Total PPh"
                     :value="'Rp ' . number_format($totalPph, 0, ',', '.')"
                     color="pink"
-                    :month="$namaBulanBerjalan"
                 />
             </div>
         </div>

@@ -2,7 +2,6 @@
     'label' => '',
     'value' => '0',
     'color' => 'purple',
-    'month' => '',
     'unit' => null,
 ])
 
@@ -61,7 +60,7 @@
             @endif
         </div>
     </div>
-    <div class="mt-2">
+    <div class="mt-3">
         <span class="text-xl sm:text-2xl font-black font-mono {{ $colorConfig['text'] }} tracking-tight block">
             {{ $value }}
         </span>
@@ -69,9 +68,4 @@
             <span class="text-[11px] font-bold text-gray-500 block mt-0.5">{{ $unit }}</span>
         @endif
     </div>
-    <div class="flex items-center gap-1.5 mt-2.5 text-xs text-gray-500 font-medium">
-        <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-        <span>Bulan {{ $month }}</span>
-    </div>
 </div>
-

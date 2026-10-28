@@ -59,10 +59,6 @@
                         </div>
                         <div class="h-7 bg-gray-200 rounded w-20 mt-3"></div>
                         <div class="h-3 bg-gray-100 rounded w-10 mt-1"></div>
-                        <div class="flex items-center gap-1.5 mt-2.5">
-                            <div class="w-3.5 h-3.5 bg-gray-200 rounded"></div>
-                            <div class="h-3 bg-gray-100 rounded w-28"></div>
-                        </div>
                     </div>
                 @endfor
             </div>
@@ -75,21 +71,18 @@
                     label="Total Klaim"
                     :value="number_format($totalKlaim, 0, ',', '.')"
                     color="purple"
-                    :month="$namaBulanBerjalan"
                     unit="klaim"
                 />
                 <x-metric-card
                     label="Selesai Klaim"
                     :value="number_format($selesaiKlaim, 0, ',', '.')"
                     color="emerald"
-                    :month="$namaBulanBerjalan"
                     unit="klaim"
                 />
                 <x-metric-card
                     label="Belum Selesai Klaim"
                     :value="number_format($belumSelesaiKlaim, 0, ',', '.')"
                     color="amber"
-                    :month="$namaBulanBerjalan"
                     unit="klaim"
                 />
             </div>

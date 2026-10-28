@@ -169,7 +169,7 @@ class FakturPajakTest extends TestCase
             ->assertSeeHtml('Total Bruto')
             ->assertSeeHtml('Total PPN')
             ->assertSeeHtml('Total PPh')
-            ->assertSee('Bulan ' . $namaBulan);
+            ->assertDontSee('Bulan ' . $namaBulan);
     }
 
     public function test_summary_cards_exclude_last_day_of_last_month_and_first_day_of_next_month(): void

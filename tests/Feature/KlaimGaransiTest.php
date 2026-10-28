@@ -552,7 +552,7 @@ class KlaimGaransiTest extends TestCase
             ->assertSeeHtml('Selesai Klaim')
             ->assertSeeHtml('Belum Selesai Klaim')
             ->assertSeeHtml('klaim')
-            ->assertSee('Bulan ' . $currentMonthName)
+            ->assertDontSee('Bulan ' . $currentMonthName)
             ->assertSeeHtml('3') // Total Klaim
             ->assertSeeHtml('2') // Selesai Klaim
             ->assertSeeHtml('1'); // Belum Selesai Klaim
