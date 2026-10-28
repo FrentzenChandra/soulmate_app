@@ -22,7 +22,7 @@
             @can('gaji.tarif.edit')
             <button type="button"
                     wire:click="openTarifModal"
-                    class="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-white border border-black hover:bg-gray-50 text-black font-bold text-xs transition-all cursor-pointer">
+                    class="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-black font-bold text-xs transition-all cursor-pointer">
                 <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <span>Atur Tarif</span>
             </button>
@@ -31,7 +31,7 @@
             @can('gaji.create')
             <button type="button"
                     wire:click="openSalinSemuaModal"
-                    class="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-white border border-black hover:bg-gray-50 text-black font-bold text-xs transition-all cursor-pointer">
+                    class="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-black font-bold text-xs transition-all cursor-pointer">
                 <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
                 <span>Salin Semua dari Bulan Lalu</span>
             </button>
@@ -81,7 +81,7 @@
     <!-- ============================================== -->
     <!-- FILTER BAR, PERIODE & PENCARIAN                -->
     <!-- ============================================== -->
-    <div class="card-custom bg-white p-5 space-y-4 border border-black shadow-xs rounded-2xl">
+    <div class="card-custom bg-white p-5 space-y-4 border border-gray-200 shadow-xs rounded-2xl">
         <!-- Baris 1: Mode Periode Switcher & Selector Tanggal -->
         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-200">
             <div class="flex items-center space-x-1.5 bg-gray-100 p-1 rounded-xl">
@@ -118,22 +118,22 @@
                     <div class="flex items-center space-x-2">
                         <input type="date"
                                wire:model.live="startDate"
-                               class="text-xs rounded-xl border border-black bg-white px-3 py-2 text-black font-mono font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                               class="text-xs rounded-xl border border-gray-200 bg-white px-3 py-2 text-black font-mono font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
                         <span class="text-xs font-bold text-black">s/d</span>
                         <input type="date"
                                wire:model.live="endDate"
-                               class="text-xs rounded-xl border border-black bg-white px-3 py-2 text-black font-mono font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                               class="text-xs rounded-xl border border-gray-200 bg-white px-3 py-2 text-black font-mono font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
                     </div>
                 @elseif ($periodeMode === 'bulanan')
                     <div class="flex items-center space-x-2">
                         <select wire:model.live="filterBulan"
-                                class="text-xs rounded-xl border border-black bg-white px-3 py-2 text-black font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                                class="text-xs rounded-xl border border-gray-200 bg-white px-3 py-2 text-black font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
                             @for ($m = 1; $m <= 12; $m++)
                                 <option value="{{ $m }}">{{ \Carbon\Carbon::create(null, $m)->locale('id')->translatedFormat('F') }}</option>
                             @endfor
                         </select>
                         <select wire:model.live="filterTahun"
-                                class="text-xs rounded-xl border border-black bg-white px-3 py-2 text-black font-mono font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                                class="text-xs rounded-xl border border-gray-200 bg-white px-3 py-2 text-black font-mono font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
                             @for ($y = now()->year + 1; $y >= 2024; $y--)
                                 <option value="{{ $y }}">{{ $y }}</option>
                             @endfor
@@ -141,7 +141,7 @@
                     </div>
                 @elseif ($periodeMode === 'tahunan')
                     <select wire:model.live="filterTahun"
-                            class="text-xs rounded-xl border border-black bg-white px-3 py-2 text-black font-mono font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                            class="text-xs rounded-xl border border-gray-200 bg-white px-3 py-2 text-black font-mono font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
                         @for ($y = now()->year + 1; $y >= 2024; $y--)
                             <option value="{{ $y }}">{{ $y }}</option>
                         @endfor
@@ -158,14 +158,14 @@
                 </div>
                 <input type="text"
                        wire:model.live.debounce.300ms="search"
-                       class="w-full pl-9 pr-4 py-2 bg-white border border-black rounded-xl text-xs font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                       class="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
             </div>
 
             <!-- Filter Status -->
             <div class="flex items-center space-x-2">
                 <label class="text-xs font-black text-black">Status:</label>
                 <select wire:model.live="statusFilter"
-                        class="text-xs rounded-xl border border-black bg-white px-3 py-2 text-black font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                        class="text-xs rounded-xl border border-gray-200 bg-white px-3 py-2 text-black font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
                     <option value="semua">Semua Status</option>
                     <option value="draft">Draft</option>
                     <option value="final">Final</option>
@@ -177,7 +177,7 @@
             <div class="flex items-center space-x-2">
                 <label class="text-xs font-black text-black">Cabang:</label>
                 <select wire:model.live="cabangFilter"
-                        class="text-xs rounded-xl border border-black bg-white px-3 py-2 text-black font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                        class="text-xs rounded-xl border border-gray-200 bg-white px-3 py-2 text-black font-bold focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
                     <option value="semua">Semua Cabang</option>
                     @foreach ($cabangs as $cb)
                         <option value="{{ $cb->id }}">{{ $cb->nama_cabang }}</option>
@@ -193,7 +193,7 @@
     <!-- ============================================== -->
     <!-- TABEL DATA SLIP GAJI                           -->
     <!-- ============================================== -->
-    <div class="card-custom bg-white border border-black shadow-xs rounded-2xl overflow-hidden">
+    <div class="card-custom bg-white border border-gray-200 shadow-xs rounded-2xl overflow-hidden">
         <div wire:loading.block wire:target="setPeriodeMode, startDate, endDate, filterBulan, filterTahun, statusFilter, cabangFilter, search" class="w-full">
             <x-table-skeleton />
         </div>
@@ -201,7 +201,7 @@
         <div wire:loading.remove wire:target="setPeriodeMode, startDate, endDate, filterBulan, filterTahun, statusFilter, cabangFilter, search" class="overflow-x-auto">
             <table class="w-full text-left border-collapse" data-table-size="M">
                 <thead>
-                    <tr class="bg-gray-100 border-b border-black text-[11px] font-black text-black uppercase tracking-wider">
+                    <tr class="bg-gray-100 border-b border-gray-200 text-[11px] font-black text-black uppercase tracking-wider">
                         <th class="px-4 py-3">No. Slip</th>
                         <th class="px-4 py-3">Periode</th>
                         <th class="px-4 py-3">Nama Staf</th>
@@ -251,10 +251,10 @@
                             <td class="px-4 py-3 text-center whitespace-nowrap">
                                 <div class="inline-flex items-center space-x-1.5">
                                     <a href="{{ route('slip-gaji.edit', $slip->id) }}"
-                                       class="p-1.5 rounded-lg border border-black hover:bg-gray-100 text-black transition-all"
+                                       class="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-100 text-black transition-all"
                                        title="{{ $slip->isFinal() ? 'Lihat Detail' : 'Edit Slip' }}">
                                         @if ($slip->isFinal())
-                                            <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                             <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                         @else
                                             <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                         @endif
@@ -264,7 +264,7 @@
                                         @can('gaji.export_pdf')
                                         <a href="{{ route('slip-gaji.pdf', $slip->id) }}"
                                            target="_blank"
-                                           class="p-1.5 rounded-lg border border-black hover:bg-gray-100 text-black transition-all"
+                                           class="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-100 text-black transition-all"
                                            title="Unduh PDF">
                                             <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                         </a>
@@ -273,7 +273,7 @@
                                         @can('gaji.reopen')
                                         <button type="button"
                                                 wire:click="confirmReopen({{ $slip->id }}, '{{ $slip->no_slip }}')"
-                                                class="p-1.5 rounded-lg border border-black hover:bg-amber-50 text-black transition-all"
+                                                class="p-1.5 rounded-lg border border-gray-200 hover:bg-amber-50 text-black transition-all"
                                                 title="Buka Kembali ke Draft (Owner)">
                                             <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
                                         </button>
@@ -282,7 +282,7 @@
                                         @can('gaji.delete')
                                         <button type="button"
                                                 wire:click="confirmDelete({{ $slip->id }}, '{{ $slip->no_slip }}')"
-                                                class="p-1.5 rounded-lg border border-black hover:bg-rose-50 text-rose-600 transition-all cursor-pointer"
+                                                class="p-1.5 rounded-lg border border-gray-200 hover:bg-rose-50 text-rose-600 transition-all cursor-pointer"
                                                 title="Hapus Slip Draft">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
@@ -303,7 +303,7 @@
         </div>
 
         @if ($slips->hasPages())
-            <div class="p-4 border-t border-black">
+            <div class="p-4 border-t border-gray-200">
                 {{ $slips->links() }}
             </div>
         @endif
@@ -314,8 +314,8 @@
     <!-- ============================================== -->
     @if ($modalTarifOpen)
         <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 border border-black shadow-xl">
-                <div class="flex items-center justify-between border-b border-black pb-3">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 border border-gray-200 shadow-xl">
+                <div class="flex items-center justify-between border-b border-gray-200 pb-3">
                     <h3 class="text-base font-black text-black">Atur Tarif Default Gaji</h3>
                     <button type="button" wire:click="closeTarifModal" class="text-black hover:opacity-75">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -329,7 +329,7 @@
                         </label>
                         <input type="number"
                                wire:model="tarifUangMakan"
-                               class="w-full px-3 py-2 bg-white border border-black rounded-xl text-xs font-mono font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                               class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-mono font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
                     </div>
 
                     <div>
@@ -338,7 +338,7 @@
                         </label>
                         <input type="number"
                                wire:model="tarifUangTransport"
-                               class="w-full px-3 py-2 bg-white border border-black rounded-xl text-xs font-mono font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                               class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-mono font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
                     </div>
 
                     <div>
@@ -347,14 +347,14 @@
                         </label>
                         <input type="number"
                                wire:model="tarifKenaikan6Bulan"
-                               class="w-full px-3 py-2 bg-white border border-black rounded-xl text-xs font-mono font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                               class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-mono font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-black">
+                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-gray-200">
                     <button type="button"
                             wire:click="closeTarifModal"
-                            class="px-4 py-2 rounded-xl border border-black text-xs font-bold text-black hover:bg-gray-100 cursor-pointer">
+                            class="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold text-black hover:bg-gray-100 cursor-pointer">
                         Batal
                     </button>
                     <button type="button"
@@ -377,8 +377,8 @@
     <!-- ============================================== -->
     @if ($modalSalinSemuaOpen)
         <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 border border-black shadow-xl">
-                <div class="flex items-center justify-between border-b border-black pb-3">
+            <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 border border-gray-200 shadow-xl">
+                <div class="flex items-center justify-between border-b border-gray-200 pb-3">
                     <h3 class="text-base font-black text-black">Salin Semua Slip Gaji</h3>
                     <button type="button" wire:click="closeSalinSemuaModal" class="text-black hover:opacity-75">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -407,10 +407,10 @@
                     @endif
                 </div>
 
-                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-black">
+                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-gray-200">
                     <button type="button"
                             wire:click="closeSalinSemuaModal"
-                            class="px-4 py-2 rounded-xl border border-black text-xs font-bold text-black hover:bg-gray-100 cursor-pointer">
+                            class="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold text-black hover:bg-gray-100 cursor-pointer">
                         Batal
                     </button>
                     <button type="button"
@@ -433,8 +433,8 @@
     <!-- ============================================== -->
     @if ($modalAlertOpen)
         <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 border border-black shadow-xl">
-                <div class="flex items-center justify-between border-b border-black pb-3">
+            <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 border border-gray-200 shadow-xl">
+                <div class="flex items-center justify-between border-b border-gray-200 pb-3">
                     <div class="flex items-center space-x-2">
                         <div class="w-8 h-8 rounded-xl bg-pink-100 text-[#E6007A] flex items-center justify-center">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -451,7 +451,7 @@
                         Daftar staf yang telah memasuki milestone kelipatan 6 bulan masa kerja dan memenuhi syarat penyesuaian gaji pokok:
                     </p>
 
-                    <div class="divide-y divide-gray-200 border border-black rounded-xl overflow-hidden">
+                    <div class="divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden">
                         @foreach ($daftarAlertKenaikan as $item)
                             <div class="p-3 flex items-center justify-between bg-white text-xs text-black">
                                 <div>
@@ -466,10 +466,10 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end pt-3 border-t border-black">
+                <div class="flex items-center justify-end pt-3 border-t border-gray-200">
                     <button type="button"
                             wire:click="closeAlertModal"
-                            class="px-5 py-2 rounded-xl bg-black text-white text-xs font-black cursor-pointer">
+                            class="px-5 py-2 rounded-xl bg-gray-900 text-white text-xs font-black hover:bg-black transition-colors cursor-pointer">
                         Tutup
                     </button>
                 </div>
@@ -482,7 +482,7 @@
     <!-- ============================================== -->
     @if ($modalReopenOpen)
         <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 border border-black shadow-xl">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 border border-gray-200 shadow-xl">
                 <div class="flex items-center space-x-3 text-amber-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     <h3 class="text-base font-black text-black">Buka Kembali Slip Final?</h3>
@@ -500,10 +500,10 @@
                               class="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-black focus:border-[#5E17EB]"></textarea>
                 </div>
 
-                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-black">
+                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-gray-200">
                     <button type="button"
                             wire:click="closeReopenModal"
-                            class="px-4 py-2 rounded-xl border border-black text-xs font-bold text-black hover:bg-gray-100 cursor-pointer">
+                            class="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold text-black hover:bg-gray-100 cursor-pointer">
                         Batal
                     </button>
                     <button type="button"
@@ -521,7 +521,7 @@
     <!-- ============================================== -->
     @if ($modalDeleteOpen)
         <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 border border-black shadow-xl">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 border border-gray-200 shadow-xl">
                 <div class="flex items-center space-x-3 text-rose-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     <h3 class="text-base font-black text-black">Hapus Slip Draft?</h3>
@@ -531,10 +531,10 @@
                     Data slip <span class="font-mono font-black">{{ $deleteSlipNo }}</span> akan dihapus dari sistem. Aksi ini tidak dapat dibatalkan.
                 </p>
 
-                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-black">
+                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-gray-200">
                     <button type="button"
                             wire:click="closeDeleteModal"
-                            class="px-4 py-2 rounded-xl border border-black text-xs font-bold text-black hover:bg-gray-100 cursor-pointer">
+                            class="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold text-black hover:bg-gray-100 cursor-pointer">
                         Batal
                     </button>
                     <button type="button"
