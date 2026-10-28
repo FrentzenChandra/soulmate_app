@@ -34,7 +34,9 @@ class SlipGajiPdfController extends Controller
 
         $pdf = Pdf::loadView('pdf.slip-gaji', [
             'slip' => $slipGaji,
-        ])->setPaper('a4', 'portrait');
+        ])->setPaper('a4', 'portrait')
+          ->setOption('isPhpEnabled', true)
+          ->setOption('isRemoteEnabled', true);
 
         return $request->query('download') === '1'
             ? $pdf->download($filename)

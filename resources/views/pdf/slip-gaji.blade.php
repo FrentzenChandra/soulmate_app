@@ -5,8 +5,8 @@
     <title>Slip Gaji - {{ $slip->nama_staf_snapshot ?: ($slip->user->name ?? 'Karyawan') }} - {{ sprintf('%04d-%02d', $slip->periode_tahun, $slip->periode_bulan) }}</title>
     <style>
         @page {
-            size: portrait;
-            margin: 6mm 12mm 8mm 12mm;
+            size: A4 portrait;
+            margin: 6mm 12mm 6mm 12mm;
         }
         * {
             box-sizing: border-box;
@@ -17,9 +17,9 @@
         }
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 8.5pt;
+            font-size: 8pt;
             color: #000000;
-            line-height: 1.3;
+            line-height: 1.25;
             background: #ffffff;
         }
         .w-full { width: 100%; }
@@ -40,46 +40,46 @@
 
         /* 1. Header */
         .header-table {
-            margin-bottom: 10px;
-            padding-bottom: 6px;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
             border-bottom: 1.5px solid #E2E8F0;
         }
         .company-title-brand {
-            font-size: 14pt;
+            font-size: 13pt;
             font-weight: 900;
             letter-spacing: 0.5px;
             color: #5E17EB;
             display: inline;
         }
         .company-title-dark {
-            font-size: 14pt;
+            font-size: 13pt;
             font-weight: 900;
             letter-spacing: 0.5px;
-            color: #000000;
+            color: #111827;
             display: inline;
         }
         .company-subtitle {
-            font-size: 7.5pt;
+            font-size: 6.8pt;
             font-weight: bold;
             color: #64748B;
-            margin-top: 3px;
+            margin-top: 2px;
             letter-spacing: 0.5px;
         }
         .banner-box {
             background: #5E17EB;
             border-radius: 8px;
-            padding: 8px 12px;
+            padding: 6px 10px;
             color: #ffffff;
         }
         .banner-title {
-            font-size: 12pt;
+            font-size: 11pt;
             font-weight: 900;
             letter-spacing: 0.8px;
             color: #ffffff;
             line-height: 1.1;
         }
         .banner-sub {
-            font-size: 7pt;
+            font-size: 6.5pt;
             font-weight: bold;
             letter-spacing: 1px;
             color: #E9D5FF;
@@ -88,7 +88,7 @@
             background: #ffffff;
             color: #5E17EB;
             font-weight: 900;
-            font-size: 8pt;
+            font-size: 7.5pt;
             padding: 3px 8px;
             border-radius: 12px;
             text-align: center;
@@ -98,24 +98,25 @@
 
         /* 2. Profile Box */
         .profile-box {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             border: 1px solid #CBD5E1;
             border-radius: 8px;
             background: #F8FAFC;
-            padding: 6px 10px;
+            padding: 5px 8px;
+            page-break-inside: avoid;
         }
         .profile-table td {
-            padding: 2.5px 4px;
-            font-size: 8pt;
+            padding: 2px 3px;
+            font-size: 7.5pt;
             vertical-align: top;
         }
         .profile-label {
-            width: 95px;
+            width: 85px;
             font-weight: bold;
             color: #475569;
         }
         .profile-separator {
-            width: 10px;
+            width: 8px;
             text-align: center;
             color: #94A3B8;
         }
@@ -126,15 +127,16 @@
         .profile-badge {
             color: #475569;
             font-weight: normal;
-            font-size: 7.5pt;
+            font-size: 7pt;
         }
 
         /* 3. Section Tables */
         .section-table {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             border: 1px solid #E2E8F0;
             border-radius: 6px;
             overflow: hidden;
+            page-break-inside: avoid;
         }
         .header-penerimaan {
             background: #5E17EB;
@@ -142,8 +144,8 @@
         }
         .header-penerimaan th {
             color: #ffffff;
-            padding: 5px 8px;
-            font-size: 8pt;
+            padding: 4px 6px;
+            font-size: 7.5pt;
             font-weight: 900;
             letter-spacing: 0.5px;
             border: none;
@@ -154,44 +156,53 @@
         }
         .header-pengurangan th {
             color: #ffffff;
-            padding: 5px 8px;
-            font-size: 8pt;
+            padding: 4px 6px;
+            font-size: 7.5pt;
             font-weight: 900;
             letter-spacing: 0.5px;
             border: none;
         }
 
         .item-row td {
-            padding: 3.5px 8px;
-            font-size: 8pt;
+            padding: 2.5px 6px;
+            font-size: 7.5pt;
             border-bottom: 1px solid #F1F5F9;
         }
         .item-bullet {
             color: #5E17EB;
-            font-size: 9pt;
-            padding-right: 4px;
+            font-size: 8pt;
+            padding-right: 3px;
         }
         .item-bullet-red {
             color: #E11D48;
-            font-size: 9pt;
-            padding-right: 4px;
+            font-size: 8pt;
+            padding-right: 3px;
         }
 
         /* Highlight Strips */
         .strip-bruto td {
             background: #FEF3C7;
             border-top: 1px solid #FDE68A !important;
-            padding: 5px 8px;
+            padding: 4px 6px;
             font-weight: 900;
-            font-size: 8.5pt;
+            font-size: 7.5pt;
             color: #000000;
         }
+        .gold-badge {
+            background: #FACC15;
+            padding: 1.5px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 900;
+            color: #000000;
+        }
+
         .strip-pengurangan td {
             background: #FEE2E2;
             border-top: 1px solid #FECACA !important;
-            padding: 5px 8px;
+            padding: 4px 6px;
             font-weight: 900;
-            font-size: 8.5pt;
+            font-size: 7.5pt;
             color: #000000;
         }
         .amount-red {
@@ -202,28 +213,24 @@
         .grandtotal-box {
             background: #059669;
             border-radius: 8px;
-            padding: 8px 12px;
-            margin-top: 6px;
-            margin-bottom: 12px;
+            padding: 6px 10px;
+            margin-top: 4px;
+            margin-bottom: 8px;
             color: #ffffff;
+            page-break-inside: avoid;
         }
         .grandtotal-box td {
             color: #ffffff;
             vertical-align: middle;
         }
         .grandtotal-label {
-            font-size: 10.5pt;
+            font-size: 9.5pt;
             font-weight: 900;
             letter-spacing: 0.5px;
             color: #ffffff;
         }
-        .grandtotal-sub {
-            font-size: 7pt;
-            color: #D1FAE5;
-            margin-top: 1px;
-        }
         .grandtotal-amount {
-            font-size: 14pt;
+            font-size: 13pt;
             font-weight: 900;
             text-align: right;
             color: #ffffff;
@@ -232,35 +239,37 @@
 
         /* 5. Footer Box */
         .footer-table {
-            padding-top: 8px;
+            padding-top: 6px;
             border-top: 1px solid #E2E8F0;
+            page-break-inside: avoid;
         }
         .footer-table td {
             vertical-align: top;
         }
         .terima-kasih-title {
-            font-family: "Times New Roman", Times, serif;
+            font-family: "Times New Roman", Times, Georgia, serif;
             font-style: italic;
-            font-size: 13pt;
+            font-size: 14pt;
             font-weight: 900;
             color: #5E17EB;
             margin-bottom: 2px;
         }
         .terima-kasih-text {
-            font-size: 7.5pt;
+            font-size: 7pt;
             color: #475569;
             font-weight: bold;
             max-width: 240px;
             line-height: 1.25;
         }
         .watermark-slogan {
-            font-size: 8.5pt;
+            font-size: 7.5pt;
             font-weight: 900;
             color: #CBD5E1;
             letter-spacing: 2px;
             text-align: center;
             text-transform: uppercase;
-            padding-top: 10px;
+            font-style: italic;
+            padding-top: 8px;
         }
         .signature-title {
             font-size: 7.5pt;
@@ -270,13 +279,12 @@
         }
         .signature-line {
             display: inline-block;
-            width: 140px;
-            border-bottom: 1px solid #94A3B8;
-            margin-top: 36px;
+            width: 130px;
+            margin-top: 28px;
             margin-bottom: 2px;
         }
         .signature-name {
-            font-size: 8pt;
+            font-size: 7.5pt;
             font-weight: 900;
             color: #000000;
             text-align: center;
@@ -300,7 +308,11 @@
     $hasHari = ((float)$slip->uang_makan_total > 0 || (float)$slip->uang_transport_total > 0);
 
     // Filter daftar item pengurangan dengan nominal > 0
-    $potonganItems = $slip->items->filter(fn($it) => (float)$it->nominal > 0);
+    $potonganItems = $slip->items ? $slip->items->filter(fn($it) => (float)$it->nominal > 0) : collect();
+
+    // Logo Base64
+    $logoPath = public_path('images/logo_icon.png');
+    $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : '';
 @endphp
 
     <!-- 1. Header (Logo Kiri + Banner Ungu Kanan) -->
@@ -310,9 +322,13 @@
                 <table style="width: 100%;">
                     <tr>
                         <td style="width: 44px; vertical-align: middle; padding-right: 8px;">
-                            <div style="width: 40px; height: 40px; background: #5E17EB; border-radius: 8px; text-align: center; line-height: 40px; color: #ffffff; font-weight: 900; font-size: 16pt;">
-                                S
-                            </div>
+                            @if($logoBase64)
+                                <img src="{{ $logoBase64 }}" style="width: 40px; height: 40px;" alt="Logo">
+                            @else
+                                <div style="width: 40px; height: 40px; background: #5E17EB; border-radius: 8px; text-align: center; line-height: 40px; color: #ffffff; font-weight: 900; font-size: 16pt;">
+                                    S
+                                </div>
+                            @endif
                         </td>
                         <td style="vertical-align: middle;">
                             <div>
@@ -406,7 +422,7 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Gaji Pokok (Selalu Tampil) -->
+            {{-- Gaji Pokok --}}
             <tr class="item-row">
                 <td class="font-bold">
                     <span class="item-bullet">&bull;</span> Gaji Pokok
@@ -418,7 +434,7 @@
                 <td class="text-right font-bold">Rp {{ number_format($slip->gaji_pokok, 0, ',', '.') }}</td>
             </tr>
 
-            {{-- Uang Makan (Hanya tampil jika nominal > 0) --}}
+            {{-- Uang Makan --}}
             @if((float)$slip->uang_makan_total > 0)
             <tr class="item-row">
                 <td class="font-bold">
@@ -432,7 +448,7 @@
             </tr>
             @endif
 
-            {{-- Uang Transportasi (Hanya tampil jika nominal > 0) --}}
+            {{-- Uang Transportasi --}}
             @if((float)$slip->uang_transport_total > 0)
             <tr class="item-row">
                 <td class="font-bold">
@@ -446,7 +462,7 @@
             </tr>
             @endif
 
-            {{-- Tunjangan (Hanya tampil jika nominal > 0) --}}
+            {{-- Tunjangan --}}
             @if((float)$slip->tunjangan_nominal > 0)
             <tr class="item-row">
                 <td class="font-bold">
@@ -460,7 +476,7 @@
             </tr>
             @endif
 
-            {{-- Bonus (Hanya tampil jika nominal > 0) --}}
+            {{-- Bonus --}}
             @if((float)$slip->bonus_nominal > 0)
             <tr class="item-row">
                 <td class="font-bold">
@@ -474,7 +490,7 @@
             </tr>
             @endif
 
-            {{-- Lembur/Performa (Hanya tampil jika nominal > 0) --}}
+            {{-- Lembur/Performa --}}
             @if((float)$slip->lembur_performa_nominal > 0)
             <tr class="item-row">
                 <td class="font-bold">
@@ -488,7 +504,7 @@
             </tr>
             @endif
 
-            {{-- Servisan Selesai (Hanya tampil jika nominal > 0) --}}
+            {{-- Servisan Selesai --}}
             @if((float)$slip->servisan_selesai_nominal > 0)
             <tr class="item-row">
                 <td class="font-bold">
@@ -505,7 +521,9 @@
         <tfoot>
             <tr class="strip-bruto">
                 <td colspan="{{ $hasHari ? 3 : 1 }}" class="uppercase">TOTAL PENGHASILAN BRUTO</td>
-                <td class="text-right">Rp {{ number_format($slip->total_bruto, 0, ',', '.') }}</td>
+                <td class="text-right">
+                    <span class="gold-badge">Rp {{ number_format($slip->total_bruto, 0, ',', '.') }}</span>
+                </td>
             </tr>
         </tfoot>
     </table>
@@ -551,7 +569,6 @@
         <tr>
             <td style="width: 60%; vertical-align: middle;">
                 <div class="grandtotal-label uppercase">TOTAL DITERIMA KARYAWAN</div>
-                <div class="grandtotal-sub">Gaji bersih yang dibayarkan ke staf</div>
             </td>
             <td style="width: 40%; vertical-align: middle; text-align: right;">
                 <div class="grandtotal-amount">Rp {{ number_format($slip->total_diterima, 0, ',', '.') }}</div>
@@ -563,7 +580,7 @@
     <table class="w-full footer-table">
         <tr>
             <!-- Sisi Kiri: Ucapan Terima Kasih -->
-            <td style="width: 45%;">
+            <td style="width: 42%;">
                 <div class="terima-kasih-title">Terima Kasih</div>
                 <div class="terima-kasih-text">
                     Atas dedikasi dari kerja keras Anda untuk kemajuan Soulmate Komputer.
@@ -571,7 +588,7 @@
             </td>
 
             <!-- Tengah: Slogan Watermark -->
-            <td style="width: 25%; text-align: center;">
+            <td style="width: 28%; text-align: center;">
                 <div class="watermark-slogan">
                     BERSAMA LEBIH MAJU
                 </div>
@@ -586,7 +603,7 @@
                     <span class="signature-line"></span>
                 </div>
                 <div class="signature-name">
-                    Manajemen Soulmate Komputer
+                    Manajemen<br>Soulmate Komputer
                 </div>
             </td>
         </tr>
