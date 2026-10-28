@@ -494,4 +494,282 @@ class KlaimGaransiTest extends TestCase
             'id' => $dist->id,
         ]);
     }
+
+    // =========================================================================
+    // TEST KARTU RINGKASAN METRIK (TERKUNCI DI BULAN BERJALAN)
+    // =========================================================================
+
+    public function test_summary_cards_display_current_month_claims_and_math(): void
+    {
+        $this->actingAs($this->owner);
+        $now = Carbon::now('Asia/Jakarta');
+        $currentMonthName = $now->locale('id')->translatedFormat('F Y');
+
+        $distributor = MasterDistributor::create(['nama' => 'Distributor A', 'is_aktif' => true]);
+        $customer = Customer::create(['nama' => 'Budi Santoso', 'no_hp' => '08123456789', 'cabang_id' => $this->cabang->id]);
+
+        // Klaim 1: Belum selesai di bulan ini
+        KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'no_klaim' => 'KG-CURR-01',
+            'tanggal_masuk' => $now->copy()->startOfMonth()->addDays(2)->toDateString(),
+            'customer_id' => $customer->id,
+            'customer_nama' => $customer->nama,
+            'master_distributor_id' => $distributor->id,
+            'barang' => 'RAM DDR4 8GB',
+            'keluhan' => 'Bluescreen',
+            'tanggal_selesai_klaim' => null,
+        ]);
+
+        // Klaim 2: Selesai di bulan ini
+        KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'no_klaim' => 'KG-CURR-02',
+            'tanggal_masuk' => $now->copy()->startOfMonth()->addDays(5)->toDateString(),
+            'customer_id' => $customer->id,
+            'customer_nama' => $customer->nama,
+            'master_distributor_id' => $distributor->id,
+            'barang' => 'SSD 512GB NVMe',
+            'keluhan' => 'Tidak terbaca',
+            'tanggal_selesai_klaim' => $now->toDateString(),
+        ]);
+
+        // Klaim 3: Selesai di bulan ini
+        KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'no_klaim' => 'KG-CURR-03',
+            'tanggal_masuk' => $now->copy()->startOfMonth()->addDays(8)->toDateString(),
+            'customer_id' => $customer->id,
+            'customer_nama' => $customer->nama,
+            'master_distributor_id' => $distributor->id,
+            'barang' => 'Motherboard H610',
+            'keluhan' => 'Mati total',
+            'tanggal_selesai_klaim' => $now->toDateString(),
+        ]);
+
+        Livewire::test(KlaimGaransiIndex::class)
+            ->assertSeeHtml('Total Klaim')
+            ->assertSeeHtml('Selesai Klaim')
+            ->assertSeeHtml('Belum Selesai Klaim')
+            ->assertSeeHtml('klaim')
+            ->assertSee('Bulan ' . $currentMonthName)
+            ->assertSeeHtml('3') // Total Klaim
+            ->assertSeeHtml('2') // Selesai Klaim
+            ->assertSeeHtml('1'); // Belum Selesai Klaim
+    }
+
+    public function test_summary_cards_exclude_previous_month_end_and_next_month_start(): void
+    {
+        $this->actingAs($this->owner);
+        $now = Carbon::now('Asia/Jakarta');
+        $distributor = MasterDistributor::create(['nama' => 'Distributor B', 'is_aktif' => true]);
+        $customer = Customer::create(['nama' => 'Siti', 'no_hp' => '08129876543', 'cabang_id' => $this->cabang->id]);
+
+        $lastMonthEnd = $now->copy()->startOfMonth()->subDay()->toDateString();
+        $nextMonthStart = $now->copy()->endOfMonth()->addDay()->toDateString();
+
+        // Klaim bulan lalu (tidak boleh dihitung)
+        KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'no_klaim' => 'KG-PREV-MONTH',
+            'tanggal_masuk' => $lastMonthEnd,
+            'customer_id' => $customer->id,
+            'customer_nama' => $customer->nama,
+            'master_distributor_id' => $distributor->id,
+            'barang' => 'VGA RTX 3060',
+            'keluhan' => 'No display',
+            'tanggal_selesai_klaim' => null,
+        ]);
+
+        // Klaim bulan depan (tidak boleh dihitung)
+        KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'no_klaim' => 'KG-NEXT-MONTH',
+            'tanggal_masuk' => $nextMonthStart,
+            'customer_id' => $customer->id,
+            'customer_nama' => $customer->nama,
+            'master_distributor_id' => $distributor->id,
+            'barang' => 'Monitor 24 Inch',
+            'keluhan' => 'Garis horizontal',
+            'tanggal_selesai_klaim' => null,
+        ]);
+
+        // Klaim sah bulan ini (1 klaim belum selesai)
+        KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'no_klaim' => 'KG-THIS-MONTH',
+            'tanggal_masuk' => $now->copy()->startOfMonth()->toDateString(),
+            'customer_id' => $customer->id,
+            'customer_nama' => $customer->nama,
+            'master_distributor_id' => $distributor->id,
+            'barang' => 'PSU 650W',
+            'keluhan' => 'Drop voltase',
+            'tanggal_selesai_klaim' => null,
+        ]);
+
+        $component = Livewire::test(KlaimGaransiIndex::class);
+        $this->assertEquals(1, $component->viewData('totalKlaim'));
+        $this->assertEquals(0, $component->viewData('selesaiKlaim'));
+        $this->assertEquals(1, $component->viewData('belumSelesaiKlaim'));
+    }
+
+    public function test_summary_cards_exclude_soft_deleted_claims(): void
+    {
+        $this->actingAs($this->owner);
+        $now = Carbon::now('Asia/Jakarta');
+        $distributor = MasterDistributor::create(['nama' => 'Distributor C', 'is_aktif' => true]);
+        $customer = Customer::create(['nama' => 'Agus', 'no_hp' => '08121112223', 'cabang_id' => $this->cabang->id]);
+
+        $klaim = KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'no_klaim' => 'KG-DELETED',
+            'tanggal_masuk' => $now->copy()->startOfMonth()->addDay()->toDateString(),
+            'customer_id' => $customer->id,
+            'customer_nama' => $customer->nama,
+            'master_distributor_id' => $distributor->id,
+            'barang' => 'Laptop Ideapad',
+            'keluhan' => 'Keyboard rusak',
+            'tanggal_selesai_klaim' => null,
+        ]);
+
+        $klaim->delete(); // Soft delete
+
+        $component = Livewire::test(KlaimGaransiIndex::class);
+        $this->assertEquals(0, $component->viewData('totalKlaim'));
+        $this->assertEquals(0, $component->viewData('selesaiKlaim'));
+        $this->assertEquals(0, $component->viewData('belumSelesaiKlaim'));
+    }
+
+    public function test_table_period_and_search_filters_do_not_affect_summary_cards(): void
+    {
+        $this->actingAs($this->owner);
+        $now = Carbon::now('Asia/Jakarta');
+        $distributor = MasterDistributor::create(['nama' => 'Distributor D', 'is_aktif' => true]);
+        $customer = Customer::create(['nama' => 'Joko', 'no_hp' => '08133344455', 'cabang_id' => $this->cabang->id]);
+
+        KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'no_klaim' => 'KG-LOCK-1',
+            'tanggal_masuk' => $now->copy()->startOfMonth()->toDateString(),
+            'customer_id' => $customer->id,
+            'customer_nama' => $customer->nama,
+            'master_distributor_id' => $distributor->id,
+            'barang' => 'Printer L3210',
+            'keluhan' => 'Blinking',
+            'tanggal_selesai_klaim' => null,
+        ]);
+
+        // Ubah mode periode ke hari ini dan ubah filter pencarian tabel ke kata kunci yang tidak ada
+        $component = Livewire::test(KlaimGaransiIndex::class)
+            ->call('setPeriodeMode', 'hari_ini')
+            ->set('search', 'NONEXISTENT_KEYWORD_XYZ');
+
+        $this->assertEquals(1, $component->viewData('totalKlaim'));
+        $this->assertEquals(0, $component->viewData('selesaiKlaim'));
+        $this->assertEquals(1, $component->viewData('belumSelesaiKlaim'));
+    }
+
+    public function test_summary_cards_branch_isolation(): void
+    {
+        $cabang2 = Cabang::create([
+            'nama_cabang' => 'Soulmate Sungailiat',
+            'kode_cabang' => 'CB-SGL',
+            'status' => 'aktif',
+        ]);
+
+        $stafCabang1 = User::create([
+            'name' => 'Staf Cabang 1',
+            'username' => 'staf1',
+            'email' => 'staf1@soulmate.test',
+            'password' => bcrypt('password'),
+            'cabang_id' => $this->cabang->id,
+            'status' => 'aktif',
+        ]);
+        $stafCabang1->assignRole('Admin');
+        $stafCabang1->givePermissionTo('klaim_garansi.view');
+
+        $now = Carbon::now('Asia/Jakarta');
+        $distributor = MasterDistributor::create(['nama' => 'Distributor E', 'is_aktif' => true]);
+        $customer = Customer::create(['nama' => 'Doni', 'no_hp' => '08177788899', 'cabang_id' => $this->cabang->id]);
+
+        // Klaim di Cabang 1
+        KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'no_klaim' => 'KG-CAB1',
+            'tanggal_masuk' => $now->copy()->startOfMonth()->toDateString(),
+            'customer_id' => $customer->id,
+            'customer_nama' => $customer->nama,
+            'master_distributor_id' => $distributor->id,
+            'barang' => 'RAM DDR5 16GB',
+            'keluhan' => 'Error memtest',
+            'tanggal_selesai_klaim' => null,
+        ]);
+
+        // Klaim di Cabang 2
+        KlaimGaransi::create([
+            'cabang_id' => $cabang2->id,
+            'no_klaim' => 'KG-CAB2',
+            'tanggal_masuk' => $now->copy()->startOfMonth()->toDateString(),
+            'customer_id' => $customer->id,
+            'customer_nama' => $customer->nama,
+            'master_distributor_id' => $distributor->id,
+            'barang' => 'GPU RX 6600',
+            'keluhan' => 'Artifak',
+            'tanggal_selesai_klaim' => $now->toDateString(),
+        ]);
+
+        // Staf Cabang 1 hanya melihat 1 klaim (milik cabang 1)
+        $this->actingAs($stafCabang1);
+        $componentStaf = Livewire::test(KlaimGaransiIndex::class);
+        $this->assertEquals(1, $componentStaf->viewData('totalKlaim'));
+        $this->assertEquals(0, $componentStaf->viewData('selesaiKlaim'));
+        $this->assertEquals(1, $componentStaf->viewData('belumSelesaiKlaim'));
+
+        // Owner di HQ dengan cabangFilter 'semua' melihat 2 klaim (total cabang 1 + cabang 2)
+        $this->actingAs($this->owner);
+        $componentOwnerAll = Livewire::test(KlaimGaransiIndex::class)
+            ->set('cabangFilter', 'semua');
+        $this->assertEquals(2, $componentOwnerAll->viewData('totalKlaim'));
+        $this->assertEquals(1, $componentOwnerAll->viewData('selesaiKlaim'));
+        $this->assertEquals(1, $componentOwnerAll->viewData('belumSelesaiKlaim'));
+
+        // Owner memilih cabang 2 melihat 1 klaim (milik cabang 2)
+        $componentOwnerCabang2 = Livewire::test(KlaimGaransiIndex::class)
+            ->set('cabangFilter', (string) $cabang2->id);
+        $this->assertEquals(1, $componentOwnerCabang2->viewData('totalKlaim'));
+        $this->assertEquals(1, $componentOwnerCabang2->viewData('selesaiKlaim'));
+        $this->assertEquals(0, $componentOwnerCabang2->viewData('belumSelesaiKlaim'));
+    }
+
+    public function test_summary_cards_live_update_when_claim_is_marked_completed(): void
+    {
+        $this->actingAs($this->owner);
+        $now = Carbon::now('Asia/Jakarta');
+        $distributor = MasterDistributor::create(['nama' => 'Distributor F', 'is_aktif' => true]);
+        $customer = Customer::create(['nama' => 'Rina', 'no_hp' => '08155566677', 'cabang_id' => $this->cabang->id]);
+
+        $klaim = KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'no_klaim' => 'KG-TOGGLE-TEST',
+            'tanggal_masuk' => $now->copy()->startOfMonth()->toDateString(),
+            'customer_id' => $customer->id,
+            'customer_nama' => $customer->nama,
+            'master_distributor_id' => $distributor->id,
+            'barang' => 'SSD 1TB M.2',
+            'keluhan' => 'Read only',
+            'tanggal_selesai_klaim' => null,
+        ]);
+
+        $component = Livewire::test(KlaimGaransiIndex::class);
+        $this->assertEquals(1, $component->viewData('totalKlaim'));
+        $this->assertEquals(0, $component->viewData('selesaiKlaim'));
+        $this->assertEquals(1, $component->viewData('belumSelesaiKlaim'));
+
+        // Panggil tandaiSelesaiKlaim
+        $component->call('tandaiSelesaiKlaim', $klaim->id);
+
+        $this->assertEquals(1, $component->viewData('totalKlaim'));
+        $this->assertEquals(1, $component->viewData('selesaiKlaim'));
+        $this->assertEquals(0, $component->viewData('belumSelesaiKlaim'));
+    }
 }

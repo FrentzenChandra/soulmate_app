@@ -44,6 +44,58 @@
         </div>
     @endif
 
+    <!-- ============================================== -->
+    <!-- KARTU RINGKASAN METRIK (BULAN BERJALAN)         -->
+    <!-- ============================================== -->
+    <div>
+        <!-- Skeleton Shimmer Saat Memuat / Memproses Mutasi Data -->
+        <div wire:loading wire:target="save, tandaiSelesaiKlaim, toggleSelesai, deleteKlaim, deleteKlaimDirect" class="w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                @for ($i = 0; $i < 3; $i++)
+                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs animate-pulse">
+                        <div class="flex items-center justify-between">
+                            <div class="h-3.5 bg-gray-200 rounded w-24"></div>
+                            <div class="w-8 h-8 bg-gray-100 rounded-xl"></div>
+                        </div>
+                        <div class="h-7 bg-gray-200 rounded w-20 mt-3"></div>
+                        <div class="h-3 bg-gray-100 rounded w-10 mt-1"></div>
+                        <div class="flex items-center gap-1.5 mt-2.5">
+                            <div class="w-3.5 h-3.5 bg-gray-200 rounded"></div>
+                            <div class="h-3 bg-gray-100 rounded w-28"></div>
+                        </div>
+                    </div>
+                @endfor
+            </div>
+        </div>
+
+        <!-- Kartu Metrik Riil (Aktif) -->
+        <div wire:loading.remove wire:target="save, tandaiSelesaiKlaim, toggleSelesai, deleteKlaim, deleteKlaimDirect" class="w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <x-metric-card
+                    label="Total Klaim"
+                    :value="number_format($totalKlaim, 0, ',', '.')"
+                    color="purple"
+                    :month="$namaBulanBerjalan"
+                    unit="klaim"
+                />
+                <x-metric-card
+                    label="Selesai Klaim"
+                    :value="number_format($selesaiKlaim, 0, ',', '.')"
+                    color="emerald"
+                    :month="$namaBulanBerjalan"
+                    unit="klaim"
+                />
+                <x-metric-card
+                    label="Belum Selesai Klaim"
+                    :value="number_format($belumSelesaiKlaim, 0, ',', '.')"
+                    color="amber"
+                    :month="$namaBulanBerjalan"
+                    unit="klaim"
+                />
+            </div>
+        </div>
+    </div>
+
     <!-- Filter Control Bar (Universal Date Standard Rule 13) -->
     <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm space-y-3">
         <!-- Baris 1: Mode Periode & Input Tanggal Dinamis -->

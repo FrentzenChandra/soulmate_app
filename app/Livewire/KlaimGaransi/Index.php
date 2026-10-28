@@ -678,9 +678,42 @@ class Index extends Component
             $this->dispatch('klaim-garansi-table-updated', data: $tableData);
         }
 
+        // Query Agregat 3 Kartu Metrik Terkunci di Bulan Berjalan (Asia/Jakarta)
+        $nowJakarta = Carbon::now('Asia/Jakarta');
+        $startOfMonth = $nowJakarta->copy()->startOfMonth()->toDateString();
+        $endOfMonth = $nowJakarta->copy()->endOfMonth()->toDateString() . ' 23:59:59';
+
+        $summaryQuery = DB::table('klaim_garansis')
+            ->whereNull('deleted_at')
+            ->whereBetween('tanggal_masuk', [$startOfMonth, $endOfMonth]);
+
+        if ($isHQ) {
+            if ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
+                $summaryQuery->where('cabang_id', (int) $this->cabangFilter);
+            }
+        } else {
+            $targetCabangId = $isOwner ? (int) $activeBranchSession : ($user->cabang_id ?? 1);
+            $summaryQuery->where('cabang_id', $targetCabangId);
+        }
+
+        $summary = $summaryQuery->selectRaw("
+            COUNT(*) as total_klaim,
+            COUNT(CASE WHEN tanggal_selesai_klaim IS NOT NULL THEN 1 END) as selesai_klaim,
+            COUNT(CASE WHEN tanggal_selesai_klaim IS NULL THEN 1 END) as belum_selesai_klaim
+        ")->first();
+
+        $totalKlaim = (int) ($summary->total_klaim ?? 0);
+        $selesaiKlaim = (int) ($summary->selesai_klaim ?? 0);
+        $belumSelesaiKlaim = (int) ($summary->belum_selesai_klaim ?? 0);
+        $namaBulanBerjalan = $nowJakarta->locale('id')->translatedFormat('F Y');
+
         return view('livewire.klaim-garansi.index', [
             'tableData' => $tableData,
             'totalKlaimCount' => count($tableData),
+            'totalKlaim' => $totalKlaim,
+            'selesaiKlaim' => $selesaiKlaim,
+            'belumSelesaiKlaim' => $belumSelesaiKlaim,
+            'namaBulanBerjalan' => $namaBulanBerjalan,
             'cabangs' => $cabangs,
             'distributors' => $distributors,
             'pegawais' => $pegawais,

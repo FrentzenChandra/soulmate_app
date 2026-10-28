@@ -70,64 +70,24 @@
         <!-- Kartu Metrik Riil (Aktif) -->
         <div wire:loading.remove wire:target="save, delete, toggleSelesai" class="w-full">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-                <!-- 1. Total Bruto (Ungu #5E17EB) -->
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 border-l-4 border-l-[#5E17EB] shadow-xs hover:shadow-sm transition-all flex flex-col justify-between">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">Total Bruto</span>
-                        <div class="w-8 h-8 rounded-xl bg-purple-50 text-[#5E17EB] border border-purple-100 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 3v4a1 1 0 001 1h4"></path></svg>
-                        </div>
-                    </div>
-                    <div class="mt-2">
-                        <span class="text-xl sm:text-2xl font-black font-mono text-[#5E17EB] tracking-tight block">
-                            Rp {{ number_format($totalBruto, 0, ',', '.') }}
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-1.5 mt-2.5 text-xs text-gray-500 font-medium">
-                        <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        <span>Bulan {{ $namaBulanBerjalan }}</span>
-                    </div>
-                </div>
-
-                <!-- 2. Total PPN (Biru #0052FF) -->
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 border-l-4 border-l-[#0052FF] shadow-xs hover:shadow-sm transition-all flex flex-col justify-between">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">Total PPN</span>
-                        <div class="w-8 h-8 rounded-xl bg-blue-50 text-[#0052FF] border border-blue-100 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                        </div>
-                    </div>
-                    <div class="mt-2">
-                        <span class="text-xl sm:text-2xl font-black font-mono text-[#0052FF] tracking-tight block">
-                            Rp {{ number_format($totalPpn, 0, ',', '.') }}
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-1.5 mt-2.5 text-xs text-gray-500 font-medium">
-                        <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        <span>Bulan {{ $namaBulanBerjalan }}</span>
-                    </div>
-                </div>
-
-                <!-- 3. Total PPh (Pink #E6007A) -->
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 border-l-4 border-l-[#E6007A] shadow-xs hover:shadow-sm transition-all flex flex-col justify-between">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">Total PPh</span>
-                        <div class="w-8 h-8 rounded-xl bg-pink-50 text-[#E6007A] border border-pink-100 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        </div>
-                    </div>
-                    <div class="mt-2">
-                        <span class="text-xl sm:text-2xl font-black font-mono text-[#E6007A] tracking-tight block">
-                            Rp {{ number_format($totalPph, 0, ',', '.') }}
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-1.5 mt-2.5 text-xs text-gray-500 font-medium">
-                        <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        <span>Bulan {{ $namaBulanBerjalan }}</span>
-                    </div>
-                </div>
-
+                <x-metric-card
+                    label="Total Bruto"
+                    :value="'Rp ' . number_format($totalBruto, 0, ',', '.')"
+                    color="purple"
+                    :month="$namaBulanBerjalan"
+                />
+                <x-metric-card
+                    label="Total PPN"
+                    :value="'Rp ' . number_format($totalPpn, 0, ',', '.')"
+                    color="blue"
+                    :month="$namaBulanBerjalan"
+                />
+                <x-metric-card
+                    label="Total PPh"
+                    :value="'Rp ' . number_format($totalPph, 0, ',', '.')"
+                    color="pink"
+                    :month="$namaBulanBerjalan"
+                />
             </div>
         </div>
     </div>
