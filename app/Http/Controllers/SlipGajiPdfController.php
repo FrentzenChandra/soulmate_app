@@ -34,7 +34,7 @@ class SlipGajiPdfController extends Controller
 
         $pdf = Pdf::loadView('pdf.slip-gaji', [
             'slip' => $slipGaji,
-        ])->setPaper('a4', 'portrait')
+        ])->setPaper([0, 0, 595.28, 396.85], 'portrait')
           ->setOption('isPhpEnabled', true)
           ->setOption('isRemoteEnabled', true);
 

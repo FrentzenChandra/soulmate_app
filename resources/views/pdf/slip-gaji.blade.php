@@ -5,8 +5,8 @@
     <title>Slip Gaji - {{ $slip->nama_staf_snapshot ?: ($slip->user->name ?? 'Karyawan') }} - {{ sprintf('%04d-%02d', $slip->periode_tahun, $slip->periode_bulan) }}</title>
     <style>
         @page {
-            size: A4 portrait;
-            margin: 6mm 12mm 6mm 12mm;
+            size: 210mm 140mm;
+            margin: 0;
         }
         * {
             box-sizing: border-box;
@@ -17,10 +17,11 @@
         }
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 8pt;
+            font-size: 7.5pt;
             color: #000000;
-            line-height: 1.25;
+            line-height: 1.2;
             background: #ffffff;
+            padding: 4mm 6mm;
         }
         .w-full { width: 100%; }
         .text-left { text-align: left; }
@@ -38,11 +39,20 @@
             table-layout: fixed;
         }
 
+        /* Card Container Outer */
+        .card-container {
+            border: 1.5px solid #CBD5E1;
+            border-radius: 12px;
+            background: #ffffff;
+            padding: 7px 10px;
+            position: relative;
+        }
+
         /* 1. Header */
         .header-table {
-            margin-bottom: 8px;
-            padding-bottom: 5px;
-            border-bottom: 1.5px solid #E2E8F0;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #E2E8F0;
         }
         .company-title-brand {
             font-size: 13pt;
@@ -59,7 +69,7 @@
             display: inline;
         }
         .company-subtitle {
-            font-size: 6.8pt;
+            font-size: 6.5pt;
             font-weight: bold;
             color: #64748B;
             margin-top: 2px;
@@ -67,8 +77,8 @@
         }
         .banner-box {
             background: #5E17EB;
-            border-radius: 8px;
-            padding: 6px 10px;
+            border-radius: 10px;
+            padding: 5px 8px;
             color: #ffffff;
         }
         .banner-title {
@@ -81,7 +91,7 @@
         .banner-sub {
             font-size: 6.5pt;
             font-weight: bold;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             color: #E9D5FF;
         }
         .banner-pill {
@@ -98,25 +108,24 @@
 
         /* 2. Profile Box */
         .profile-box {
-            margin-bottom: 8px;
-            border: 1px solid #CBD5E1;
+            margin-bottom: 5px;
+            border: 1px solid #E2E8F0;
             border-radius: 8px;
             background: #F8FAFC;
-            padding: 5px 8px;
-            page-break-inside: avoid;
+            padding: 4px 6px;
         }
         .profile-table td {
-            padding: 2px 3px;
-            font-size: 7.5pt;
+            padding: 1.5px 2px;
+            font-size: 7pt;
             vertical-align: top;
         }
         .profile-label {
-            width: 85px;
+            width: 75px;
             font-weight: bold;
             color: #475569;
         }
         .profile-separator {
-            width: 8px;
+            width: 6px;
             text-align: center;
             color: #94A3B8;
         }
@@ -127,16 +136,15 @@
         .profile-badge {
             color: #475569;
             font-weight: normal;
-            font-size: 7pt;
+            font-size: 6.5pt;
         }
 
         /* 3. Section Tables */
         .section-table {
-            margin-bottom: 6px;
+            margin-bottom: 5px;
             border: 1px solid #E2E8F0;
             border-radius: 6px;
             overflow: hidden;
-            page-break-inside: avoid;
         }
         .header-penerimaan {
             background: #5E17EB;
@@ -144,8 +152,8 @@
         }
         .header-penerimaan th {
             color: #ffffff;
-            padding: 4px 6px;
-            font-size: 7.5pt;
+            padding: 3.5px 5px;
+            font-size: 7pt;
             font-weight: 900;
             letter-spacing: 0.5px;
             border: none;
@@ -156,53 +164,128 @@
         }
         .header-pengurangan th {
             color: #ffffff;
-            padding: 4px 6px;
-            font-size: 7.5pt;
+            padding: 3.5px 5px;
+            font-size: 7pt;
             font-weight: 900;
             letter-spacing: 0.5px;
             border: none;
         }
 
         .item-row td {
-            padding: 2.5px 6px;
-            font-size: 7.5pt;
+            padding: 2px 5px;
+            font-size: 7pt;
             border-bottom: 1px solid #F1F5F9;
         }
-        .item-bullet {
+        .item-dot-purple {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 6px;
+            background: #EDE9FE;
             color: #5E17EB;
-            font-size: 8pt;
-            padding-right: 3px;
+            text-align: center;
+            line-height: 12px;
+            font-size: 6pt;
+            font-weight: bold;
+            margin-right: 3px;
+            vertical-align: middle;
         }
-        .item-bullet-red {
+        .item-dot-blue {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 6px;
+            background: #DBEAFE;
+            color: #0052FF;
+            text-align: center;
+            line-height: 12px;
+            font-size: 6pt;
+            font-weight: bold;
+            margin-right: 3px;
+            vertical-align: middle;
+        }
+        .item-dot-pink {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 6px;
+            background: #FCE7F3;
+            color: #E6007A;
+            text-align: center;
+            line-height: 12px;
+            font-size: 6pt;
+            font-weight: bold;
+            margin-right: 3px;
+            vertical-align: middle;
+        }
+        .item-dot-green {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 6px;
+            background: #D1FAE5;
+            color: #059669;
+            text-align: center;
+            line-height: 12px;
+            font-size: 6pt;
+            font-weight: bold;
+            margin-right: 3px;
+            vertical-align: middle;
+        }
+        .item-dot-amber {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 6px;
+            background: #FEF3C7;
+            color: #D97706;
+            text-align: center;
+            line-height: 12px;
+            font-size: 6pt;
+            font-weight: bold;
+            margin-right: 3px;
+            vertical-align: middle;
+        }
+        .item-dot-red {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 6px;
+            background: #FEE2E2;
             color: #E11D48;
-            font-size: 8pt;
-            padding-right: 3px;
+            text-align: center;
+            line-height: 12px;
+            font-size: 6pt;
+            font-weight: bold;
+            margin-right: 3px;
+            vertical-align: middle;
         }
 
         /* Highlight Strips */
         .strip-bruto td {
             background: #FEF3C7;
             border-top: 1px solid #FDE68A !important;
-            padding: 4px 6px;
+            padding: 3px 5px;
             font-weight: 900;
-            font-size: 7.5pt;
+            font-size: 7pt;
             color: #000000;
         }
         .gold-badge {
             background: #FACC15;
-            padding: 1.5px 6px;
+            padding: 1.5px 5px;
             border-radius: 4px;
             display: inline-block;
             font-weight: 900;
             color: #000000;
+            font-family: Arial, sans-serif;
         }
 
         .strip-pengurangan td {
             background: #FEE2E2;
             border-top: 1px solid #FECACA !important;
-            padding: 4px 6px;
+            padding: 3px 5px;
             font-weight: 900;
-            font-size: 7.5pt;
+            font-size: 7pt;
             color: #000000;
         }
         .amount-red {
@@ -213,24 +296,23 @@
         .grandtotal-box {
             background: #059669;
             border-radius: 8px;
-            padding: 6px 10px;
-            margin-top: 4px;
-            margin-bottom: 8px;
+            padding: 5px 8px;
+            margin-top: 3px;
+            margin-bottom: 5px;
             color: #ffffff;
-            page-break-inside: avoid;
         }
         .grandtotal-box td {
             color: #ffffff;
             vertical-align: middle;
         }
         .grandtotal-label {
-            font-size: 9.5pt;
+            font-size: 8.5pt;
             font-weight: 900;
             letter-spacing: 0.5px;
             color: #ffffff;
         }
         .grandtotal-amount {
-            font-size: 13pt;
+            font-size: 12pt;
             font-weight: 900;
             text-align: right;
             color: #ffffff;
@@ -239,9 +321,8 @@
 
         /* 5. Footer Box */
         .footer-table {
-            padding-top: 6px;
+            padding-top: 4px;
             border-top: 1px solid #E2E8F0;
-            page-break-inside: avoid;
         }
         .footer-table td {
             vertical-align: top;
@@ -249,17 +330,17 @@
         .terima-kasih-title {
             font-family: "Times New Roman", Times, Georgia, serif;
             font-style: italic;
-            font-size: 14pt;
+            font-size: 13pt;
             font-weight: 900;
             color: #5E17EB;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
         .terima-kasih-text {
-            font-size: 7pt;
+            font-size: 6.5pt;
             color: #475569;
             font-weight: bold;
-            max-width: 240px;
-            line-height: 1.25;
+            max-width: 200px;
+            line-height: 1.2;
         }
         .watermark-slogan {
             font-size: 7.5pt;
@@ -269,26 +350,21 @@
             text-align: center;
             text-transform: uppercase;
             font-style: italic;
-            padding-top: 8px;
+            padding-top: 6px;
         }
         .signature-title {
-            font-size: 7.5pt;
+            font-size: 6.5pt;
             font-weight: bold;
             color: #000000;
             text-align: center;
         }
-        .signature-line {
-            display: inline-block;
-            width: 130px;
-            margin-top: 28px;
-            margin-bottom: 2px;
-        }
         .signature-name {
-            font-size: 7.5pt;
+            font-size: 6.5pt;
             font-weight: 900;
             color: #000000;
             text-align: center;
             text-transform: uppercase;
+            margin-top: 16px;
         }
     </style>
 </head>
@@ -315,17 +391,19 @@
     $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : '';
 @endphp
 
+<div class="card-container">
+
     <!-- 1. Header (Logo Kiri + Banner Ungu Kanan) -->
     <table class="w-full header-table">
         <tr>
             <td style="width: 58%; vertical-align: middle;">
                 <table style="width: 100%;">
                     <tr>
-                        <td style="width: 44px; vertical-align: middle; padding-right: 8px;">
+                        <td style="width: 40px; vertical-align: middle; padding-right: 6px;">
                             @if($logoBase64)
-                                <img src="{{ $logoBase64 }}" style="width: 40px; height: 40px;" alt="Logo">
+                                <img src="{{ $logoBase64 }}" style="width: 36px; height: 36px;" alt="Logo">
                             @else
-                                <div style="width: 40px; height: 40px; background: #5E17EB; border-radius: 8px; text-align: center; line-height: 40px; color: #ffffff; font-weight: 900; font-size: 16pt;">
+                                <div style="width: 36px; height: 36px; background: #5E17EB; border-radius: 8px; text-align: center; line-height: 36px; color: #ffffff; font-weight: 900; font-size: 14pt;">
                                     S
                                 </div>
                             @endif
@@ -345,7 +423,7 @@
             <td style="width: 42%; vertical-align: middle; text-align: right;">
                 <table class="banner-box" style="width: 100%;">
                     <tr>
-                        <td style="vertical-align: middle; text-align: left;">
+                        <td style="vertical-align: middle; text-align: left; padding-left: 4px;">
                             <div class="banner-title">SLIP GAJI</div>
                             <div class="banner-sub">KARYAWAN</div>
                         </td>
@@ -425,7 +503,7 @@
             {{-- Gaji Pokok --}}
             <tr class="item-row">
                 <td class="font-bold">
-                    <span class="item-bullet">&bull;</span> Gaji Pokok
+                    <span class="item-dot-purple">&bull;</span> Gaji Pokok
                 </td>
                 @if($hasHari)
                     <td class="text-center">-</td>
@@ -438,7 +516,7 @@
             @if((float)$slip->uang_makan_total > 0)
             <tr class="item-row">
                 <td class="font-bold">
-                    <span class="item-bullet">&bull;</span> Uang Makan
+                    <span class="item-dot-blue">&bull;</span> Uang Makan
                 </td>
                 @if($hasHari)
                     <td class="text-center font-bold">{{ $slip->uang_makan_hari }} Hari</td>
@@ -452,7 +530,7 @@
             @if((float)$slip->uang_transport_total > 0)
             <tr class="item-row">
                 <td class="font-bold">
-                    <span class="item-bullet">&bull;</span> Uang Transportasi
+                    <span class="item-dot-blue">&bull;</span> Uang Transportasi
                 </td>
                 @if($hasHari)
                     <td class="text-center font-bold">{{ $slip->uang_transport_hari }} Hari</td>
@@ -466,7 +544,7 @@
             @if((float)$slip->tunjangan_nominal > 0)
             <tr class="item-row">
                 <td class="font-bold">
-                    <span class="item-bullet">&bull;</span> {{ $slip->tunjangan_nama ?: 'Tunjangan' }}
+                    <span class="item-dot-pink">&bull;</span> {{ $slip->tunjangan_nama ?: 'Tunjangan' }}
                 </td>
                 @if($hasHari)
                     <td class="text-center">-</td>
@@ -480,7 +558,7 @@
             @if((float)$slip->bonus_nominal > 0)
             <tr class="item-row">
                 <td class="font-bold">
-                    <span class="item-bullet">&bull;</span> Bonus
+                    <span class="item-dot-green">&bull;</span> Bonus
                 </td>
                 @if($hasHari)
                     <td class="text-center">-</td>
@@ -494,7 +572,7 @@
             @if((float)$slip->lembur_performa_nominal > 0)
             <tr class="item-row">
                 <td class="font-bold">
-                    <span class="item-bullet">&bull;</span> Lembur/Performa
+                    <span class="item-dot-amber">&bull;</span> Lembur/Performa
                 </td>
                 @if($hasHari)
                     <td class="text-center">-</td>
@@ -508,7 +586,7 @@
             @if((float)$slip->servisan_selesai_nominal > 0)
             <tr class="item-row">
                 <td class="font-bold">
-                    <span class="item-bullet">&bull;</span> Servisan Selesai
+                    <span class="item-dot-purple">&bull;</span> Servisan Selesai
                 </td>
                 @if($hasHari)
                     <td class="text-center">-</td>
@@ -545,7 +623,7 @@
             @foreach($potonganItems as $potongan)
             <tr class="item-row">
                 <td class="font-bold">
-                    <span class="item-bullet-red">&bull;</span> {{ $potongan->nama_item ?: ($potongan->kategori ?: 'Potongan') }}
+                    <span class="item-dot-red">&bull;</span> {{ $potongan->nama_item ?: ($potongan->kategori ?: 'Potongan') }}
                 </td>
                 @if($hasHari)
                     <td class="text-center">-</td>
@@ -599,15 +677,14 @@
                 <div class="signature-title">
                     Pangkalpinang, {{ $periodeNama }}
                 </div>
-                <div>
-                    <span class="signature-line"></span>
-                </div>
                 <div class="signature-name">
-                    Manajemen<br>Soulmate Komputer
+                    Manajemen Soulmate Komputer
                 </div>
             </td>
         </tr>
     </table>
+
+</div>
 
 </body>
 </html>
