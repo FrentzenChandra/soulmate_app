@@ -501,11 +501,11 @@
                     @endcan
 
                     @can('gaji.view')
-                    <a href="{{ route('slip-gaji.index') }}"
+                    <a href="{{ route('slip-gaji.create') }}"
                         class="group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('slip-gaji*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <div class="flex items-center">
                             <svg class="w-5 h-5 mr-3 {{ request()->routeIs('slip-gaji*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                            <span>Slip Gaji</span>
+                            <span>Gaji</span>
                         </div>
                         @php
                             $kenaikanPendingHQ = \App\Models\KenaikanGaji::where('status', 'menunggu')->count();
@@ -538,11 +538,11 @@
                     @endcan
 
                     @can('gaji.view')
-                    <a href="{{ route('slip-gaji.index') }}"
+                    <a href="{{ route('slip-gaji.create') }}"
                         class="group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('slip-gaji*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <div class="flex items-center">
                             <svg class="w-5 h-5 mr-3 {{ request()->routeIs('slip-gaji*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                            <span>Slip Gaji</span>
+                            <span>Gaji</span>
                         </div>
                         @php
                             $userCabangId = auth()->user()->cabang_id ?? 1;

@@ -196,8 +196,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/absensi/riwayat', \App\Livewire\Absensi\Riwayat::class)->name('absensi.riwayat')->middleware('can:absensi.riwayat');
 
     // Slip Gaji Karyawan (Dynamic Permissions)
+    Route::get('/gaji', fn () => redirect()->route('slip-gaji.create'))->middleware('auth');
     Route::get('/slip-gaji', \App\Livewire\SlipGaji\Index::class)->name('slip-gaji.index')->middleware('can:gaji.view');
-    Route::get('/slip-gaji/buat', \App\Livewire\SlipGaji\Form::class)->name('slip-gaji.create')->middleware('can:gaji.create');
+    Route::get('/slip-gaji/buat', \App\Livewire\SlipGaji\Form::class)->name('slip-gaji.create')->middleware('can:gaji.view');
     Route::get('/slip-gaji/{slip}', \App\Livewire\SlipGaji\Form::class)->name('slip-gaji.edit')->middleware('can:gaji.view');
     Route::get('/slip-gaji/{slip}/pdf', [\App\Http\Controllers\SlipGajiPdfController::class, 'exportPdf'])->name('slip-gaji.pdf')->middleware('can:gaji.export_pdf');
 

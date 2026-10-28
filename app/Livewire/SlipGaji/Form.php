@@ -131,6 +131,41 @@ class Form extends Component
         $this->onPeriodeChanged(app(SlipGajiService::class));
     }
 
+    public function updatedGajiPokok(): void
+    {
+        $this->hitungUlangTotal();
+    }
+
+    public function updatedUangMakanPerHari(): void
+    {
+        $this->hitungUlangTotal();
+    }
+
+    public function updatedUangTransportPerHari(): void
+    {
+        $this->hitungUlangTotal();
+    }
+
+    public function updatedTunjanganNominal(): void
+    {
+        $this->hitungUlangTotal();
+    }
+
+    public function updatedBonusNominal(): void
+    {
+        $this->hitungUlangTotal();
+    }
+
+    public function updatedLemburPerformaNominal(): void
+    {
+        $this->hitungUlangTotal();
+    }
+
+    public function updatedServisanSelesaiNominal(): void
+    {
+        $this->hitungUlangTotal();
+    }
+
     public function onUserSelected(SlipGajiService $service): void
     {
         if (! $this->selectedUserId) {
@@ -711,6 +746,8 @@ class Form extends Component
 
     public function render()
     {
+        $this->hitungUlangTotal();
+
         $currentCabangId = $this->getCurrentCabangId();
         $stafs = User::role(SlipGajiService::STAF_ROLES)
             ->where('status', 'aktif')

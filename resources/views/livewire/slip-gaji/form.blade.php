@@ -269,12 +269,7 @@
                     </div>
                     <div class="col-span-3 sm:col-span-2 text-right">
                         @if($canEditGajiPokok && !$isFinal)
-                            <div class="relative">
-                                <span class="absolute left-2.5 top-1.5 text-xs font-bold text-black">Rp</span>
-                                <input type="number" step="1000" min="0"
-                                       wire:model.live.debounce.300ms="gajiPokok"
-                                       class="w-full pl-8 pr-2.5 py-1.5 text-right font-mono font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg focus:border-[#5E17EB] focus:bg-white">
-                            </div>
+                            <x-input-ribuan wire:model.live="gajiPokok" />
                         @else
                             <div class="py-1.5 px-2.5 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-right">
                                 Rp {{ number_format($gajiPokok, 0, ',', '.') }}
@@ -293,12 +288,7 @@
                     </div>
                     <div class="col-span-2 text-center">
                         @if($canEditGajiPokok && !$isFinal)
-                            <div class="relative">
-                                <span class="absolute left-2 top-1.5 text-[11px] font-bold text-black">Rp</span>
-                                <input type="number" step="1000" min="0"
-                                       wire:model.live.debounce.300ms="uangMakanPerHari"
-                                       class="w-full pl-7 pr-2 py-1.5 text-right font-mono font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg focus:border-[#5E17EB] focus:bg-white">
-                            </div>
+                            <x-input-ribuan wire:model.live="uangMakanPerHari" input-class="text-center" />
                         @else
                             <div class="py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-center">
                                 Rp {{ number_format($uangMakanPerHari, 0, ',', '.') }}
@@ -322,12 +312,7 @@
                     </div>
                     <div class="col-span-2 text-center">
                         @if($canEditGajiPokok && !$isFinal)
-                            <div class="relative">
-                                <span class="absolute left-2 top-1.5 text-[11px] font-bold text-black">Rp</span>
-                                <input type="number" step="1000" min="0"
-                                       wire:model.live.debounce.300ms="uangTransportPerHari"
-                                       class="w-full pl-7 pr-2 py-1.5 text-right font-mono font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg focus:border-[#5E17EB] focus:bg-white">
-                            </div>
+                            <x-input-ribuan wire:model.live="uangTransportPerHari" input-class="text-center" />
                         @else
                             <div class="py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-center">
                                 Rp {{ number_format($uangTransportPerHari, 0, ',', '.') }}
@@ -360,12 +345,7 @@
                     </div>
                     <div class="col-span-3 sm:col-span-2 text-right">
                         @if(!$isFinal)
-                            <div class="relative">
-                                <span class="absolute left-2.5 top-1.5 text-xs font-bold text-black">Rp</span>
-                                <input type="number" step="1000" min="0"
-                                       wire:model.live.debounce.300ms="tunjanganNominal"
-                                       class="w-full pl-8 pr-2.5 py-1.5 text-right font-mono font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg focus:border-[#5E17EB] focus:bg-white">
-                            </div>
+                            <x-input-ribuan wire:model.live="tunjanganNominal" />
                         @else
                             <div class="py-1.5 px-2.5 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-right">
                                 Rp {{ number_format($tunjanganNominal, 0, ',', '.') }}
@@ -385,12 +365,7 @@
                     </div>
                     <div class="col-span-3 sm:col-span-2 text-right">
                         @if(!$isFinal)
-                            <div class="relative">
-                                <span class="absolute left-2.5 top-1.5 text-xs font-bold text-black">Rp</span>
-                                <input type="number" step="1000" min="0"
-                                       wire:model.live.debounce.300ms="bonusNominal"
-                                       class="w-full pl-8 pr-2.5 py-1.5 text-right font-mono font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg focus:border-[#5E17EB] focus:bg-white">
-                            </div>
+                            <x-input-ribuan wire:model.live="bonusNominal" />
                         @else
                             <div class="py-1.5 px-2.5 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-right">
                                 Rp {{ number_format($bonusNominal, 0, ',', '.') }}
@@ -410,12 +385,7 @@
                     </div>
                     <div class="col-span-3 sm:col-span-2 text-right">
                         @if(!$isFinal)
-                            <div class="relative">
-                                <span class="absolute left-2.5 top-1.5 text-xs font-bold text-black">Rp</span>
-                                <input type="number" step="1000" min="0"
-                                       wire:model.live.debounce.300ms="lemburPerformaNominal"
-                                       class="w-full pl-8 pr-2.5 py-1.5 text-right font-mono font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg focus:border-[#5E17EB] focus:bg-white">
-                            </div>
+                            <x-input-ribuan wire:model.live="lemburPerformaNominal" />
                         @else
                             <div class="py-1.5 px-2.5 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-right">
                                 Rp {{ number_format($lemburPerformaNominal, 0, ',', '.') }}
@@ -435,12 +405,7 @@
                     </div>
                     <div class="col-span-3 sm:col-span-2 text-right">
                         @if(!$isFinal)
-                            <div class="relative">
-                                <span class="absolute left-2.5 top-1.5 text-xs font-bold text-black">Rp</span>
-                                <input type="number" step="1000" min="0"
-                                       wire:model.live.debounce.300ms="servisanSelesaiNominal"
-                                       class="w-full pl-8 pr-2.5 py-1.5 text-right font-mono font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg focus:border-[#5E17EB] focus:bg-white">
-                            </div>
+                            <x-input-ribuan wire:model.live="servisanSelesaiNominal" />
                         @else
                             <div class="py-1.5 px-2.5 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-right">
                                 Rp {{ number_format($servisanSelesaiNominal, 0, ',', '.') }}
@@ -497,11 +462,9 @@
                     </div>
                     <div class="col-span-3 sm:col-span-2 flex items-center justify-end space-x-1.5">
                         @if(!$isFinal)
-                            <div class="relative flex-1">
-                                <span class="absolute left-2.5 top-1.5 text-xs font-bold text-black">Rp</span>
-                                <input type="number" step="1000" min="0"
-                                       wire:model.live.debounce.300ms="penguranganItems.{{ $index }}.nominal"
-                                       class="w-full pl-8 pr-2 py-1.5 text-right font-mono font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg focus:border-[#5E17EB] focus:bg-white">
+                            <div class="flex-1">
+                                <x-input-ribuan wire:key="potongan-nominal-{{ $index }}"
+                                                wire:model.live="penguranganItems.{{ $index }}.nominal" />
                             </div>
                             <button type="button" wire:click="hapusPotongan({{ $index }})"
                                     class="p-1 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer shrink-0"
