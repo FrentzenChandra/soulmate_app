@@ -35,11 +35,7 @@
     <div class="my-3.5 bg-[#F8FAFC] border border-gray-200/80 rounded-xl sm:rounded-2xl p-3.5 sm:p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-5">
         <!-- Kolom Kiri: Avatar, Nama, Jabatan -->
         <div class="flex items-center space-x-3.5">
-            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-purple-100 border border-purple-200 flex items-center justify-center text-[#5E17EB] shadow-2xs shrink-0">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
-                </svg>
-            </div>
+            <x-slip-gaji-employee-avatar :user="$staf" :size="44" />
             <div class="space-y-0.5 text-xs">
                 <div class="flex items-baseline space-x-2">
                     <span class="font-bold text-gray-500 w-24">Nama Karyawan</span>

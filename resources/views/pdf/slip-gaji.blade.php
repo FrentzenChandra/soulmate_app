@@ -399,14 +399,21 @@
                 <td style="width: 50%;">
                     <table style="width: 100%;">
                         <tr>
-                            <td class="profile-label">Nama Karyawan</td>
-                            <td class="profile-separator">:</td>
-                            <td class="profile-value">{{ $namaStaf }}</td>
-                        </tr>
-                        <tr>
-                            <td class="profile-label">Jabatan</td>
-                            <td class="profile-separator">:</td>
-                            <td class="profile-value">{{ $jabatan }}</td>
+                            <td style="width:48px; vertical-align:middle;"><x-slip-gaji-employee-avatar :user="$slip->user" :size="40" /></td>
+                            <td style="vertical-align:middle;">
+                                <table style="width:100%;">
+                                    <tr>
+                                        <td class="profile-label">Nama Karyawan</td>
+                                        <td class="profile-separator">:</td>
+                                        <td class="profile-value">{{ $namaStaf }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="profile-label">Jabatan</td>
+                                        <td class="profile-separator">:</td>
+                                        <td class="profile-value">{{ $jabatan }}</td>
+                                    </tr>
+                                </table>
+                            </td>
                         </tr>
                     </table>
                 </td>
