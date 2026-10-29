@@ -67,7 +67,7 @@
                 </div>
                 <div>
                     <span class="text-xs font-black block">Terdapat {{ $alertCount }} staf yang telah mencapai milestone 6 bulan masa kerja.</span>
-                    <span class="text-[11px] font-bold block">Waktunya meninjau penyesuaian gaji pokok Rp 500.000.</span>
+                    <span class="text-[11px] font-bold block">Waktunya meninjau penyesuaian gaji pokok</span>
                 </div>
             </div>
             <button type="button"
