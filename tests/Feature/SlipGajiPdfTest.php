@@ -92,7 +92,7 @@ class SlipGajiPdfTest extends TestCase
             ->assertStatus(403);
     }
 
-    public function test_authorized_user_can_export_final_slip_pdf_with_option_a_total_diterima(): void
+    public function test_authorized_user_can_open_final_slip_in_browser_print_view(): void
     {
         $owner = User::where('email', 'owner@soulmate.test')->first();
         $staf = User::where('email', 'teknisi.pkp@soulmate.test')->first();
@@ -139,25 +139,14 @@ class SlipGajiPdfTest extends TestCase
 
         $response = $this->get(route('slip-gaji.pdf', $finalSlip->id));
         $response->assertOk();
-        $response->assertHeader('Content-Type', 'application/pdf');
-
-        // Test view template contents directly
-        $view = $this->view('pdf.slip-gaji', ['slip' => $finalSlip]);
-
-        // Verifikasi Label Opsi A "Total Diterima"
-        $view->assertSee('TOTAL DITERIMA', false);
-        $view->assertSee('4.240.000', false);
-
-        // Verifikasi nama staf & format hari berspasi
-        $view->assertSee($staf->name, false);
-        $view->assertSee('26 Hari', false);
-
-        // Verifikasi komponen Rp 0 disembunyikan
-        $view->assertDontSee('Lembur/Performa');
-        $view->assertDontSee('Servisan Selesai');
+        $response->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $response->assertSee('SLIP GAJI', false);
+        $response->assertSee('window.print()', false);
+        $response->assertSee($staf->name, false);
+        $response->assertSee('4.240.000', false);
     }
 
-    public function test_authorized_user_can_access_cetak_view_with_option_2(): void
+    public function test_authorized_user_can_open_cetak_browser_print_view(): void
     {
         $owner = User::where('email', 'owner@soulmate.test')->first();
         $staf = User::where('email', 'teknisi.pkp@soulmate.test')->first();
@@ -184,7 +173,7 @@ class SlipGajiPdfTest extends TestCase
 
         $response = $this->get(route('slip-gaji.cetak', $finalSlip->id));
         $response->assertOk();
-        $response->assertHeader('Content-Type', 'application/pdf');
+        $response->assertHeader('Content-Type', 'text/html; charset=UTF-8');
     }
 }
 

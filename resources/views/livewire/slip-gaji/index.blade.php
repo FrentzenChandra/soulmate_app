@@ -267,9 +267,9 @@
 
                                     @if ($slip->isFinal())
                                         @can('gaji.export_pdf')
-                                        <a href="{{ route('slip-gaji.pdf', $slip->id) }}?download=1"
+                                        <a href="{{ route('slip-gaji.pdf', $slip->id) }}" target="_blank" rel="noopener"
                                            class="p-1.5 rounded-lg border border-gray-200 hover:bg-purple-50 text-[#5E17EB] transition-all"
-                                           title="Export PDF Slip Gaji Langsung">
+                                           title="Buka dialog cetak slip gaji">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                         </a>
                                         @endcan
@@ -564,20 +564,20 @@
                     </div>
                     <div class="flex items-center space-x-2">
                         @can('gaji.export_pdf')
-                        <a href="{{ route('slip-gaji.pdf', $previewSlip->id) }}?download=1"
+                        <a href="{{ route('slip-gaji.pdf', $previewSlip->id) }}" target="_blank" rel="noopener"
                            class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#5E17EB] text-white hover:bg-purple-800 shadow-sm transition-all cursor-pointer">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            <span>Export PDF</span>
+                            <span>Cetak PDF</span>
                         </a>
-                        <a href="{{ route('slip-gaji.cetak', $previewSlip->id) }}"
+                        <a href="{{ route('slip-gaji.cetak', $previewSlip->id) }}" target="_blank" rel="noopener"
                            class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-xl text-xs font-bold border border-gray-200 bg-white text-black hover:bg-gray-50 transition-all cursor-pointer"
-                           title="Unduh Slip Gaji PDF Langsung">
+                           title="Buka pratinjau sebelum mencetak">
                             <svg class="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                             </svg>
-                            <span>Cetak PDF</span>
+                            <span>Pratinjau Cetak</span>
                         </a>
                         @endcan
                         <button type="button" wire:click="closePreviewModal" class="p-1.5 rounded-xl text-black hover:bg-gray-100 transition-colors cursor-pointer">

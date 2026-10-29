@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Scripts & Styles -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css'])
     
     <style>
         body {
@@ -19,8 +19,8 @@
         }
 
         @page {
-            size: A4 portrait;
-            margin: 8mm 10mm;
+            size: 210mm 157.5mm;
+            margin: 0;
         }
 
         @media print {
@@ -39,17 +39,24 @@
             .print-wrapper {
                 padding: 0 !important;
                 margin: 0 !important;
+                width: 210mm !important;
+                min-height: 157.5mm !important;
                 display: block !important;
             }
             .slip-gaji-root {
                 border: 1.5px solid #E2E8F0 !important;
                 box-shadow: none !important;
-                border-radius: 18px !important;
-                padding: 18px 24px !important;
-                width: 100% !important;
-                max-width: 100% !important;
+                border-radius: 4mm !important;
+                padding: 5mm !important;
+                width: 204mm !important;
+                max-width: 204mm !important;
+                margin: 2mm auto 0 !important;
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
         }
     </style>
@@ -65,7 +72,7 @@
                     Mode Cetak Slip Gaji &bull; {{ $slip->no_slip }}
                 </span>
                 <span class="text-[10px] text-gray-500 font-bold block">
-                    Desain 1:1 Presisi. Gunakan opsi "Save as PDF" di dialog print untuk menyimpan PDF jernih tanpa terpotong.
+                    Pilih Simpan sebagai PDF dan aktifkan Grafik latar belakang agar warna ikut tercetak.
                 </span>
             </div>
         </div>
@@ -76,7 +83,7 @@
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                 </svg>
-                <span>Cetak / Simpan PDF</span>
+                <span>Cetak PDF</span>
             </button>
 
             <button type="button" onclick="window.close()"
@@ -93,13 +100,17 @@
         </div>
     </div>
 
-    <!-- Auto Print Trigger -->
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                window.print();
-            }, 500);
-        });
-    </script>
+    @if($autoPrint)
+        <script>
+            window.addEventListener('load', () => {
+                const openPrintDialog = () => setTimeout(() => window.print(), 250);
+                if (document.fonts?.ready) {
+                    document.fonts.ready.then(openPrintDialog);
+                } else {
+                    openPrintDialog();
+                }
+            });
+        </script>
+    @endif
 </body>
 </html>
