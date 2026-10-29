@@ -26,7 +26,7 @@
         @media print {
             html, body {
                 width: 100% !important;
-                height: auto !important;
+                height: auto !important; min-height: 0 !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 background: #ffffff !important;
@@ -40,7 +40,7 @@
                 padding: 0 !important;
                 margin: 0 !important;
                 width: 210mm !important;
-                min-height: 175mm !important;
+                min-height: 0 !important;
                 display: block !important;
             }
             .slip-gaji-root {

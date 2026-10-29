@@ -27,8 +27,8 @@
     @endif
     <span style="position:absolute; left:16.5%; bottom:1mm; color:#4C3680; font:600 7px/1 Arial,sans-serif; letter-spacing:1.1px; white-space:nowrap; text-transform:uppercase;">Laptop &middot; Komputer &middot; Printer &middot; CCTV &middot; Service</span>
 
-    <div style="position:absolute; left:57%; top:50%; transform:translateY(-50%); color:#fff;">
-        <strong style="display:block; color:#fff; font:900 34px/1 Arial,sans-serif; letter-spacing:.5px;">SLIP GAJI</strong>
+    <div style="position:absolute; left:57%; right:20%; top:50%; transform:translateY(-50%); color:#fff; white-space:nowrap;">
+        <strong style="display:block; color:#fff; font:900 30px/1 Arial,sans-serif; letter-spacing:.5px;">SLIP GAJI</strong>
         <span style="display:block; padding-top:4px; color:#F3E8FF; font:700 10px/1.2 Arial,sans-serif; letter-spacing:3px;">K A R Y A W A N</span>
     </div>
     <span style="position:absolute; right:2%; top:50%; transform:translateY(-50%); display:inline-block; padding:10px 16px; border-radius:22px; background:#fff; color:#4F16C8; font:900 12px Arial,sans-serif; text-transform:uppercase; white-space:nowrap;">{{ $periode }}</span>
