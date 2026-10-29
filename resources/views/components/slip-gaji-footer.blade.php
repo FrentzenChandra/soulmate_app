@@ -2,12 +2,12 @@
 
 @php($gradientId = 'slip-footer-' . \Illuminate\Support\Str::uuid())
 
-<div class="slip-gaji-footer" style="position:relative; min-height:80px; overflow:hidden; border-top:1px solid #10B981; margin-top:7px;">
-    <svg aria-hidden="true" viewBox="0 0 190 86" preserveAspectRatio="none" style="position:absolute; left:0; bottom:0; display:block; width:72px; height:68px;">
+<div class="slip-gaji-footer" style="position:relative; min-height:80px; overflow:hidden; margin-top:7px;">
+    <svg aria-hidden="true" viewBox="0 0 190 86" preserveAspectRatio="none" style="position:absolute; left:0; bottom:0; display:block; width:105px; height:82px;">
         <defs><linearGradient id="{{ $gradientId }}" x1="0" y1="86" x2="150" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#5E17EB"/><stop offset="1" stop-color="#E6007A"/></linearGradient></defs>
         <path fill="url(#{{ $gradientId }})" d="M0 86V58L87 0h43L0 86Z"/>
-        <path fill="#E6007A" fill-opacity=".7" d="M0 86V74L112 0h20L0 86Z"/>
-        <path fill="#A855F7" fill-opacity=".55" d="M0 86V82L124 0h13L0 86Z"/>
+        <path fill="#7C3AED" fill-opacity=".8" d="M0 86V74L112 0h20L0 86Z"/>
+        <path fill="#C084FC" fill-opacity=".7" d="M0 86V82L124 0h13L0 86Z"/>
     </svg>
     <table role="presentation" style="position:relative; z-index:1; width:100%; min-height:80px; border-collapse:collapse;">
         <tr>

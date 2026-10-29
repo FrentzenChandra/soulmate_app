@@ -19,7 +19,7 @@
         }
 
         @page {
-            size: 210mm 157.5mm;
+            size: 210mm 175mm;
             margin: 0;
         }
 
@@ -40,10 +40,13 @@
                 padding: 0 !important;
                 margin: 0 !important;
                 width: 210mm !important;
-                min-height: 157.5mm !important;
+                min-height: 175mm !important;
                 display: block !important;
             }
             .slip-gaji-root {
+                display: flex !important;
+                flex-direction: column !important;
+                min-height: 171mm !important;
                 border: 0 !important;
                 box-shadow: none !important;
                 border-radius: 0 !important;
@@ -63,6 +66,8 @@
                 margin: 1.5mm 0 !important;
                 padding: 2mm 3mm !important;
                 border-color: #DDD6FE !important;
+                background: #F6F3FC !important;
+                box-shadow: 0 1mm 3mm rgba(57, 24, 108, .08) !important;
             }
             .slip-profile-box > div:first-child,
             .slip-profile-meta {
@@ -101,6 +106,9 @@
                 padding-bottom: 1mm !important;
                 grid-template-columns: repeat(6, minmax(0, 7.1667fr)) repeat(2, minmax(0, 7fr)) repeat(2, minmax(0, 9fr)) repeat(2, minmax(0, 12.5fr)) !important;
             }
+            .slip-section-rows > div:nth-child(even) {
+                background: #F2F0FC !important;
+            }
             .slip-section-rows > div > div:not(:last-child) {
                 border-right: 1px solid #E8E1F3;
             }
@@ -128,7 +136,7 @@
             }
             .slip-gaji-footer {
                 min-height: 19mm !important;
-                margin-top: 1.5mm !important;
+                margin-top: auto !important;
             }
             .slip-gaji-footer table {
                 min-height: 19mm !important;

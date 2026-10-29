@@ -6,39 +6,30 @@
     $gradientId = 'slip-header-' . \Illuminate\Support\Str::uuid();
 @endphp
 
-<table role="presentation" class="slip-gaji-header" style="width:100%; border-collapse:collapse; border-bottom:1px solid #E2E8F0; margin-bottom:6px;">
-    <tr>
-        <td style="width:48%; vertical-align:middle; padding:4px 12px 7px 2px;">
-            @if($logo)
-                <img src="{{ $logo }}" alt="Soulmate Komputer" style="display:block; width:100%; max-width:290px; height:82px; object-fit:contain; object-position:left center;">
-            @else
-                <strong style="font:900 17px Arial,sans-serif; color:#5E17EB;">SOULMATE KOMPUTER</strong>
-            @endif
-        </td>
-        <td style="width:52%; vertical-align:middle; padding:0;">
-            <div style="position:relative; overflow:hidden; height:88px; color:#fff; background:#7216D8; border-radius:12px 24px 24px 12px;">
-                <svg aria-hidden="true" viewBox="0 0 600 100" preserveAspectRatio="none" style="position:absolute; top:0; left:0; display:block; width:100%; height:100%;">
-                    <defs>
-                        <linearGradient id="{{ $gradientId }}" x1="0" y1="50" x2="600" y2="50" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#5E17EB"/><stop offset=".58" stop-color="#8B2FF5"/><stop offset="1" stop-color="#E6007A"/>
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#{{ $gradientId }})" d="M0 0h600v100H76L0 0Z"/>
-                    <path fill="#fff" fill-opacity=".2" d="M0 0h42l76 100H76L0 0Z"/>
-                    <path fill="#fff" fill-opacity=".28" d="M40 0h15l75 100h-15L40 0Z"/>
-                </svg>
-                <table role="presentation" style="position:relative; z-index:1; width:100%; height:88px; border-collapse:collapse; color:#fff;">
-                    <tr>
-                        <td style="padding:9px 6px 9px 18px; color:#fff; vertical-align:middle;">
-                            <strong style="display:block; color:#fff; font:900 30px/1.05 Arial,sans-serif; letter-spacing:.7px;">SLIP GAJI</strong>
-                            <span style="display:block; padding-top:5px; color:#F3E8FF; font:700 10px/1.2 Arial,sans-serif; letter-spacing:2.8px;">K A R Y A W A N</span>
-                        </td>
-                        <td style="width:42%; padding:0 12px 0 4px; text-align:right; vertical-align:middle;">
-                            <span style="display:inline-block; padding:10px 16px; border-radius:20px; background:#fff; color:#5E17EB; font:900 11px Arial,sans-serif; text-transform:uppercase; white-space:nowrap;">{{ $periode }}</span>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </td>
-    </tr>
-</table>
+<div class="slip-gaji-header" style="position:relative; width:100%; height:29mm; overflow:hidden; margin-bottom:6px; border-bottom:1px solid #E2E8F0; background:#fff;">
+    <svg aria-hidden="true" viewBox="0 0 1000 180" preserveAspectRatio="none" style="position:absolute; inset:0; display:block; width:100%; height:100%;">
+        <defs>
+            <linearGradient id="{{ $gradientId }}" x1="390" y1="0" x2="1000" y2="180" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#4F16C8"/><stop offset=".58" stop-color="#8124E8"/><stop offset="1" stop-color="#E6009D"/>
+            </linearGradient>
+        </defs>
+        <path fill="url(#{{ $gradientId }})" d="M390 0H1000V180H555Z"/>
+        <path fill="#DCCBFF" d="M348 0h26l177 180h-27z"/>
+        <path fill="#A855F7" fill-opacity=".75" d="M377 0h22l177 180h-22z"/>
+        <path fill="#5E17EB" fill-opacity=".85" d="M401 0h31l176 180h-31z"/>
+        <path fill="#FFFFFF" fill-opacity=".08" d="M760 0h180l-90 180h-180z"/>
+    </svg>
+
+    @if($logo)
+        <img src="{{ $logo }}" alt="Soulmate Komputer" style="position:absolute; left:2.5%; top:0; display:block; width:47%; height:27mm; object-fit:contain; object-position:left center;">
+    @else
+        <strong style="position:absolute; left:3%; top:5mm; color:#5E17EB; font:900 17px Arial,sans-serif;">SOULMATE KOMPUTER</strong>
+    @endif
+    <span style="position:absolute; left:16.5%; bottom:1mm; color:#4C3680; font:600 7px/1 Arial,sans-serif; letter-spacing:1.1px; white-space:nowrap; text-transform:uppercase;">Laptop &middot; Komputer &middot; Printer &middot; CCTV &middot; Service</span>
+
+    <div style="position:absolute; left:57%; top:50%; transform:translateY(-50%); color:#fff;">
+        <strong style="display:block; color:#fff; font:900 34px/1 Arial,sans-serif; letter-spacing:.5px;">SLIP GAJI</strong>
+        <span style="display:block; padding-top:4px; color:#F3E8FF; font:700 10px/1.2 Arial,sans-serif; letter-spacing:3px;">K A R Y A W A N</span>
+    </div>
+    <span style="position:absolute; right:2%; top:50%; transform:translateY(-50%); display:inline-block; padding:10px 16px; border-radius:22px; background:#fff; color:#4F16C8; font:900 12px Arial,sans-serif; text-transform:uppercase; white-space:nowrap;">{{ $periode }}</span>
+</div>

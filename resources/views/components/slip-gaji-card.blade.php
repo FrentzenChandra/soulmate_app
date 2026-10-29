@@ -227,7 +227,7 @@
              style="background-color: #FFF1A8 !important; border: 1.5px solid #FDE68A !important;">
             <div class="flex items-center space-x-2">
                 <svg class="w-4 h-4 text-amber-700 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path>
+                    <path d="M12 2C7.58 2 4 3.34 4 5s3.58 3 8 3 8-1.34 8-3-3.58-3-8-3zm-8 6v3c0 1.66 3.58 3 8 3s8-1.34 8-3V8c-1.53 1.15-4.62 2-8 2S5.53 9.15 4 8zm0 6v3c0 1.66 3.58 3 8 3s8-1.34 8-3v-3c-1.53 1.15-4.62 2-8 2s-6.47-.85-8-2z"></path>
                 </svg>
                 <span class="text-xs font-black text-black uppercase tracking-wider">Total Penghasilan Bruto</span>
             </div>
@@ -250,7 +250,7 @@
              style="background: linear-gradient(to right, #E11D48, #F43F5E) !important;">
             <div class="col-span-6 flex items-center space-x-1.5">
                 <svg class="w-3.5 h-3.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 5v8m-4-4 4 4 4-4"></path>
                 </svg>
                 <span>PENGURANGAN</span>
             </div>
@@ -304,7 +304,7 @@
              style="background-color: #FCE1F0 !important; border: 1.5px solid #FBCFE8 !important;">
             <div class="flex items-center space-x-2">
                 <svg class="w-4 h-4 text-rose-700 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                    <path fill-rule="evenodd" d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zM13 9V3.5L18.5 9H13z" clip-rule="evenodd"></path>
                 </svg>
                 <span class="text-xs font-black text-black uppercase tracking-wider">Total Pengurangan</span>
             </div>
