@@ -555,12 +555,12 @@
     <!-- MODAL PREVIEW SLIP GAJI (1:1 SESUAI DESAIN)    -->
     <!-- ============================================== -->
     @if ($modalPreviewOpen && $previewSlip)
-        <div class="fixed inset-0 z-50 overflow-y-auto bg-black/75 flex items-center justify-center p-3 sm:p-6 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl max-w-4xl w-full p-4 sm:p-6 space-y-4 shadow-2xl border border-gray-200">
-                <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+        <div class="fixed inset-0 z-50 overflow-y-auto bg-black/75 flex items-center justify-center p-3 sm:p-5 backdrop-blur-xs">
+            <div class="bg-white rounded-2xl max-w-5xl w-full p-3 sm:p-5 space-y-3 shadow-2xl border border-purple-100">
+                <div class="flex items-center justify-between pb-3 border-b border-purple-100">
                     <div class="flex items-center space-x-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-[#5E17EB]"></span>
-                        <span class="text-xs font-black uppercase tracking-wider text-black">Preview Slip Gaji &bull; {{ $previewSlip->no_slip }}</span>
+                        <span class="text-xs font-black uppercase tracking-wider text-[#35117A]">Pratinjau Slip Gaji &bull; {{ $previewSlip->no_slip }}</span>
                     </div>
                     <div class="flex items-center space-x-2">
                         @can('gaji.export_pdf')
@@ -586,8 +586,8 @@
                     </div>
                 </div>
 
-                <div class="overflow-y-auto max-h-[80vh] p-1">
-                    <x-slip-gaji-card :slip="$previewSlip" />
+                <div class="overflow-y-auto max-h-[82vh] rounded-xl bg-[#F8F7FC] p-2 sm:p-3">
+                    <x-slip-gaji-card :slip="$previewSlip" :hide-empty-deductions="true" />
                 </div>
             </div>
         </div>
