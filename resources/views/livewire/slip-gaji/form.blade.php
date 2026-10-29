@@ -541,6 +541,7 @@
             <div class="flex items-center flex-wrap gap-2.5">
                 @if(!$isFinal)
                     <!-- Tombol Simpan Draft -->
+                    @if($slipId ? auth()->user()->can('gaji.edit') : auth()->user()->can('gaji.create'))
                     <button type="button" wire:click="saveDraft"
                             wire:loading.attr="disabled"
                             wire:target="saveDraft"
@@ -551,6 +552,7 @@
                         <span wire:loading.remove wire:target="saveDraft">Simpan Draft</span>
                         <span wire:loading wire:target="saveDraft">Menyimpan...</span>
                     </button>
+                    @endif
 
                     <!-- Tombol Simpan & Buat Slip -->
                     @can('gaji.finalize')

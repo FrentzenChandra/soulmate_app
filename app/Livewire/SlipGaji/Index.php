@@ -443,9 +443,9 @@ class Index extends Component
 
         // Hitung staf menunggu kenaikan di cabang untuk badge button
         $currentCabangId = $this->getCurrentCabangId();
-        $alertCount = KenaikanGaji::where('cabang_id', $currentCabangId)
-            ->where('status', 'menunggu')
-            ->count();
+        $alertCount = ($user->isOwner() || $user->can('gaji.alert'))
+            ? KenaikanGaji::where('cabang_id', $currentCabangId)->where('status', 'menunggu')->count()
+            : 0;
 
         return view('livewire.slip-gaji.index', [
             'slips' => $slips,

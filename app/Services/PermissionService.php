@@ -157,23 +157,6 @@ class PermissionService
                             'pajak.export_pdf' => 'Export Dokumen PDF',
                         ],
                     ],
-                    'slip_gaji' => [
-                        'label' => 'Slip Gaji',
-                        'route' => 'slip-gaji.index',
-                        'main_permission' => 'gaji.view',
-                        'description' => 'Pembuatan, penyalinan, finalisasi slip gaji staf, dan cetak PDF',
-                        'actions' => [
-                            'gaji.create' => 'Buat & Salin Slip Gaji',
-                            'gaji.edit' => 'Edit Komponen Slip Gaji',
-                            'gaji.finalize' => 'Finalkan Slip Gaji',
-                            'gaji.delete' => 'Hapus Slip Gaji (Draft)',
-                            'gaji.export_pdf' => 'Unduh Dokumen PDF',
-                            'gaji.alert' => 'Lihat Alert Kenaikan 6 Bulan',
-                            'gaji.reopen' => 'Buka Kembali Slip Final (Owner)',
-                            'gaji.tarif.edit' => 'Atur Tarif Global (Owner)',
-                            'gaji.pokok.edit' => 'Ubah Gaji Pokok & Tarif Per Hari (Owner)',
-                        ],
-                    ],
                     'kas_keluar' => [
                         'label' => 'Kas Keluar',
                         'route' => 'kas-keluar',
@@ -347,8 +330,8 @@ class PermissionService
             ],
 
             'absensi_staf' => [
-                'group_label' => 'Absensi Staf',
-                'description' => 'Monitoring dan rekapitulasi riwayat absensi staf cabang',
+                'group_label' => 'Absensi & Gaji Staf',
+                'description' => 'Monitoring kehadiran, rekapitulasi keterlambatan, dan manajemen penggajian staf',
                 'modules' => [
                     'absensi_riwayat' => [
                         'label' => 'Riwayat Absensi',
@@ -358,6 +341,23 @@ class PermissionService
                         'actions' => [
                             'absensi.rekap.view' => 'Akses Tab Rekap Keterlambatan Pegawai',
                             'absensi.riwayat.export' => 'Ekspor Rekap Absensi',
+                        ],
+                    ],
+                    'slip_gaji' => [
+                        'label' => 'Slip Gaji',
+                        'route' => 'slip-gaji.index',
+                        'main_permission' => 'gaji.view',
+                        'description' => 'Pembuatan, penyalinan, finalisasi slip gaji staf, dan cetak PDF',
+                        'actions' => [
+                            'gaji.create' => 'Tambah / Buat Slip Gaji (POST)',
+                            'gaji.edit' => 'Edit Komponen Slip Gaji (PUT)',
+                            'gaji.export_pdf' => 'Cetak & Unduh Dokumen PDF',
+                            'gaji.reopen' => 'Buka Kunci Slip Final (Reopen)',
+                            'gaji.finalize' => 'Finalkan & Kunci Slip Gaji',
+                            'gaji.delete' => 'Hapus Draft Slip Gaji (DELETE)',
+                            'gaji.alert' => 'Lihat Alert Kenaikan Gaji 6 Bulan',
+                            'gaji.tarif.edit' => 'Atur Tarif Global Toko',
+                            'gaji.pokok.edit' => 'Ubah Gaji Pokok & Komponen Tetap',
                         ],
                     ],
                 ],

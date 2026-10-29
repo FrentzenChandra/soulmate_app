@@ -92,6 +92,9 @@ class Form extends Component
         if ($slip) {
             $this->slipId = $slip;
             $this->loadSlip($service);
+            if (! $this->isFinal && ! $user->isOwner() && ! $user->can('gaji.edit')) {
+                abort(403, 'Akses edit slip gaji dibatasi.');
+            }
         } else {
             // Mode Buat Baru
             abort_if(! $user->isOwner() && ! $user->can('gaji.create'), 403, 'Akses buat slip dibatasi.');
@@ -478,6 +481,13 @@ class Form extends Component
 
     public function saveDraft(): void
     {
+        $user = Auth::user();
+        if ($this->slipId) {
+            abort_if(! $user || (! $user->isOwner() && ! $user->can('gaji.edit')), 403, 'Akses edit komponen slip gaji dibatasi.');
+        } else {
+            abort_if(! $user || (! $user->isOwner() && ! $user->can('gaji.create')), 403, 'Akses buat slip gaji dibatasi.');
+        }
+
         $this->processSave('draft', app(SlipGajiService::class));
     }
 
