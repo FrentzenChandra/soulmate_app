@@ -202,7 +202,6 @@
             <table class="w-full text-left border-collapse" data-table-size="M">
                 <thead>
                     <tr class="bg-gray-100 border-b border-gray-200 text-[11px] font-black text-black uppercase tracking-wider">
-                        <th class="px-4 py-3">No. Slip</th>
                         <th class="px-4 py-3">Periode</th>
                         <th class="px-4 py-3">Nama Staf</th>
                         <th class="px-4 py-3">Jabatan</th>
@@ -216,9 +215,6 @@
                 <tbody class="divide-y divide-gray-200 text-xs text-black">
                     @forelse ($slips as $slip)
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-4 py-3 font-mono font-bold whitespace-nowrap">
-                                {{ $slip->no_slip }}
-                            </td>
                             <td class="px-4 py-3 font-bold whitespace-nowrap">
                                 {{ $slip->periode_text }}
                             </td>
@@ -299,7 +295,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-4 py-8 text-center text-black font-bold">
+                            <td colspan="8" class="px-4 py-8 text-center text-black font-bold">
                                 Tidak ada data slip gaji pada periode ini.
                             </td>
                         </tr>

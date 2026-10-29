@@ -74,7 +74,7 @@ class SlipGajiTest extends TestCase
         Livewire::test(SlipGajiIndex::class)
             ->assertOk()
             ->set('search', 'teknisi')
-            ->assertSee('SLIP/PKP/2026/10/001')
+            ->assertSee($staf->name)
             ->call('setPeriodeMode', 'bulanan')
             ->assertSet('periodeMode', 'bulanan');
     }
