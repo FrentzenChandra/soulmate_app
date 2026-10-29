@@ -32,54 +32,49 @@
     <!-- ======================================================== -->
     <!-- 2. DATA KARYAWAN (METADATA CARD)                        -->
     <!-- ======================================================== -->
-    <div class="my-3.5 bg-[#F8FAFC] border border-gray-200/80 rounded-xl sm:rounded-2xl p-3.5 sm:p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-5">
+    <div class="slip-profile-box my-3.5 bg-[#F1ECFF] border border-purple-200/80 rounded-xl sm:rounded-2xl p-3.5 sm:p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-5">
         <!-- Kolom Kiri: Avatar, Nama, Jabatan -->
         <div class="flex items-center space-x-3.5">
-            <x-slip-gaji-employee-avatar :user="$staf" :size="44" />
+            <x-slip-gaji-employee-avatar :user="$staf" :size="50" />
             <div class="space-y-0.5 text-xs">
                 <div class="flex items-baseline space-x-2">
-                    <span class="font-bold text-gray-500 w-24">Nama Karyawan</span>
-                    <span class="text-gray-400">:</span>
-                    <span class="font-black text-black text-xs sm:text-sm">{{ $stafNama }}</span>
+                    <span class="font-bold text-[#6D5AA4] w-24">Nama Karyawan</span>
+                    <span class="font-black text-[#25115F] text-xs sm:text-sm">{{ $stafNama }}</span>
                 </div>
                 <div class="flex items-baseline space-x-2">
-                    <span class="font-bold text-gray-500 w-24">Jabatan</span>
-                    <span class="text-gray-400">:</span>
-                    <span class="font-black text-black">{{ $stafJabatan ?: '-' }}</span>
+                    <span class="font-bold text-[#6D5AA4] w-24">Jabatan</span>
+                    <span class="font-black text-[#25115F]">{{ $stafJabatan ?: '-' }}</span>
                 </div>
             </div>
         </div>
 
         <!-- Kolom Kanan: Tanggal Lahir, Periode, Masa Kerja -->
-        <div class="space-y-0.5 text-xs sm:border-l sm:border-gray-200 sm:pl-5 w-full md:w-auto">
+        <div class="slip-profile-meta space-y-0.5 text-xs sm:border-l sm:border-purple-300 sm:pl-5 w-full md:w-auto">
             <div class="flex items-center space-x-2">
                 <svg class="w-3.5 h-3.5 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
-                <span class="font-bold text-gray-500 w-20">Tanggal Lahir</span>
-                <span class="text-gray-400">:</span>
-                <span class="font-bold text-black">{{ $tanggalLahirFormatted }}</span>
+                <span class="font-bold text-[#6D5AA4] w-20">Tanggal Lahir</span>
+                <span class="font-bold text-[#25115F]">{{ $tanggalLahirFormatted }}</span>
                 @if($usiaFormatted !== '-')
                     <span class="text-gray-600 font-semibold text-[10.5px]">({{ $usiaFormatted }})</span>
                 @endif
             </div>
 
             <div class="flex items-center space-x-2">
-                <svg class="w-3.5 h-3.5 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <svg class="w-3.5 h-3.5 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
-                <span class="font-bold text-gray-500 w-20">Periode Gaji</span>
-                <span class="text-gray-400">:</span>
-                <span class="font-bold text-black">{{ $periodeText }}</span>
+                <span class="font-bold text-[#6D5AA4] w-20">Periode Gaji</span>
+                <span class="font-bold text-[#25115F]">{{ $periodeText }}</span>
             </div>
 
             <div class="flex items-center space-x-2">
-                <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+                <svg class="w-3.5 h-3.5 text-purple-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22s8-4.5 8-11a8 8 0 10-16 0c0 6.5 8 11 8 11zm0-8a3 3 0 110-6 3 3 0 010 6z"></path>
                 </svg>
-                <span class="font-bold text-gray-500 w-20">Masa Kerja</span>
-                <span class="text-gray-400">:</span>
-                <span class="font-bold text-black">{{ $tanggalMulaiFormatted }}</span>
+                <span class="font-bold text-[#6D5AA4] w-20">Masa Kerja</span>
+                <span class="font-bold text-[#25115F]">{{ $tanggalMulaiFormatted }}</span>
                 @if($masaKerjaFormatted !== '-')
                     <span class="text-gray-600 font-semibold text-[10.5px]">({{ $masaKerjaFormatted }})</span>
                 @endif
@@ -90,13 +85,13 @@
     <!-- ======================================================== -->
     <!-- 3. TABEL PENERIMAAN                                     -->
     <!-- ======================================================== -->
-    <div class="space-y-1 mb-3.5">
+    <div class="slip-earnings space-y-1 mb-3.5">
         <!-- Header Bar Ungu-Pink dengan Ikon -->
-        <div class="text-white rounded-xl px-3.5 py-2 grid grid-cols-12 gap-2 items-center text-[11px] font-black uppercase tracking-wider shadow-2xs"
+        <div class="slip-section-heading text-white rounded-xl px-3.5 py-2 grid grid-cols-12 gap-2 items-center text-[11px] font-black uppercase tracking-wider shadow-2xs"
              style="background: linear-gradient(to right, #5E17EB, #E6007A) !important;">
             <div class="col-span-6 flex items-center space-x-1.5">
-                <svg class="w-3.5 h-3.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                <svg class="w-4 h-4 text-white shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 3C7.58 3 4 4.34 4 6s3.58 3 8 3 8-1.34 8-3-3.58-3-8-3zm-8 6v3c0 1.66 3.58 3 8 3s8-1.34 8-3V9c-1.53 1.15-4.62 2-8 2S5.53 10.15 4 9zm0 6v3c0 1.66 3.58 3 8 3s8-1.34 8-3v-3c-1.53 1.15-4.62 2-8 2s-6.47-.85-8-2z"></path>
                 </svg>
                 <span>PENERIMAAN</span>
             </div>
@@ -115,7 +110,7 @@
         </div>
 
         <!-- Baris Item Penerimaan -->
-        <div class="divide-y divide-gray-100 text-xs">
+        <div class="slip-section-rows divide-y divide-purple-100 text-xs">
             <!-- 1. Gaji Pokok - Person Icon -->
             <div class="grid grid-cols-12 gap-2 items-center py-1.5 px-3 hover:bg-gray-50/60 transition-colors">
                 <div class="col-span-6 flex items-center space-x-2.5 font-bold text-black">
@@ -228,7 +223,7 @@
 
         <!-- Strip Highlight Kuning Total Penghasilan Bruto (Sesuai Gambar) -->
         <div class="rounded-xl px-3.5 py-2 flex items-center justify-between shadow-2xs mt-1.5"
-             style="background-color: #FEF3C7 !important; border: 1.5px solid #FDE68A !important;">
+             style="background-color: #FFF1A8 !important; border: 1.5px solid #FDE68A !important;">
             <div class="flex items-center space-x-2">
                 <svg class="w-4 h-4 text-amber-700 shrink-0" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path>
@@ -236,8 +231,8 @@
                 <span class="text-xs font-black text-black uppercase tracking-wider">Total Penghasilan Bruto</span>
             </div>
             <div class="rounded-lg px-3 py-1 shadow-2xs"
-                 style="background-color: #FACC15 !important; border: 1px solid #EAB308 !important;">
-                <span class="font-mono font-black text-xs sm:text-sm text-black">
+                 style="background-color: #FFDA55 !important; border: 1px solid #F4C735 !important;">
+                <span class="font-mono font-black text-sm sm:text-base text-black">
                     Rp {{ number_format($slip->total_bruto, 0, ',', '.') }}
                 </span>
             </div>
@@ -247,10 +242,9 @@
     <!-- ======================================================== -->
     <!-- 4. TABEL PENGURANGAN (Hanya render jika ada atau jika bernilai 0 di mode draft) -->
     <!-- ======================================================== -->
-    @if($potonganItems->isNotEmpty() || (float)$slip->total_pengurangan > 0 || !$slip->isFinal())
-    <div class="space-y-1 mb-3.5">
+    <div class="slip-deductions space-y-1 mb-3.5">
         <!-- Header Bar Merah dengan Ikon -->
-        <div class="text-white rounded-xl px-3.5 py-2 grid grid-cols-12 gap-2 items-center text-[11px] font-black uppercase tracking-wider shadow-2xs"
+        <div class="slip-section-heading text-white rounded-xl px-3.5 py-2 grid grid-cols-12 gap-2 items-center text-[11px] font-black uppercase tracking-wider shadow-2xs"
              style="background: linear-gradient(to right, #E11D48, #F43F5E) !important;">
             <div class="col-span-6 flex items-center space-x-1.5">
                 <svg class="w-3.5 h-3.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,7 +267,7 @@
         </div>
 
         <!-- Baris Item Pengurangan -->
-        <div class="divide-y divide-gray-100 text-xs">
+        <div class="slip-section-rows divide-y divide-rose-100 text-xs">
             @forelse($potonganItems as $item)
                 <div class="grid grid-cols-12 gap-2 items-center py-1.5 px-3 hover:bg-gray-50/60 transition-colors">
                     <div class="col-span-6 flex items-center space-x-2.5 font-bold text-black">
@@ -305,7 +299,7 @@
 
         <!-- Strip Highlight Merah Total Pengurangan -->
         <div class="rounded-xl px-3.5 py-2 flex items-center justify-between shadow-2xs mt-1.5"
-             style="background-color: #FEE2E2 !important; border: 1.5px solid #FECACA !important;">
+             style="background-color: #FCE1F0 !important; border: 1.5px solid #FBCFE8 !important;">
             <div class="flex items-center space-x-2">
                 <svg class="w-4 h-4 text-rose-700 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
@@ -317,13 +311,11 @@
             </span>
         </div>
     </div>
-    @endif
-
     <!-- ======================================================== -->
     <!-- 5. STRIP UTAMA TOTAL DITERIMA KARYAWAN (HIJAU VIBRANT)  -->
     <!-- ======================================================== -->
-    <div class="rounded-xl sm:rounded-2xl px-4 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between text-white shadow-md shadow-emerald-900/15 my-3.5"
-         style="background: linear-gradient(to right, #059669, #0D9488) !important;">
+    <div class="slip-net-total rounded-xl sm:rounded-2xl px-4 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between text-white shadow-md shadow-emerald-900/15 my-3.5"
+         style="background: linear-gradient(to right, #08A85D, #007A52) !important;">
         <div class="flex items-center space-x-2.5 sm:space-x-3">
             <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -334,8 +326,8 @@
                 <span class="text-xs sm:text-sm font-black uppercase tracking-wider block">TOTAL DITERIMA KARYAWAN</span>
             </div>
         </div>
-        <div class="text-right">
-            <span class="text-lg sm:text-2xl font-mono font-black text-white tracking-tight">
+        <div class="text-right border-l border-white/50 pl-4">
+            <span class="text-xl sm:text-3xl font-mono font-black text-white tracking-tight">
                 Rp {{ number_format($slip->total_diterima, 0, ',', '.') }}
             </span>
         </div>

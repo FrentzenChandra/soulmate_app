@@ -44,15 +44,94 @@
                 display: block !important;
             }
             .slip-gaji-root {
-                border: 1.5px solid #E2E8F0 !important;
+                border: 0 !important;
                 box-shadow: none !important;
-                border-radius: 4mm !important;
-                padding: 5mm !important;
-                width: 204mm !important;
-                max-width: 204mm !important;
+                border-radius: 0 !important;
+                padding: 2mm !important;
+                width: 206mm !important;
+                max-width: 206mm !important;
                 margin: 2mm auto 0 !important;
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
+            }
+            .slip-gaji-header {
+                margin-bottom: 2mm !important;
+            }
+            .slip-profile-box {
+                flex-direction: row !important;
+                align-items: center !important;
+                margin: 1.5mm 0 !important;
+                padding: 2mm 3mm !important;
+                border-color: #DDD6FE !important;
+            }
+            .slip-profile-box > div:first-child,
+            .slip-profile-meta {
+                width: 50% !important;
+            }
+            .slip-profile-meta {
+                border-left: 1px solid #A78BFA !important;
+                padding-left: 4mm !important;
+            }
+            .slip-earnings,
+            .slip-deductions {
+                margin-bottom: 1.5mm !important;
+                border: 1px solid #A78BFA !important;
+                border-radius: 2.5mm !important;
+                overflow: hidden !important;
+            }
+            .slip-deductions {
+                border-color: #F472B6 !important;
+            }
+            .slip-section-heading {
+                min-height: 8mm !important;
+                padding: 1.3mm 2mm !important;
+                border-radius: 2.5mm !important;
+                grid-template-columns: repeat(6, minmax(0, 7.1667fr)) repeat(2, minmax(0, 7fr)) repeat(2, minmax(0, 9fr)) repeat(2, minmax(0, 12.5fr)) !important;
+            }
+            .slip-section-heading > div:not(:last-child) {
+                border-right: 1px solid rgba(255,255,255,.35);
+            }
+            .slip-section-heading > div:last-child {
+                justify-content: center !important;
+                text-align: center !important;
+            }
+            .slip-section-rows > div {
+                min-height: 5.6mm !important;
+                padding-top: 1mm !important;
+                padding-bottom: 1mm !important;
+                grid-template-columns: repeat(6, minmax(0, 7.1667fr)) repeat(2, minmax(0, 7fr)) repeat(2, minmax(0, 9fr)) repeat(2, minmax(0, 12.5fr)) !important;
+            }
+            .slip-section-rows > div > div:not(:last-child) {
+                border-right: 1px solid #E8E1F3;
+            }
+            .slip-section-rows .rounded-full {
+                width: 4mm !important;
+                height: 4mm !important;
+                flex: 0 0 4mm !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+            }
+            .slip-earnings > div:last-child,
+            .slip-deductions > div:last-child {
+                margin-top: 1mm !important;
+                padding-top: 1.4mm !important;
+                padding-bottom: 1.4mm !important;
+            }
+            .slip-net-total {
+                min-height: 11mm !important;
+                margin: 1.5mm 0 !important;
+                padding: 1.5mm 4mm !important;
+                border-radius: 2.5mm !important;
+            }
+            .slip-gaji-root .font-mono {
+                font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
+            }
+            .slip-gaji-footer {
+                min-height: 19mm !important;
+                margin-top: 1.5mm !important;
+            }
+            .slip-gaji-footer table {
+                min-height: 19mm !important;
             }
             * {
                 -webkit-print-color-adjust: exact !important;
