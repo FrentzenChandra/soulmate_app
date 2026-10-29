@@ -772,6 +772,18 @@ class Form extends Component
 
         // Backward compatibility: jika ada data penerimaan lama di kolom slip tapi belum ada di items
         if (empty($this->penerimaanItems)) {
+            if ((float) $slip->bonus_nominal > 0) {
+                $this->penerimaanItems[] = [
+                    'nama_item' => 'Bonus',
+                    'nominal' => (float) $slip->bonus_nominal,
+                ];
+            }
+            if ((float) $slip->lembur_performa_nominal > 0) {
+                $this->penerimaanItems[] = [
+                    'nama_item' => 'Lembur/Performa',
+                    'nominal' => (float) $slip->lembur_performa_nominal,
+                ];
+            }
             if ((float) $slip->servisan_selesai_nominal > 0) {
                 $this->penerimaanItems[] = [
                     'nama_item' => 'Servisan Selesai',

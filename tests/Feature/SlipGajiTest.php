@@ -251,12 +251,13 @@ class SlipGajiTest extends TestCase
             ->set('uangMakanPerHari', 20000)
             ->set('uangTransportHari', 20)
             ->set('uangTransportPerHari', 20000)
-            ->set('bonusNominal', 100000)
-            ->set('lemburPerformaNominal', 50000)
-            // 1. Tambah penerimaan tambahan custom (misal: Servisan Selesai)
+            // 1. Tambah penerimaan tambahan custom (Servisan Selesai, Bonus, Lembur)
             ->call('tambahPenerimaan')
             ->set('penerimaanItems.0.nama_item', 'Servisan Selesai Laptop Acer')
             ->set('penerimaanItems.0.nominal', 250000)
+            ->call('tambahPenerimaan')
+            ->set('penerimaanItems.1.nama_item', 'Bonus Target Toko')
+            ->set('penerimaanItems.1.nominal', 100000)
             // 2. Tambah potongan custom dan buktikan nama TIDAK revert kembali ke kategori
             ->call('tambahPotongan')
             ->set('penguranganItems.0.nama_item', 'Hutang Pulsa Kantor')
@@ -265,20 +266,19 @@ class SlipGajiTest extends TestCase
         // Pastikan nama_item tetap 'Hutang Pulsa Kantor', tidak tertimpa nama semula
         $test->assertSet('penguranganItems.0.nama_item', 'Hutang Pulsa Kantor');
         $test->assertSet('penerimaanItems.0.nama_item', 'Servisan Selesai Laptop Acer');
+        $test->assertSet('penerimaanItems.1.nama_item', 'Bonus Target Toko');
 
         // Verifikasi kalkulasi:
         // Gaji Pokok: 2.500.000
         // Uang Makan: 400.000
         // Uang Transport: 400.000
-        // Bonus: 100.000
-        // Lembur: 50.000
-        // Penerimaan Tambahan: 250.000
-        // Total Bruto = 3.700.000
+        // Penerimaan Tambahan (Servisan Selesai: 250.000 + Bonus: 100.000) = 350.000
+        // Total Bruto = 3.650.000
         // Total Pengurangan = 50.000
-        // Total Diterima = 3.650.000
-        $test->assertSet('totalBruto', 3700000.0)
+        // Total Diterima = 3.600.000
+        $test->assertSet('totalBruto', 3650000.0)
             ->assertSet('totalPengurangan', 50000.0)
-            ->assertSet('totalDiterima', 3650000.0)
+            ->assertSet('totalDiterima', 3600000.0)
             ->call('saveDraft')
             ->assertHasNoErrors()
             ->assertRedirect(route('slip-gaji.index'));
@@ -290,9 +290,9 @@ class SlipGajiTest extends TestCase
             ->first();
 
         $this->assertNotNull($slip);
-        $this->assertEquals(3700000, (float) $slip->total_bruto);
+        $this->assertEquals(3650000, (float) $slip->total_bruto);
         $this->assertEquals(50000, (float) $slip->total_pengurangan);
-        $this->assertEquals(3650000, (float) $slip->total_diterima);
+        $this->assertEquals(3600000, (float) $slip->total_diterima);
 
         // Cek database slip_gaji_items: penerimaan & pengurangan tersimpan presisi
         $this->assertDatabaseHas('slip_gaji_items', [
@@ -300,6 +300,13 @@ class SlipGajiTest extends TestCase
             'tipe' => 'penerimaan',
             'nama_item' => 'Servisan Selesai Laptop Acer',
             'nominal' => 250000,
+        ]);
+
+        $this->assertDatabaseHas('slip_gaji_items', [
+            'slip_gaji_id' => $slip->id,
+            'tipe' => 'penerimaan',
+            'nama_item' => 'Bonus Target Toko',
+            'nominal' => 100000,
         ]);
 
         $this->assertDatabaseHas('slip_gaji_items', [

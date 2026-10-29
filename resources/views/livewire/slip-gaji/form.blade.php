@@ -342,46 +342,6 @@
                     </div>
                 </div>
 
-                <!-- Bonus -->
-                <div class="grid grid-cols-12 gap-2 items-center py-1 px-2 rounded-xl hover:bg-gray-50/50">
-                    <div class="col-span-5 sm:col-span-6 text-xs font-bold text-black">Bonus</div>
-                    <div class="col-span-2 text-center">
-                        <span class="inline-block w-full py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-bold text-black text-center">-</span>
-                    </div>
-                    <div class="col-span-2 text-center">
-                        <span class="inline-block w-full py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-bold text-black text-center">-</span>
-                    </div>
-                    <div class="col-span-3 sm:col-span-2 text-right">
-                        @if(!$isFinal)
-                            <x-input-ribuan wire:model.live="bonusNominal" />
-                        @else
-                            <div class="py-1.5 px-2.5 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-right">
-                                Rp {{ number_format($bonusNominal, 0, ',', '.') }}
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Lembur/Performa -->
-                <div class="grid grid-cols-12 gap-2 items-center py-1 px-2 rounded-xl hover:bg-gray-50/50">
-                    <div class="col-span-5 sm:col-span-6 text-xs font-bold text-black">Lembur/Performa</div>
-                    <div class="col-span-2 text-center">
-                        <span class="inline-block w-full py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-bold text-black text-center">-</span>
-                    </div>
-                    <div class="col-span-2 text-center">
-                        <span class="inline-block w-full py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-bold text-black text-center">-</span>
-                    </div>
-                    <div class="col-span-3 sm:col-span-2 text-right">
-                        @if(!$isFinal)
-                            <x-input-ribuan wire:model.live="lemburPerformaNominal" />
-                        @else
-                            <div class="py-1.5 px-2.5 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-right">
-                                Rp {{ number_format($lemburPerformaNominal, 0, ',', '.') }}
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
                 <!-- Penerimaan Tambahan (Dinamis / Custom) -->
                 @foreach($penerimaanItems as $index => $item)
                 <div class="grid grid-cols-12 gap-2 items-center py-1 px-2 rounded-xl hover:bg-gray-50/50" wire:key="penerimaan-row-{{ $index }}">
