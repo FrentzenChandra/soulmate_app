@@ -27,47 +27,7 @@
 
 <div class="relative bg-white rounded-2xl sm:rounded-3xl border border-gray-200/90 shadow-xl overflow-hidden p-5 sm:p-7 text-black select-none max-w-4xl mx-auto slip-gaji-root">
 
-    <!-- ======================================================== -->
-    <!-- 1. HEADER (LOGO KIRI + BANNER DIAGONAL KANAN)           -->
-    <!-- ======================================================== -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
-        <!-- Logo & Identitas Perusahaan -->
-        <div class="flex items-center space-x-3 shrink-0">
-            <img src="{{ asset('images/logo_icon.png') }}" alt="Soulmate Komputer" class="h-11 sm:h-12 w-auto object-contain shrink-0 drop-shadow-xs">
-            <div>
-                <div class="flex items-center space-x-1.5 leading-none">
-                    <span class="text-lg sm:text-xl font-black text-[#5E17EB] tracking-wider">SOULMATE</span>
-                    <span class="text-lg sm:text-xl font-black text-gray-900 tracking-wider">KOMPUTER</span>
-                </div>
-                <span class="text-[8.5px] sm:text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1 block">
-                    LAPTOP &bull; KOMPUTER &bull; PRINTER &bull; CCTV &bull; SERVICE
-                </span>
-            </div>
-        </div>
-
-        <!-- Banner Kanan SLIP GAJI KARYAWAN (Slanted Diagonal Gradient) -->
-        <div class="relative flex items-center justify-end">
-            <!-- Background accent stripes (faint diagonal lines) -->
-            <div class="hidden sm:block absolute -left-8 top-1/2 -translate-y-1/2 w-10 h-10 pointer-events-none opacity-40">
-                <svg viewBox="0 0 40 40" class="w-full h-full text-purple-300">
-                    <line x1="5" y1="35" x2="25" y2="5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
-                    <line x1="15" y1="35" x2="35" y2="5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
-                </svg>
-            </div>
-
-            <!-- Main Slanted Banner -->
-            <div class="relative text-white rounded-2xl sm:rounded-r-2xl px-5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between sm:space-x-5 shadow-md shadow-purple-900/20 w-full sm:w-auto"
-                 style="background: linear-gradient(to right, #5E17EB, #8B2FF5, #E6007A) !important; clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);">
-                <div class="pr-3">
-                    <span class="text-base sm:text-lg font-black tracking-wider block leading-tight">SLIP GAJI</span>
-                    <span class="text-[9.5px] font-bold text-white/90 uppercase tracking-[0.2em] block">KARYAWAN</span>
-                </div>
-                <div class="bg-white text-[#5E17EB] font-black text-[11px] sm:text-xs px-3.5 py-1.5 rounded-full shadow-xs tracking-wider uppercase whitespace-nowrap">
-                    {{ $periodeUpper }}
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-slip-gaji-header :periode="$periodeUpper" />
 
     <!-- ======================================================== -->
     <!-- 2. DATA KARYAWAN (METADATA CARD)                        -->
@@ -385,49 +345,6 @@
         </div>
     </div>
 
-    <!-- ======================================================== -->
-    <!-- 6. FOOTER SLIP GAJI (UCAPAN TERIMA KASIH & TANDA TANGAN) -->
-    <!-- ======================================================== -->
-    <div class="relative pt-3 sm:pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-        <!-- Sisi Kiri: Ucapan Terima Kasih (Cursive Script Style) -->
-        <div class="space-y-0.5 text-center sm:text-left z-10 pl-6 sm:pl-8">
-            <span class="block text-2xl sm:text-3xl font-black text-[#5E17EB]" style="font-family: 'Dancing Script', 'Caveat', 'Brush Script MT', cursive, serif;">
-                Terima Kasih
-            </span>
-            <p class="text-gray-600 font-semibold max-w-xs leading-relaxed text-[10.5px]">
-                Atas dedikasi dari kerja keras Anda<br class="hidden sm:inline"> untuk kemajuan Soulmate Komputer.
-            </p>
-        </div>
-
-        <!-- Tengah: Slogan Watermark -->
-        <div class="hidden md:block text-center z-10">
-            <span class="text-[11px] font-black tracking-[0.25em] text-gray-300 uppercase italic block">
-                BERSAMA LEBIH MAJU
-            </span>
-        </div>
-
-        <!-- Sisi Kanan: Area Tanda Tangan -->
-        <div class="text-center z-10 min-w-[180px] sm:min-w-[210px]">
-            <p class="font-bold text-gray-700 text-[11px]">
-                Pangkalpinang, {{ $periodeText }}
-            </p>
-            <div class="h-10 sm:h-12 flex items-center justify-center">
-                <!-- Ruang Kosong untuk TTD Fisik / Stempel -->
-            </div>
-            <p class="font-black text-black text-[11px] uppercase tracking-wider leading-tight">
-                Manajemen
-            </p>
-            <p class="font-bold text-black text-[11px] leading-tight">
-                Soulmate Komputer
-            </p>
-        </div>
-
-        <!-- Aksen Dekorasi Pita Geometris Pojok Kiri Bawah (Persis Gambar Acuan) -->
-        <div class="absolute -bottom-5 -left-5 w-32 h-24 pointer-events-none overflow-hidden z-0">
-            <div class="absolute -bottom-6 -left-6 w-28 h-10 bg-gradient-to-r from-[#5E17EB] to-[#E6007A] -rotate-45 opacity-80 rounded-sm"></div>
-            <div class="absolute -bottom-4 -left-1 w-24 h-2 bg-[#E6007A] -rotate-45 opacity-60 rounded-sm"></div>
-            <div class="absolute -bottom-2 left-3 w-20 h-1 bg-[#8B5CF6] -rotate-45 opacity-40 rounded-sm"></div>
-        </div>
-    </div>
+    <x-slip-gaji-footer :periode="$periodeText" />
 
 </div>

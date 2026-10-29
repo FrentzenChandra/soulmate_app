@@ -386,55 +386,11 @@
     // Filter daftar item pengurangan dengan nominal > 0
     $potonganItems = $slip->items ? $slip->items->filter(fn($it) => (float)$it->nominal > 0) : collect();
 
-    // Logo Base64
-    $logoPath = public_path('images/logo_icon.png');
-    $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : '';
 @endphp
 
 <div class="card-container">
 
-    <!-- 1. Header (Logo Kiri + Banner Ungu Kanan) -->
-    <table class="w-full header-table">
-        <tr>
-            <td style="width: 58%; vertical-align: middle;">
-                <table style="width: 100%;">
-                    <tr>
-                        <td style="width: 40px; vertical-align: middle; padding-right: 6px;">
-                            @if($logoBase64)
-                                <img src="{{ $logoBase64 }}" style="width: 36px; height: 36px;" alt="Logo">
-                            @else
-                                <div style="width: 36px; height: 36px; background: #5E17EB; border-radius: 8px; text-align: center; line-height: 36px; color: #ffffff; font-weight: 900; font-size: 14pt;">
-                                    S
-                                </div>
-                            @endif
-                        </td>
-                        <td style="vertical-align: middle;">
-                            <div>
-                                <span class="company-title-brand">SOULMATE</span>
-                                <span class="company-title-dark"> KOMPUTER</span>
-                            </div>
-                            <div class="company-subtitle">
-                                LAPTOP &bull; KOMPUTER &bull; PRINTER &bull; CCTV &bull; SERVICE
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-            <td style="width: 42%; vertical-align: middle; text-align: right;">
-                <table class="banner-box" style="width: 100%;">
-                    <tr>
-                        <td style="vertical-align: middle; text-align: left; padding-left: 4px;">
-                            <div class="banner-title">SLIP GAJI</div>
-                            <div class="banner-sub">KARYAWAN</div>
-                        </td>
-                        <td style="vertical-align: middle; text-align: right;">
-                            <span class="banner-pill">{{ $periodeUpper }}</span>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+    <x-slip-gaji-header :periode="$periodeUpper" />
 
     <!-- 2. Profil Karyawan Box -->
     <div class="profile-box">
@@ -654,35 +610,7 @@
         </tr>
     </table>
 
-    <!-- 6. FOOTER (UCAPAN TERIMA KASIH, WATERMARK, TANDA TANGAN) -->
-    <table class="w-full footer-table">
-        <tr>
-            <!-- Sisi Kiri: Ucapan Terima Kasih -->
-            <td style="width: 42%;">
-                <div class="terima-kasih-title">Terima Kasih</div>
-                <div class="terima-kasih-text">
-                    Atas dedikasi dari kerja keras Anda untuk kemajuan Soulmate Komputer.
-                </div>
-            </td>
-
-            <!-- Tengah: Slogan Watermark -->
-            <td style="width: 28%; text-align: center;">
-                <div class="watermark-slogan">
-                    BERSAMA LEBIH MAJU
-                </div>
-            </td>
-
-            <!-- Sisi Kanan: Tanda Tangan -->
-            <td style="width: 30%; text-align: center;">
-                <div class="signature-title">
-                    Pangkalpinang, {{ $periodeNama }}
-                </div>
-                <div class="signature-name">
-                    Manajemen Soulmate Komputer
-                </div>
-            </td>
-        </tr>
-    </table>
+    <x-slip-gaji-footer :periode="$periodeNama" />
 
 </div>
 
