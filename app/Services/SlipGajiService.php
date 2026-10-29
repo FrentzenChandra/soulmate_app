@@ -67,7 +67,7 @@ class SlipGajiService
     /**
      * Kalkulasi total bruto, total pengurangan, dan total diterima secara presisi desimal/integer rupiah.
      */
-    public function kalkulasiTotal(array $penerimaan, array $penguranganItems = []): array
+    public function kalkulasiTotal(array $penerimaan, array $penguranganItems = [], array $penerimaanItems = []): array
     {
         $gajiPokok = round((float) ($penerimaan['gaji_pokok'] ?? 0), 2);
         $uangMakanHari = (int) ($penerimaan['uang_makan_hari'] ?? 0);
@@ -82,6 +82,12 @@ class SlipGajiService
         $bonusNominal = round((float) ($penerimaan['bonus_nominal'] ?? 0), 2);
         $lemburPerformaNominal = round((float) ($penerimaan['lembur_performa_nominal'] ?? 0), 2);
         $servisanSelesaiNominal = round((float) ($penerimaan['servisan_selesai_nominal'] ?? 0), 2);
+        $penerimaanTambahanNominal = round((float) ($penerimaan['penerimaan_tambahan_nominal'] ?? 0), 2);
+
+        $totalPenerimaanItems = 0.00;
+        foreach ($penerimaanItems as $item) {
+            $totalPenerimaanItems += round((float) ($item['nominal'] ?? 0), 2);
+        }
 
         $totalBruto = round(
             $gajiPokok +
@@ -90,7 +96,9 @@ class SlipGajiService
             $tunjanganNominal +
             $bonusNominal +
             $lemburPerformaNominal +
-            $servisanSelesaiNominal,
+            $servisanSelesaiNominal +
+            $penerimaanTambahanNominal +
+            $totalPenerimaanItems,
             2
         );
 
@@ -114,6 +122,7 @@ class SlipGajiService
             'bonus_nominal' => $bonusNominal,
             'lembur_performa_nominal' => $lemburPerformaNominal,
             'servisan_selesai_nominal' => $servisanSelesaiNominal,
+            'total_penerimaan_items' => round($penerimaanTambahanNominal + $totalPenerimaanItems, 2),
             'total_bruto' => $totalBruto,
             'total_pengurangan' => $totalPengurangan,
             'total_diterima' => $totalDiterima,
@@ -227,23 +236,31 @@ class SlipGajiService
                 'created_by' => $actor->id,
             ]);
 
-            // Jika slip sumber memiliki potongan, salin baris pengurangan
+            // Jika slip sumber memiliki potongan atau penerimaan tambahan, salin baris items
             if ($source && $source->items()->count() > 0) {
                 $totalPengurangan = 0.00;
+                $totalPenerimaanItems = 0.00;
                 foreach ($source->items as $item) {
+                    $itemTipe = $item->tipe ?: 'pengurangan';
                     SlipGajiItem::create([
                         'slip_gaji_id' => $slip->id,
-                        'tipe' => $item->tipe,
-                        'kategori' => $item->kategori,
+                        'tipe' => $itemTipe,
+                        'kategori' => $item->kategori ?: ($itemTipe === 'penerimaan' ? 'Penerimaan' : 'Lainnya'),
                         'nama_item' => $item->nama_item,
                         'nominal' => $item->nominal,
                         'urutan' => $item->urutan,
                     ]);
-                    $totalPengurangan += (float) $item->nominal;
+                    if ($itemTipe === 'penerimaan') {
+                        $totalPenerimaanItems += (float) $item->nominal;
+                    } else {
+                        $totalPengurangan += (float) $item->nominal;
+                    }
                 }
+                $newTotalBruto = round($slip->total_bruto + $totalPenerimaanItems, 2);
                 $slip->update([
+                    'total_bruto' => $newTotalBruto,
                     'total_pengurangan' => $totalPengurangan,
-                    'total_diterima' => round($slip->total_bruto - $totalPengurangan, 2),
+                    'total_diterima' => round($newTotalBruto - $totalPengurangan, 2),
                 ]);
             }
 

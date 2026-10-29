@@ -235,5 +235,79 @@ class SlipGajiTest extends TestCase
         $this->assertEquals($owner->id, $slip->reopened_by);
         $this->assertNotNull($slip->reopened_at);
     }
+
+    public function test_custom_penerimaan_tambahan_and_custom_pengurangan_without_revert_bug(): void
+    {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $staf = User::where('email', 'teknisi.pkp@soulmate.test')->first();
+        $this->actingAs($owner);
+
+        $test = Livewire::test(SlipGajiForm::class)
+            ->set('selectedUserId', $staf->id)
+            ->set('periodeBulan', 10)
+            ->set('periodeTahun', 2026)
+            ->set('gajiPokok', 2500000)
+            ->set('uangMakanHari', 20)
+            ->set('uangMakanPerHari', 20000)
+            ->set('uangTransportHari', 20)
+            ->set('uangTransportPerHari', 20000)
+            ->set('bonusNominal', 100000)
+            ->set('lemburPerformaNominal', 50000)
+            // 1. Tambah penerimaan tambahan custom (misal: Servisan Selesai)
+            ->call('tambahPenerimaan')
+            ->set('penerimaanItems.0.nama_item', 'Servisan Selesai Laptop Acer')
+            ->set('penerimaanItems.0.nominal', 250000)
+            // 2. Tambah potongan custom dan buktikan nama TIDAK revert kembali ke kategori
+            ->call('tambahPotongan')
+            ->set('penguranganItems.0.nama_item', 'Hutang Pulsa Kantor')
+            ->set('penguranganItems.0.nominal', 50000);
+
+        // Pastikan nama_item tetap 'Hutang Pulsa Kantor', tidak tertimpa nama semula
+        $test->assertSet('penguranganItems.0.nama_item', 'Hutang Pulsa Kantor');
+        $test->assertSet('penerimaanItems.0.nama_item', 'Servisan Selesai Laptop Acer');
+
+        // Verifikasi kalkulasi:
+        // Gaji Pokok: 2.500.000
+        // Uang Makan: 400.000
+        // Uang Transport: 400.000
+        // Bonus: 100.000
+        // Lembur: 50.000
+        // Penerimaan Tambahan: 250.000
+        // Total Bruto = 3.700.000
+        // Total Pengurangan = 50.000
+        // Total Diterima = 3.650.000
+        $test->assertSet('totalBruto', 3700000.0)
+            ->assertSet('totalPengurangan', 50000.0)
+            ->assertSet('totalDiterima', 3650000.0)
+            ->call('saveDraft')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('slip-gaji.index'));
+
+        // Cek database slip_gajis
+        $slip = SlipGaji::where('user_id', $staf->id)
+            ->where('periode_bulan', 10)
+            ->where('periode_tahun', 2026)
+            ->first();
+
+        $this->assertNotNull($slip);
+        $this->assertEquals(3700000, (float) $slip->total_bruto);
+        $this->assertEquals(50000, (float) $slip->total_pengurangan);
+        $this->assertEquals(3650000, (float) $slip->total_diterima);
+
+        // Cek database slip_gaji_items: penerimaan & pengurangan tersimpan presisi
+        $this->assertDatabaseHas('slip_gaji_items', [
+            'slip_gaji_id' => $slip->id,
+            'tipe' => 'penerimaan',
+            'nama_item' => 'Servisan Selesai Laptop Acer',
+            'nominal' => 250000,
+        ]);
+
+        $this->assertDatabaseHas('slip_gaji_items', [
+            'slip_gaji_id' => $slip->id,
+            'tipe' => 'pengurangan',
+            'nama_item' => 'Hutang Pulsa Kantor',
+            'nominal' => 50000,
+        ]);
+    }
 }
 

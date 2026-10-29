@@ -21,8 +21,9 @@
     $tanggalMulaiFormatted = $tglMulaiObj ? $tglMulaiObj->translatedFormat('F Y') : '-';
     $masaKerjaFormatted = $tglMulaiObj ? $service->formatMasaKerja($tglMulaiObj, $targetDate) : '-';
 
-    // Item potongan
-    $potonganItems = $slip->items ? $slip->items->filter(fn($it) => (float)$it->nominal > 0) : collect();
+    // Item potongan & penerimaan tambahan
+    $potonganItems = $slip->items ? $slip->items->filter(fn($it) => ($it->tipe ?? 'pengurangan') === 'pengurangan' && (float)$it->nominal > 0) : collect();
+    $penerimaanTambahanItems = $slip->items ? $slip->items->filter(fn($it) => ($it->tipe ?? '') === 'penerimaan' && (float)$it->nominal > 0) : collect();
     $hasPengurangan = $potonganItems->isNotEmpty() || (float) $slip->total_pengurangan > 0;
 @endphp
 
@@ -161,22 +162,7 @@
                 </div>
             </div>
 
-            <!-- 4. Tunjangan - Star Icon -->
-            <div class="grid grid-cols-12 gap-2 items-center py-1.5 px-3 hover:bg-gray-50/60 transition-colors">
-                <div class="col-span-6 flex items-center space-x-2.5 font-bold text-black">
-                    <span class="w-4 h-4 rounded-full bg-pink-100 text-[#E6007A] flex items-center justify-center shrink-0">
-                        <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    </span>
-                    <span>{{ $slip->tunjangan_nama ?: 'Tunjangan' }}</span>
-                </div>
-                <div class="col-span-2 text-center text-gray-400 font-bold">-</div>
-                <div class="col-span-2 text-center text-gray-400 font-bold">-</div>
-                <div class="col-span-2 text-right font-mono font-black text-black">
-                    {{ (float)$slip->tunjangan_nominal > 0 ? 'Rp ' . number_format($slip->tunjangan_nominal, 0, ',', '.') : '-' }}
-                </div>
-            </div>
-
-            <!-- 5. Bonus - Gift Icon -->
+            <!-- 4. Bonus - Gift Icon -->
             <div class="grid grid-cols-12 gap-2 items-center py-1.5 px-3 hover:bg-gray-50/60 transition-colors">
                 <div class="col-span-6 flex items-center space-x-2.5 font-bold text-black">
                     <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
@@ -191,7 +177,7 @@
                 </div>
             </div>
 
-            <!-- 6. Lembur/Performa - Bar Chart Icon -->
+            <!-- 5. Lembur/Performa - Bar Chart Icon -->
             <div class="grid grid-cols-12 gap-2 items-center py-1.5 px-3 hover:bg-gray-50/60 transition-colors">
                 <div class="col-span-6 flex items-center space-x-2.5 font-bold text-black">
                     <span class="w-4 h-4 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
@@ -206,20 +192,56 @@
                 </div>
             </div>
 
-            <!-- 7. Servisan Selesai - Wrench Icon -->
-            <div class="grid grid-cols-12 gap-2 items-center py-1.5 px-3 hover:bg-gray-50/60 transition-colors">
-                <div class="col-span-6 flex items-center space-x-2.5 font-bold text-black">
-                    <span class="w-4 h-4 rounded-full bg-purple-100 text-[#5E17EB] flex items-center justify-center shrink-0">
-                        <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
-                    </span>
-                    <span>Servisan Selesai</span>
+            <!-- Penerimaan Tambahan (Dinamis / Custom) -->
+            @foreach($penerimaanTambahanItems as $pItem)
+                <div class="grid grid-cols-12 gap-2 items-center py-1.5 px-3 hover:bg-gray-50/60 transition-colors">
+                    <div class="col-span-6 flex items-center space-x-2.5 font-bold text-black">
+                        <span class="w-4 h-4 rounded-full bg-purple-100 text-[#5E17EB] flex items-center justify-center shrink-0">
+                            <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        </span>
+                        <span>{{ $pItem->nama_item }}</span>
+                    </div>
+                    <div class="col-span-2 text-center text-gray-400 font-bold">-</div>
+                    <div class="col-span-2 text-center text-gray-400 font-bold">-</div>
+                    <div class="col-span-2 text-right font-mono font-black text-black">
+                        Rp {{ number_format($pItem->nominal, 0, ',', '.') }}
+                    </div>
                 </div>
-                <div class="col-span-2 text-center text-gray-400 font-bold">-</div>
-                <div class="col-span-2 text-center text-gray-400 font-bold">-</div>
-                <div class="col-span-2 text-right font-mono font-black text-black">
-                    {{ (float)$slip->servisan_selesai_nominal > 0 ? 'Rp ' . number_format($slip->servisan_selesai_nominal, 0, ',', '.') : '-' }}
-                </div>
-            </div>
+            @endforeach
+
+            <!-- Fallback Legacy Slips (Jika belum ada di slip_gaji_items) -->
+            @if($penerimaanTambahanItems->isEmpty())
+                @if((float)$slip->tunjangan_nominal > 0)
+                    <div class="grid grid-cols-12 gap-2 items-center py-1.5 px-3 hover:bg-gray-50/60 transition-colors">
+                        <div class="col-span-6 flex items-center space-x-2.5 font-bold text-black">
+                            <span class="w-4 h-4 rounded-full bg-pink-100 text-[#E6007A] flex items-center justify-center shrink-0">
+                                <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            </span>
+                            <span>{{ $slip->tunjangan_nama ?: 'Tunjangan' }}</span>
+                        </div>
+                        <div class="col-span-2 text-center text-gray-400 font-bold">-</div>
+                        <div class="col-span-2 text-center text-gray-400 font-bold">-</div>
+                        <div class="col-span-2 text-right font-mono font-black text-black">
+                            Rp {{ number_format($slip->tunjangan_nominal, 0, ',', '.') }}
+                        </div>
+                    </div>
+                @endif
+                @if((float)$slip->servisan_selesai_nominal > 0)
+                    <div class="grid grid-cols-12 gap-2 items-center py-1.5 px-3 hover:bg-gray-50/60 transition-colors">
+                        <div class="col-span-6 flex items-center space-x-2.5 font-bold text-black">
+                            <span class="w-4 h-4 rounded-full bg-purple-100 text-[#5E17EB] flex items-center justify-center shrink-0">
+                                <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+                            </span>
+                            <span>Servisan Selesai</span>
+                        </div>
+                        <div class="col-span-2 text-center text-gray-400 font-bold">-</div>
+                        <div class="col-span-2 text-center text-gray-400 font-bold">-</div>
+                        <div class="col-span-2 text-right font-mono font-black text-black">
+                            Rp {{ number_format($slip->servisan_selesai_nominal, 0, ',', '.') }}
+                        </div>
+                    </div>
+                @endif
+            @endif
         </div>
 
         <!-- Strip Highlight Kuning Total Penghasilan Bruto (Sesuai Gambar) -->

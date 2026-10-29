@@ -50,6 +50,7 @@ class Form extends Component
     public float $bonusNominal = 0;
     public float $lemburPerformaNominal = 0;
     public float $servisanSelesaiNominal = 0;
+    public array $penerimaanItems = [];
     public float $totalBruto = 0;
 
     // Pengurangan (Daftar Potongan)
@@ -169,6 +170,11 @@ class Form extends Component
         $this->hitungUlangTotal();
     }
 
+    public function updatedPenerimaanItems(): void
+    {
+        $this->hitungUlangTotal();
+    }
+
     public function onUserSelected(SlipGajiService $service): void
     {
         if (! $this->selectedUserId) {
@@ -222,14 +228,22 @@ class Form extends Component
                 $this->tunjanganNama = $source->tunjangan_nama ?: 'Tunjangan Kepala Teknisi Laptop';
                 $this->tunjanganNominal = (float) $source->tunjangan_nominal;
 
-                // Salin item potongan jika ada
+                // Salin item penerimaan tambahan & potongan jika ada
+                $this->penerimaanItems = [];
                 $this->penguranganItems = [];
                 foreach ($source->items as $idx => $item) {
-                    $this->penguranganItems[] = [
-                        'kategori' => $item->kategori,
-                        'nama_item' => $item->nama_item,
-                        'nominal' => (float) $item->nominal,
-                    ];
+                    if (($item->tipe ?? 'pengurangan') === 'penerimaan') {
+                        $this->penerimaanItems[] = [
+                            'nama_item' => $item->nama_item,
+                            'nominal' => (float) $item->nominal,
+                        ];
+                    } else {
+                        $this->penguranganItems[] = [
+                            'kategori' => $item->kategori ?? 'Lainnya',
+                            'nama_item' => $item->nama_item,
+                            'nominal' => (float) $item->nominal,
+                        ];
+                    }
                 }
             } else {
                 // Slip pertama kali: gunakan tarif default global
@@ -245,6 +259,7 @@ class Form extends Component
 
                 $this->tunjanganNama = 'Tunjangan Kepala Teknisi Laptop';
                 $this->tunjanganNominal = 0.00;
+                $this->penerimaanItems = [];
                 $this->penguranganItems = [];
             }
         }
@@ -323,13 +338,21 @@ class Form extends Component
         $this->tunjanganNama = $source->tunjangan_nama ?: 'Tunjangan Kepala Teknisi Laptop';
         $this->tunjanganNominal = (float) $source->tunjangan_nominal;
 
+        $this->penerimaanItems = [];
         $this->penguranganItems = [];
         foreach ($source->items as $item) {
-            $this->penguranganItems[] = [
-                'kategori' => $item->kategori,
-                'nama_item' => $item->nama_item,
-                'nominal' => (float) $item->nominal,
-            ];
+            if (($item->tipe ?? 'pengurangan') === 'penerimaan') {
+                $this->penerimaanItems[] = [
+                    'nama_item' => $item->nama_item,
+                    'nominal' => (float) $item->nominal,
+                ];
+            } else {
+                $this->penguranganItems[] = [
+                    'kategori' => $item->kategori ?? 'Lainnya',
+                    'nama_item' => $item->nama_item,
+                    'nominal' => (float) $item->nominal,
+                ];
+            }
         }
 
         $this->hitungUlangTotal();
@@ -430,11 +453,27 @@ class Form extends Component
         }
     }
 
+    public function tambahPenerimaan(): void
+    {
+        $this->penerimaanItems[] = [
+            'nama_item' => '',
+            'nominal' => 0.00,
+        ];
+        $this->hitungUlangTotal();
+    }
+
+    public function hapusPenerimaan(int $index): void
+    {
+        unset($this->penerimaanItems[$index]);
+        $this->penerimaanItems = array_values($this->penerimaanItems);
+        $this->hitungUlangTotal();
+    }
+
     public function tambahPotongan(): void
     {
         $this->penguranganItems[] = [
-            'kategori' => 'Kasbon',
-            'nama_item' => 'Kasbon',
+            'kategori' => 'Lainnya',
+            'nama_item' => '',
             'nominal' => 0.00,
         ];
         $this->hitungUlangTotal();
@@ -449,11 +488,7 @@ class Form extends Component
 
     public function updatedPenguranganItems(): void
     {
-        foreach ($this->penguranganItems as $idx => $item) {
-            if (($item['kategori'] ?? '') !== 'Lainnya') {
-                $this->penguranganItems[$idx]['nama_item'] = $item['kategori'];
-            }
-        }
+        // Bebas edit nama_item tanpa tertimpa kategori
         $this->hitungUlangTotal();
     }
 
@@ -470,7 +505,7 @@ class Form extends Component
             'bonus_nominal' => $this->bonusNominal,
             'lembur_performa_nominal' => $this->lemburPerformaNominal,
             'servisan_selesai_nominal' => $this->servisanSelesaiNominal,
-        ], $this->penguranganItems);
+        ], $this->penguranganItems, $this->penerimaanItems);
 
         $this->uangMakanTotal = $calc['uang_makan_total'];
         $this->uangTransportTotal = $calc['uang_transport_total'];
@@ -627,17 +662,32 @@ class Form extends Component
                 $this->slipId = $slip->id;
             }
 
-            // Simpan rincian pengurangan
+            // Simpan rincian items (penerimaan tambahan & pengurangan)
             $slip->items()->delete();
-            foreach ($this->penguranganItems as $idx => $item) {
-                if ((float) ($item['nominal'] ?? 0) > 0 || ! empty($item['nama_item'])) {
+            $urutan = 1;
+
+            foreach ($this->penerimaanItems as $item) {
+                if ((float) ($item['nominal'] ?? 0) > 0 || ! empty(trim($item['nama_item'] ?? ''))) {
+                    SlipGajiItem::create([
+                        'slip_gaji_id' => $slip->id,
+                        'tipe' => 'penerimaan',
+                        'kategori' => 'Penerimaan',
+                        'nama_item' => ! empty(trim($item['nama_item'] ?? '')) ? trim($item['nama_item']) : 'Penerimaan Tambahan',
+                        'nominal' => round((float) ($item['nominal'] ?? 0), 2),
+                        'urutan' => $urutan++,
+                    ]);
+                }
+            }
+
+            foreach ($this->penguranganItems as $item) {
+                if ((float) ($item['nominal'] ?? 0) > 0 || ! empty(trim($item['nama_item'] ?? ''))) {
                     SlipGajiItem::create([
                         'slip_gaji_id' => $slip->id,
                         'tipe' => 'pengurangan',
                         'kategori' => $item['kategori'] ?? 'Lainnya',
-                        'nama_item' => ! empty($item['nama_item']) ? $item['nama_item'] : ($item['kategori'] ?? 'Potongan'),
+                        'nama_item' => ! empty(trim($item['nama_item'] ?? '')) ? trim($item['nama_item']) : 'Potongan',
                         'nominal' => round((float) ($item['nominal'] ?? 0), 2),
-                        'urutan' => $idx + 1,
+                        'urutan' => $urutan++,
                     ]);
                 }
             }
@@ -703,13 +753,37 @@ class Form extends Component
         $this->lemburPerformaNominal = (float) $slip->lembur_performa_nominal;
         $this->servisanSelesaiNominal = (float) $slip->servisan_selesai_nominal;
 
+        $this->penerimaanItems = [];
         $this->penguranganItems = [];
         foreach ($slip->items as $item) {
-            $this->penguranganItems[] = [
-                'kategori' => $item->kategori,
-                'nama_item' => $item->nama_item,
-                'nominal' => (float) $item->nominal,
-            ];
+            if (($item->tipe ?? 'pengurangan') === 'penerimaan') {
+                $this->penerimaanItems[] = [
+                    'nama_item' => $item->nama_item,
+                    'nominal' => (float) $item->nominal,
+                ];
+            } else {
+                $this->penguranganItems[] = [
+                    'kategori' => $item->kategori ?? 'Lainnya',
+                    'nama_item' => $item->nama_item,
+                    'nominal' => (float) $item->nominal,
+                ];
+            }
+        }
+
+        // Backward compatibility: jika ada data penerimaan lama di kolom slip tapi belum ada di items
+        if (empty($this->penerimaanItems)) {
+            if ((float) $slip->servisan_selesai_nominal > 0) {
+                $this->penerimaanItems[] = [
+                    'nama_item' => 'Servisan Selesai',
+                    'nominal' => (float) $slip->servisan_selesai_nominal,
+                ];
+            }
+            if ((float) $slip->tunjangan_nominal > 0) {
+                $this->penerimaanItems[] = [
+                    'nama_item' => $slip->tunjangan_nama ?: 'Tunjangan',
+                    'nominal' => (float) $slip->tunjangan_nominal,
+                ];
+            }
         }
 
         // Ambil baseline sumber jika ada

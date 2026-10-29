@@ -342,34 +342,6 @@
                     </div>
                 </div>
 
-                <!-- Tunjangan -->
-                <div class="grid grid-cols-12 gap-2 items-center py-1 px-2 rounded-xl hover:bg-gray-50/50">
-                    <div class="col-span-5 sm:col-span-6">
-                        @if(!$isFinal)
-                            <input type="text"
-                                   wire:model.live.debounce.300ms="tunjanganNama"
-                                   class="w-full px-2.5 py-1.5 font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg focus:border-[#5E17EB] focus:bg-white">
-                        @else
-                            <span class="text-xs font-bold text-black">{{ $tunjanganNama }}</span>
-                        @endif
-                    </div>
-                    <div class="col-span-2 text-center">
-                        <span class="inline-block w-full py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-bold text-black text-center">-</span>
-                    </div>
-                    <div class="col-span-2 text-center">
-                        <span class="inline-block w-full py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-bold text-black text-center">-</span>
-                    </div>
-                    <div class="col-span-3 sm:col-span-2 text-right">
-                        @if(!$isFinal)
-                            <x-input-ribuan wire:model.live="tunjanganNominal" />
-                        @else
-                            <div class="py-1.5 px-2.5 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-right">
-                                Rp {{ number_format($tunjanganNominal, 0, ',', '.') }}
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
                 <!-- Bonus -->
                 <div class="grid grid-cols-12 gap-2 items-center py-1 px-2 rounded-xl hover:bg-gray-50/50">
                     <div class="col-span-5 sm:col-span-6 text-xs font-bold text-black">Bonus</div>
@@ -410,26 +382,59 @@
                     </div>
                 </div>
 
-                <!-- Servisan Selesai -->
-                <div class="grid grid-cols-12 gap-2 items-center py-1 px-2 rounded-xl hover:bg-gray-50/50">
-                    <div class="col-span-5 sm:col-span-6 text-xs font-bold text-black">Servisan Selesai</div>
-                    <div class="col-span-2 text-center">
-                        <span class="inline-block w-full py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-bold text-black text-center">-</span>
-                    </div>
-                    <div class="col-span-2 text-center">
-                        <span class="inline-block w-full py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-bold text-black text-center">-</span>
-                    </div>
-                    <div class="col-span-3 sm:col-span-2 text-right">
+                <!-- Penerimaan Tambahan (Dinamis / Custom) -->
+                @foreach($penerimaanItems as $index => $item)
+                <div class="grid grid-cols-12 gap-2 items-center py-1 px-2 rounded-xl hover:bg-gray-50/50" wire:key="penerimaan-row-{{ $index }}">
+                    <div class="col-span-5 sm:col-span-6">
                         @if(!$isFinal)
-                            <x-input-ribuan wire:model.live="servisanSelesaiNominal" />
+                            <input type="text"
+                                   wire:model.live.debounce.300ms="penerimaanItems.{{ $index }}.nama_item"
+                                   class="w-full px-2.5 py-1.5 font-bold text-xs text-black bg-gray-50 border border-gray-200 rounded-lg focus:border-[#5E17EB] focus:bg-white transition-colors">
                         @else
-                            <div class="py-1.5 px-2.5 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-right">
-                                Rp {{ number_format($servisanSelesaiNominal, 0, ',', '.') }}
+                            <span class="text-xs font-bold text-black">{{ $item['nama_item'] ?: 'Penerimaan Tambahan' }}</span>
+                        @endif
+                    </div>
+                    <div class="col-span-2 text-center">
+                        <span class="inline-block w-full py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-bold text-black text-center">-</span>
+                    </div>
+                    <div class="col-span-2 text-center">
+                        <span class="inline-block w-full py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-bold text-black text-center">-</span>
+                    </div>
+                    <div class="col-span-3 sm:col-span-2 flex items-center justify-end space-x-1.5">
+                        @if(!$isFinal)
+                            <div class="flex-1">
+                                <x-input-ribuan wire:key="penerimaan-nominal-{{ $index }}"
+                                                wire:model.live="penerimaanItems.{{ $index }}.nominal" />
+                            </div>
+                            <button type="button" wire:click="hapusPenerimaan({{ $index }})"
+                                    class="p-1 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer shrink-0"
+                                    title="Hapus">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        @else
+                            <div class="py-1.5 px-2.5 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-right flex-1">
+                                Rp {{ number_format($item['nominal'] ?? 0, 0, ',', '.') }}
                             </div>
                         @endif
                     </div>
                 </div>
+                @endforeach
             </div>
+
+            <!-- Tombol Tambah Penerimaan -->
+            @if(!$isFinal)
+            <div class="pt-1">
+                <button type="button" wire:click="tambahPenerimaan"
+                        class="text-xs font-bold text-black hover:bg-gray-50 border border-gray-200 px-3.5 py-1.5 rounded-xl inline-flex items-center space-x-1.5 cursor-pointer transition-colors shadow-2xs">
+                    <svg class="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>Tambah Penerimaan</span>
+                </button>
+            </div>
+            @endif
 
             <!-- Strip Highlight Total Penghasilan Bruto (Sesuai Gambar) -->
             <div class="bg-[#FEF3C7] border border-[#FDE68A] rounded-xl px-4 py-3 flex items-center justify-between mt-3">
@@ -449,7 +454,7 @@
 
             <div class="space-y-1.5">
                 @forelse($penguranganItems as $index => $item)
-                <div class="grid grid-cols-12 gap-2 items-center py-1 px-2 rounded-xl hover:bg-gray-50/50">
+                <div class="grid grid-cols-12 gap-2 items-center py-1 px-2 rounded-xl hover:bg-gray-50/50" wire:key="potongan-row-{{ $index }}">
                     <div class="col-span-5 sm:col-span-6">
                         @if(!$isFinal)
                             <input type="text"
