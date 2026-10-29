@@ -331,27 +331,33 @@
                         <label class="block text-xs font-black text-black mb-1">
                             Uang Makan / Hari <span class="text-rose-500 font-bold">*</span>
                         </label>
-                        <input type="number"
-                               wire:model="tarifUangMakan"
-                               class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-mono font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                        <div class="relative flex items-center">
+                            <span class="absolute left-3 text-xs font-bold text-gray-500 pointer-events-none select-none z-10">Rp</span>
+                            <x-input-ribuan wire:model="tarifUangMakan"
+                                            input-class="pl-9 pr-3 py-2 text-left bg-white border border-gray-200 rounded-xl text-xs font-mono font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]" />
+                        </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-black text-black mb-1">
                             Uang Transportasi / Hari <span class="text-rose-500 font-bold">*</span>
                         </label>
-                        <input type="number"
-                               wire:model="tarifUangTransport"
-                               class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-mono font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                        <div class="relative flex items-center">
+                            <span class="absolute left-3 text-xs font-bold text-gray-500 pointer-events-none select-none z-10">Rp</span>
+                            <x-input-ribuan wire:model="tarifUangTransport"
+                                            input-class="pl-9 pr-3 py-2 text-left bg-white border border-gray-200 rounded-xl text-xs font-mono font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]" />
+                        </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-black text-black mb-1">
                             Kenaikan Gaji Pokok 6 Bulan <span class="text-rose-500 font-bold">*</span>
                         </label>
-                        <input type="number"
-                               wire:model="tarifKenaikan6Bulan"
-                               class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-mono font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]">
+                        <div class="relative flex items-center">
+                            <span class="absolute left-3 text-xs font-bold text-gray-500 pointer-events-none select-none z-10">Rp</span>
+                            <x-input-ribuan wire:model="tarifKenaikan6Bulan"
+                                            input-class="pl-9 pr-3 py-2 text-left bg-white border border-gray-200 rounded-xl text-xs font-mono font-bold text-black focus:border-[#5E17EB] focus:ring-1 focus:ring-[#5E17EB]" />
+                        </div>
                     </div>
                 </div>
 

@@ -484,20 +484,14 @@
                     @endif
 
                     <!-- Absensi Staf (HQ) -->
-                    @can('absensi.riwayat')
+                    @canany(['absensi.riwayat', 'gaji.view'])
                     <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Absensi Staf</p>
+                    @can('absensi.riwayat')
                     <a href="{{ route('absensi.riwayat') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('absensi.riwayat*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('absensi.riwayat*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span>Riwayat Absensi</span>
                     </a>
-                    @if(Route::has('master.jam-kerja'))
-                    <a href="{{ route('master.jam-kerja') }}"
-                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.jam-kerja*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.jam-kerja*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Jam Masuk</span>
-                    </a>
-                    @endif
                     @endcan
 
                     @can('gaji.view')
@@ -518,6 +512,17 @@
                     </a>
                     @endcan
 
+                    @can('absensi.riwayat')
+                    @if(Route::has('master.jam-kerja'))
+                    <a href="{{ route('master.jam-kerja') }}"
+                        class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('master.jam-kerja*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 {{ request()->routeIs('master.jam-kerja*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Jam Masuk</span>
+                    </a>
+                    @endif
+                    @endcan
+                    @endcanany
+
 
                 @else
                     <!-- 1. Dashboard -->
@@ -529,32 +534,11 @@
 
                     <!-- Absensi Kehadiran -->
                     @can('absensi.view')
-                    <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Absensi & Gaji</p>
+                    <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Absensi Kehadiran</p>
                     <a href="{{ route('absensi.index') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('absensi.index*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('absensi.index*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004.07 9.878m11.93 6.966c-.302 1.002-.693 1.96-1.161 2.864m-4.839-2.864c.302 1.002.693 1.96 1.161 2.864"></path></svg>
                         Absensi
-                    </a>
-                    @endcan
-
-                    @can('gaji.view')
-                    <a href="{{ route('slip-gaji.index') }}"
-                        class="group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('slip-gaji*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 mr-3 {{ request()->routeIs('slip-gaji*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                            <span>Gaji</span>
-                        </div>
-                        @php
-                            $userCabangId = auth()->user()->cabang_id ?? 1;
-                            $kenaikanPendingBranch = \App\Models\KenaikanGaji::where('status', 'menunggu')
-                                ->whereHas('user', fn($q) => $q->where('cabang_id', $userCabangId))
-                                ->count();
-                        @endphp
-                        @if($kenaikanPendingBranch > 0)
-                            <span class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-black rounded-full bg-[#E6007A] text-white animate-pulse shadow-sm" title="{{ $kenaikanPendingBranch }} kenaikan gaji menunggu">
-                                !
-                            </span>
-                        @endif
                     </a>
                     @endcan
 
@@ -848,14 +832,37 @@
                     @endcanany
 
                     <!-- Absensi Staf (Branch) -->
-                    @can('absensi.riwayat')
+                    @canany(['absensi.riwayat', 'gaji.view'])
                     <p class="px-3 pt-4 pb-1 text-[10px] font-bold tracking-wider text-gray-400 uppercase">Absensi Staf</p>
+                    @can('absensi.riwayat')
                     <a href="{{ route('absensi.riwayat') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('absensi.riwayat*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('absensi.riwayat*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Riwayat Absensi
                     </a>
                     @endcan
+
+                    @can('gaji.view')
+                    <a href="{{ route('slip-gaji.index') }}"
+                        class="group flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('slip-gaji*') ? 'bg-[#0052FF] text-white shadow-lg shadow-blue-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-3 {{ request()->routeIs('slip-gaji*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            <span>Gaji</span>
+                        </div>
+                        @php
+                            $userCabangId = auth()->user()->cabang_id ?? 1;
+                            $kenaikanPendingBranch = \App\Models\KenaikanGaji::where('status', 'menunggu')
+                                ->whereHas('user', fn($q) => $q->where('cabang_id', $userCabangId))
+                                ->count();
+                        @endphp
+                        @if($kenaikanPendingBranch > 0)
+                            <span class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-black rounded-full bg-[#E6007A] text-white animate-pulse shadow-sm" title="{{ $kenaikanPendingBranch }} kenaikan gaji menunggu">
+                                !
+                            </span>
+                        @endif
+                    </a>
+                    @endcan
+                    @endcanany
 
 
                     <!-- 6. Layar Toko -->
