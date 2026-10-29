@@ -1,4 +1,4 @@
-@props(['slip'])
+@props(['slip', 'hideEmptyDeductions' => false])
 
 @php
     $service = app(\App\Services\SlipGajiService::class);
@@ -23,6 +23,7 @@
 
     // Item potongan
     $potonganItems = $slip->items ? $slip->items->filter(fn($it) => (float)$it->nominal > 0) : collect();
+    $hasPengurangan = $potonganItems->isNotEmpty() || (float) $slip->total_pengurangan > 0;
 @endphp
 
 <div class="relative bg-white rounded-2xl sm:rounded-3xl border border-gray-200/90 shadow-xl overflow-hidden p-5 sm:p-7 text-black select-none max-w-4xl mx-auto slip-gaji-root">
@@ -239,8 +240,9 @@
         </div>
     </div>
 
+    @if($hasPengurangan || !$hideEmptyDeductions)
     <!-- ======================================================== -->
-    <!-- 4. TABEL PENGURANGAN (Hanya render jika ada atau jika bernilai 0 di mode draft) -->
+    <!-- 4. TABEL PENGURANGAN -->
     <!-- ======================================================== -->
     <div class="slip-deductions space-y-1 mb-3.5">
         <!-- Header Bar Merah dengan Ikon -->
@@ -311,6 +313,7 @@
             </span>
         </div>
     </div>
+    @endif
     <!-- ======================================================== -->
     <!-- 5. STRIP UTAMA TOTAL DITERIMA KARYAWAN (HIJAU VIBRANT)  -->
     <!-- ======================================================== -->

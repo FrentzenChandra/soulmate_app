@@ -144,6 +144,7 @@ class SlipGajiPdfTest extends TestCase
         $response->assertSee('window.print()', false);
         $response->assertSee($staf->name, false);
         $response->assertSee('4.240.000', false);
+        $response->assertSee('PENGURANGAN', false);
     }
 
     public function test_authorized_user_can_open_cetak_browser_print_view(): void
@@ -174,6 +175,7 @@ class SlipGajiPdfTest extends TestCase
         $response = $this->get(route('slip-gaji.cetak', $finalSlip->id));
         $response->assertOk();
         $response->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $response->assertDontSee('PENGURANGAN', false);
     }
 }
 

@@ -175,7 +175,7 @@
     <!-- Konten Slip Gaji (1:1 Sesuai Mockup) -->
     <div class="p-4 sm:p-8 flex items-center justify-center print-wrapper">
         <div class="w-full max-w-4xl">
-            <x-slip-gaji-card :slip="$slip" />
+            <x-slip-gaji-card :slip="$slip" :hide-empty-deductions="true" />
         </div>
     </div>
 
