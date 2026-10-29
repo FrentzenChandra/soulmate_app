@@ -240,7 +240,6 @@
                         <span class="text-base sm:text-xl font-mono font-black text-[#5E17EB] tracking-tight block truncate">
                             Rp {{ number_format($finansial->total_pendapatan ?? 0, 0, ',', '.') }}
                         </span>
-                        <span class="text-[10px] text-gray-400 font-medium mt-1 block">Tgl 1 &ndash; {{ now()->translatedFormat('d M') }}</span>
                     </div>
                 </div>
 
@@ -256,7 +255,6 @@
                         <span class="text-base sm:text-xl font-mono font-black text-amber-600 tracking-tight block truncate">
                             Rp {{ number_format($finansial->total_hpp ?? 0, 0, ',', '.') }}
                         </span>
-                        <span class="text-[10px] text-gray-400 font-medium mt-1 block">Total modal barang/servis</span>
                     </div>
                 </div>
 
@@ -272,7 +270,6 @@
                         <span class="text-base sm:text-xl font-mono font-black {{ ($finansial->total_nett ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600' }} tracking-tight block truncate">
                             Rp {{ number_format($finansial->total_nett ?? 0, 0, ',', '.') }}
                         </span>
-                        <span class="text-[10px] text-gray-400 font-medium mt-1 block">Pendapatan bersih</span>
                     </div>
                 </div>
 
@@ -288,7 +285,6 @@
                         <span class="text-base sm:text-xl font-mono font-black text-[#0052FF] tracking-tight block truncate">
                             Rp {{ number_format($finansial->total_lunas ?? 0, 0, ',', '.') }}
                         </span>
-                        <span class="text-[10px] text-gray-400 font-medium mt-1 block">Sudah dibayar customer</span>
                     </div>
                 </div>
 
@@ -304,7 +300,6 @@
                         <span class="text-base sm:text-xl font-mono font-black text-rose-600 tracking-tight block truncate">
                             Rp {{ number_format($finansial->total_bon ?? 0, 0, ',', '.') }}
                         </span>
-                        <span class="text-[10px] text-gray-400 font-medium mt-1 block">Belum dibayar customer</span>
                     </div>
                 </div>
 
@@ -320,7 +315,6 @@
                         <span class="text-base sm:text-xl font-mono font-black {{ ($totalUangCash ?? 0) >= 0 ? 'text-teal-700' : 'text-rose-600' }} tracking-tight block truncate">
                             Rp {{ number_format($totalUangCash ?? 0, 0, ',', '.') }}
                         </span>
-                        <span class="text-[10px] text-gray-400 font-medium mt-1 block">Saldo fisik laci kasir</span>
                     </div>
                 </div>
             </div>
