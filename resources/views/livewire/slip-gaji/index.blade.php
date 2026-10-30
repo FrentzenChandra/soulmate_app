@@ -257,7 +257,7 @@
                             <td class="px-4 py-3 font-bold whitespace-nowrap">
                                 {{ $slip->bagian_snapshot ?: '-' }}
                             </td>
-                            <td class="px-4 py-3 text-right font-mono font-bold whitespace-nowrap">
+                            <td class="px-4 py-3 text-right font-mono font-bold text-[#5E17EB] whitespace-nowrap">
                                 Rp {{ number_format($slip->total_bruto, 0, ',', '.') }}
                             </td>
                             <td class="px-4 py-3 text-right font-mono font-bold text-rose-600 whitespace-nowrap">
