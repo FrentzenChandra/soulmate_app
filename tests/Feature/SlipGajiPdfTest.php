@@ -212,6 +212,7 @@ class SlipGajiPdfTest extends TestCase
             SlipGajiItem::create([
                 'slip_gaji_id' => $slip->id,
                 'tipe' => 'penerimaan',
+                'kategori' => 'Bonus',
                 'nama_item' => "Bonus Tambahan {$i}",
                 'nominal' => 800000,
                 'urutan' => $i,
@@ -220,6 +221,7 @@ class SlipGajiPdfTest extends TestCase
             SlipGajiItem::create([
                 'slip_gaji_id' => $slip->id,
                 'tipe' => 'pengurangan',
+                'kategori' => 'Potongan',
                 'nama_item' => "Potongan Khusus {$i}",
                 'nominal' => 300000,
                 'urutan' => $i,
