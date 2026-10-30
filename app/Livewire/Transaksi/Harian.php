@@ -613,7 +613,8 @@ class Harian extends Component
                 }
             }
 
-            $rawPegawaiIds = ! empty($this->formPegawaiIds) ? (array) $this->formPegawaiIds : ($this->formPegawaiId ? [$this->formPegawaiId] : []);
+            $filteredPegawaiIds = array_filter((array) $this->formPegawaiIds, fn ($v) => $v !== '' && $v !== null);
+            $rawPegawaiIds = ! empty($filteredPegawaiIds) ? $filteredPegawaiIds : ($this->formPegawaiId ? [$this->formPegawaiId] : []);
             $validPegawaiIds = array_values(array_filter(array_unique(array_map('intval', $rawPegawaiIds))));
             $pegawaiId = $validPegawaiIds[0] ?? null;
 

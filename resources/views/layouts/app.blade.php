@@ -306,13 +306,13 @@
                         Kas Keluar
                     </a>
 
-                    @if(auth()->user()->isOwner() || auth()->user()->hasRole(['Superadmin', 'Admin']))
+                    @can('saldo.view')
                     <a href="{{ route('saldo.index') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('saldo*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('saldo*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                         Saldo
                     </a>
-                    @endif
+                    @endcan
 
                     {{-- [TEMP HIDE] Modal Awal
                     <a href="{{ route('modal-awal') }}"
@@ -328,13 +328,13 @@
                         Serial Number
                     </a>
 
-                    @hasanyrole('Owner|Superadmin')
+                    @can('target.bulanan.view')
                     <a href="{{ route('target.bulanan') }}"
                         class="group flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl transition-all {{ request()->routeIs('target.bulanan*') ? 'bg-[#5E17EB] text-white shadow-lg shadow-purple-900/40' : 'text-gray-300 hover:bg-gray-800/80 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3 {{ request()->routeIs('target.bulanan*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         Target Pegawai
                     </a>
-                    @endhasanyrole
+                    @endcan
 
                     <p class="px-3 pt-4 pb-1 text-[10px] font-extrabold tracking-wider text-gray-400 uppercase">Laporan Global</p>
 
@@ -381,7 +381,7 @@
                     </a>
 
                     <!-- Dropdown Setting (HQ) -->
-                    @if(auth()->user()->hasAnyRole(['Owner', 'Superadmin']))
+                    @canany(['master.orang_pajak.view', 'master.customer.view', 'master.users.view', 'master.servis.view', 'master.pegawai.view', 'master.settings.view', 'master.distributor.view', 'master.wifi_absensi.view'])
                     <div x-data="{ open: {{ (request()->routeIs('master.kategori*') || request()->routeIs('master.metode-pembayaran*') || request()->routeIs('master.sumber-dana*') || request()->routeIs('master.kategori-kas*') || request()->routeIs('master.pegawai*') || request()->routeIs('master.distributor*') || request()->routeIs('master.orang-pajak*') || request()->routeIs('master.customer*') || request()->routeIs('master.users*') || request()->routeIs('master.servis*')) ? 'true' : 'false' }} }" class="space-y-1 pt-2 border-t border-gray-800/50">
                         <button @click="open = !open"
                             type="button"
@@ -398,6 +398,7 @@
                             </svg>
                         </button>
                         <div x-show="open" x-cloak class="pl-8 pr-2 space-y-1 py-1">
+                            @can('master.orang_pajak.view')
                             @if(Route::has('master.orang-pajak'))
                             <a href="{{ route('master.orang-pajak') }}"
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.orang-pajak*') ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
@@ -405,64 +406,65 @@
                                 <span>Master WP</span>
                             </a>
                             @endif
+                            @endcan
 
+                            @can('master.customer.view')
                             <a href="{{ route('master.customer') }}"
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.customer*') ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.customer*') ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
                                 <span>Data Pelanggan</span>
                             </a>
+                            @endcan
 
+                            @can('master.users.view')
                             <a href="{{ route('master.users') }}"
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.users*') ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.users*') ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
                                 <span>Master Pengguna</span>
                             </a>
+                            @endcan
 
+                            @can('master.servis.view')
                             <a href="{{ route('master.servis') }}"
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.servis*') ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.servis*') ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
                                 <span>Master Servis</span>
                             </a>
+                            @endcan
 
-                            @hasanyrole('Owner|Superadmin|Admin')
+                            @can('master.pegawai.view')
                             <a href="{{ route('master.pegawai') }}"
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ (request()->routeIs('master.pegawai') || request()->routeIs('master.pegawai.*')) ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ (request()->routeIs('master.pegawai') || request()->routeIs('master.pegawai.*')) ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
                                 <span>Master Pegawai</span>
                             </a>
-                            @endhasanyrole
+                            @endcan
 
-                            @hasanyrole('Owner|Superadmin')
+                            @can('master.settings.view')
                             <a href="{{ route('master.kategori') }}"
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ (request()->routeIs('master.kategori') || request()->routeIs('master.kategori.*')) ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ (request()->routeIs('master.kategori') || request()->routeIs('master.kategori.*')) ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
                                 <span>Master Kategori</span>
                             </a>
-                            @endhasanyrole
 
-                            @hasanyrole('Owner|Superadmin')
                             <a href="{{ route('master.metode-pembayaran') }}"
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.metode-pembayaran*') ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.metode-pembayaran*') ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
                                 <span>Metode Pembayaran</span>
                             </a>
-                            @endhasanyrole
 
-                            @hasanyrole('Owner|Superadmin')
                             <a href="{{ route('master.sumber-dana') }}"
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.sumber-dana*') ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.sumber-dana*') ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
                                 <span>Sumber Dana</span>
                             </a>
-                            @endhasanyrole
 
-                            @hasanyrole('Owner|Superadmin')
                             <a href="{{ route('master.kategori-kas') }}"
                                 class="flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all {{ request()->routeIs('master.kategori-kas*') ? 'bg-[#5E17EB] text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master.kategori-kas*') ? 'bg-white' : 'bg-purple-400' }} mr-2.5"></span>
                                 <span>Kategori Kas</span>
                             </a>
-                            @endhasanyrole
+                            @endcan
 
                             @can('master.distributor.view')
                             <a href="{{ route('master.distributor') }}"
@@ -481,7 +483,7 @@
                             @endcan
                         </div>
                     </div>
-                    @endif
+                    @endcanany
 
                     <!-- Absensi Staf (HQ) -->
                     @canany(['absensi.riwayat', 'gaji.view'])

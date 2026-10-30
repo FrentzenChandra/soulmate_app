@@ -61,7 +61,7 @@ class MasterPegawaiTest extends TestCase
 
     public function test_can_create_pegawai_with_default_bagian(): void
     {
-        $this->actingAs($this->admin);
+        $this->actingAs($this->owner);
 
         Livewire::test(MasterPegawaiIndex::class)
             ->call('openCreateModal')
