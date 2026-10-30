@@ -795,11 +795,20 @@ class Form extends Component
         $this->stafInisial = strtoupper(substr($this->stafNama, 0, 2));
 
         $this->gajiPokok = (float) $slip->gaji_pokok > 0 ? (float) $slip->gaji_pokok : null;
-        $this->uangMakanHari = $slip->uangMakanHari ?: $slip->uang_makan_hari;
+
+        // Auto sinkron hari absen dari data absensi terbaru saat masuk page edit (draft / non-final)
+        if (! $this->isFinal && $this->selectedUserId) {
+            $hariAbsenTerkini = $service->hitungHariHadir($this->selectedUserId, $this->periodeBulan, $this->periodeTahun);
+            $this->uangMakanHari = $hariAbsenTerkini;
+            $this->uangTransportHari = $hariAbsenTerkini;
+        } else {
+            $this->uangMakanHari = (int) ($slip->uang_makan_hari ?? 0);
+            $this->uangTransportHari = (int) ($slip->uang_transport_hari ?? 0);
+        }
+
         $this->uangMakanPerHari = (float) $slip->uang_makan_per_hari > 0 ? (float) $slip->uang_makan_per_hari : null;
         $this->uangMakanTotal = (float) $slip->uang_makan_total;
 
-        $this->uangTransportHari = $slip->uangTransportHari ?: $slip->uang_transport_hari;
         $this->uangTransportPerHari = (float) $slip->uang_transport_per_hari > 0 ? (float) $slip->uang_transport_per_hari : null;
         $this->uangTransportTotal = (float) $slip->uang_transport_total;
 

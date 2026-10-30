@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\SlipGaji\Form as SlipGajiForm;
 use App\Livewire\SlipGaji\Index as SlipGajiIndex;
+use App\Models\Absensi;
 use App\Models\Cabang;
 use App\Models\SlipGaji;
 use App\Models\SlipGajiItem;
@@ -417,6 +418,125 @@ class SlipGajiTest extends TestCase
             'status' => 'draft',
             'gaji_pokok' => 2800000,
         ]);
+    }
+
+    public function test_card_total_gaji_bulan_sekarang_locked_to_current_month(): void
+    {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $this->actingAs($owner);
+
+        $now = Carbon::now('Asia/Jakarta');
+        $currentMonth = (int) $now->month;
+        $currentYear = (int) $now->year;
+
+        // Slip bulan ini
+        SlipGaji::create([
+            'no_slip' => 'SG-TEST-CURR-01',
+            'cabang_id' => $owner->cabang_id,
+            'user_id' => $owner->id,
+            'periode_bulan' => $currentMonth,
+            'periode_tahun' => $currentYear,
+            'status' => 'draft',
+            'nama_staf_snapshot' => $owner->name,
+            'gaji_pokok' => 3000000,
+            'total_bruto' => 3500000,
+            'total_pengurangan' => 0,
+            'total_diterima' => 3500000,
+        ]);
+
+        // Slip bulan lain (masa lalu)
+        SlipGaji::create([
+            'no_slip' => 'SG-TEST-PAST-01',
+            'cabang_id' => $owner->cabang_id,
+            'user_id' => $owner->id,
+            'periode_bulan' => $currentMonth === 1 ? 12 : $currentMonth - 1,
+            'periode_tahun' => $currentMonth === 1 ? $currentYear - 1 : $currentYear,
+            'status' => 'final',
+            'nama_staf_snapshot' => $owner->name,
+            'gaji_pokok' => 2000000,
+            'total_bruto' => 2000000,
+            'total_pengurangan' => 0,
+            'total_diterima' => 2000000,
+        ]);
+
+        $test = Livewire::test(SlipGajiIndex::class)
+            ->assertOk()
+            ->assertSee('Total Gaji Bulan Sekarang')
+            ->assertSee('Terkunci')
+            ->assertSee('Rp 3.500.000');
+
+        // Saat filter periode diubah ke bulan lain, card tetap mengunci total bulan sekarang
+        $otherMonth = $currentMonth === 1 ? '12' : (string) ($currentMonth - 1);
+        $otherYear = (string) ($currentMonth === 1 ? $currentYear - 1 : $currentYear);
+
+        $test->set('periodeMode', 'bulanan')
+            ->set('filterBulan', $otherMonth)
+            ->set('filterTahun', $otherYear)
+            ->assertSee('Total Gaji Bulan Sekarang')
+            ->assertSee('Rp 3.500.000');
+    }
+
+    public function test_edit_page_auto_syncs_attendance_days_for_draft_slip(): void
+    {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $this->actingAs($owner);
+
+        $now = Carbon::now('Asia/Jakarta');
+        $bulan = (int) $now->month;
+        $tahun = (int) $now->year;
+
+        $staf = User::factory()->create([
+            'cabang_id' => $owner->cabang_id,
+            'status' => 'aktif',
+            'bagian' => 'Teknisi Laptop',
+        ]);
+        $staf->assignRole('Teknisi');
+
+        // Buat slip draft dengan nilai awal hari absen = 5
+        $slip = SlipGaji::create([
+            'no_slip' => 'SG-TEST-AUTO-01',
+            'cabang_id' => $owner->cabang_id,
+            'user_id' => $staf->id,
+            'periode_bulan' => $bulan,
+            'periode_tahun' => $tahun,
+            'status' => 'draft',
+            'nama_staf_snapshot' => $staf->name,
+            'gaji_pokok' => 2000000,
+            'uang_makan_hari' => 5,
+            'uang_makan_per_hari' => 20000,
+            'uang_makan_total' => 100000,
+            'uang_transport_hari' => 5,
+            'uang_transport_per_hari' => 20000,
+            'uang_transport_total' => 100000,
+            'total_bruto' => 2200000,
+            'total_pengurangan' => 0,
+            'total_diterima' => 2200000,
+        ]);
+
+        // Masukkan data absen 24 hari untuk staf ini pada periode bulan dan tahun ini
+        for ($d = 1; $d <= 24; $d++) {
+            $tgl = sprintf('%04d-%02d-%02d', $tahun, $bulan, $d);
+            Absensi::create([
+                'cabang_id' => $owner->cabang_id,
+                'user_id' => $staf->id,
+                'tanggal' => $tgl,
+                'waktu_absen' => "{$tgl} 08:00:00",
+                'shift' => 'pagi',
+                'status_kehadiran' => 'tepat_waktu',
+                'menit_keterlambatan' => 0,
+                'snapshot_jam_masuk' => '08:00:00',
+                'snapshot_toleransi_menit' => 2,
+                'ip_address' => '127.0.0.1',
+            ]);
+        }
+
+        // Buka halaman edit slip gaji -> sistem harus otomatis menyinkronkan hari absen menjadi 24 hari
+        Livewire::test(SlipGajiForm::class, ['slip' => $slip->id])
+            ->assertOk()
+            ->assertSet('uangMakanHari', 24)
+            ->assertSet('uangTransportHari', 24)
+            ->assertSet('uangMakanTotal', 24 * 20000)
+            ->assertSet('uangTransportTotal', 24 * 20000);
     }
 }
 

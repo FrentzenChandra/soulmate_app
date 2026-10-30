@@ -447,11 +447,36 @@ class Index extends Component
             ? KenaikanGaji::where('cabang_id', $currentCabangId)->where('status', 'menunggu')->count()
             : 0;
 
+        // Card Metrik: Total Gaji Bulan Sekarang (Terkunci ke bulan & tahun berjalan sistem)
+        $currentMonth = (int) Carbon::now('Asia/Jakarta')->month;
+        $currentYear = (int) Carbon::now('Asia/Jakarta')->year;
+
+        $cardQuery = SlipGaji::query()
+            ->where('periode_bulan', $currentMonth)
+            ->where('periode_tahun', $currentYear);
+
+        // Isolasi Cabang pada Card Metrik (mengikuti konteks cabang yang sedang aktif / filter cabang jika HQ)
+        if ($isHQ) {
+            if ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
+                $cardQuery->where('cabang_id', (int) $this->cabangFilter);
+            }
+        } else {
+            $cabangId = $isOwner ? (int) $activeBranchSession : ($user->cabang_id ?? 1);
+            $cardQuery->where('cabang_id', $cabangId);
+        }
+
+        $totalGajiBulanIni = (float) $cardQuery->sum('total_diterima');
+        $totalStafBulanIni = (int) $cardQuery->count();
+        $namaBulanSekarang = Carbon::now('Asia/Jakarta')->locale('id')->translatedFormat('F Y');
+
         return view('livewire.slip-gaji.index', [
             'slips' => $slips,
             'cabangs' => $cabangs,
             'isHQ' => $isHQ,
             'alertCount' => $alertCount,
+            'totalGajiBulanIni' => $totalGajiBulanIni,
+            'totalStafBulanIni' => $totalStafBulanIni,
+            'namaBulanSekarang' => $namaBulanSekarang,
         ]);
     }
 }

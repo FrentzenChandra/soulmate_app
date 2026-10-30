@@ -79,6 +79,39 @@
     @endif
 
     <!-- ============================================== -->
+    <!-- CARD: TOTAL GAJI BULAN SEKARANG (LOCKED)       -->
+    <!-- ============================================== -->
+    <div class="card-custom bg-white p-5 rounded-2xl border border-gray-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-[#5E17EB] border border-purple-100 flex items-center justify-center shrink-0">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-black uppercase tracking-wider text-gray-500">Total Gaji Bulan Sekarang</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black bg-purple-100 text-[#5E17EB] border border-purple-200">
+                        {{ $namaBulanSekarang }}
+                    </span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200">
+                        Terkunci
+                    </span>
+                </div>
+                <div class="text-2xl font-black text-black tracking-tight mt-0.5">
+                    Rp {{ number_format($totalGajiBulanIni, 0, ',', '.') }}
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4 sm:border-l sm:border-gray-100 sm:pl-6 text-xs text-gray-600 font-bold">
+            <div>
+                <span class="block text-[11px] uppercase tracking-wider text-gray-400 font-black">Total Staf</span>
+                <span class="text-base font-black text-black">{{ $totalStafBulanIni }} Staf</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
     <!-- FILTER BAR, PERIODE & PENCARIAN                -->
     <!-- ============================================== -->
     <div class="card-custom bg-white p-5 space-y-4 border border-gray-200 shadow-xs rounded-2xl">
