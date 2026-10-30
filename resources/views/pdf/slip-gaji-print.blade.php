@@ -46,28 +46,35 @@
             .slip-gaji-root {
                 display: flex !important;
                 flex-direction: column !important;
-                min-height: 171mm !important;
+                min-height: 0 !important;
+                max-height: 173mm !important;
                 border: 0 !important;
                 box-shadow: none !important;
                 border-radius: 0 !important;
-                padding: 2mm !important;
+                padding: 1.5mm !important;
                 width: 206mm !important;
                 max-width: 206mm !important;
-                margin: 2mm auto 0 !important;
+                margin: 1mm auto 0 !important;
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
+                overflow: hidden !important;
             }
             .slip-gaji-header {
-                margin-bottom: 2mm !important;
+                height: 21mm !important;
+                margin-bottom: 1mm !important;
+                border-bottom: 1px solid #E2E8F0 !important;
+            }
+            .slip-gaji-header img {
+                height: 19mm !important;
             }
             .slip-profile-box {
                 flex-direction: row !important;
                 align-items: center !important;
-                margin: 1.5mm 0 !important;
-                padding: 2mm 3mm !important;
+                margin: 1mm 0 !important;
+                padding: 1.2mm 2.5mm !important;
                 border-color: #DDD6FE !important;
                 background: #F6F3FC !important;
-                box-shadow: 0 1mm 3mm rgba(57, 24, 108, .08) !important;
+                box-shadow: 0 0.5mm 1.5mm rgba(57, 24, 108, .05) !important;
             }
             .slip-profile-box > div:first-child,
             .slip-profile-meta {
@@ -75,22 +82,34 @@
             }
             .slip-profile-meta {
                 border-left: 1px solid #A78BFA !important;
-                padding-left: 4mm !important;
+                padding-left: 3mm !important;
+            }
+            .slip-profile-box img,
+            .slip-profile-box .w-10,
+            .slip-profile-box .w-12,
+            .slip-profile-box [class*="w-["] {
+                width: 8mm !important;
+                height: 8mm !important;
+            }
+            .slip-profile-box span {
+                font-size: 8pt !important;
+                line-height: 1.2 !important;
             }
             .slip-earnings,
             .slip-deductions {
-                margin-bottom: 1.5mm !important;
+                margin-bottom: 1mm !important;
                 border: 1px solid #A78BFA !important;
-                border-radius: 2.5mm !important;
+                border-radius: 2mm !important;
                 overflow: hidden !important;
             }
             .slip-deductions {
                 border-color: #F472B6 !important;
             }
             .slip-section-heading {
-                min-height: 8mm !important;
-                padding: 1.3mm 2mm !important;
-                border-radius: 2.5mm !important;
+                min-height: 5.2mm !important;
+                padding: 0.8mm 2mm !important;
+                border-radius: 2mm !important;
+                font-size: 8.5pt !important;
                 grid-template-columns: repeat(6, minmax(0, 7.1667fr)) repeat(2, minmax(0, 7fr)) repeat(2, minmax(0, 9fr)) repeat(2, minmax(0, 12.5fr)) !important;
             }
             .slip-section-heading > div:not(:last-child) {
@@ -101,9 +120,11 @@
                 text-align: center !important;
             }
             .slip-section-rows > div {
-                min-height: 5.6mm !important;
-                padding-top: 1mm !important;
-                padding-bottom: 1mm !important;
+                min-height: 4.2mm !important;
+                padding-top: 0.35mm !important;
+                padding-bottom: 0.35mm !important;
+                font-size: 8pt !important;
+                line-height: 1.2 !important;
                 grid-template-columns: repeat(6, minmax(0, 7.1667fr)) repeat(2, minmax(0, 7fr)) repeat(2, minmax(0, 9fr)) repeat(2, minmax(0, 12.5fr)) !important;
             }
             .slip-section-rows > div:nth-child(even) {
@@ -113,33 +134,67 @@
                 border-right: 1px solid #E8E1F3;
             }
             .slip-section-rows .rounded-full {
-                width: 4mm !important;
-                height: 4mm !important;
-                flex: 0 0 4mm !important;
+                width: 3mm !important;
+                height: 3mm !important;
+                flex: 0 0 3mm !important;
                 border-radius: 0 !important;
                 background: transparent !important;
             }
+            .slip-section-rows svg {
+                width: 2.4mm !important;
+                height: 2.4mm !important;
+            }
             .slip-earnings > div:last-child,
             .slip-deductions > div:last-child {
-                margin-top: 1mm !important;
-                padding-top: 1.4mm !important;
-                padding-bottom: 1.4mm !important;
+                min-height: 5.2mm !important;
+                margin-top: 0.6mm !important;
+                padding: 0.6mm 2mm !important;
+                font-size: 8.5pt !important;
             }
             .slip-net-total {
-                min-height: 11mm !important;
-                margin: 1.5mm 0 !important;
-                padding: 1.5mm 4mm !important;
-                border-radius: 2.5mm !important;
+                min-height: 7.5mm !important;
+                margin: 1mm 0 !important;
+                padding: 0.8mm 3mm !important;
+                border-radius: 2mm !important;
+            }
+            .slip-net-total .w-7,
+            .slip-net-total .w-8,
+            .slip-net-total .w-9 {
+                width: 5.5mm !important;
+                height: 5.5mm !important;
+            }
+            .slip-net-total svg {
+                width: 3.5mm !important;
+                height: 3.5mm !important;
+            }
+            .slip-net-total span.text-lg,
+            .slip-net-total span.text-xl,
+            .slip-net-total span.text-2xl,
+            .slip-net-total span.text-3xl {
+                font-size: 13pt !important;
+                line-height: 1 !important;
             }
             .slip-gaji-root .font-mono {
                 font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
             }
             .slip-gaji-footer {
-                min-height: 19mm !important;
+                min-height: 13.5mm !important;
+                height: 13.5mm !important;
                 margin-top: auto !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
             }
             .slip-gaji-footer table {
-                min-height: 19mm !important;
+                min-height: 13.5mm !important;
+                height: 13.5mm !important;
+            }
+            .slip-gaji-footer td {
+                padding-top: 0.5mm !important;
+                padding-bottom: 0.5mm !important;
+            }
+            .slip-gaji-footer div[style*="height:14px"],
+            .slip-gaji-footer div[style*="height:30px"] {
+                height: 2.5mm !important;
             }
             * {
                 -webkit-print-color-adjust: exact !important;

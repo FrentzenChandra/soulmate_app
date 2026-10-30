@@ -177,5 +177,68 @@ class SlipGajiPdfTest extends TestCase
         $response->assertHeader('Content-Type', 'text/html; charset=UTF-8');
         $response->assertDontSee('PENGURANGAN', false);
     }
+
+    public function test_print_view_supports_many_items_with_compact_height_styles(): void
+    {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $staf = User::where('email', 'teknisi.pkp@soulmate.test')->first();
+
+        $slip = SlipGaji::create([
+            'no_slip' => 'SLIP/PKP/2026/10/003',
+            'cabang_id' => $staf->cabang_id,
+            'user_id' => $staf->id,
+            'periode_bulan' => 10,
+            'periode_tahun' => 2026,
+            'status' => 'final',
+            'nama_staf_snapshot' => $staf->name,
+            'bagian_snapshot' => 'Teknisi Senior',
+            'gaji_pokok' => 3000000,
+            'uang_makan_hari' => 25,
+            'uang_makan_per_hari' => 20000,
+            'uang_makan_total' => 500000,
+            'uang_transport_hari' => 25,
+            'uang_transport_per_hari' => 20000,
+            'uang_transport_total' => 500000,
+            'total_bruto' => 8000000,
+            'total_pengurangan' => 1500000,
+            'total_diterima' => 6500000,
+            'created_by' => $owner->id,
+            'finalized_by' => $owner->id,
+            'finalized_at' => now(),
+        ]);
+
+        // Buat 5 penerimaan tambahan dan 5 potongan
+        for ($i = 1; $i <= 5; $i++) {
+            SlipGajiItem::create([
+                'slip_gaji_id' => $slip->id,
+                'tipe' => 'penerimaan',
+                'nama_item' => "Bonus Tambahan {$i}",
+                'nominal' => 800000,
+                'urutan' => $i,
+            ]);
+
+            SlipGajiItem::create([
+                'slip_gaji_id' => $slip->id,
+                'tipe' => 'pengurangan',
+                'nama_item' => "Potongan Khusus {$i}",
+                'nominal' => 300000,
+                'urutan' => $i,
+            ]);
+        }
+
+        $this->actingAs($owner);
+        $response = $this->get(route('slip-gaji.pdf', $slip->id));
+
+        $response->assertOk();
+        $response->assertSee('SLIP GAJI', false);
+        $response->assertSee('min-height: 4.2mm', false);
+        $response->assertSee('height: 21mm', false);
+        $response->assertSee('min-height: 13.5mm', false);
+
+        for ($i = 1; $i <= 5; $i++) {
+            $response->assertSee("Bonus Tambahan {$i}", false);
+            $response->assertSee("Potongan Khusus {$i}", false);
+        }
+    }
 }
 
