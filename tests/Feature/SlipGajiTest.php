@@ -358,5 +358,65 @@ class SlipGajiTest extends TestCase
         $test->assertSet('existingSlipId', fn($val) => ! empty($val))
             ->assertSee('Karyawan ini telah memiliki slip gaji');
     }
+
+    public function test_blank_default_values_and_cursor_compatibility_for_slip_gaji(): void
+    {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        // Buat staf baru yang belum punya riwayat slip gaji
+        $newStaf = User::factory()->create([
+            'cabang_id' => $owner->cabang_id,
+            'status' => 'aktif',
+            'bagian' => 'Teknisi Printer',
+        ]);
+        $newStaf->assignRole('Teknisi');
+
+        $this->actingAs($owner);
+
+        // Uji inisialisasi staf baru: gajiPokok harus null (blank), bukan 0
+        $test = Livewire::test(SlipGajiForm::class)
+            ->set('selectedUserId', $newStaf->id)
+            ->set('periodeBulan', 11)
+            ->set('periodeTahun', 2026);
+
+        $test->assertSet('gajiPokok', null);
+
+        // Uji tambah penerimaan & potongan baru: nominal default harus '' (blank), bukan 0
+        $test->call('tambahPenerimaan')
+            ->assertSet('penerimaanItems.0.nominal', '')
+            ->call('tambahPotongan')
+            ->assertSet('penguranganItems.0.nominal', '');
+
+        // Uji bahwa nilai blank/empty string tidak menyebabkan error pada kalkulasi total
+        $test->assertSet('totalBruto', fn($val) => is_numeric($val))
+            ->assertSet('totalPengurangan', 0.0)
+            ->assertSet('totalDiterima', fn($val) => is_numeric($val));
+
+        // Uji validasi finalize: gaji pokok kosong/nol harus ditolak
+        $test->call('finalize');
+        $this->assertDatabaseMissing('slip_gajis', [
+            'user_id' => $newStaf->id,
+            'periode_bulan' => 11,
+            'periode_tahun' => 2026,
+            'status' => 'final',
+        ]);
+
+        // Uji pengisian nominal dan penyimpanan draft
+        $test->set('gajiPokok', 2800000)
+            ->set('penerimaanItems.0.nama_item', 'Lembur Mingguan')
+            ->set('penerimaanItems.0.nominal', 150000)
+            ->set('penguranganItems.0.nama_item', 'Terlambat')
+            ->set('penguranganItems.0.nominal', 20000)
+            ->call('saveDraft')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('slip-gaji.index'));
+
+        $this->assertDatabaseHas('slip_gajis', [
+            'user_id' => $newStaf->id,
+            'periode_bulan' => 11,
+            'periode_tahun' => 2026,
+            'status' => 'draft',
+            'gaji_pokok' => 2800000,
+        ]);
+    }
 }
 

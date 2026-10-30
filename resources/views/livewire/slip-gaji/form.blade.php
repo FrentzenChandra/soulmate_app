@@ -312,7 +312,7 @@
                             <x-input-ribuan wire:model.live="gajiPokok" />
                         @else
                             <div class="py-1.5 px-2.5 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-right">
-                                Rp {{ number_format($gajiPokok, 0, ',', '.') }}
+                                Rp {{ number_format((float) ($gajiPokok ?? 0), 0, ',', '.') }}
                             </div>
                         @endif
                     </div>
@@ -331,7 +331,7 @@
                             <x-input-ribuan wire:model.live="uangMakanPerHari" input-class="text-center" />
                         @else
                             <div class="py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-center">
-                                Rp {{ number_format($uangMakanPerHari, 0, ',', '.') }}
+                                Rp {{ number_format((float) ($uangMakanPerHari ?? 0), 0, ',', '.') }}
                             </div>
                         @endif
                     </div>
@@ -355,7 +355,7 @@
                             <x-input-ribuan wire:model.live="uangTransportPerHari" input-class="text-center" />
                         @else
                             <div class="py-1.5 px-2 bg-gray-100 rounded-lg text-xs font-mono font-bold text-black text-center">
-                                Rp {{ number_format($uangTransportPerHari, 0, ',', '.') }}
+                                Rp {{ number_format((float) ($uangTransportPerHari ?? 0), 0, ',', '.') }}
                             </div>
                         @endif
                     </div>

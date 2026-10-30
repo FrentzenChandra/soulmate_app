@@ -38,18 +38,18 @@ class Form extends Component
     public bool $stafDataLengkap = true;
 
     // Penerimaan
-    public float $gajiPokok = 0;
+    public int|float|string|null $gajiPokok = null;
     public int $uangMakanHari = 0;
-    public float $uangMakanPerHari = 20000;
+    public int|float|string|null $uangMakanPerHari = 20000;
     public float $uangMakanTotal = 0;
     public int $uangTransportHari = 0;
-    public float $uangTransportPerHari = 20000;
+    public int|float|string|null $uangTransportPerHari = 20000;
     public float $uangTransportTotal = 0;
     public string $tunjanganNama = 'Tunjangan Kepala Teknisi Laptop';
-    public float $tunjanganNominal = 0;
-    public float $bonusNominal = 0;
-    public float $lemburPerformaNominal = 0;
-    public float $servisanSelesaiNominal = 0;
+    public int|float|string|null $tunjanganNominal = null;
+    public int|float|string|null $bonusNominal = null;
+    public int|float|string|null $lemburPerformaNominal = null;
+    public int|float|string|null $servisanSelesaiNominal = null;
     public array $penerimaanItems = [];
     public float $totalBruto = 0;
 
@@ -63,9 +63,9 @@ class Form extends Component
     // Status & Sumber
     public string $status = 'draft';
     public ?int $sourceSlipId = null;
-    public ?float $sourceGajiPokok = null;
-    public ?float $sourceUangMakanPerHari = null;
-    public ?float $sourceUangTransportPerHari = null;
+    public int|float|string|null $sourceGajiPokok = null;
+    public int|float|string|null $sourceUangMakanPerHari = null;
+    public int|float|string|null $sourceUangTransportPerHari = null;
 
     // Alert Kenaikan 6 Bulan
     public ?int $activeKenaikanId = null;
@@ -283,10 +283,10 @@ class Form extends Component
                     }
                 }
             } else {
-                // Slip pertama kali: gunakan tarif default global
+                // Slip pertama kali: staf baru belum punya slip final
                 $this->sourceSlipId = null;
-                $this->gajiPokok = 0.00;
-                $this->sourceGajiPokok = 0.00;
+                $this->gajiPokok = null;
+                $this->sourceGajiPokok = null;
 
                 $this->uangMakanPerHari = TarifGaji::getNominal('uang_makan', 20000);
                 $this->sourceUangMakanPerHari = $this->uangMakanPerHari;
@@ -295,7 +295,7 @@ class Form extends Component
                 $this->sourceUangTransportPerHari = $this->uangTransportPerHari;
 
                 $this->tunjanganNama = 'Tunjangan Kepala Teknisi Laptop';
-                $this->tunjanganNominal = 0.00;
+                $this->tunjanganNominal = null;
                 $this->penerimaanItems = [];
                 $this->penguranganItems = [];
             }
@@ -495,7 +495,7 @@ class Form extends Component
     {
         $this->penerimaanItems[] = [
             'nama_item' => '',
-            'nominal' => 0.00,
+            'nominal' => '',
         ];
         $this->hitungUlangTotal();
     }
@@ -512,7 +512,7 @@ class Form extends Component
         $this->penguranganItems[] = [
             'kategori' => 'Lainnya',
             'nama_item' => '',
-            'nominal' => 0.00,
+            'nominal' => '',
         ];
         $this->hitungUlangTotal();
     }
@@ -534,15 +534,15 @@ class Form extends Component
     {
         $service = app(SlipGajiService::class);
         $calc = $service->kalkulasiTotal([
-            'gaji_pokok' => $this->gajiPokok,
+            'gaji_pokok' => (float) ($this->gajiPokok ?? 0),
             'uang_makan_hari' => $this->uangMakanHari,
-            'uang_makan_per_hari' => $this->uangMakanPerHari,
+            'uang_makan_per_hari' => (float) ($this->uangMakanPerHari ?? 0),
             'uang_transport_hari' => $this->uangTransportHari,
-            'uang_transport_per_hari' => $this->uangTransportPerHari,
-            'tunjangan_nominal' => $this->tunjanganNominal,
-            'bonus_nominal' => $this->bonusNominal,
-            'lembur_performa_nominal' => $this->lemburPerformaNominal,
-            'servisan_selesai_nominal' => $this->servisanSelesaiNominal,
+            'uang_transport_per_hari' => (float) ($this->uangTransportPerHari ?? 0),
+            'tunjangan_nominal' => (float) ($this->tunjanganNominal ?? 0),
+            'bonus_nominal' => (float) ($this->bonusNominal ?? 0),
+            'lembur_performa_nominal' => (float) ($this->lemburPerformaNominal ?? 0),
+            'servisan_selesai_nominal' => (float) ($this->servisanSelesaiNominal ?? 0),
         ], $this->penguranganItems, $this->penerimaanItems);
 
         $this->uangMakanTotal = $calc['uang_makan_total'];
@@ -587,7 +587,7 @@ class Form extends Component
             return;
         }
 
-        if ($this->gajiPokok <= 0) {
+        if ((float) ($this->gajiPokok ?? 0) <= 0) {
             $this->dispatch('swal:toast', [
                 'type' => 'error',
                 'title' => 'Gaji Pokok Kosong',
@@ -642,9 +642,9 @@ class Form extends Component
         $nilaiTetapDiubah = false;
         if ($this->canEditGajiPokok && $this->sourceGajiPokok !== null) {
             if (
-                round($this->gajiPokok, 2) !== round($this->sourceGajiPokok, 2) ||
-                round($this->uangMakanPerHari, 2) !== round($this->sourceUangMakanPerHari, 2) ||
-                round($this->uangTransportPerHari, 2) !== round($this->sourceUangTransportPerHari, 2)
+                round((float) ($this->gajiPokok ?? 0), 2) !== round((float) ($this->sourceGajiPokok ?? 0), 2) ||
+                round((float) ($this->uangMakanPerHari ?? 0), 2) !== round((float) ($this->sourceUangMakanPerHari ?? 0), 2) ||
+                round((float) ($this->uangTransportPerHari ?? 0), 2) !== round((float) ($this->sourceUangTransportPerHari ?? 0), 2)
             ) {
                 $nilaiTetapDiubah = true;
             }
@@ -680,20 +680,20 @@ class Form extends Component
                 'masa_kerja_snapshot' => $masaKerja,
                 'usia_snapshot' => $usia,
 
-                'gaji_pokok' => $this->gajiPokok,
+                'gaji_pokok' => (float) ($this->gajiPokok ?? 0),
                 'uang_makan_hari' => $this->uangMakanHari,
-                'uang_makan_per_hari' => $this->uangMakanPerHari,
+                'uang_makan_per_hari' => (float) ($this->uangMakanPerHari ?? 0),
                 'uang_makan_total' => $this->uangMakanTotal,
 
                 'uang_transport_hari' => $this->uangTransportHari,
-                'uang_transport_per_hari' => $this->uangTransportPerHari,
+                'uang_transport_per_hari' => (float) ($this->uangTransportPerHari ?? 0),
                 'uang_transport_total' => $this->uangTransportTotal,
 
                 'tunjangan_nama' => $this->tunjanganNama,
-                'tunjangan_nominal' => $this->tunjanganNominal,
-                'bonus_nominal' => $this->bonusNominal,
-                'lembur_performa_nominal' => $this->lemburPerformaNominal,
-                'servisan_selesai_nominal' => $this->servisanSelesaiNominal,
+                'tunjangan_nominal' => (float) ($this->tunjanganNominal ?? 0),
+                'bonus_nominal' => (float) ($this->bonusNominal ?? 0),
+                'lembur_performa_nominal' => (float) ($this->lemburPerformaNominal ?? 0),
+                'servisan_selesai_nominal' => (float) ($this->servisanSelesaiNominal ?? 0),
 
                 'total_bruto' => $this->totalBruto,
                 'total_pengurangan' => $this->totalPengurangan,
@@ -752,8 +752,8 @@ class Form extends Component
             if ($targetStatus === 'final' && $this->activeKenaikanId) {
                 $kenaikan = KenaikanGaji::find($this->activeKenaikanId);
                 if ($kenaikan && $kenaikan->status === 'menunggu') {
-                    $threshold = ($this->sourceGajiPokok ?? 0) + (float) $kenaikan->nominal;
-                    if ($this->gajiPokok >= $threshold) {
+                    $threshold = (float) ($this->sourceGajiPokok ?? 0) + (float) $kenaikan->nominal;
+                    if ((float) ($this->gajiPokok ?? 0) >= $threshold) {
                         $kenaikan->update([
                             'status' => 'diterapkan',
                             'slip_gaji_id' => $slip->id,
@@ -794,20 +794,20 @@ class Form extends Component
         $this->stafFotoUrl = $staf ? ($staf->profile_photo_url ?? '') : '';
         $this->stafInisial = strtoupper(substr($this->stafNama, 0, 2));
 
-        $this->gajiPokok = (float) $slip->gaji_pokok;
+        $this->gajiPokok = (float) $slip->gaji_pokok > 0 ? (float) $slip->gaji_pokok : null;
         $this->uangMakanHari = $slip->uangMakanHari ?: $slip->uang_makan_hari;
-        $this->uangMakanPerHari = (float) $slip->uang_makan_per_hari;
+        $this->uangMakanPerHari = (float) $slip->uang_makan_per_hari > 0 ? (float) $slip->uang_makan_per_hari : null;
         $this->uangMakanTotal = (float) $slip->uang_makan_total;
 
         $this->uangTransportHari = $slip->uangTransportHari ?: $slip->uang_transport_hari;
-        $this->uangTransportPerHari = (float) $slip->uang_transport_per_hari;
+        $this->uangTransportPerHari = (float) $slip->uang_transport_per_hari > 0 ? (float) $slip->uang_transport_per_hari : null;
         $this->uangTransportTotal = (float) $slip->uang_transport_total;
 
         $this->tunjanganNama = $slip->tunjangan_nama ?: 'Tunjangan Kepala Teknisi Laptop';
-        $this->tunjanganNominal = (float) $slip->tunjangan_nominal;
-        $this->bonusNominal = (float) $slip->bonus_nominal;
-        $this->lemburPerformaNominal = (float) $slip->lembur_performa_nominal;
-        $this->servisanSelesaiNominal = (float) $slip->servisan_selesai_nominal;
+        $this->tunjanganNominal = (float) $slip->tunjangan_nominal > 0 ? (float) $slip->tunjangan_nominal : null;
+        $this->bonusNominal = (float) $slip->bonus_nominal > 0 ? (float) $slip->bonus_nominal : null;
+        $this->lemburPerformaNominal = (float) $slip->lembur_performa_nominal > 0 ? (float) $slip->lembur_performa_nominal : null;
+        $this->servisanSelesaiNominal = (float) $slip->servisan_selesai_nominal > 0 ? (float) $slip->servisan_selesai_nominal : null;
 
         $this->penerimaanItems = [];
         $this->penguranganItems = [];
@@ -815,13 +815,13 @@ class Form extends Component
             if (($item->tipe ?? 'pengurangan') === 'penerimaan') {
                 $this->penerimaanItems[] = [
                     'nama_item' => $item->nama_item,
-                    'nominal' => (float) $item->nominal,
+                    'nominal' => (float) $item->nominal > 0 ? (float) $item->nominal : '',
                 ];
             } else {
                 $this->penguranganItems[] = [
                     'kategori' => $item->kategori ?? 'Lainnya',
                     'nama_item' => $item->nama_item,
-                    'nominal' => (float) $item->nominal,
+                    'nominal' => (float) $item->nominal > 0 ? (float) $item->nominal : '',
                 ];
             }
         }
