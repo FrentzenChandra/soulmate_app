@@ -95,6 +95,30 @@
     </div>
     @endif
 
+    <!-- Alert Slip Gaji Sudah Dibuat -->
+    @if($existingSlipId && !$slipId)
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs font-bold text-black shadow-xs">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <span class="block font-black text-black">Karyawan ini telah memiliki slip gaji untuk periode {{ \Carbon\Carbon::createFromDate($periodeTahun, $periodeBulan, 1)->translatedFormat('F Y') }}</span>
+                <span class="text-black font-medium">Status: <span class="uppercase font-bold text-amber-800">{{ $existingSlipStatus }}</span> (No: {{ $existingSlipNo ?: '-' }}). Pilih karyawan lain untuk buat baru atau klik tombol di samping untuk membuka slip yang ada.</span>
+            </div>
+        </div>
+        <a href="{{ route('slip-gaji.edit', $existingSlipId) }}" wire:navigate
+           class="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition-colors shrink-0 shadow-2xs cursor-pointer">
+            <span>Buka Slip</span>
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+        </a>
+    </div>
+    @endif
+
     <!-- Alert Data Karyawan Belum Lengkap -->
     @if(!$stafDataLengkap && $selectedUserId)
     <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center space-x-3 text-xs font-bold text-black">
@@ -510,7 +534,8 @@
                     <button type="button" wire:click="saveDraft"
                             wire:loading.attr="disabled"
                             wire:target="saveDraft"
-                            class="inline-flex items-center justify-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-white border border-purple-200 text-[#5E17EB] hover:bg-purple-50 shadow-2xs transition-all cursor-pointer disabled:opacity-50">
+                            @if($existingSlipId && !$slipId) disabled title="Karyawan ini sudah memiliki slip gaji pada periode ini" @endif
+                            class="inline-flex items-center justify-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-white border border-purple-200 text-[#5E17EB] hover:bg-purple-50 shadow-2xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                         <svg class="w-4 h-4 text-[#5E17EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
                         </svg>
@@ -525,8 +550,9 @@
                             wire:click="finalize"
                             wire:loading.attr="disabled"
                             wire:target="finalize"
+                            @if($existingSlipId && !$slipId) disabled title="Karyawan ini sudah memiliki slip gaji pada periode ini" @endif
                             wire:confirm="Yakin ingin memfinalkan slip gaji ini? Nilai dan profil staf akan dibekukan permanen dan hanya dapat dibuka kembali oleh Owner."
-                            class="inline-flex items-center justify-center space-x-2 px-6 py-2.5 rounded-xl text-xs font-bold bg-[#5E17EB] text-white hover:bg-purple-800 shadow-md shadow-purple-900/20 transition-all cursor-pointer disabled:opacity-50">
+                            class="inline-flex items-center justify-center space-x-2 px-6 py-2.5 rounded-xl text-xs font-bold bg-[#5E17EB] text-white hover:bg-purple-800 shadow-md shadow-purple-900/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>

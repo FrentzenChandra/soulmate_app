@@ -316,5 +316,47 @@ class SlipGajiTest extends TestCase
             'nominal' => 50000,
         ]);
     }
+
+    public function test_create_page_does_not_redirect_when_first_staff_already_has_slip(): void
+    {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $staf1 = User::where('email', 'teknisi.pkp@soulmate.test')->first();
+        $this->actingAs($owner);
+
+        // Buat slip gaji untuk staf1 pada bulan berjalan
+        $now = Carbon::now('Asia/Jakarta');
+        SlipGaji::create([
+            'no_slip' => 'SLIP/PKP/EXISTING/001',
+            'cabang_id' => $staf1->cabang_id,
+            'user_id' => $staf1->id,
+            'nama_staf_snapshot' => $staf1->name,
+            'periode_bulan' => (int) $now->month,
+            'periode_tahun' => (int) $now->year,
+            'status' => 'draft',
+            'gaji_pokok' => 2500000,
+            'uang_makan_hari' => 20,
+            'uang_makan_per_hari' => 20000,
+            'uang_makan_total' => 400000,
+            'uang_transport_hari' => 20,
+            'uang_transport_per_hari' => 20000,
+            'uang_transport_total' => 400000,
+            'total_bruto' => 3300000,
+            'total_pengurangan' => 0,
+            'total_diterima' => 3300000,
+            'created_by' => $owner->id,
+        ]);
+
+        // Saat buka halaman /slip-gaji/buat, response HARUS OK (200), TIDAK redirect (302) ke slip-gaji.edit
+        $response = $this->get(route('slip-gaji.create'));
+        $response->assertOk();
+
+        // Uji komponen Livewire: tidak me-redirect dan mendeteksi existing slip dengan tepat jika staf1 dipilih
+        $test = Livewire::test(SlipGajiForm::class)
+            ->assertOk()
+            ->set('selectedUserId', $staf1->id);
+
+        $test->assertSet('existingSlipId', fn($val) => ! empty($val))
+            ->assertSee('Karyawan ini telah memiliki slip gaji');
+    }
 }
 

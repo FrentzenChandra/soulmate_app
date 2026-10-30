@@ -74,6 +74,11 @@ class Form extends Component
     public float $activeKenaikanNominal = 0;
     public bool $showKenaikanBanner = false;
 
+    // Deteksi Slip Gaji Duplikat (Tanpa Redirect Paksa)
+    public ?int $existingSlipId = null;
+    public ?string $existingSlipStatus = null;
+    public ?string $existingSlipNo = null;
+
     // Hak Akses
     public bool $canEditGajiPokok = false;
     public bool $isFinal = false;
@@ -103,16 +108,32 @@ class Form extends Component
             $this->uangMakanPerHari = TarifGaji::getNominal('uang_makan', 20000);
             $this->uangTransportPerHari = TarifGaji::getNominal('uang_transport', 20000);
 
-            // Pilih staf pertama secara default jika ada
+            // Prioritaskan pilih staf pertama yang BELUM memiliki slip gaji pada periode aktif ini
             $currentCabangId = $this->getCurrentCabangId();
-            $firstStaf = User::role(SlipGajiService::STAF_ROLES)
+            $sudahAdaSlipUserIds = SlipGaji::where('cabang_id', $currentCabangId)
+                ->where('periode_bulan', $this->periodeBulan)
+                ->where('periode_tahun', $this->periodeTahun)
+                ->pluck('user_id')
+                ->toArray();
+
+            $targetStaf = User::role(SlipGajiService::STAF_ROLES)
                 ->where('status', 'aktif')
                 ->where('cabang_id', $currentCabangId)
+                ->whereNotIn('id', $sudahAdaSlipUserIds)
                 ->orderBy('name')
                 ->first();
 
-            if ($firstStaf) {
-                $this->selectedUserId = $firstStaf->id;
+            if (! $targetStaf) {
+                // Jika semua staf sudah memiliki slip di periode ini, tetap pilih staf pertama
+                $targetStaf = User::role(SlipGajiService::STAF_ROLES)
+                    ->where('status', 'aktif')
+                    ->where('cabang_id', $currentCabangId)
+                    ->orderBy('name')
+                    ->first();
+            }
+
+            if ($targetStaf) {
+                $this->selectedUserId = $targetStaf->id;
                 $this->onUserSelected($service);
             }
         }
@@ -175,6 +196,31 @@ class Form extends Component
         $this->hitungUlangTotal();
     }
 
+    public function checkExistingSlip(): void
+    {
+        if (! $this->selectedUserId || $this->slipId) {
+            $this->existingSlipId = null;
+            $this->existingSlipStatus = null;
+            $this->existingSlipNo = null;
+            return;
+        }
+
+        $existing = SlipGaji::where('user_id', $this->selectedUserId)
+            ->where('periode_bulan', $this->periodeBulan)
+            ->where('periode_tahun', $this->periodeTahun)
+            ->first();
+
+        if ($existing && $existing->id !== $this->slipId) {
+            $this->existingSlipId = $existing->id;
+            $this->existingSlipStatus = $existing->status;
+            $this->existingSlipNo = $existing->no_slip;
+        } else {
+            $this->existingSlipId = null;
+            $this->existingSlipStatus = null;
+            $this->existingSlipNo = null;
+        }
+    }
+
     public function onUserSelected(SlipGajiService $service): void
     {
         if (! $this->selectedUserId) {
@@ -188,17 +234,8 @@ class Form extends Component
             return;
         }
 
-        // Cek apakah slip staf ini pada periode bulan/tahun sudah ada
-        $existing = SlipGaji::where('user_id', $staf->id)
-            ->where('periode_bulan', $this->periodeBulan)
-            ->where('periode_tahun', $this->periodeTahun)
-            ->first();
-
-        if ($existing && $existing->id !== $this->slipId) {
-            // Arahkan ke slip yang sudah ada agar tidak ganda
-            $this->redirectRoute('slip-gaji.edit', $existing->id, navigate: true);
-            return;
-        }
+        // Cek apakah slip staf ini pada periode bulan/tahun sudah ada (tanpa me-redirect paksa)
+        $this->checkExistingSlip();
 
         $targetDate = Carbon::createFromDate($this->periodeTahun, $this->periodeBulan, 1);
         $this->stafNama = $staf->name;
@@ -287,6 +324,7 @@ class Form extends Component
                 $this->stafMasaKerja = $staf->tanggal_mulai_bekerja ? $service->formatMasaKerja(Carbon::parse($staf->tanggal_mulai_bekerja), $targetDate) : '-';
             }
 
+            $this->checkExistingSlip();
             $this->checkKenaikanAlert();
             $this->hitungUlangTotal();
         }
@@ -523,6 +561,15 @@ class Form extends Component
             abort_if(! $user || (! $user->isOwner() && ! $user->can('gaji.create')), 403, 'Akses buat slip gaji dibatasi.');
         }
 
+        if (! $this->slipId && $this->existingSlipId) {
+            $this->dispatch('swal:toast', [
+                'type' => 'error',
+                'title' => 'Slip Gaji Sudah Ada',
+                'message' => 'Karyawan ini telah memiliki slip gaji untuk periode yang dipilih.',
+            ]);
+            return;
+        }
+
         $this->processSave('draft', app(SlipGajiService::class));
     }
 
@@ -530,6 +577,15 @@ class Form extends Component
     {
         $user = Auth::user();
         abort_if(! $user || (! $user->isOwner() && ! $user->can('gaji.finalize')), 403, 'Akses finalkan slip dibatasi.');
+
+        if (! $this->slipId && $this->existingSlipId) {
+            $this->dispatch('swal:toast', [
+                'type' => 'error',
+                'title' => 'Slip Gaji Sudah Ada',
+                'message' => 'Karyawan ini telah memiliki slip gaji untuk periode yang dipilih.',
+            ]);
+            return;
+        }
 
         if ($this->gajiPokok <= 0) {
             $this->dispatch('swal:toast', [
