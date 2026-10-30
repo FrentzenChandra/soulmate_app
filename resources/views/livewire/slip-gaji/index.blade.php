@@ -81,7 +81,7 @@
     <!-- ============================================== -->
     <!-- CARD: TOTAL GAJI BULAN SEKARANG (LOCKED)       -->
     <!-- ============================================== -->
-    <div class="card-custom bg-white p-5 rounded-2xl border border-gray-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="card-custom bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-10">
         <div class="flex items-center space-x-4">
             <div class="w-12 h-12 rounded-2xl bg-purple-50 text-[#5E17EB] border border-purple-100 flex items-center justify-center shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,7 +103,7 @@
                 </div>
             </div>
         </div>
-        <div class="flex items-center space-x-4 sm:border-l sm:border-gray-100 sm:pl-6 text-xs text-gray-600 font-bold">
+        <div class="flex items-center border-t sm:border-t-0 sm:border-l border-gray-200 pt-4 sm:pt-0 sm:pl-10 sm:ml-8 text-xs text-gray-600 font-bold shrink-0">
             <div>
                 <span class="block text-[11px] uppercase tracking-wider text-gray-400 font-black">Total Staf</span>
                 <span class="text-base font-black text-black">{{ $totalStafBulanIni }} Staf</span>
