@@ -5,6 +5,7 @@ namespace App\Livewire\Servis;
 use App\Models\Cabang;
 use App\Models\ServisMasuk;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -57,9 +58,13 @@ class AntrianDisplay extends Component
 
     public function render()
     {
-        $cabangs = Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get();
-        $selectedCabang = $this->cabangId ? Cabang::find($this->cabangId) : null;
+        // 1. Cache data cabang aktif (statis) selama 1 jam
+        $cabangs = Cache::remember('antrian_cabangs_aktif', 3600, function () {
+            return Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get();
+        });
+        $selectedCabang = $this->cabangId ? $cabangs->firstWhere('id', $this->cabangId) : null;
 
+        // 2. Data agregasi antrian (Short-Lived Cache 10s per cabang)
         if ($this->useDemoNumbers) {
             $counts = [
                 'laptop' => [
@@ -79,44 +84,54 @@ class AntrianDisplay extends Component
                 ],
             ];
         } else {
-            $query = ServisMasuk::query()->where('is_real', true);
+            $cabangKey = $this->cabangId ?? 'all';
+            $counts = Cache::remember("antrian_display_counts_{$cabangKey}", 10, function () {
+                $query = ServisMasuk::query()->where('is_real', true);
 
-            if ($this->cabangId) {
-                $query->where('cabang_id', $this->cabangId);
-            }
+                if ($this->cabangId) {
+                    $query->where('cabang_id', $this->cabangId);
+                }
 
-            $rawCounts = (clone $query)
-                ->select('kategori_perangkat', 'status', DB::raw('count(*) as total'))
-                ->whereIn('kategori_perangkat', ['laptop', 'printer', 'komputer'])
-                ->whereIn('status', ['antrean_masuk', 'pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart', 'selesai'])
-                ->groupBy('kategori_perangkat', 'status')
-                ->get();
+                // Query agregasi memanfaatkan Covering Index idx_servis_antrian_covering
+                $rawCounts = $query
+                    ->select('kategori_perangkat', 'status', DB::raw('count(*) as total'))
+                    ->whereIn('kategori_perangkat', ['laptop', 'printer', 'komputer'])
+                    ->whereIn('status', ['antrean_masuk', 'pengecekan', 'menunggu_konfirmasi', 'perbaikan', 'pengerjaan', 'menunggu_sparepart', 'selesai'])
+                    ->groupBy('kategori_perangkat', 'status')
+                    ->get();
 
-            $counts = [
-                'laptop' => ['pengecekan' => 0, 'perbaikan' => 0, 'selesai' => 0],
-                'printer' => ['pengecekan' => 0, 'perbaikan' => 0, 'selesai' => 0],
-                'komputer' => ['pengecekan' => 0, 'perbaikan' => 0, 'selesai' => 0],
-            ];
+                $aggregated = [
+                    'laptop' => ['pengecekan' => 0, 'perbaikan' => 0, 'selesai' => 0],
+                    'printer' => ['pengecekan' => 0, 'perbaikan' => 0, 'selesai' => 0],
+                    'komputer' => ['pengecekan' => 0, 'perbaikan' => 0, 'selesai' => 0],
+                ];
 
-            foreach ($rawCounts as $row) {
-                $cat = strtolower((string) $row->kategori_perangkat);
-                $stat = strtolower((string) $row->status);
-                if (isset($counts[$cat])) {
-                    if (in_array($stat, ['antrean_masuk', 'pengecekan', 'menunggu_konfirmasi'])) {
-                        $counts[$cat]['pengecekan'] += (int) $row->total;
-                    } elseif (in_array($stat, ['perbaikan', 'pengerjaan', 'menunggu_sparepart'])) {
-                        $counts[$cat]['perbaikan'] += (int) $row->total;
-                    } elseif ($stat === 'selesai') {
-                        $counts[$cat]['selesai'] += (int) $row->total;
+                foreach ($rawCounts as $row) {
+                    $cat = strtolower((string) $row->kategori_perangkat);
+                    $stat = strtolower((string) $row->status);
+                    if (isset($aggregated[$cat])) {
+                        if (in_array($stat, ['antrean_masuk', 'pengecekan', 'menunggu_konfirmasi'])) {
+                            $aggregated[$cat]['pengecekan'] += (int) $row->total;
+                        } elseif (in_array($stat, ['perbaikan', 'pengerjaan', 'menunggu_sparepart'])) {
+                            $aggregated[$cat]['perbaikan'] += (int) $row->total;
+                        } elseif ($stat === 'selesai') {
+                            $aggregated[$cat]['selesai'] += (int) $row->total;
+                        }
                     }
                 }
-            }
+
+                return $aggregated;
+            });
         }
 
-        // Ambil data rincian unit jika modal terbuka
+        // 3. Ambil data rincian unit jika modal terbuka (Slim query & spesifik kolom)
         $unitList = collect();
         if ($this->modalListOpen && $this->selectedCategory && $this->selectedStatus) {
-            $listQuery = ServisMasuk::with(['customer', 'teknisi'])
+            $listQuery = ServisMasuk::select('id', 'no_servis', 'cabang_id', 'customer_id', 'teknisi_id', 'status', 'kategori_perangkat', 'tipe_unit', 'keluhan', 'tanggal_masuk')
+                ->with([
+                    'customer:id,nama,no_hp',
+                    'teknisi:id,name',
+                ])
                 ->where('is_real', true)
                 ->where('kategori_perangkat', $this->selectedCategory);
 

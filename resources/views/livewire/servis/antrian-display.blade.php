@@ -1,5 +1,5 @@
 <div class="relative h-screen w-screen max-w-full max-h-screen bg-white flex flex-col justify-between overflow-hidden select-none"
-     wire:poll.5s
+     wire:poll.visible.15s
      x-data="{
         isFullscreen: false,
         currentTime: '',

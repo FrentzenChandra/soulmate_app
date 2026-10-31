@@ -214,4 +214,67 @@ class AntrianDisplayTest extends TestCase
             ->assertSee('PC Rakitan Gaming')
             ->assertSee('Antrean Masuk');
     }
+
+    public function test_antrian_display_caches_counts_to_prevent_slow_queries(): void
+    {
+        $cabang = Cabang::create([
+            'kode_cabang' => 'CB-CACHE',
+            'nama_cabang' => 'Cabang Cache Test',
+            'status' => 'aktif',
+        ]);
+
+        $user = User::factory()->create(['cabang_id' => $cabang->id]);
+        $customer = \App\Models\Customer::create([
+            'nama' => 'Cache Customer',
+            'no_hp' => '08123456781',
+            'cabang_id' => $cabang->id,
+        ]);
+
+        ServisMasuk::create([
+            'no_servis' => 'INV-SV-CACHE-261011-00001',
+            'cabang_id' => $cabang->id,
+            'customer_id' => $customer->id,
+            'created_by' => $user->id,
+            'kategori_perangkat' => 'laptop',
+            'tipe_unit' => 'Acer Swift',
+            'keluhan' => 'Keyboard macet',
+            'status' => 'pengecekan',
+            'is_real' => true,
+            'tanggal_masuk' => now(),
+        ]);
+
+        // Poll pertama: data diambil dari DB dan disimpan ke cache
+        $test = Livewire::test(AntrianDisplay::class, ['cabangId' => $cabang->id])
+            ->assertViewHas('counts', function ($counts) {
+                return $counts['laptop']['pengecekan'] === 1;
+            });
+
+        // Tambah record baru secara instan di database
+        ServisMasuk::create([
+            'no_servis' => 'INV-SV-CACHE-261011-00002',
+            'cabang_id' => $cabang->id,
+            'customer_id' => $customer->id,
+            'created_by' => $user->id,
+            'kategori_perangkat' => 'laptop',
+            'tipe_unit' => 'Acer Aspire',
+            'keluhan' => 'Layar biru',
+            'status' => 'pengecekan',
+            'is_real' => true,
+            'tanggal_masuk' => now(),
+        ]);
+
+        // Poll kedua (dalam window TTL 10 detik): data tetap cepat dilayani dari cache
+        $test->call('$refresh')
+            ->assertViewHas('counts', function ($counts) {
+                return $counts['laptop']['pengecekan'] === 1;
+            });
+
+        // Hapus cache -> query ulang mengambil nilai terbaru (2)
+        \Illuminate\Support\Facades\Cache::forget("antrian_display_counts_{$cabang->id}");
+
+        $test->call('$refresh')
+            ->assertViewHas('counts', function ($counts) {
+                return $counts['laptop']['pengecekan'] === 2;
+            });
+    }
 }
