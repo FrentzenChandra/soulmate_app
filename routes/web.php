@@ -62,6 +62,7 @@ Route::get('/antrian-servis', fn () => redirect()->route('antrian.display'));
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardIndex::class)->name('dashboard');
+    Route::get('/selamat-ulang-tahun', \App\Livewire\Birthday\TodayPage::class)->name('birthday.today');
 
     // Master Routes
     Route::prefix('master')->name('master.')->group(function () {

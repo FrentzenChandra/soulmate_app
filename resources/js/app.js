@@ -3,12 +3,14 @@ import ApexCharts from 'apexcharts';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { TabulatorFull as Tabulator } from 'tabulator-tables';
 import Swal from 'sweetalert2';
+import { Fireworks } from 'fireworks-js';
 
 window.ApexCharts = ApexCharts;
 window.Html5Qrcode = Html5Qrcode;
 window.Html5QrcodeSupportedFormats = Html5QrcodeSupportedFormats;
 window.Tabulator = Tabulator;
 window.Swal = Swal;
+window.Fireworks = Fireworks;
 
 // Controllable Animated SVG Icons
 const getIconSvg = (type) => {

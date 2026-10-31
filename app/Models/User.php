@@ -42,6 +42,7 @@ class User extends Authenticatable
         'cabang_id',
         'tanggal_mulai_bekerja',
         'tanggal_lahir',
+        'last_birthday_notif_at',
         'bagian',
         'no_hp',
         'status',
@@ -82,6 +83,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'tanggal_mulai_bekerja' => 'date',
             'tanggal_lahir' => 'date',
+            'last_birthday_notif_at' => 'date',
         ];
     }
 

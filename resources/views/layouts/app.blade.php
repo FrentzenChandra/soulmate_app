@@ -1105,6 +1105,8 @@
         });
     </script>
 
+    @livewire('notification.birthday-notification')
+
     @stack('modals')
     @livewireScripts
     @stack('scripts')
