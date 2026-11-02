@@ -153,11 +153,6 @@ class TransaksiFullTest extends TestCase
         $this->actingAs($superadmin);
 
         Livewire::test(TransaksiFull::class)
-            ->assertSet('periodeMode', 'range')
-            // ->assertSet('startDate', now()->toDateString())
-            ->assertSet('startDate', now()->startOfMonth()->toDateString())
-            ->assertSet('endDate', now()->toDateString())
-            ->call('setPeriodeMode', 'bulanan')
             ->assertSet('periodeMode', 'bulanan')
             ->assertSet('startDate', now()->startOfMonth()->toDateString())
             ->assertSet('endDate', now()->endOfMonth()->toDateString())
@@ -168,6 +163,10 @@ class TransaksiFullTest extends TestCase
             ->call('setPeriodeMode', 'range')
             ->assertSet('periodeMode', 'range')
             ->assertSet('startDate', now()->startOfMonth()->toDateString())
+            ->assertSet('endDate', now()->toDateString())
+            ->call('setPeriodeMode', 'hari_ini')
+            ->assertSet('periodeMode', 'hari_ini')
+            ->assertSet('startDate', now()->toDateString())
             ->assertSet('endDate', now()->toDateString());
     }
 
@@ -218,7 +217,7 @@ class TransaksiFullTest extends TestCase
             'status' => 'Lunas',
         ]);
 
-        // Test Filter PPN (5 Card tetap terkunci ke total bulan berjalan 150k, 90k, 60k)
+        // Test Filter PPN & Tipe (5 Card mengikuti periode bulan ini: 150k, 90k, 60k)
         Livewire::test(TransaksiFull::class)
             ->set('ppnFilter', 'ppn')
             ->assertViewHas('totalPendapatan', 150000.0)
@@ -235,7 +234,13 @@ class TransaksiFullTest extends TestCase
             ->set('tipeFilter', 'servis')
             ->assertViewHas('totalPendapatan', 150000.0)
             ->assertViewHas('totalModal', 90000.0)
-            ->assertViewHas('totalLaba', 60000.0);
+            ->assertViewHas('totalLaba', 60000.0)
+            // Test Filter Periode Dinamis: saat periode dipindah ke tahun lalu, 5 card menjadi 0
+            ->set('periodeMode', 'tahunan')
+            ->set('filterTahun', (string) (now()->year - 2))
+            ->assertViewHas('totalPendapatan', 0.0)
+            ->assertViewHas('totalModal', 0.0)
+            ->assertViewHas('totalLaba', 0.0);
     }
 
     public function test_can_create_and_edit_servis_transaksi_with_device_category()

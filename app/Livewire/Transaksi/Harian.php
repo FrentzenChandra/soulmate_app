@@ -45,7 +45,7 @@ class Harian extends Component
     #[Url(except: 'semua')]
     public string $ppnFilter = 'semua'; // 'semua' | 'ppn' | 'non_ppn'
 
-    public string $periodeMode = 'hari_ini'; // 'hari_ini' | 'range' | 'bulanan' | 'tahunan' | 'semua'
+    public string $periodeMode = 'bulanan'; // 'hari_ini' | 'range' | 'bulanan' | 'tahunan' | 'semua'
     public string $startDate = '';
     public string $endDate = '';
     public string $filterBulan = '';
@@ -93,10 +93,9 @@ class Harian extends Component
             abort(403, 'Akses modul Transaksi Harian dibatasi.');
         }
 
-        $this->startDate = now()->toDateString();
-        $this->endDate = now()->toDateString();
         $this->filterBulan = now()->format('m');
         $this->filterTahun = now()->format('Y');
+        $this->applyBulanan();
 
         $this->sortField = 'tanggal';
         $this->sortDirection = 'desc';

@@ -110,9 +110,13 @@ class TransaksiHarianAndTutupKasTest extends TestCase
         $this->actingAs($admin);
 
         $component = Livewire::test(TransaksiHarian::class);
-        $component->assertSet('startDate', now()->toDateString())
-            ->assertSet('endDate', now()->toDateString())
+        $component->assertSet('startDate', now()->startOfMonth()->toDateString())
+            ->assertSet('endDate', now()->endOfMonth()->toDateString())
+            ->assertSet('periodeMode', 'bulanan')
+            ->call('setPeriodeMode', 'hari_ini')
             ->assertSet('periodeMode', 'hari_ini')
+            ->assertSet('startDate', now()->toDateString())
+            ->assertSet('endDate', now()->toDateString())
             ->call('setPeriodeMode', 'range')
             ->assertSet('periodeMode', 'range')
             ->assertSet('startDate', now()->startOfMonth()->toDateString())

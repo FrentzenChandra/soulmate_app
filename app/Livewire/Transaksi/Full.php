@@ -48,7 +48,7 @@ class Full extends Component
     #[Url(except: 'semua')]
     public string $cabangFilter = 'semua';
 
-    public string $periodeMode = 'range'; // 'hari_ini' | 'range' | 'bulanan' | 'tahunan'
+    public string $periodeMode = 'bulanan'; // 'hari_ini' | 'range' | 'bulanan' | 'tahunan'
     public string $startDate = '';
     public string $endDate = '';
     public string $filterBulan = '';
@@ -99,11 +99,9 @@ class Full extends Component
             abort(403, 'Akses modul Transaksi FULL dibatasi.');
         }
 
-        // $this->startDate = now()->toDateString();
-        $this->startDate = now()->startOfMonth()->toDateString();
-        $this->endDate = now()->toDateString();
         $this->filterBulan = now()->format('m');
         $this->filterTahun = now()->format('Y');
+        $this->applyBulanan();
 
         $this->sortField = 'tanggal';
         $this->sortDirection = 'desc';
@@ -952,25 +950,30 @@ class Full extends Component
             });
         }
 
-        // Query Khusus 5 Card Finansial: Terkunci ke Bulan Berjalan (Tanggal 1 s/d Hari Ini)
-        $cardBulanBerjalanQ = TransaksiFull::query()
-            ->whereBetween('transaksi_fulls.tanggal', [now()->startOfMonth()->startOfDay(), now()->endOfDay()]);
+        // Query 5 Card Finansial (Pendapatan, Modal, Laba, Lunas, Bon): Mengikuti filter periode & cabang aktif
+        $cardFinancialQ = TransaksiFull::query();
+
+        if (! empty($this->startDate)) {
+            $start = Carbon::parse($this->startDate)->startOfDay();
+            $end = Carbon::parse($this->endDate ?: $this->startDate)->endOfDay();
+            $cardFinancialQ->whereBetween('transaksi_fulls.tanggal', [$start, $end]);
+        }
 
         if (! $isHQ) {
             $targetCabangId = $isOwner ? (int) $activeBranchSession : (int) $user->cabang_id;
             if ($targetCabangId) {
-                $cardBulanBerjalanQ->where('transaksi_fulls.cabang_id', $targetCabangId);
+                $cardFinancialQ->where('transaksi_fulls.cabang_id', $targetCabangId);
             }
         } elseif ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
-            $cardBulanBerjalanQ->where('transaksi_fulls.cabang_id', (int) $this->cabangFilter);
+            $cardFinancialQ->where('transaksi_fulls.cabang_id', (int) $this->cabangFilter);
         }
 
-        $totalPendapatan = (float) (clone $cardBulanBerjalanQ)->sum('total_jual');
-        $totalModal = (float) (clone $cardBulanBerjalanQ)->sum('total_modal');
-        $totalLaba = (float) (clone $cardBulanBerjalanQ)->sum('total_laba');
-        $totalLunas = (float) (clone $cardBulanBerjalanQ)->where('status', 'Lunas')->sum('total_jual');
-        $totalBon = (float) (clone $cardBulanBerjalanQ)->whereRaw('LOWER(status) = ?', ['bon'])->sum('total_jual');
-        $totalTransaksiCount = (int) (clone $cardBulanBerjalanQ)->count();
+        $totalPendapatan = (float) (clone $cardFinancialQ)->sum('total_jual');
+        $totalModal = (float) (clone $cardFinancialQ)->sum('total_modal');
+        $totalLaba = (float) (clone $cardFinancialQ)->sum('total_laba');
+        $totalLunas = (float) (clone $cardFinancialQ)->where('status', 'Lunas')->sum('total_jual');
+        $totalBon = (float) (clone $cardFinancialQ)->whereRaw('LOWER(status) = ?', ['bon'])->sum('total_jual');
+        $totalTransaksiCount = (int) (clone $cardFinancialQ)->count();
 
         // Hitung Uang Cash - Terkunci ke Bulan Berjalan (Tanggal 1 s/d Hari Ini) & Pelunasan Lintas Bulan
         $startBulan = now()->startOfMonth()->startOfDay();
