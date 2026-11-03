@@ -54,6 +54,7 @@
 ## 11. Target Bulanan (Performance Board 12 Bulan — `/target-bulanan`)
 - **Tabel Divisi (Laptop, Printer, Komputer, Admin):** Target diatur per tahun via modal 5-in-1 di toolbar atas (berlaku merata Jan-Des). Kolom ke-2 menampilkan nilai target tahunan. 12 Sel Bulan (Jan-Des) HANYA menampilkan angka realisasi riil yang bersih (tanpa teks `/ target` dan tanpa badge persentase `%`). Kolom Total YTD menampilkan total realisasi, perbandingan target tahunan berjalan (`/ total_target_ytd`), dan badge persentase YTD. Tanpa baris footer Total Divisi. Penyesuaian realisasi manual tetap didukung via klik per sel bulan.
 - **Tabel Pegawai (Staf):** Realisasi murni 100% ditarik otomatis dari `transaksi_fulls` berdasarkan `pegawai_id`. Read-only performance summary tanpa kolom target, tanpa modal edit per cell, dan tanpa badge status merah.
+- **Definisi Realisasi Divisi Admin:** `SUM(qty)` unit produk berkategori `Laptop` (match slug `laptop`, bukan `LIKE %laptop%`) pada penjualan Lunas per `tanggal_lunas`. Satu nota berisi 2 unit laptop dihitung 2 unit. Divisi teknis tetap dihitung per servis selesai.
 - Slogan motivasi: *"Target Bukan Untuk Ditakuti, Tapi Untuk Dikalahkan!"*.
 
 ## 12. Master Pegawai & Bagian Dinamis (`/master/pegawai`)
