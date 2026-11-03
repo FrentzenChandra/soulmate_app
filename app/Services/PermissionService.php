@@ -499,6 +499,8 @@ class PermissionService
                 'cabang.stok.view',
                 'serial_number.view',
                 'serial_number.create',
+                'serial_number.edit',
+                'serial_number.delete',
                 'master.produk.view',
                 'master.servis.view',
                 'absensi.view',
