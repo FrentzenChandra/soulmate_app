@@ -298,28 +298,6 @@
 - **Cara Rollback Standar:** Gunakan `git revert <hash>` untuk membatalkan satu perubahan tanpa merusak riwayat. Gunakan `git reset --hard <hash>` HANYA jika user secara eksplisit meminta pembuangan commit lokal yang belum di-push.
 - **Pengecualian Sempit:** Commit boleh ditunda hanya bila user secara eksplisit melarang commit pada sesi tersebut. Di luar itu, "belum sempat commit" bukan alasan yang diterima.
 
-## 32. Multi-Agent Single-Worktree Lane Standard (Tanpa Merge)
-- **Prinsip Dasar:** Seluruh agen AI yang bekerja pada project ini beroperasi di **SATU worktree dan SATU branch aktif secara bersamaan**. Dilarang membuat worktree atau branch baru untuk pekerjaan rutin/harian, karena setiap worktree terpisah memaksa merge dan memunculkan konflik yang tidak perlu.
-- **Tujuan:** Nol merge, nol cherry-pick, namun rollback per perubahan tetap mudah karena setiap perubahan tetap di-commit atomik (Standar 31).
-- **Lane Ownership (Kepemilikan Modul):** Setiap agen memegang daftar modul eksklusif. **Satu modul = satu agen pada satu waktu.** Dilarang dua agen menyentuh file utama modul yang sama secara bersamaan.
-  * Contoh pembagian: agen A memegang Klaim Garansi, Faktur Pajak, Laporan Penjualan. Agen B memegang Servis, Kasir POS, Transaksi. Pembagian final ditentukan user dan dicatat di sesi.
-- **Protokol File Hotspot:** File berikut dipakai lintas modul sehingga rawan tabrakan dan WAJIB memakai protokol ketat:
-  * `routes/web.php`
-  * `resources/views/layouts/app.blade.php`
-  * `app/Services/PermissionService.php`
-  * `resources/views/components/*`
-  * `composer.json`, `package.json`, `vite.config.js`
-  * `AGENTS.md`, `CLAUDE.md`, `README.md`
-  * Protokol: sebelum menyentuh hotspot, `git status --porcelain` **WAJIB bersih**; setelah selesai mengedit, **WAJIB langsung commit**; dilarang meninggalkan hotspot dalam kondisi dirty.
-- **Larangan Keras Multi-Agen:**
-  * Dilarang dua agen mengedit file yang sama pada waktu bersamaan. Pada worktree bersama tidak ada conflict marker: perubahan yang kalah akan **tertimpa diam-diam** tanpa peringatan.
-  * Dilarang menyalin/menempel perubahan antar worktree secara manual.
-  * Dilarang mengubah file milik lane agen lain. Jika perlu, ajukan permintaan ke user; user yang mengeksekusi atau memberi izin.
-- **Alur Serah Terima (Handoff):** Sebelum menyerahkan giliran, agen WAJIB memastikan `git status` bersih dan pekerjaannya sudah di-commit. Agen penerima WAJIB menjalankan `git status` + `git log --oneline -5` sebelum mulai, untuk memahami kondisi terakhir.
-- **Pengecualian Isolasi:** Worktree terpisah hanya diizinkan untuk eksperimen berisiko tinggi atau spike yang mungkin dibuang. Jika hasilnya dipakai, **WAJIB** rebase ke `main` dan merge segera setelah selesai; dilarang menumpuk pekerjaan berhari-hari di worktree terpisah.
-- **Verifikasi:** `git worktree list` harus menunjukkan hanya satu worktree yang dipakai untuk kerja harian. Adanya worktree tambahan yang menumpuk commit = pelanggaran standar ini dan wajib dilaporkan ke user.
-- **Sinergi:** Standar ini melengkapi Standar 31 (commit granular). Commit kecil per modul adalah yang membuat lane bersama tetap aman: kerusakan bisa di-`revert` per commit tanpa mengganggu lane lain.
-
 
 
 
