@@ -23,22 +23,22 @@
         @endcan
     </div>
 
-    <!-- Summary Metrics (dikunci ke bulan berjalan) -->
+    <!-- Summary Metrics -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Total Pengeluaran <span class="text-gray-300">({{ $cardPeriodeLabel }})</span></span>
-            <span class="text-xl font-black text-black mt-1 block">
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Total Pengeluaran</span>
+            <span class="text-xl font-black text-rose-600 mt-1 block">
                 Rp {{ number_format($totalKasKeluar, 0, ',', '.') }}
             </span>
         </div>
         <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Kas Tunai <span class="text-gray-300">({{ $cardPeriodeLabel }})</span></span>
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Kas Tunai (Cash)</span>
             <span class="text-xl font-black text-gray-900 mt-1 block">
                 Rp {{ number_format($totalCash, 0, ',', '.') }}
             </span>
         </div>
         <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Non Tunai <span class="text-gray-300">({{ $cardPeriodeLabel }})</span></span>
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Non-Tunai (Transfer Bank)</span>
             <span class="text-xl font-black text-blue-600 mt-1 block">
                 Rp {{ number_format($totalNonCash, 0, ',', '.') }}
             </span>
