@@ -420,7 +420,7 @@ class SlipGajiTest extends TestCase
         ]);
     }
 
-    public function test_card_total_gaji_bulan_sekarang_locked_to_current_month(): void
+    public function test_card_total_gaji_follows_dynamic_period_filter(): void
     {
         $owner = User::where('email', 'owner@soulmate.test')->first();
         $this->actingAs($owner);
@@ -445,12 +445,14 @@ class SlipGajiTest extends TestCase
         ]);
 
         // Slip bulan lain (masa lalu)
+        $pastMonth = $currentMonth === 1 ? 12 : $currentMonth - 1;
+        $pastYear = $currentMonth === 1 ? $currentYear - 1 : $currentYear;
         SlipGaji::create([
             'no_slip' => 'SG-TEST-PAST-01',
             'cabang_id' => $owner->cabang_id,
             'user_id' => $owner->id,
-            'periode_bulan' => $currentMonth === 1 ? 12 : $currentMonth - 1,
-            'periode_tahun' => $currentMonth === 1 ? $currentYear - 1 : $currentYear,
+            'periode_bulan' => $pastMonth,
+            'periode_tahun' => $pastYear,
             'status' => 'final',
             'nama_staf_snapshot' => $owner->name,
             'gaji_pokok' => 2000000,
@@ -461,19 +463,48 @@ class SlipGajiTest extends TestCase
 
         $test = Livewire::test(SlipGajiIndex::class)
             ->assertOk()
-            ->assertSee('Total Gaji Bulan Sekarang')
-            ->assertSee('Terkunci')
+            ->assertSee('Total Gaji')
             ->assertSee('Rp 3.500.000');
 
-        // Saat filter periode diubah ke bulan lain, card tetap mengunci total bulan sekarang
-        $otherMonth = $currentMonth === 1 ? '12' : (string) ($currentMonth - 1);
-        $otherYear = (string) ($currentMonth === 1 ? $currentYear - 1 : $currentYear);
-
+        // Saat filter periode diubah ke bulan lalu, card dinamis mengikuti bulan tersebut
         $test->set('periodeMode', 'bulanan')
-            ->set('filterBulan', $otherMonth)
-            ->set('filterTahun', $otherYear)
-            ->assertSee('Total Gaji Bulan Sekarang')
-            ->assertSee('Rp 3.500.000');
+            ->set('filterBulan', (string) $pastMonth)
+            ->set('filterTahun', (string) $pastYear)
+            ->assertSee('Total Gaji')
+            ->assertSee('Rp 2.000.000');
+    }
+
+    public function test_delete_final_slip_with_and_without_permission(): void
+    {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $this->actingAs($owner);
+
+        $staf = User::where('email', 'teknisi.pkp@soulmate.test')->first();
+
+        $slipFinal = SlipGaji::create([
+            'no_slip' => 'SG-TEST-FINAL-DEL',
+            'cabang_id' => $owner->cabang_id,
+            'user_id' => $staf->id,
+            'nama_staf_snapshot' => $staf->name,
+            'periode_bulan' => 11,
+            'periode_tahun' => 2026,
+            'status' => 'final',
+            'gaji_pokok' => 2500000,
+            'total_bruto' => 2500000,
+            'total_pengurangan' => 0,
+            'total_diterima' => 2500000,
+            'created_by' => $owner->id,
+            'finalized_by' => $owner->id,
+            'finalized_at' => now(),
+        ]);
+
+        // Owner (memiliki bypass gaji.delete_final) berhasil hapus
+        Livewire::test(SlipGajiIndex::class)
+            ->call('confirmDelete', $slipFinal->id, $slipFinal->no_slip)
+            ->call('executeDelete')
+            ->assertDispatched('swal:toast');
+
+        $this->assertDatabaseMissing('slip_gajis', ['id' => $slipFinal->id]);
     }
 
     public function test_edit_page_auto_syncs_attendance_days_for_draft_slip(): void
