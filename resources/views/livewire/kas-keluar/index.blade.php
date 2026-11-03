@@ -23,22 +23,22 @@
         @endcan
     </div>
 
-    <!-- Summary Metrics -->
+    <!-- Summary Metrics (dikunci ke bulan berjalan) -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Total Pengeluaran</span>
-            <span class="text-xl font-black text-rose-600 mt-1 block">
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Total Pengeluaran <span class="text-gray-300">({{ $cardPeriodeLabel }})</span></span>
+            <span class="text-xl font-black text-black mt-1 block">
                 Rp {{ number_format($totalKasKeluar, 0, ',', '.') }}
             </span>
         </div>
         <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Kas Tunai (Cash)</span>
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Kas Tunai <span class="text-gray-300">({{ $cardPeriodeLabel }})</span></span>
             <span class="text-xl font-black text-gray-900 mt-1 block">
                 Rp {{ number_format($totalCash, 0, ',', '.') }}
             </span>
         </div>
         <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Non-Tunai (Transfer Bank)</span>
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Non Tunai <span class="text-gray-300">({{ $cardPeriodeLabel }})</span></span>
             <span class="text-xl font-black text-blue-600 mt-1 block">
                 Rp {{ number_format($totalNonCash, 0, ',', '.') }}
             </span>
@@ -343,6 +343,22 @@ window.tabulatorKasKeluarTable = function(config) {
             return 'Rp ' + Number(number || 0).toLocaleString('id-ID');
         },
 
+        // Warna badge kategori berbasis huruf depan nama kategori.
+        // Dua huruf dipakai hanya untuk memisahkan kategori berawalan sama (Pajak/Perawatan, Stok/Setor Tunai).
+        kategoriBadgeClass(name) {
+            const key = String(name || '').trim().toUpperCase().slice(0, 2);
+            const map = {
+                OP: 'bg-blue-50 text-blue-700 border-blue-200',
+                GA: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                PA: 'bg-rose-50 text-rose-700 border-rose-200',
+                PE: 'bg-amber-50 text-amber-700 border-amber-300',
+                UT: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+                ST: 'bg-purple-50 text-[#5E17EB] border-purple-200',
+                SE: 'bg-slate-100 text-slate-700 border-slate-300',
+            };
+            return map[key] || 'bg-gray-100 text-gray-700 border-gray-200';
+        },
+
         toggleGrouping() {
             this.groupByDate = !this.groupByDate;
             if (this.table) {
@@ -413,11 +429,14 @@ window.tabulatorKasKeluarTable = function(config) {
                         minWidth: 120,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
-                        formatter: (cell) => `
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-purple-50 text-[#5E17EB] border border-purple-200 truncate">
-                                ${cell.getValue()}
-                            </span>
-                        `
+                        formatter: (cell) => {
+                            const nama = cell.getValue() || 'Umum';
+                            return `
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold border truncate ${this.kategoriBadgeClass(nama)}">
+                                    ${nama}
+                                </span>
+                            `;
+                        }
                     },
                     {
                         title: "Jam",
