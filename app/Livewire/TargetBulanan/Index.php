@@ -258,7 +258,7 @@ class Index extends Component
         }
 
         // Expression tanggal pelunasan transaksi (fallback ke tanggal jika tanggal_lunas null)
-        $lunasColExpr = 'COALESCE(tanggal_lunas, tanggal)';
+        $lunasColExpr = 'COALESCE(transaksi_fulls.tanggal_lunas, transaksi_fulls.tanggal)';
         $lunasMonthExpr = match ($driver) {
             'pgsql', 'postgres' => "EXTRACT(MONTH FROM {$lunasColExpr})::integer",
             'sqlite' => "CAST(strftime('%m', {$lunasColExpr}) AS INTEGER)",
@@ -270,12 +270,18 @@ class Index extends Component
             default => "YEAR({$lunasColExpr})",
         };
 
-        // Rekap Divisi Admin: Murni ditarik dari Transaksi FULL (tipe_transaksi = 'penjualan' & status = 'Lunas')
+        // Rekap Divisi Admin: murni unit produk berkategori "Laptop" pada penjualan lunas.
+        // SUM(qty): 1 nota berisi 2 unit laptop dihitung 2 unit. Match slug persis agar
+        // kategori "Komponen Laptop" tidak ikut terhitung.
         $adminRawCounts = TransaksiFull::query()
-            ->selectRaw("{$lunasMonthExpr} as bulan, COUNT(*) as total")
+            ->selectRaw("{$lunasMonthExpr} as bulan, SUM(COALESCE(tfd.qty, 1)) as total")
+            ->join('transaksi_full_details as tfd', 'tfd.transaksi_full_id', '=', 'transaksi_fulls.id')
+            ->join('produks as p', 'p.id', '=', 'tfd.produk_id')
+            ->join('kategori_produks as k', 'k.id', '=', 'p.kategori_id')
+            ->whereRaw("LOWER(k.slug) = 'laptop'")
             ->whereRaw("{$lunasYearExpr} = ?", [$tahun])
-            ->whereRaw("LOWER(status) = 'lunas'")
-            ->whereRaw("LOWER(tipe_transaksi) = 'penjualan'")
+            ->whereRaw("LOWER(transaksi_fulls.status) = 'lunas'")
+            ->whereRaw("LOWER(transaksi_fulls.tipe_transaksi) = 'penjualan'")
             ->tap($cabangScope)
             ->groupByRaw("{$lunasMonthExpr}")
             ->get();
