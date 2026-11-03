@@ -90,12 +90,9 @@
             </div>
             <div>
                 <div class="flex items-center space-x-2">
-                    <span class="text-xs font-black uppercase tracking-wider text-gray-500">Total Gaji Bulan Sekarang</span>
+                    <span class="text-xs font-black uppercase tracking-wider text-gray-500">Total Gaji</span>
                     <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black bg-purple-100 text-[#5E17EB] border border-purple-200">
                         {{ $namaBulanSekarang }}
-                    </span>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200">
-                        Terkunci
                     </span>
                 </div>
                 <div class="text-2xl font-black text-black tracking-tight mt-0.5">
@@ -235,9 +232,9 @@
             <table class="w-full text-left border-collapse" data-table-size="M">
                 <thead>
                     <tr class="bg-gray-100 border-b border-gray-200 text-[11px] font-black text-black uppercase tracking-wider">
-                        <th class="px-4 py-3">Periode</th>
                         <th class="px-4 py-3">Nama Staf</th>
                         <th class="px-4 py-3">Jabatan</th>
+                        <th class="px-4 py-3 text-center">Kehadiran</th>
                         <th class="px-4 py-3 text-right">Total Bruto</th>
                         <th class="px-4 py-3 text-right">Pengurangan</th>
                         <th class="px-4 py-3 text-right">Total Diterima</th>
@@ -248,14 +245,14 @@
                 <tbody class="divide-y divide-gray-200 text-xs text-black">
                     @forelse ($slips as $slip)
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-4 py-3 font-bold whitespace-nowrap">
-                                {{ $slip->periode_text }}
-                            </td>
                             <td class="px-4 py-3 font-black whitespace-nowrap">
                                 {{ $slip->nama_staf_snapshot }}
                             </td>
                             <td class="px-4 py-3 font-bold whitespace-nowrap">
                                 {{ $slip->bagian_snapshot ?: '-' }}
+                            </td>
+                            <td class="px-4 py-3 text-center font-bold whitespace-nowrap">
+                                {{ $slip->uang_makan_hari ?? 0 }} Hari
                             </td>
                             <td class="px-4 py-3 text-right font-mono font-bold text-[#5E17EB] whitespace-nowrap">
                                 Rp {{ number_format($slip->total_bruto, 0, ',', '.') }}
@@ -268,11 +265,11 @@
                             </td>
                             <td class="px-4 py-3 text-center whitespace-nowrap">
                                 @if ($slip->isFinal())
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 border border-emerald-300 text-black">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 border border-emerald-300 text-emerald-800">
                                         Final
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-blue-50 border border-blue-300 text-black">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-50 border border-amber-300 text-amber-800">
                                         Draft
                                     </span>
                                 @endif
@@ -311,6 +308,15 @@
                                                 class="p-1.5 rounded-lg border border-gray-200 hover:bg-amber-50 text-black transition-all"
                                                 title="Buka Kembali ke Draft (Owner)">
                                             <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
+                                        </button>
+                                        @endcan
+
+                                        @can('gaji.delete_final')
+                                        <button type="button"
+                                                wire:click="confirmDelete({{ $slip->id }}, '{{ $slip->no_slip }}')"
+                                                class="p-1.5 rounded-lg border border-gray-200 hover:bg-rose-50 text-rose-600 transition-all cursor-pointer"
+                                                title="Hapus Slip Final">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                         @endcan
                                     @else
