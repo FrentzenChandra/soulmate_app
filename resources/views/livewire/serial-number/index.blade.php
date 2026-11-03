@@ -1,5 +1,38 @@
 <div class="space-y-6">
 
+    @php
+        $queryTarget = 'search, sortField, sortDirection, periodeMode, startDate, endDate, filterBulan, filterTahun';
+
+        $brandStyles = [
+            'asus' => ['text' => 'text-blue-800', 'badge' => 'bg-blue-50 text-blue-800 border-blue-200'],
+            'lenovo' => ['text' => 'text-red-600', 'badge' => 'bg-red-50 text-red-700 border-red-200'],
+            'acer' => ['text' => 'text-emerald-600', 'badge' => 'bg-emerald-50 text-emerald-700 border-emerald-200'],
+            'hp' => ['text' => 'text-sky-600', 'badge' => 'bg-sky-50 text-sky-700 border-sky-200'],
+            'advan' => ['text' => 'text-pink-600', 'badge' => 'bg-pink-50 text-pink-700 border-pink-200'],
+            'axioo' => ['text' => 'text-purple-600', 'badge' => 'bg-purple-50 text-purple-700 border-purple-200'],
+            'msi' => ['text' => 'text-amber-600', 'badge' => 'bg-amber-50 text-amber-700 border-amber-200'],
+            'apple' => ['text' => 'text-gray-500', 'badge' => 'bg-gray-100 text-gray-600 border-gray-300'],
+        ];
+        $brandFallback = ['text' => 'text-gray-500', 'badge' => 'bg-gray-100 text-gray-600 border-gray-200'];
+
+        // A selalu oren, B selalu teal, dst. Index tetap per huruf depan, tidak berubah tiap refresh.
+        $distributorPalette = [
+            ['bg' => 'bg-orange-50', 'text' => 'text-orange-700', 'border' => 'border-orange-200'],
+            ['bg' => 'bg-teal-50', 'text' => 'text-teal-700', 'border' => 'border-teal-200'],
+            ['bg' => 'bg-blue-50', 'text' => 'text-blue-700', 'border' => 'border-blue-200'],
+            ['bg' => 'bg-violet-50', 'text' => 'text-violet-700', 'border' => 'border-violet-200'],
+            ['bg' => 'bg-rose-50', 'text' => 'text-rose-700', 'border' => 'border-rose-200'],
+            ['bg' => 'bg-amber-50', 'text' => 'text-amber-700', 'border' => 'border-amber-200'],
+            ['bg' => 'bg-cyan-50', 'text' => 'text-cyan-700', 'border' => 'border-cyan-200'],
+            ['bg' => 'bg-indigo-50', 'text' => 'text-indigo-700', 'border' => 'border-indigo-200'],
+            ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'border' => 'border-emerald-200'],
+            ['bg' => 'bg-pink-50', 'text' => 'text-pink-700', 'border' => 'border-pink-200'],
+            ['bg' => 'bg-sky-50', 'text' => 'text-sky-700', 'border' => 'border-sky-200'],
+            ['bg' => 'bg-lime-50', 'text' => 'text-lime-700', 'border' => 'border-lime-200'],
+        ];
+        $distributorFallback = ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'border' => 'border-gray-200'];
+    @endphp
+
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-gray-200/80 shadow-xs">
         <div>
@@ -12,6 +45,7 @@
             <p class="text-xs text-gray-500 font-medium mt-1">Pencatatan dan pelacakan unit barang berdasarkan nomor seri dan distributor.</p>
         </div>
 
+        @can('serial_number.create')
         <button type="button"
                 wire:click="openCreateModal"
                 wire:loading.attr="disabled"
@@ -19,6 +53,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             <span>Tambah Serial Number</span>
         </button>
+        @endcan
     </div>
 
     <!-- ============================================== -->
@@ -38,15 +73,17 @@
         <!-- Brand Cards Grid -->
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3" wire:loading.class="opacity-60">
             @forelse($brandStats['by_brand'] ?? [] as $brandName => $totalCount)
+                @php
+                    $brandStyle = $brandStyles[strtolower(trim($brandName))] ?? $brandFallback;
+                @endphp
                 <div class="bg-gray-50/70 hover:bg-purple-50/40 p-3.5 rounded-xl border border-gray-200/90 hover:border-purple-300 transition-all flex flex-col justify-between shadow-2xs">
-                    <div class="flex items-center justify-between gap-1 mb-2">
-                        <span class="text-[11px] font-black text-gray-700 uppercase tracking-wider truncate" title="{{ $brandName }}">
+                    <div class="mb-2 min-w-0">
+                        <span class="text-[11px] font-black {{ $brandStyle['text'] }} uppercase tracking-wider truncate block" title="{{ $brandName }}">
                             {{ $brandName }}
                         </span>
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#0052FF]"></span>
                     </div>
                     <div class="flex items-baseline justify-between">
-                        <span class="text-lg font-black text-gray-900 font-mono">
+                        <span class="text-lg font-black text-black font-mono">
                             {{ $totalCount }}
                         </span>
                         <span class="text-[10px] font-bold text-gray-400 uppercase">Unit</span>
@@ -161,9 +198,9 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 font-semibold text-gray-800">
-                    <x-table-skeleton :columns="7" :rows="5" target="search, sortField, sortDirection" />
+                    <x-table-skeleton :columns="7" :rows="5" :target="$queryTarget" />
                     @forelse($items as $item)
-                        <tr class="hover:bg-purple-50/20 transition-colors" wire:loading.remove wire:target="search, sortField, sortDirection">
+                        <tr class="hover:bg-purple-50/20 transition-colors" wire:loading.remove wire:target="{{ $queryTarget }}">
                             <td class="py-3.5 px-4">
                                 @if($item->customer)
                                     <span class="font-bold text-xs text-gray-900">{{ $item->customer->nama }}</span>
@@ -174,7 +211,10 @@
                                 @endif
                             </td>
                             <td class="py-3.5 px-4">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-black bg-purple-50 text-[#5E17EB] border border-purple-200 tracking-wider">
+                                @php
+                                    $brandStyle = $brandStyles[strtolower(trim($item->merk ?: ''))] ?? $brandFallback;
+                                @endphp
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-black border tracking-wider {{ $brandStyle['badge'] }}">
                                     {{ $item->merk ?: '-' }}
                                 </span>
                             </td>
@@ -187,8 +227,15 @@
                                 </span>
                             </td>
                             <td class="py-3.5 px-4">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
-                                    {{ $item->distributor ?: 'Lokal' }}
+                                @php
+                                    $distributorName = trim($item->distributor ?: 'Lokal');
+                                    $distributorInitial = strtoupper(substr($distributorName, 0, 1));
+                                    $distributorStyle = ($distributorInitial >= 'A' && $distributorInitial <= 'Z')
+                                        ? $distributorPalette[(ord($distributorInitial) - 65) % count($distributorPalette)]
+                                        : $distributorFallback;
+                                @endphp
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold border {{ $distributorStyle['bg'] }} {{ $distributorStyle['text'] }} {{ $distributorStyle['border'] }}">
+                                    {{ $distributorName }}
                                 </span>
                             </td>
                             <td class="py-3.5 px-4 text-gray-500 font-mono text-xs">
@@ -196,26 +243,47 @@
                             </td>
                             <td class="py-3.5 px-4 text-center">
                                 <div class="flex items-center justify-center space-x-1.5">
+                                    @can('serial_number.edit')
                                     <button type="button"
                                             wire:click="openEditModal({{ $item->id }})"
                                             wire:loading.attr="disabled"
-                                            class="p-1.5 rounded-lg text-gray-500 hover:text-[#5E17EB] hover:bg-purple-50 transition-colors cursor-pointer"
+                                            class="p-1.5 rounded-lg text-gray-500 hover:text-[#5E17EB] hover:bg-purple-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                             title="Edit Data">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
+                                    @endcan
+                                    @can('serial_number.delete')
                                     <button type="button"
-                                            wire:click="delete({{ $item->id }})"
-                                            wire:confirm="Yakin ingin menghapus Serial Number ini?"
+                                            x-on:click="
+                                                if (window.swalConfirm) {
+                                                    window.swalConfirm('Hapus Serial Number?', 'Data dengan SN \'{{ addslashes($item->sn) }}\' akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.', {
+                                                        danger: true,
+                                                        confirmText: 'Ya, Hapus',
+                                                        cancelText: 'Batal'
+                                                    }).then((res) => {
+                                                        if (res.isConfirmed) {
+                                                            $wire.delete({{ $item->id }});
+                                                        }
+                                                    });
+                                                } else {
+                                                    if (confirm('Yakin ingin menghapus Serial Number ini?')) {
+                                                        $wire.delete({{ $item->id }});
+                                                    }
+                                                }
+                                            "
                                             wire:loading.attr="disabled"
-                                            class="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                            wire:target="delete({{ $item->id }})"
+                                            class="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                             title="Hapus Data">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        <svg wire:loading.remove wire:target="delete({{ $item->id }})" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        <svg wire:loading wire:target="delete({{ $item->id }})" class="animate-spin w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                                     </button>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
                     @empty
-                        <tr wire:loading.remove wire:target="search, sortField, sortDirection">
+                        <tr wire:loading.remove wire:target="{{ $queryTarget }}">
                             <td colspan="7" class="py-12 text-center text-gray-400">
                                 <svg class="w-10 h-10 text-gray-200 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
                                 <p class="text-sm font-bold text-gray-600">Tidak Ada Data Serial Number</p>
@@ -227,11 +295,15 @@
             </table>
         </div>
 
-        @if($items->hasPages())
-            <div class="p-4 border-t border-gray-100">
-                {{ $items->links() }}
-            </div>
-        @endif
+        <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
+            <x-infinite-scroll-sentinel
+                :has-more="$hasMore"
+                target="loadMore"
+                label="serial number"
+                :current="$items->count()"
+                :total="$totalItems"
+                color="purple" />
+        </div>
     </div>
 
     <!-- ============================================== -->
@@ -296,10 +368,9 @@
                                                     @foreach($customerSuggestions as $cs)
                                                         <button type="button"
                                                                 wire:key="sugg-cust-{{ $cs->id }}"
-                                                                wire:click="selectCustomer({{ $cs->id }}, '{{ $cs->nama }}')"
+                                                                wire:click="selectCustomer({{ $cs->id }}, @js($cs->nama))"
                                                                 class="w-full px-3 py-2 text-left hover:bg-purple-50 flex items-center justify-between text-xs cursor-pointer">
                                                             <span class="font-bold text-gray-900">{{ $cs->nama }}</span>
-                                                            <span class="font-mono text-gray-500 text-[11px]">{{ $cs->no_hp ?? '-' }}</span>
                                                         </button>
                                                     @endforeach
                                                 </div>

@@ -22,7 +22,7 @@ class Index extends Component
 
     public string $search = '';
 
-    public int $perPage = 15;
+    public int $perPage = 30;
 
     public bool $modalOpen = false;
 
@@ -56,7 +56,7 @@ class Index extends Component
     public string $distributor = '';
 
     // Filter Periode (Mirip Transaksi FULL)
-    public string $periodeMode = 'range'; // 'semua' | 'hari_ini' | 'range' | 'bulanan' | 'tahunan'
+    public string $periodeMode = 'bulanan'; // 'semua' | 'hari_ini' | 'range' | 'bulanan' | 'tahunan'
 
     public string $startDate = '';
 
@@ -68,7 +68,7 @@ class Index extends Component
 
     protected $queryString = [
         'search' => ['except' => ''],
-        'periodeMode' => ['except' => 'range'],
+        'periodeMode' => ['except' => 'bulanan'],
         'startDate' => ['except' => ''],
         'endDate' => ['except' => ''],
         'filterBulan' => ['except' => ''],
@@ -84,15 +84,25 @@ class Index extends Component
             abort(403, 'Akses menu Serial Number dibatasi.');
         }
 
-        $this->startDate = now()->startOfMonth()->toDateString();
-        $this->endDate = now()->toDateString();
         $this->filterBulan = now()->format('m');
         $this->filterTahun = now()->format('Y');
+        $this->applyBulanan();
 
         $this->sortField = 'created_at';
         $this->sortDirection = 'desc';
 
         $this->clearSnCache();
+    }
+
+    public function loadMore(): void
+    {
+        $this->perPage += 30;
+    }
+
+    private function resetList(): void
+    {
+        $this->perPage = 30;
+        $this->resetPage();
     }
 
     public function setPeriodeMode(string $mode): void
@@ -112,7 +122,7 @@ class Index extends Component
         } elseif ($mode === 'tahunan') {
             $this->applyTahunan();
         }
-        $this->resetPage();
+        $this->resetList();
     }
 
     public function updatedFilterBulan(): void
@@ -120,7 +130,7 @@ class Index extends Component
         if ($this->periodeMode === 'bulanan') {
             $this->applyBulanan();
         }
-        $this->resetPage();
+        $this->resetList();
     }
 
     public function updatedFilterTahun(): void
@@ -130,17 +140,22 @@ class Index extends Component
         } elseif ($this->periodeMode === 'tahunan') {
             $this->applyTahunan();
         }
-        $this->resetPage();
+        $this->resetList();
     }
 
     public function updatingStartDate(): void
     {
-        $this->resetPage();
+        $this->resetList();
     }
 
     public function updatingEndDate(): void
     {
-        $this->resetPage();
+        $this->resetList();
+    }
+
+    public function updatedSortField(): void
+    {
+        $this->resetList();
     }
 
     private function applyBulanan(): void
@@ -271,8 +286,7 @@ class Index extends Component
 
     public function updatingSearch(): void
     {
-        $this->perPage = 15;
-        $this->resetPage();
+        $this->resetList();
     }
 
     public function selectCustomer(int $id, string $nama): void
@@ -326,6 +340,12 @@ class Index extends Component
 
     public function save(): void
     {
+        abort_if(
+            ! Auth::user()?->can($this->isEditMode ? 'serial_number.edit' : 'serial_number.create'),
+            403,
+            'Akses simpan Serial Number dibatasi.'
+        );
+
         $cabang = $this->activeCabang;
 
         if ($this->customerType === 'baru') {
@@ -398,6 +418,8 @@ class Index extends Component
 
     public function delete(int $id): void
     {
+        abort_if(! Auth::user()?->can('serial_number.delete'), 403, 'Akses hapus Serial Number dibatasi.');
+
         $item = SerialNumber::findOrFail($id);
         $item->delete();
 
@@ -461,10 +483,13 @@ class Index extends Component
         $sortCol = in_array($this->sortField, ['customer_id', 'merk', 'tipe_spek', 'nama', 'sn', 'distributor', 'created_at']) ? $this->sortField : 'created_at';
         $query->orderBy($sortCol, $this->sortDirection === 'asc' ? 'asc' : 'desc');
 
-        $items = $query->paginate($this->perPage);
+        $totalItems = (clone $query)->count();
+        $items = $query->take($this->perPage)->get();
 
         return view('livewire.serial-number.index', [
             'items' => $items,
+            'totalItems' => $totalItems,
+            'hasMore' => $totalItems > $this->perPage,
             'customerSuggestions' => $customerSuggestions,
             'merkList' => $this->merkList,
             'brandStats' => $this->brandStats,
