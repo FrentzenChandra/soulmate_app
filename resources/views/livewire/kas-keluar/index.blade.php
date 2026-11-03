@@ -343,6 +343,22 @@ window.tabulatorKasKeluarTable = function(config) {
             return 'Rp ' + Number(number || 0).toLocaleString('id-ID');
         },
 
+        // Warna badge kategori berbasis huruf depan nama kategori.
+        // Dua huruf dipakai hanya untuk memisahkan kategori berawalan sama (Pajak/Perawatan, Stok/Setor Tunai).
+        kategoriBadgeClass(name) {
+            const key = String(name || '').trim().toUpperCase().slice(0, 2);
+            const map = {
+                OP: 'bg-blue-50 text-blue-700 border-blue-200',
+                GA: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                PA: 'bg-rose-50 text-rose-700 border-rose-200',
+                PE: 'bg-amber-50 text-amber-700 border-amber-300',
+                UT: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+                ST: 'bg-purple-50 text-[#5E17EB] border-purple-200',
+                SE: 'bg-slate-100 text-slate-700 border-slate-300',
+            };
+            return map[key] || 'bg-gray-100 text-gray-700 border-gray-200';
+        },
+
         toggleGrouping() {
             this.groupByDate = !this.groupByDate;
             if (this.table) {
@@ -413,11 +429,14 @@ window.tabulatorKasKeluarTable = function(config) {
                         minWidth: 120,
                         headerFilter: "input",
                         headerFilterPlaceholder: "",
-                        formatter: (cell) => `
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-purple-50 text-[#5E17EB] border border-purple-200 truncate">
-                                ${cell.getValue()}
-                            </span>
-                        `
+                        formatter: (cell) => {
+                            const nama = cell.getValue() || 'Umum';
+                            return `
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold border truncate ${this.kategoriBadgeClass(nama)}">
+                                    ${nama}
+                                </span>
+                            `;
+                        }
                     },
                     {
                         title: "Jam",

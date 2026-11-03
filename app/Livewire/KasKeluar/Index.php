@@ -26,7 +26,7 @@ class Index extends Component
 
     public ?string $kategoriFilter = 'semua';
 
-    public string $periodeMode = 'range'; // 'hari_ini' | 'range' | 'bulanan' | 'tahunan' | 'semua'
+    public string $periodeMode = 'bulanan'; // 'hari_ini' | 'range' | 'bulanan' | 'tahunan' | 'semua'
 
     public ?string $startDate = null;
 
@@ -72,10 +72,10 @@ class Index extends Component
             abort(403, 'Akses kas keluar dibatasi.');
         }
 
-        $this->startDate = $this->startDate ?: now()->startOfMonth()->toDateString();
-        $this->endDate = $this->endDate ?: now()->toDateString();
         $this->filterBulan = now()->format('m');
         $this->filterTahun = now()->format('Y');
+        $this->startDate = $this->startDate ?: now()->startOfMonth()->toDateString();
+        $this->endDate = $this->endDate ?: now()->endOfMonth()->toDateString();
         $this->sortField = 'tanggal';
         $this->sortDirection = 'desc';
     }
