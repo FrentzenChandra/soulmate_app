@@ -321,10 +321,14 @@ class Index extends Component
     public function confirmDelete(int $id, string $noSlip): void
     {
         $user = Auth::user();
-        abort_if(! $user || (! $user->isOwner() && ! $user->can('gaji.delete')), 403, 'Akses hapus slip dibatasi.');
+        abort_if(! $user, 403, 'Akses ditolak.');
 
         $slip = SlipGaji::findOrFail($id);
-        abort_if($slip->isFinal(), 403, 'Slip Final tidak dapat dihapus.');
+        if ($slip->isFinal()) {
+            abort_if(! $user->isOwner() && ! $user->can('gaji.delete_final'), 403, 'Akses hapus slip Final dibatasi.');
+        } else {
+            abort_if(! $user->isOwner() && ! $user->can('gaji.delete'), 403, 'Akses hapus slip dibatasi.');
+        }
 
         $this->deleteSlipId = $id;
         $this->deleteSlipNo = $noSlip;
@@ -341,10 +345,14 @@ class Index extends Component
     public function executeDelete(): void
     {
         $user = Auth::user();
-        abort_if(! $user || (! $user->isOwner() && ! $user->can('gaji.delete')), 403, 'Akses hapus slip dibatasi.');
+        abort_if(! $user, 403, 'Akses ditolak.');
 
         $slip = SlipGaji::findOrFail($this->deleteSlipId);
-        abort_if($slip->isFinal(), 403, 'Slip Final tidak dapat dihapus.');
+        if ($slip->isFinal()) {
+            abort_if(! $user->isOwner() && ! $user->can('gaji.delete_final'), 403, 'Akses hapus slip Final dibatasi.');
+        } else {
+            abort_if(! $user->isOwner() && ! $user->can('gaji.delete'), 403, 'Akses hapus slip dibatasi.');
+        }
 
         $no = $slip->no_slip;
         $slip->delete();
@@ -434,8 +442,7 @@ class Index extends Component
             }
         }
 
-        $slips = $query->orderByDesc('periode_tahun')
-            ->orderByDesc('periode_bulan')
+        $slips = $query->orderByDesc('total_diterima')
             ->orderByDesc('id')
             ->paginate(15);
 
@@ -447,13 +454,8 @@ class Index extends Component
             ? KenaikanGaji::where('cabang_id', $currentCabangId)->where('status', 'menunggu')->count()
             : 0;
 
-        // Card Metrik: Total Gaji Bulan Sekarang (Terkunci ke bulan & tahun berjalan sistem)
-        $currentMonth = (int) Carbon::now('Asia/Jakarta')->month;
-        $currentYear = (int) Carbon::now('Asia/Jakarta')->year;
-
-        $cardQuery = SlipGaji::query()
-            ->where('periode_bulan', $currentMonth)
-            ->where('periode_tahun', $currentYear);
+        // Card Metrik: Total Gaji Mengikuti Filter Periode Dinamis
+        $cardQuery = SlipGaji::query();
 
         // Isolasi Cabang pada Card Metrik (mengikuti konteks cabang yang sedang aktif / filter cabang jika HQ)
         if ($isHQ) {
@@ -465,9 +467,36 @@ class Index extends Component
             $cardQuery->where('cabang_id', $cabangId);
         }
 
+        // Filter Periode Dinamis pada Card
+        $labelPeriodeCard = 'Semua Periode';
+        if ($this->periodeMode === 'bulanan') {
+            if (! empty($this->filterBulan)) {
+                $cardQuery->where('periode_bulan', (int) $this->filterBulan);
+            }
+            if (! empty($this->filterTahun)) {
+                $cardQuery->where('periode_tahun', (int) $this->filterTahun);
+            }
+            $bulanInt = (int) ($this->filterBulan ?: Carbon::now('Asia/Jakarta')->month);
+            $tahunInt = (int) ($this->filterTahun ?: Carbon::now('Asia/Jakarta')->year);
+            $labelPeriodeCard = Carbon::createFromDate($tahunInt, $bulanInt, 1)->locale('id')->translatedFormat('F Y');
+        } elseif ($this->periodeMode === 'tahunan') {
+            if (! empty($this->filterTahun)) {
+                $cardQuery->where('periode_tahun', (int) $this->filterTahun);
+                $labelPeriodeCard = 'Tahun ' . $this->filterTahun;
+            }
+        } elseif ($this->periodeMode === 'hari_ini') {
+            $cardQuery->whereDate('created_at', Carbon::now('Asia/Jakarta')->toDateString());
+            $labelPeriodeCard = 'Hari Ini (' . Carbon::now('Asia/Jakarta')->locale('id')->translatedFormat('d M Y') . ')';
+        } elseif ($this->periodeMode === 'range') {
+            if (! empty($this->startDate) && ! empty($this->endDate)) {
+                $cardQuery->whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59']);
+                $labelPeriodeCard = Carbon::parse($this->startDate)->locale('id')->translatedFormat('d M') . ' s/d ' . Carbon::parse($this->endDate)->locale('id')->translatedFormat('d M Y');
+            }
+        }
+
         $totalGajiBulanIni = (float) $cardQuery->sum('total_diterima');
         $totalStafBulanIni = (int) $cardQuery->count();
-        $namaBulanSekarang = Carbon::now('Asia/Jakarta')->locale('id')->translatedFormat('F Y');
+        $namaBulanSekarang = $labelPeriodeCard;
 
         return view('livewire.slip-gaji.index', [
             'slips' => $slips,
