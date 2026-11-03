@@ -26,7 +26,7 @@ class Index extends Component
 
     public ?string $kategoriFilter = 'semua';
 
-    public string $periodeMode = 'range'; // 'hari_ini' | 'range' | 'bulanan' | 'tahunan' | 'semua'
+    public string $periodeMode = 'bulanan'; // 'hari_ini' | 'range' | 'bulanan' | 'tahunan' | 'semua'
 
     public ?string $startDate = null;
 
@@ -72,10 +72,10 @@ class Index extends Component
             abort(403, 'Akses kas keluar dibatasi.');
         }
 
-        $this->startDate = $this->startDate ?: now()->startOfMonth()->toDateString();
-        $this->endDate = $this->endDate ?: now()->toDateString();
         $this->filterBulan = now()->format('m');
         $this->filterTahun = now()->format('Y');
+        $this->startDate = $this->startDate ?: now()->startOfMonth()->toDateString();
+        $this->endDate = $this->endDate ?: now()->endOfMonth()->toDateString();
         $this->sortField = 'tanggal';
         $this->sortDirection = 'desc';
     }
@@ -317,9 +317,16 @@ class Index extends Component
             $query->where('kategori_kas_keluar_id', (int) $this->kategoriFilter);
         }
 
-        // Summary Calculations
-        $totalKasKeluar = (clone $query)->sum('nominal');
-        $totalCash = (clone $query)->whereHas('sumberDana', fn ($sq) => $sq->whereRaw('LOWER(nama) LIKE ?', ['%cash%'])->orWhereRaw('LOWER(nama) LIKE ?', ['%tunai%']))->sum('nominal');
+        // Summary Calculations - metrik card dikunci ke bulan berjalan (tidak ikut filter periode tabel)
+        $cardQuery = KasKeluar::query();
+        if ($cabang) {
+            $cardQuery->where('cabang_id', $cabang->id);
+        }
+        $cardQuery->whereDate('tanggal', '>=', now()->startOfMonth()->toDateString())
+            ->whereDate('tanggal', '<=', now()->endOfMonth()->toDateString());
+
+        $totalKasKeluar = (clone $cardQuery)->sum('nominal');
+        $totalCash = (clone $cardQuery)->whereHas('sumberDana', fn ($sq) => $sq->whereRaw('LOWER(nama) LIKE ?', ['%cash%'])->orWhereRaw('LOWER(nama) LIKE ?', ['%tunai%']))->sum('nominal');
         $totalNonCash = $totalKasKeluar - $totalCash;
 
         $sortCol = in_array($this->sortField, ['tanggal', 'nominal', 'keterangan']) ? $this->sortField : 'tanggal';
@@ -355,6 +362,7 @@ class Index extends Component
             'totalKasKeluar' => $totalKasKeluar,
             'totalCash' => $totalCash,
             'totalNonCash' => $totalNonCash,
+            'cardPeriodeLabel' => now()->translatedFormat('F Y'),
             'sumberDanas' => SumberDana::getAktifCached(),
             'kategoriKasKeluars' => KategoriKasKeluar::getAktifCached(),
         ]);
