@@ -87,7 +87,7 @@
                 </div>
                 <div>
                     <h2 class="text-sm font-black uppercase tracking-wider text-white">Target Per Divisi</h2>
-                    <p class="text-[11px] text-purple-200 font-medium">Target & realisasi transaksi per divisi tahun {{ $filterTahun }}</p>
+                    <p class="text-[11px] text-purple-200 font-medium">Target & realisasi per divisi tahun {{ $filterTahun }}</p>
                 </div>
             </div>
         </div>
@@ -137,7 +137,10 @@
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                         @endif
                                     </div>
-                                    <span class="font-black text-gray-900 tracking-tight">{{ $d['name'] }}</span>
+                                    <div class="leading-tight">
+                                        <span class="font-black text-gray-900 tracking-tight block">{{ $d['name'] }}</span>
+                                        <span class="text-[9px] font-semibold text-gray-500">{{ $key === 'admin' ? 'Unit Laptop' : 'Servis Selesai' }}</span>
+                                    </div>
                                 </div>
                             </td>
 
@@ -415,7 +418,7 @@
                                            wire:model="formTargetTahunanLaptop"
                                            class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                                        {{ $formTargetTahunanLaptop ?: 0 }} transaksi / bulan (Jan &ndash; Des)
+                                        {{ $formTargetTahunanLaptop ?: 0 }} servis / bulan (Jan &ndash; Des)
                                     </span>
                                 </div>
 
@@ -434,7 +437,7 @@
                                            wire:model="formTargetTahunanPrinter"
                                            class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                                        {{ $formTargetTahunanPrinter ?: 0 }} transaksi / bulan (Jan &ndash; Des)
+                                        {{ $formTargetTahunanPrinter ?: 0 }} servis / bulan (Jan &ndash; Des)
                                     </span>
                                 </div>
 
@@ -453,7 +456,7 @@
                                            wire:model="formTargetTahunanKomputer"
                                            class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                                        {{ $formTargetTahunanKomputer ?: 0 }} transaksi / bulan (Jan &ndash; Des)
+                                        {{ $formTargetTahunanKomputer ?: 0 }} servis / bulan (Jan &ndash; Des)
                                     </span>
                                 </div>
 
@@ -472,7 +475,10 @@
                                            wire:model="formTargetTahunanAdmin"
                                            class="w-full px-3.5 py-2 rounded-xl border border-gray-300 font-mono font-black text-gray-900 focus:ring-2 focus:ring-purple-200 focus:border-[#5E17EB]">
                                     <span class="text-[10px] text-gray-500 font-medium block mt-1">
-                                        {{ $formTargetTahunanAdmin ?: 0 }} transaksi / bulan (Jan &ndash; Des)
+                                        {{ $formTargetTahunanAdmin ?: 0 }} unit / bulan (Jan &ndash; Des)
+                                    </span>
+                                    <span class="text-[9px] text-gray-500 font-medium block mt-0.5">
+                                        Dihitung dari unit produk kategori Laptop yang terjual
                                     </span>
                                 </div>
                             </div>
