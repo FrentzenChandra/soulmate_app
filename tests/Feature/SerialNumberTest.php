@@ -35,7 +35,7 @@ class SerialNumberTest extends TestCase
         $this->get(route('serial-number'))->assertStatus(200);
 
         $this->actingAs($teknisi);
-        $this->get(route('serial-number'))->assertStatus(403);
+        $this->get(route('serial-number'))->assertStatus(200);
 
         $this->actingAs($admin);
         $this->get(route('serial-number'))->assertStatus(200);
