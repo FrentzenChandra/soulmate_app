@@ -861,15 +861,30 @@
 
                     <!-- Product Snapshot Card -->
                     <div class="px-6 py-3">
-                        @php($adaFotoProduk = $deleteProdukFoto && (str_starts_with($deleteProdukFoto, 'http') || file_exists(public_path($deleteProdukFoto))))
+                        @php
+                            $fotoProduk = $deleteProdukFoto;
+                            $adaFotoProduk = $fotoProduk && (
+                                str_starts_with($fotoProduk, 'http')
+                                || (str_starts_with($fotoProduk, 'storage/')
+                                    ? \Illuminate\Support\Facades\Storage::disk('public')->exists(\Illuminate\Support\Str::after($fotoProduk, 'storage/'))
+                                    : file_exists(public_path($fotoProduk)))
+                            );
+                        @endphp
 
                         @if($adaFotoProduk)
-                            <a href="{{ asset($deleteProdukFoto) }}" target="_blank" rel="noopener"
+                            <a href="{{ asset($fotoProduk) }}" target="_blank" rel="noopener"
                                title="Buka foto ukuran penuh"
-                               class="block mb-3 rounded-2xl overflow-hidden border border-gray-200 bg-gray-50">
-                                <img src="{{ asset($deleteProdukFoto) }}" alt="{{ $deleteProdukNama }}"
-                                     class="w-full h-36 object-contain">
+                               class="block mb-3 rounded-2xl overflow-hidden border border-gray-200 bg-white">
+                                <img src="{{ asset($fotoProduk) }}" alt="{{ $deleteProdukNama }}"
+                                     class="w-full h-48 object-contain">
                             </a>
+                        @else
+                            <div class="w-full h-48 mb-3 rounded-2xl border border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center">
+                                <svg class="w-8 h-8 text-gray-300" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <span class="text-[11px] font-bold text-gray-400 mt-1">Foto produk belum tersedia</span>
+                            </div>
                         @endif
 
                         <div class="p-3.5 rounded-2xl bg-gray-50 border border-gray-200/90 flex items-center space-x-3.5">
