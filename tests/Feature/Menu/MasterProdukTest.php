@@ -296,7 +296,7 @@ class MasterProdukTest extends TestCase
 
         Livewire::test(MasterProdukIndex::class)
             ->call('openDeleteConfirmation', $produk->id)
-            ->assertSeeHtml('h-48')
+            ->assertSeeHtml('h-28')
             ->assertSeeHtml('object-contain')
             ->assertSee('Website Marketplace');
     }
