@@ -8,48 +8,40 @@
 @php
     $colorConfig = [
         'purple' => [
-            'border' => 'border-l-[#5E17EB]',
             'box' => 'bg-purple-50 text-[#5E17EB] border-purple-100',
             'text' => 'text-[#5E17EB]',
         ],
         'emerald' => [
-            'border' => 'border-l-[#10B981]',
             'box' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
             'text' => 'text-emerald-700',
         ],
         'amber' => [
-            'border' => 'border-l-[#F59E0B]',
             'box' => 'bg-amber-50 text-amber-800 border-amber-100',
             'text' => 'text-amber-800',
         ],
         'blue' => [
-            'border' => 'border-l-[#0052FF]',
             'box' => 'bg-blue-50 text-[#0052FF] border-blue-100',
             'text' => 'text-[#0052FF]',
         ],
         'pink' => [
-            'border' => 'border-l-[#E6007A]',
             'box' => 'bg-pink-50 text-[#E6007A] border-pink-100',
             'text' => 'text-[#E6007A]',
         ],
         'gray' => [
-            'border' => 'border-l-gray-900',
             'box' => 'bg-gray-100 text-gray-900 border-gray-300',
             'text' => 'text-gray-900',
         ],
         'black' => [
-            'border' => 'border-l-gray-900',
             'box' => 'bg-gray-100 text-gray-900 border-gray-300',
             'text' => 'text-gray-900',
         ],
     ][$color] ?? [
-        'border' => 'border-l-gray-900',
         'box' => 'bg-gray-100 text-gray-900 border-gray-300',
         'text' => 'text-gray-900',
     ];
 @endphp
 
-<div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 border-l-4 {{ $colorConfig['border'] }} shadow-xs hover:shadow-sm transition-all flex flex-col justify-between">
+<div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs hover:shadow-sm transition-all flex flex-col justify-between">
     <div class="flex items-center justify-between">
         <span class="text-[11px] font-black text-gray-900 uppercase tracking-wider block">{{ $label }}</span>
         <div class="w-8 h-8 rounded-xl {{ $colorConfig['box'] }} border flex items-center justify-center shrink-0">
