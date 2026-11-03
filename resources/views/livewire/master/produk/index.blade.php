@@ -862,12 +862,12 @@
                     <div class="px-6 py-3">
                         <div class="p-3.5 rounded-2xl bg-gray-50 border border-gray-200/90 flex items-center space-x-3.5">
                             @if($deleteProdukFoto && file_exists(public_path($deleteProdukFoto)))
-                                <img src="{{ asset($deleteProdukFoto) }}" alt="{{ $deleteProdukNama }}" class="w-13 h-13 rounded-xl object-cover border border-gray-200 shadow-xs shrink-0">
+                                <img src="{{ asset($deleteProdukFoto) }}" alt="{{ $deleteProdukNama }}" class="w-10 h-10 rounded-lg object-cover border border-gray-200 shadow-xs shrink-0">
                             @elseif($deleteProdukFoto && (str_starts_with($deleteProdukFoto, 'http') || str_starts_with($deleteProdukFoto, 'storage/') || str_starts_with($deleteProdukFoto, 'images/')))
-                                <img src="{{ asset($deleteProdukFoto) }}" alt="{{ $deleteProdukNama }}" class="w-13 h-13 rounded-xl object-cover border border-gray-200 shadow-xs shrink-0" onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.png') }}';">
+                                <img src="{{ asset($deleteProdukFoto) }}" alt="{{ $deleteProdukNama }}" class="w-10 h-10 rounded-lg object-cover border border-gray-200 shadow-xs shrink-0" onerror="this.onerror=null;this.src='{{ asset('images/logo_bulat.png') }}';">
                             @else
-                                <div class="w-13 h-13 rounded-xl bg-purple-50 text-[#5E17EB] border border-purple-100 flex items-center justify-center shrink-0">
-                                    <svg class="w-6 h-6 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                <div class="w-10 h-10 rounded-lg bg-purple-50 text-[#5E17EB] border border-purple-100 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                                 </div>
                             @endif
 
