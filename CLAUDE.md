@@ -87,3 +87,11 @@
 - **Lapor setelah commit:** hash pendek + pesan commit + daftar file berubah (titik rollback resmi).
 - **Rollback standar:** `git revert <hash>` untuk membatalkan satu perubahan. `git reset --hard <hash>` hanya bila user eksplisit meminta.
 
+## 16. Multi-Agent Single-Worktree Lane Standard (Tanpa Merge)
+- **Prinsip:** Semua agen AI bekerja di SATU worktree dan SATU branch. Dilarang membuat worktree/branch baru untuk kerja rutin karena memaksa merge.
+- **Lane Ownership:** Satu modul = satu agen pada satu waktu. Dilarang dua agen menyentuh file utama modul yang sama bersamaan (perubahan bisa tertimpa diam-diam tanpa conflict marker).
+- **File Hotspot** (protokol ketat): `routes/web.php`, `resources/views/layouts/app.blade.php`, `app/Services/PermissionService.php`, `resources/views/components/*`, `composer.json`, `package.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`.
+  * Sebelum edit: `git status --porcelain` WAJIB bersih. Setelah edit: WAJIB langsung commit. Dilarang meninggalkan hotspot dirty.
+- **Handoff:** Sebelum serah giliran, `git status` bersih + sudah commit. Agen penerima cek `git status` + `git log --oneline -5`.
+- **Pengecualian:** Worktree terpisah hanya untuk spike berisiko. Hasil yang dipakai wajib rebase + merge segera, dilarang menumpuk.
+
