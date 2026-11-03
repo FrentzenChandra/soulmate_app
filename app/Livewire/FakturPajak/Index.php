@@ -20,7 +20,7 @@ use Livewire\Component;
 class Index extends Component
 {
     // Filter State (Rule 13 Standard)
-    public string $periodeMode = 'range'; // 'semua' | 'hari_ini' | 'range' | 'bulanan' | 'tahunan'
+    public string $periodeMode = 'bulanan'; // 'semua' | 'hari_ini' | 'range' | 'bulanan' | 'tahunan'
     public string $startDate = '';
     public string $endDate = '';
     public string $filterBulan = '';
@@ -61,7 +61,7 @@ class Index extends Component
     public ?FakturPajak $selectedFaktur = null;
 
     protected $queryString = [
-        'periodeMode' => ['except' => 'range'],
+        'periodeMode' => ['except' => 'bulanan'],
         'startDate' => ['except' => ''],
         'endDate' => ['except' => ''],
         'filterBulan' => ['except' => ''],
@@ -80,10 +80,14 @@ class Index extends Component
             abort(403, 'Akses modul Faktur Pajak dibatasi.');
         }
 
-        $this->startDate = now()->startOfMonth()->toDateString();
-        $this->endDate = now()->toDateString();
         $this->filterBulan = now()->format('m');
         $this->filterTahun = now()->format('Y');
+        $this->startDate = now()->startOfMonth()->toDateString();
+        $this->endDate = now()->toDateString();
+
+        if ($this->periodeMode === 'bulanan') {
+            $this->applyBulanan();
+        }
 
         if (! $user->isOwner()) {
             $this->cabangFilter = (string) $user->cabang_id;
@@ -154,9 +158,11 @@ class Index extends Component
         }
 
         if (! empty($this->startDate) && ! empty($this->endDate)) {
+            // endOfDay() wajib: kolom tanggal tersimpan sebagai datetime string,
+            // tanpa ini tanggal terakhir rentang ikut terbuang.
             $query->whereBetween('faktur_pajaks.tanggal', [
-                Carbon::parse($this->startDate)->toDateString(),
-                Carbon::parse($this->endDate)->toDateString(),
+                Carbon::parse($this->startDate)->startOfDay(),
+                Carbon::parse($this->endDate)->endOfDay(),
             ]);
         }
     }
@@ -462,7 +468,11 @@ class Index extends Component
         $this->modalFormOpen = false;
     }
 
-    public function render()
+    /**
+     * Query dasar tunggal: dipakai tabel & kartu ringkasan supaya angka kartu
+     * selalu mengikuti filter yang sedang aktif.
+     */
+    private function filteredQuery()
     {
         $user = Auth::user();
         $query = FakturPajak::query();
@@ -510,6 +520,14 @@ class Index extends Component
                 }
             });
         }
+
+        return $query;
+    }
+
+    public function render()
+    {
+        $user = Auth::user();
+        $query = $this->filteredQuery();
 
         // Ultra-Fast toBase() Slim Query Payload for Tabulator (Zero Eloquent Model Hydration, ~85% RAM reduction)
         $tableData = [];
@@ -583,22 +601,8 @@ class Index extends Component
         $orangOptions = MasterOrangPajak::where('is_aktif', true)->orderBy('nama')->get();
         $cabangs = $user->isOwner() ? Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get() : collect([]);
 
-        // Ringkasan 3 Metrik Terkunci di Bulan Berjalan (Asia/Jakarta)
-        $nowJakarta = Carbon::now('Asia/Jakarta');
-        $startOfMonth = $nowJakarta->copy()->startOfMonth()->toDateString();
-        $endOfMonth = $nowJakarta->copy()->endOfMonth()->toDateString() . ' 23:59:59';
-
-        $summaryQuery = FakturPajak::query()
-            ->whereBetween('faktur_pajaks.tanggal', [$startOfMonth, $endOfMonth]);
-
-        // Isolasi Cabang: Non-Owner cabangnya sendiri, Owner mengikuti cabang aktif
-        if (! $user->isOwner()) {
-            $summaryQuery->where('faktur_pajaks.cabang_id', $user->cabang_id);
-        } elseif ($this->cabangFilter !== 'semua' && ! empty($this->cabangFilter)) {
-            $summaryQuery->where('faktur_pajaks.cabang_id', $this->cabangFilter);
-        }
-
-        $summary = $summaryQuery
+        // Ringkasan 3 Metrik — mengikuti filter aktif (periode, status, saluran, kode, rekanan, pencarian, cabang)
+        $summary = $this->filteredQuery()
             ->toBase()
             ->selectRaw('COALESCE(SUM(bruto), 0) as total_bruto, COALESCE(SUM(ppn_nominal), 0) as total_ppn, COALESCE(SUM(pph_nominal), 0) as total_pph')
             ->first();
@@ -606,7 +610,6 @@ class Index extends Component
         $totalBruto = (float) ($summary->total_bruto ?? 0);
         $totalPpn = (float) ($summary->total_ppn ?? 0);
         $totalPph = (float) ($summary->total_pph ?? 0);
-        $namaBulanBerjalan = $nowJakarta->locale('id')->translatedFormat('F Y');
 
         return view('livewire.faktur-pajak.index', [
             'tableData' => $tableData,
@@ -620,7 +623,6 @@ class Index extends Component
             'totalBruto' => $totalBruto,
             'totalPpn' => $totalPpn,
             'totalPph' => $totalPph,
-            'namaBulanBerjalan' => $namaBulanBerjalan,
         ]);
     }
 }

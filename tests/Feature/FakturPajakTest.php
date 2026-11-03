@@ -159,8 +159,6 @@ class FakturPajakTest extends TestCase
             'netto' => 4364285.71,
         ]);
 
-        $namaBulan = $now->locale('id')->translatedFormat('F Y');
-
         Livewire::actingAs($this->owner)
             ->test(Index::class)
             ->assertSeeHtml('Rp 15.000.000')
@@ -168,8 +166,7 @@ class FakturPajakTest extends TestCase
             ->assertSeeHtml('Rp 250.000')
             ->assertSeeHtml('Total Bruto')
             ->assertSeeHtml('Total PPN')
-            ->assertSeeHtml('Total PPh')
-            ->assertDontSee('Bulan ' . $namaBulan);
+            ->assertSeeHtml('Total PPh');
     }
 
     public function test_summary_cards_exclude_last_day_of_last_month_and_first_day_of_next_month(): void
@@ -232,32 +229,96 @@ class FakturPajakTest extends TestCase
             ->assertDontSeeHtml('Rp 27.000.000');
     }
 
-    public function test_table_period_filter_does_not_affect_summary_cards(): void
+    public function test_summary_cards_follow_selected_period_filter(): void
     {
         $now = \Carbon\Carbon::now('Asia/Jakarta');
+        $prevMonth = $now->copy()->subMonthNoOverflow()->startOfMonth();
 
-        // Faktur pada tanggal 1 bulan berjalan
+        // Faktur bulan lalu
         FakturPajak::create([
             'cabang_id' => $this->cabang->id,
             'user_id' => $this->owner->id,
-            'no_faktur' => 'FP-LOCK-TEST',
-            'tanggal' => $now->copy()->startOfMonth()->toDateString(),
-            'nama_pajak_snapshot' => 'Dinas PU',
-            'barang_snapshot' => 'Server Mini',
+            'no_faktur' => 'FP-PREV-PERIODE',
+            'tanggal' => $prevMonth->copy()->addDays(5)->toDateString(),
+            'nama_pajak_snapshot' => 'Rekanan Bulan Lalu',
+            'barang_snapshot' => 'Barang Lalu',
             'via_pajak_snapshot' => 'E-Katalog',
-            'bruto' => 12500000,
-            'ppn_nominal' => 1500000,
-            'pph_nominal' => 250000,
+            'bruto' => 9000000,
+            'ppn_nominal' => 900000,
+            'pph_nominal' => 90000,
             'jenis_pph_snapshot' => 'PPh 22',
         ]);
 
-        // Ubah mode periode tabel ke 'hari_ini' (jika hari ini bukan tgl 1, filter tabel mengecualikan tgl 1)
+        // Faktur bulan berjalan
+        FakturPajak::create([
+            'cabang_id' => $this->cabang->id,
+            'user_id' => $this->owner->id,
+            'no_faktur' => 'FP-CURR-PERIODE',
+            'tanggal' => $now->copy()->startOfMonth()->toDateString(),
+            'nama_pajak_snapshot' => 'Rekanan Bulan Ini',
+            'barang_snapshot' => 'Barang Sekarang',
+            'via_pajak_snapshot' => 'E-Katalog',
+            'bruto' => 4000000,
+            'ppn_nominal' => 400000,
+            'pph_nominal' => 40000,
+            'jenis_pph_snapshot' => 'PPh 22',
+        ]);
+
+        // Default = Bulanan bulan berjalan: kartu hanya menghitung faktur bulan ini
         Livewire::actingAs($this->owner)
             ->test(Index::class)
-            ->call('setPeriodeMode', 'hari_ini')
-            ->assertSeeHtml('Rp 12.500.000')
-            ->assertSeeHtml('Rp 1.500.000')
-            ->assertSeeHtml('Rp 250.000');
+            ->assertSet('periodeMode', 'bulanan')
+            ->assertSeeHtml('Rp 4.000.000')
+            ->assertDontSeeHtml('Rp 9.000.000');
+
+        // Geser filter ke bulan lalu: kartu ikut berubah
+        Livewire::actingAs($this->owner)
+            ->test(Index::class)
+            ->set('filterBulan', $prevMonth->format('m'))
+            ->set('filterTahun', $prevMonth->format('Y'))
+            ->assertSeeHtml('Rp 9.000.000')
+            ->assertDontSeeHtml('Rp 4.000.000');
+    }
+
+    public function test_summary_cards_follow_status_filter(): void
+    {
+        $now = \Carbon\Carbon::now('Asia/Jakarta');
+
+        FakturPajak::create([
+            'cabang_id' => $this->cabang->id,
+            'user_id' => $this->owner->id,
+            'no_faktur' => 'FP-BELUM-SELESAI',
+            'tanggal' => $now->copy()->startOfMonth()->toDateString(),
+            'nama_pajak_snapshot' => 'Rekanan Belum Selesai',
+            'barang_snapshot' => 'Barang A',
+            'via_pajak_snapshot' => 'E-Katalog',
+            'bruto' => 3000000,
+            'ppn_nominal' => 300000,
+            'pph_nominal' => 30000,
+            'jenis_pph_snapshot' => 'PPh 22',
+            'is_selesai' => false,
+        ]);
+
+        FakturPajak::create([
+            'cabang_id' => $this->cabang->id,
+            'user_id' => $this->owner->id,
+            'no_faktur' => 'FP-SELESAI',
+            'tanggal' => $now->copy()->startOfMonth()->toDateString(),
+            'nama_pajak_snapshot' => 'Rekanan Selesai',
+            'barang_snapshot' => 'Barang B',
+            'via_pajak_snapshot' => 'E-Katalog',
+            'bruto' => 6000000,
+            'ppn_nominal' => 600000,
+            'pph_nominal' => 60000,
+            'jenis_pph_snapshot' => 'PPh 22',
+            'is_selesai' => true,
+        ]);
+
+        Livewire::actingAs($this->owner)
+            ->test(Index::class)
+            ->set('statusFilter', 'selesai')
+            ->assertSeeHtml('Rp 6.000.000')
+            ->assertDontSeeHtml('Rp 3.000.000');
     }
 
     public function test_summary_cards_branch_isolation_for_non_owner_and_owner_active_branch(): void
