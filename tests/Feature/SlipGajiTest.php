@@ -47,15 +47,16 @@ class SlipGajiTest extends TestCase
     {
         $owner = User::where('email', 'owner@soulmate.test')->first();
         $staf = User::where('email', 'teknisi.pkp@soulmate.test')->first();
+        $now = Carbon::now('Asia/Jakarta');
 
-        // Create dummy slip
+        // Create dummy slip untuk bulan berjalan agar terdeteksi filter default
         $slip = SlipGaji::create([
             'no_slip' => 'SLIP/PKP/2026/10/001',
             'cabang_id' => $staf->cabang_id,
             'user_id' => $staf->id,
             'nama_staf_snapshot' => $staf->name,
-            'periode_bulan' => 10,
-            'periode_tahun' => 2026,
+            'periode_bulan' => (int) $now->month,
+            'periode_tahun' => (int) $now->year,
             'status' => 'draft',
             'gaji_pokok' => 2500000,
             'uang_makan_hari' => 26,
@@ -425,6 +426,7 @@ class SlipGajiTest extends TestCase
         $owner = User::where('email', 'owner@soulmate.test')->first();
         $this->actingAs($owner);
 
+        $cabang = Cabang::first();
         $now = Carbon::now('Asia/Jakarta');
         $currentMonth = (int) $now->month;
         $currentYear = (int) $now->year;
@@ -432,7 +434,7 @@ class SlipGajiTest extends TestCase
         // Slip bulan ini
         SlipGaji::create([
             'no_slip' => 'SG-TEST-CURR-01',
-            'cabang_id' => $owner->cabang_id,
+            'cabang_id' => $cabang->id,
             'user_id' => $owner->id,
             'periode_bulan' => $currentMonth,
             'periode_tahun' => $currentYear,
@@ -442,6 +444,7 @@ class SlipGajiTest extends TestCase
             'total_bruto' => 3500000,
             'total_pengurangan' => 0,
             'total_diterima' => 3500000,
+            'created_by' => $owner->id,
         ]);
 
         // Slip bulan lain (masa lalu)
@@ -449,7 +452,7 @@ class SlipGajiTest extends TestCase
         $pastYear = $currentMonth === 1 ? $currentYear - 1 : $currentYear;
         SlipGaji::create([
             'no_slip' => 'SG-TEST-PAST-01',
-            'cabang_id' => $owner->cabang_id,
+            'cabang_id' => $cabang->id,
             'user_id' => $owner->id,
             'periode_bulan' => $pastMonth,
             'periode_tahun' => $pastYear,
@@ -459,6 +462,7 @@ class SlipGajiTest extends TestCase
             'total_bruto' => 2000000,
             'total_pengurangan' => 0,
             'total_diterima' => 2000000,
+            'created_by' => $owner->id,
         ]);
 
         $test = Livewire::test(SlipGajiIndex::class)
@@ -471,19 +475,21 @@ class SlipGajiTest extends TestCase
             ->set('filterBulan', (string) $pastMonth)
             ->set('filterTahun', (string) $pastYear)
             ->assertSee('Total Gaji')
-            ->assertSee('Rp 2.000.000');
+            ->assertSee('Rp 2.000.000')
+            ->assertDontSee('Rp 3.500.000');
     }
 
     public function test_delete_final_slip_with_and_without_permission(): void
     {
         $owner = User::where('email', 'owner@soulmate.test')->first();
-        $this->actingAs($owner);
-
+        $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
+        $cabang = Cabang::first();
         $staf = User::where('email', 'teknisi.pkp@soulmate.test')->first();
 
-        $slipFinal = SlipGaji::create([
-            'no_slip' => 'SG-TEST-FINAL-DEL',
-            'cabang_id' => $owner->cabang_id,
+        // 1. Slip Final untuk pengujian Owner
+        $slipOwner = SlipGaji::create([
+            'no_slip' => 'SG-FINAL-OWNER',
+            'cabang_id' => $cabang->id,
             'user_id' => $staf->id,
             'nama_staf_snapshot' => $staf->name,
             'periode_bulan' => 11,
@@ -498,18 +504,156 @@ class SlipGajiTest extends TestCase
             'finalized_at' => now(),
         ]);
 
-        // Owner (memiliki bypass gaji.delete_final) berhasil hapus
+        // Owner (memiliki bypass penuh) berhasil menghapus slip Final
+        $this->actingAs($owner);
         Livewire::test(SlipGajiIndex::class)
-            ->call('confirmDelete', $slipFinal->id, $slipFinal->no_slip)
+            ->call('confirmDelete', $slipOwner->id, $slipOwner->no_slip)
             ->call('executeDelete')
             ->assertDispatched('swal:toast');
 
-        $this->assertDatabaseMissing('slip_gajis', ['id' => $slipFinal->id]);
+        $this->assertDatabaseMissing('slip_gajis', ['id' => $slipOwner->id]);
+
+        // 2. Slip Final untuk pengujian Superadmin
+        $slipSuperadmin = SlipGaji::create([
+            'no_slip' => 'SG-FINAL-SUPERADMIN',
+            'cabang_id' => $cabang->id,
+            'user_id' => $staf->id,
+            'nama_staf_snapshot' => $staf->name,
+            'periode_bulan' => 11,
+            'periode_tahun' => 2026,
+            'status' => 'final',
+            'gaji_pokok' => 3000000,
+            'total_bruto' => 3000000,
+            'total_pengurangan' => 0,
+            'total_diterima' => 3000000,
+            'created_by' => $superadmin->id,
+            'finalized_by' => $superadmin->id,
+            'finalized_at' => now(),
+        ]);
+
+        // Superadmin memiliki permission gaji.delete_final -> berhasil hapus
+        $this->actingAs($superadmin);
+        Livewire::test(SlipGajiIndex::class)
+            ->call('confirmDelete', $slipSuperadmin->id, $slipSuperadmin->no_slip)
+            ->call('executeDelete')
+            ->assertDispatched('swal:toast');
+
+        $this->assertDatabaseMissing('slip_gajis', ['id' => $slipSuperadmin->id]);
+
+        // 3. Slip Final untuk pengujian staf tanpa izin gaji.delete_final
+        $slipProtected = SlipGaji::create([
+            'no_slip' => 'SG-FINAL-PROTECTED',
+            'cabang_id' => $cabang->id,
+            'user_id' => $staf->id,
+            'nama_staf_snapshot' => $staf->name,
+            'periode_bulan' => 11,
+            'periode_tahun' => 2026,
+            'status' => 'final',
+            'gaji_pokok' => 2800000,
+            'total_bruto' => 2800000,
+            'total_pengurangan' => 0,
+            'total_diterima' => 2800000,
+            'created_by' => $owner->id,
+            'finalized_by' => $owner->id,
+            'finalized_at' => now(),
+        ]);
+
+        // Buat user staf dengan izin gaji.view dan gaji.delete (draft), tapi TANPA gaji.delete_final
+        $stafViewer = User::factory()->create([
+            'cabang_id' => $cabang->id,
+            'status' => 'aktif',
+        ]);
+        $stafViewer->givePermissionTo(['gaji.view', 'gaji.delete']);
+
+        $this->actingAs($stafViewer);
+
+        // Percobaan confirmDelete pada slip final harus ditolak (403)
+        Livewire::test(SlipGajiIndex::class)
+            ->call('confirmDelete', $slipProtected->id, $slipProtected->no_slip)
+            ->assertStatus(403);
+
+        // Percobaan langsung executeDelete pada slip final juga harus ditolak (403)
+        $component = Livewire::test(SlipGajiIndex::class);
+        $component->set('deleteSlipId', $slipProtected->id);
+        $component->call('executeDelete')->assertStatus(403);
+
+        // Data slip final tetap aman di database
+        $this->assertDatabaseHas('slip_gajis', ['id' => $slipProtected->id]);
+    }
+
+    public function test_index_query_sorted_by_total_diterima_descending(): void
+    {
+        $owner = User::where('email', 'owner@soulmate.test')->first();
+        $this->actingAs($owner);
+
+        $cabang = Cabang::first();
+        $staf1 = User::where('email', 'teknisi.pkp@soulmate.test')->first();
+        $staf2 = User::where('email', 'admin.pkp@soulmate.test')->first();
+        $staf3 = User::where('email', 'kasir.pkp@soulmate.test')->first();
+
+        $now = Carbon::now('Asia/Jakarta');
+        $bulan = (int) $now->month;
+        $tahun = (int) $now->year;
+
+        // Buat 3 slip dengan nominal total_diterima berbeda
+        $slipLow = SlipGaji::create([
+            'no_slip' => 'SG-SORT-LOW',
+            'cabang_id' => $cabang->id,
+            'user_id' => $staf1->id,
+            'nama_staf_snapshot' => $staf1->name,
+            'periode_bulan' => $bulan,
+            'periode_tahun' => $tahun,
+            'status' => 'draft',
+            'gaji_pokok' => 2000000,
+            'total_bruto' => 2000000,
+            'total_pengurangan' => 0,
+            'total_diterima' => 2000000,
+            'created_by' => $owner->id,
+        ]);
+
+        $slipHigh = SlipGaji::create([
+            'no_slip' => 'SG-SORT-HIGH',
+            'cabang_id' => $cabang->id,
+            'user_id' => $staf2->id,
+            'nama_staf_snapshot' => $staf2->name,
+            'periode_bulan' => $bulan,
+            'periode_tahun' => $tahun,
+            'status' => 'draft',
+            'gaji_pokok' => 5000000,
+            'total_bruto' => 5000000,
+            'total_pengurangan' => 0,
+            'total_diterima' => 5000000,
+            'created_by' => $owner->id,
+        ]);
+
+        $slipMid = SlipGaji::create([
+            'no_slip' => 'SG-SORT-MID',
+            'cabang_id' => $cabang->id,
+            'user_id' => $staf3->id,
+            'nama_staf_snapshot' => $staf3->name,
+            'periode_bulan' => $bulan,
+            'periode_tahun' => $tahun,
+            'status' => 'draft',
+            'gaji_pokok' => 3500000,
+            'total_bruto' => 3500000,
+            'total_pengurangan' => 0,
+            'total_diterima' => 3500000,
+            'created_by' => $owner->id,
+        ]);
+
+        $test = Livewire::test(SlipGajiIndex::class);
+        $slips = $test->viewData('slips');
+
+        // Pastikan urutan query adalah descending: High (5jt) -> Mid (3.5jt) -> Low (2jt)
+        $this->assertEquals($slipHigh->id, $slips->items()[0]->id);
+        $this->assertEquals($slipMid->id, $slips->items()[1]->id);
+        $this->assertEquals($slipLow->id, $slips->items()[2]->id);
     }
 
     public function test_edit_page_auto_syncs_attendance_days_for_draft_slip(): void
     {
         $owner = User::where('email', 'owner@soulmate.test')->first();
+        $cabang = Cabang::first();
         $this->actingAs($owner);
 
         $now = Carbon::now('Asia/Jakarta');
@@ -517,7 +661,7 @@ class SlipGajiTest extends TestCase
         $tahun = (int) $now->year;
 
         $staf = User::factory()->create([
-            'cabang_id' => $owner->cabang_id,
+            'cabang_id' => $cabang->id,
             'status' => 'aktif',
             'bagian' => 'Teknisi Laptop',
         ]);
@@ -526,7 +670,7 @@ class SlipGajiTest extends TestCase
         // Buat slip draft dengan nilai awal hari absen = 5
         $slip = SlipGaji::create([
             'no_slip' => 'SG-TEST-AUTO-01',
-            'cabang_id' => $owner->cabang_id,
+            'cabang_id' => $cabang->id,
             'user_id' => $staf->id,
             'periode_bulan' => $bulan,
             'periode_tahun' => $tahun,
@@ -542,13 +686,14 @@ class SlipGajiTest extends TestCase
             'total_bruto' => 2200000,
             'total_pengurangan' => 0,
             'total_diterima' => 2200000,
+            'created_by' => $owner->id,
         ]);
 
         // Masukkan data absen 24 hari untuk staf ini pada periode bulan dan tahun ini
         for ($d = 1; $d <= 24; $d++) {
             $tgl = sprintf('%04d-%02d-%02d', $tahun, $bulan, $d);
             Absensi::create([
-                'cabang_id' => $owner->cabang_id,
+                'cabang_id' => $cabang->id,
                 'user_id' => $staf->id,
                 'tanggal' => $tgl,
                 'waktu_absen' => "{$tgl} 08:00:00",
