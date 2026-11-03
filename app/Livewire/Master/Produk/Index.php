@@ -510,11 +510,15 @@ class Index extends Component
             $targetCabangId = $user->isOwner() ? (int) $activeBranchId : (int) $user->cabang_id;
             $targetCabangId = $targetCabangId ?: 1;
 
+            // ponytail: stok dinolkan tanpa audit trail (tabel stoks tidak menyimpan riwayat).
+            // Tambah tabel riwayat mutasi stok kalau angka lama harus bisa dipulihkan.
             Stok::where('produk_id', $id)
                 ->where('cabang_id', $targetCabangId)
-                ->update(['is_aktif' => false]);
+                ->update(['jumlah' => 0, 'is_aktif' => false]);
 
-            session()->flash('success', "Status penjualan produk \"{$produk->nama_produk}\" berhasil dinonaktifkan di toko.");
+            $produk->update(['ready_marketplace' => false]);
+
+            session()->flash('success', "Produk \"{$produk->nama_produk}\" dinonaktifkan: stok cabang ini menjadi 0 dan produk disembunyikan dari Website Marketplace.");
 
             return;
         }

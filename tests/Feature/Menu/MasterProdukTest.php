@@ -3,9 +3,11 @@
 namespace Tests\Feature\Menu;
 
 use App\Livewire\Master\Produk\Index as MasterProdukIndex;
+use App\Livewire\Web\Produk as WebProduk;
 use App\Models\Cabang;
 use App\Models\KategoriProduk;
 use App\Models\Produk;
+use App\Models\Stok;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -190,6 +192,92 @@ class MasterProdukTest extends TestCase
             'cabang_id' => $this->cabang1->id,
             'is_aktif' => 0,
         ]);
+    }
+
+    public function test_superadmin_deactivates_product_zeroes_stock_and_hides_marketplace(): void
+    {
+        $this->actingAsRole('Superadmin', [], $this->cabang1);
+
+        $cabang2 = Cabang::create([
+            'nama_cabang' => 'Cabang Sungailiat',
+            'kode_cabang' => 'CB-SGL',
+            'status' => 'aktif',
+        ]);
+
+        $produk = Produk::create([
+            'nama_produk' => 'Mouse Pad XL Polos',
+            'barcode' => 'MPAD-XL',
+            'harga_beli' => 35000,
+            'harga_jual' => 55000,
+            'ready_marketplace' => true,
+        ]);
+
+        Stok::create(['produk_id' => $produk->id, 'cabang_id' => $this->cabang1->id, 'jumlah' => 5, 'min_stok' => 2, 'is_aktif' => true]);
+        Stok::create(['produk_id' => $produk->id, 'cabang_id' => $cabang2->id, 'jumlah' => 7, 'min_stok' => 2, 'is_aktif' => true]);
+
+        Livewire::test(MasterProdukIndex::class)
+            ->call('openDeleteConfirmation', $produk->id)
+            ->call('confirmDelete')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('stoks', [
+            'produk_id' => $produk->id,
+            'cabang_id' => $this->cabang1->id,
+            'jumlah' => 0,
+            'is_aktif' => 0,
+        ]);
+
+        $this->assertDatabaseHas('stoks', [
+            'produk_id' => $produk->id,
+            'cabang_id' => $cabang2->id,
+            'jumlah' => 7,
+            'is_aktif' => 1,
+        ]);
+
+        $this->assertFalse($produk->fresh()->ready_marketplace);
+    }
+
+    public function test_deactivated_product_is_hidden_from_public_marketplace(): void
+    {
+        $this->actingAsRole('Superadmin', [], $this->cabang1);
+
+        $produk = Produk::create([
+            'nama_produk' => 'Mouse Pad XL Polos',
+            'barcode' => 'MPAD-XL',
+            'harga_beli' => 35000,
+            'harga_jual' => 55000,
+            'ready_marketplace' => true,
+        ]);
+
+        Stok::create(['produk_id' => $produk->id, 'cabang_id' => $this->cabang1->id, 'jumlah' => 5, 'min_stok' => 2, 'is_aktif' => true]);
+
+        Livewire::test(WebProduk::class)->assertSee('Mouse Pad XL Polos');
+
+        Livewire::test(MasterProdukIndex::class)
+            ->call('openDeleteConfirmation', $produk->id)
+            ->call('confirmDelete');
+
+        Livewire::test(WebProduk::class)->assertDontSee('Mouse Pad XL Polos');
+    }
+
+    public function test_deactivating_product_without_stock_row_does_not_error(): void
+    {
+        $this->actingAsRole('Superadmin', [], $this->cabang1);
+
+        $produk = Produk::create([
+            'nama_produk' => 'Kabel HDMI 3M',
+            'barcode' => 'HDMI-3M',
+            'harga_beli' => 25000,
+            'harga_jual' => 45000,
+            'ready_marketplace' => true,
+        ]);
+
+        Livewire::test(MasterProdukIndex::class)
+            ->call('openDeleteConfirmation', $produk->id)
+            ->call('confirmDelete')
+            ->assertHasNoErrors();
+
+        $this->assertFalse($produk->fresh()->ready_marketplace);
     }
 
     public function test_owner_at_hq_can_soft_delete_produk_permanently(): void
