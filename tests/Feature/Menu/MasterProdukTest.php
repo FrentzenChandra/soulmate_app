@@ -280,6 +280,42 @@ class MasterProdukTest extends TestCase
         $this->assertFalse($produk->fresh()->ready_marketplace);
     }
 
+    public function test_delete_modal_shows_hero_banner_when_product_has_photo(): void
+    {
+        $this->actingAsRole('Superadmin', [], $this->cabang1);
+
+        $produk = Produk::create([
+            'nama_produk' => 'SSD Kingston NV2 500GB',
+            'barcode' => 'SNV2S-500G',
+            'harga_beli' => 550000,
+            'harga_jual' => 675000,
+            'ready_marketplace' => true,
+            'foto_url' => 'images/logo_bulat.png',
+        ]);
+
+        Livewire::test(MasterProdukIndex::class)
+            ->call('openDeleteConfirmation', $produk->id)
+            ->assertSeeHtml('h-36')
+            ->assertSeeHtml('object-contain')
+            ->assertSee('Website Marketplace');
+    }
+
+    public function test_delete_modal_has_no_hero_banner_when_product_has_no_photo(): void
+    {
+        $this->actingAsRole('Superadmin', [], $this->cabang1);
+
+        $produk = Produk::create([
+            'nama_produk' => 'Kabel HDMI 3M',
+            'barcode' => 'HDMI-3M',
+            'harga_beli' => 25000,
+            'harga_jual' => 45000,
+        ]);
+
+        Livewire::test(MasterProdukIndex::class)
+            ->call('openDeleteConfirmation', $produk->id)
+            ->assertDontSeeHtml('object-contain');
+    }
+
     public function test_owner_at_hq_can_soft_delete_produk_permanently(): void
     {
         $this->actingAsRole('Owner');
