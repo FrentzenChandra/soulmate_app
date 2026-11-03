@@ -70,3 +70,20 @@
 - **Konfirmasi DELETE:** Teks bahaya *"Hapus [Nama Data]? Data akan dihapus secara permanen."* dengan tombol merah rose `#e11d48` (*"Ya, Hapus"*).
 - **Feedback:** Dispatch `$this->dispatch('swal:toast', ['type' => 'success', 'title' => '...', 'message' => '...'])` di backend Livewire setelah eksekusi berhasil.
 
+## 14. Larangan Garis Keras: `.env` dan Secret Tidak Boleh Masuk ke Model
+- **Zero Exception:** File `.env` beserta seluruh turunannya (`.env.*`) DILARANG KERAS dibaca, dibuka, di-`cat`/`Get-Content`, di-`grep`/`Select-String`, diparse, atau disalin isinya ke dalam konteks model (LLM / AI Agent).
+- **Yang Diizinkan:** Membaca `.env.example` (nama variabel saja), `config/*.php`, `php artisan about`, atau memanggil `config('key')`. Jika butuh nilai konfigurasi, tanyakan ke user.
+- **Jika Diminta User:** Tetap WAJIB MENOLAK dan tawarkan jalur aman (`.env.example` / `config()` / masking manual oleh user). Tidak ada pengecualian "sekali saja".
+- **Jika Tidak Sengaja Terlihat:** Redaksi menjadi `***`, jangan pernah mengulang nilainya, dan laporkan proaktif ke user.
+- **Larangan Penulisan:** Secret, token, password, API key dilarang ditulis ke `.md`, dokumentasi, komentar kode, commit message, issue, maupun fixture test. Gunakan placeholder `***` atau `env('NAMA_VARIABEL')`.
+- **Cakupan Lain:** Berlakunya juga untuk `storage/logs/**/*.log` yang memuat kredensial, `*.pem`, `*.key`, `*.p12`, `id_rsa`, dump/backup database.
+
+## 15. Larangan Garis Keras: Git Commit Granular Wajib
+- **Zero Exception:** Setiap perubahan kode WAJIB di-commit segera. Satu perubahan logis = satu commit atomik. Dilarang menumpuk beberapa fitur dalam satu commit besar.
+- **Pemicu:** Selesai satu method, satu komponen Livewire, satu blade, satu model, satu migrasi, satu route, atau satu perbaikan bug. Sebelum perubahan besar/berisiko, commit dulu kondisi stabil.
+- **Format:** `<type>(<scope>): <ringkasan>` — `feat`, `fix`, `refactor`, `style`, `perf`, `test`, `docs`, `chore`, `build`. Contoh: `fix(servis-keluar): cegah tagih dobel dengan guard status`. Dilarang pesan `update`, `fix bug`, `WIP`.
+- **Sebelum commit:** cek `git status` + `git diff`, jalankan test tertarget modul terkait, stage per path spesifik (`git add path/file`), **dilarang** `git add -A`/`git add .` buta, dan pastikan tidak ada secret/`.env`/`storage`/`node_modules`/`vendor` ikut.
+- **Dilarang:** `git commit --amend` pada commit yang sudah di-push, `git push --force` ke branch bersama tanpa perintah user, `git reset --hard` / `git checkout -- .` tanpa konfirmasi user, dan mencampur commit dokumentasi dengan commit fitur kode.
+- **Lapor setelah commit:** hash pendek + pesan commit + daftar file berubah (titik rollback resmi).
+- **Rollback standar:** `git revert <hash>` untuk membatalkan satu perubahan. `git reset --hard <hash>` hanya bila user eksplisit meminta.
+

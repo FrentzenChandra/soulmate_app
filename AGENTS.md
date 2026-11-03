@@ -254,6 +254,50 @@
 - **Sinergi dengan Standar Loading Kasir:**
   * Setelah pengguna mengonfirmasi SweetAlert, tombol aksi form tetap wajib mempertahankan status disabled dan spinner loading Heroicons SVG (`wire:loading wire:target="..."`) hingga response Livewire selesai.
 
+## 30. LARANGAN GARIS KERAS: File `.env` dan Secret TIDAK BOLEH Masuk ke Model
+- **Aturan Absolut (Zero Exception):** File `.env` dan seluruh turunannya (`.env.local`, `.env.production`, `.env.backup`, `.env.*` apa pun) **DILARANG KERAS DIBACA, DIBUKA, DI-`cat`/`Get-Content`, DI-`grep`/`Select-String`, DI-`import`, DIPARSE, ATAU DISALIN ISI/NILAINYA KE DALAM KONTEKS MODEL (LLM / AI Agent) DALAM BENTUK APA PUN.**
+- **Alasan:** Isi `.env` memuat kredensial hidup (`APP_KEY`, password database, token API, kredensial SMTP, key Reverb). Begitu masuk konteks model, nilainya ikut tercatat permanen di riwayat sesi, log, cache, dan berpotensi bocor lewat commit, screenshot, issue, atau transkrip pihak ketiga. Ini pelanggaran keamanan tingkat tinggi, bukan sekadar preferensi gaya.
+- **Ruang Aman yang Diizinkan:**
+  * Membaca `.env.example` (template tanpa nilai rahasia) untuk mengetahui **nama variabel** yang tersedia.
+  * Membaca `config/*.php` karena hanya berisi `env('KEY', 'default')` tanpa nilai produksi aktif.
+  * Membaca output `php artisan about`, `php artisan config:show` yang sudah disanitasi, atau memanggil `config('key')` di dalam aplikasi.
+  * Menanyakan langsung ke user jika butuh nilai konfigurasi tertentu.
+- **Contoh DILARANG:** `Get-Content .env`, `cat .env`, `docker exec soulmate_apps cat .env`, `grep -r "PASSWORD" .env*`, membuka `.env` lewat editor/file-reader tool, menyalin baris `.env` ke chat, atau menyimpulkan nilai secret dari diff/file history.
+- **Jika User Meminta Secara Eksplisit:** Agent tetap **WAJIB MENOLAK** dan menawarkan jalur aman (baca `.env.example`, cek `config()`, atau masking manual oleh user sendiri). Tidak ada pengecualian "sekali saja" atau "hanya lihat sebentar".
+- **Jika Secret Tidak Sengaja Terlihat:** Segera redaksi (`***`), jangan pernah mengulangi nilainya di respons, dan laporkan kejadiannya secara proaktif kepada user sesuai Standar 15 (Proactive Anomaly Reporting).
+- **Larangan Penulisan:** Secret, token, password, API key, dan isi `.env` **DILARANG DITULIS** ke file `.md`, dokumentasi, komentar kode, commit message, issue, maupun fixture test. Gunakan placeholder `***` atau `env('NAMA_VARIABEL')`.
+- **Cakupan File Sensitif Lain:** Aturan ini berlaku juga untuk `storage/logs/**/*.log` yang memuat payload kredensial, `*.pem`, `*.key`, `*.p12`, `id_rsa`, kredensial database dump, dan file backup database. Untuk log audit menu, gunakan pola masking rekursif yang sudah distandarkan pada Standar 10.
+
+## 31. LARANGAN GARIS KERAS: Git Commit Granular Wajib per Perubahan Kecil
+- **Aturan Absolut (Zero Exception):** Setiap perubahan kode **WAJIB di-commit segera** setelah selesai, sekecil apa pun perubahannya. Satu perubahan logis = satu commit atomik. Dilarang keras menumpuk banyak perubahan berbeda dalam satu commit besar atau membiarkan working tree kotor dalam waktu lama.
+- **Definisi "Satu Commit":** Satu fitur kecil, satu perbaikan bug, satu refaktor terbatas, satu penyesuaian UI, satu perubahan dokumentasi, atau satu perbaikan test. Jika satu sesi menyentuh 3 hal berbeda, hasilnya **WAJIB 3 commit terpisah**.
+- **Tujuan:** Memudahkan `git revert` / `git show` / `git bisect` per perubahan, sehingga rollback satu fitur tidak ikut membatalkan fitur lain yang sudah stabil.
+- **Pemicu Commit (Wajib Commit Saat):**
+  * Selesai menambah/mengubah satu method, satu komponen Livewire, satu blade view, satu model, satu migrasi, atau satu route.
+  * Selesai memperbaiki satu bug (sebelum lanjut ke bug berikutnya).
+  * Selesai menyelesaikan satu task/step dari rencana kerja bertahap.
+  * Sebelum memulai perubahan besar/berisiko (commit dulu kondisi stabil sebagai titik aman rollback).
+- **Format Pesan Commit (Conventional Commits, Bahasa Indonesia):**
+  * `<type>(<scope>): <ringkasan singkat huruf kecil>`
+  * `type`: `feat`, `fix`, `refactor`, `style`, `perf`, `test`, `docs`, `chore`, `build`.
+  * `scope`: nama modul (`kasir`, `servis-masuk`, `transaksi-full`, `target-bulanan`, `slip-gaji`, `absensi`, `hak-akses`, `layout`, dsb.).
+  * Contoh BENAR: `feat(kasir): tambah validasi stok sebelum checkout`, `fix(servis-keluar): cegah tagih dobel dengan guard status`, `style(nota): ubah label total menjadi Grandtotal`.
+  * Contoh SALAH: `update`, `fix bug`, `perbaikan`, `WIP final banget`, `changes`.
+  * Bila perlu penjelasan tambahan, tulis body 1&ndash;3 baris: **apa** yang berubah dan **mengapa**.
+- **Prosedur Wajib Sebelum Commit:**
+  1. Jalankan `git status --porcelain` dan `git diff` untuk memastikan hanya file yang relevan ikut.
+  2. Jalankan test tertarget sesuai Standar 16 (`docker exec soulmate_apps php artisan test --filter <TestClass>`) untuk modul yang diubah. Jangan commit kode yang merusak test terkait.
+  3. Stage **per path spesifik** (`git add path/ke/file.php`). **DILARANG** `git add -A` atau `git add .` secara buta.
+  4. Pastikan tidak ada secret, `.env`, kredensial, file `storage/`, `node_modules/`, `vendor/`, atau artefak build yang ikut ter-stage (lihat Standar 30).
+- **Larangan Git yang Mengikat:**
+  * Dilarang `git commit --amend` pada commit yang sudah di-push.
+  * Dilarang `git push --force` ke branch bersama tanpa perintah eksplisit user.
+  * Dilarang `git reset --hard` atau `git checkout -- .` untuk "membersihkan" perubahan tanpa konfirmasi user (bisa menghapus kerja user).
+  * Dilarang menyatukan perubahan dokumentasi (`AGENTS.md`, `CLAUDE.md`, `README.md`, dll.) ke dalam commit fitur kode; dokumentasi punya commit sendiri.
+- **Kewajiban Pelaporan:** Setelah commit berhasil, laporkan ke user: **hash pendek**, **pesan commit**, dan **daftar file** yang berubah. Ini titik rollback resmi.
+- **Cara Rollback Standar:** Gunakan `git revert <hash>` untuk membatalkan satu perubahan tanpa merusak riwayat. Gunakan `git reset --hard <hash>` HANYA jika user secara eksplisit meminta pembuangan commit lokal yang belum di-push.
+- **Pengecualian Sempit:** Commit boleh ditunda hanya bila user secara eksplisit melarang commit pada sesi tersebut. Di luar itu, "belum sempat commit" bukan alasan yang diterima.
+
 
 
 
