@@ -10,6 +10,7 @@ use App\Models\Produk;
 use App\Models\Stok;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -295,12 +296,12 @@ class MasterProdukTest extends TestCase
 
         Livewire::test(MasterProdukIndex::class)
             ->call('openDeleteConfirmation', $produk->id)
-            ->assertSeeHtml('h-36')
+            ->assertSeeHtml('h-48')
             ->assertSeeHtml('object-contain')
             ->assertSee('Website Marketplace');
     }
 
-    public function test_delete_modal_has_no_hero_banner_when_product_has_no_photo(): void
+    public function test_delete_modal_shows_placeholder_hero_when_product_has_no_photo(): void
     {
         $this->actingAsRole('Superadmin', [], $this->cabang1);
 
@@ -313,7 +314,8 @@ class MasterProdukTest extends TestCase
 
         Livewire::test(MasterProdukIndex::class)
             ->call('openDeleteConfirmation', $produk->id)
-            ->assertDontSeeHtml('object-contain');
+            ->assertDontSeeHtml('object-contain')
+            ->assertSee('Foto produk belum tersedia');
     }
 
     public function test_non_hq_staff_can_find_deactivated_product_to_reactivate(): void
@@ -339,7 +341,7 @@ class MasterProdukTest extends TestCase
             ->assertSee('Mouse Pad XL Polos');
     }
 
-    public function test_delete_modal_hides_hero_banner_when_photo_file_is_missing(): void
+    public function test_delete_modal_shows_placeholder_hero_when_photo_file_is_missing(): void
     {
         $this->actingAsRole('Superadmin', [], $this->cabang1);
 
@@ -353,7 +355,29 @@ class MasterProdukTest extends TestCase
 
         Livewire::test(MasterProdukIndex::class)
             ->call('openDeleteConfirmation', $produk->id)
-            ->assertDontSeeHtml('h-36');
+            ->assertDontSeeHtml('object-contain')
+            ->assertSee('Foto produk belum tersedia');
+    }
+
+    public function test_delete_modal_shows_hero_banner_for_uploaded_storage_photo(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('products/produk-uji.webp', 'x');
+
+        $this->actingAsRole('Superadmin', [], $this->cabang1);
+
+        $produk = Produk::create([
+            'nama_produk' => 'SSD Kingston NV2 500GB',
+            'barcode' => 'SNV2S-500G',
+            'harga_beli' => 550000,
+            'harga_jual' => 675000,
+            'foto_url' => 'storage/products/produk-uji.webp',
+        ]);
+
+        Livewire::test(MasterProdukIndex::class)
+            ->call('openDeleteConfirmation', $produk->id)
+            ->assertSeeHtml('object-contain')
+            ->assertDontSee('Foto produk belum tersedia');
     }
 
     public function test_hq_delete_modal_does_not_claim_stock_will_be_reset(): void
@@ -373,7 +397,7 @@ class MasterProdukTest extends TestCase
         Livewire::test(MasterProdukIndex::class)
             ->call('openDeleteConfirmation', $produk->id)
             ->assertDontSee('akan menjadi 0')
-            ->assertDontSeeHtml('h-36');
+            ->assertDontSeeHtml('object-contain');
     }
 
     public function test_deactivate_aborts_when_staff_has_no_branch_context(): void
