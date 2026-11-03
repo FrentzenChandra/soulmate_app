@@ -316,6 +316,91 @@ class MasterProdukTest extends TestCase
             ->assertDontSeeHtml('object-contain');
     }
 
+    public function test_non_hq_staff_can_find_deactivated_product_to_reactivate(): void
+    {
+        $this->actingAsRole('Superadmin', [], $this->cabang1);
+
+        $produk = Produk::create([
+            'nama_produk' => 'Mouse Pad XL Polos',
+            'barcode' => 'MPAD-XL',
+            'harga_beli' => 35000,
+            'harga_jual' => 55000,
+            'ready_marketplace' => true,
+        ]);
+
+        Stok::create(['produk_id' => $produk->id, 'cabang_id' => $this->cabang1->id, 'jumlah' => 5, 'min_stok' => 2, 'is_aktif' => true]);
+
+        Livewire::test(MasterProdukIndex::class)
+            ->call('openDeleteConfirmation', $produk->id)
+            ->call('confirmDelete');
+
+        Livewire::test(MasterProdukIndex::class)
+            ->set('stokFilter', 'non_aktif')
+            ->assertSee('Mouse Pad XL Polos');
+    }
+
+    public function test_delete_modal_hides_hero_banner_when_photo_file_is_missing(): void
+    {
+        $this->actingAsRole('Superadmin', [], $this->cabang1);
+
+        $produk = Produk::create([
+            'nama_produk' => 'SSD Kingston NV2 500GB',
+            'barcode' => 'SNV2S-500G',
+            'harga_beli' => 550000,
+            'harga_jual' => 675000,
+            'foto_url' => 'images/foto-yang-tidak-ada.png',
+        ]);
+
+        Livewire::test(MasterProdukIndex::class)
+            ->call('openDeleteConfirmation', $produk->id)
+            ->assertDontSeeHtml('h-36');
+    }
+
+    public function test_hq_delete_modal_does_not_claim_stock_will_be_reset(): void
+    {
+        $this->actingAsRole('Owner');
+        session(['active_branch_id' => 'hq']);
+
+        $produk = Produk::create([
+            'nama_produk' => 'Kabel HDMI 3M',
+            'barcode' => 'HDMI-3M',
+            'harga_beli' => 25000,
+            'harga_jual' => 45000,
+        ]);
+
+        Stok::create(['produk_id' => $produk->id, 'cabang_id' => $this->cabang1->id, 'jumlah' => 120, 'min_stok' => 2, 'is_aktif' => true]);
+
+        Livewire::test(MasterProdukIndex::class)
+            ->call('openDeleteConfirmation', $produk->id)
+            ->assertDontSee('akan menjadi 0')
+            ->assertDontSeeHtml('h-36');
+    }
+
+    public function test_deactivate_aborts_when_staff_has_no_branch_context(): void
+    {
+        $this->actingAsRole('Superadmin', ['cabang_id' => null], $this->cabang1);
+
+        $produk = Produk::create([
+            'nama_produk' => 'Mouse Pad XL Polos',
+            'barcode' => 'MPAD-XL',
+            'harga_beli' => 35000,
+            'harga_jual' => 55000,
+        ]);
+
+        Stok::create(['produk_id' => $produk->id, 'cabang_id' => $this->cabang1->id, 'jumlah' => 5, 'min_stok' => 2, 'is_aktif' => true]);
+
+        Livewire::test(MasterProdukIndex::class)
+            ->call('openDeleteConfirmation', $produk->id)
+            ->call('confirmDelete')
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('stoks', [
+            'produk_id' => $produk->id,
+            'cabang_id' => $this->cabang1->id,
+            'jumlah' => 5,
+        ]);
+    }
+
     public function test_owner_at_hq_can_soft_delete_produk_permanently(): void
     {
         $this->actingAsRole('Owner');
