@@ -355,6 +355,7 @@ class PermissionService
                             'gaji.reopen' => 'Buka Kunci Slip Final (Reopen)',
                             'gaji.finalize' => 'Finalkan & Kunci Slip Gaji',
                             'gaji.delete' => 'Hapus Draft Slip Gaji (DELETE)',
+                            'gaji.delete_final' => 'Hapus Slip Gaji Berstatus Final (DELETE)',
                             'gaji.alert' => 'Lihat Alert Kenaikan Gaji 6 Bulan',
                             'gaji.tarif.edit' => 'Atur Tarif Global Toko',
                             'gaji.pokok.edit' => 'Ubah Gaji Pokok & Komponen Tetap',
