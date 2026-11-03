@@ -5,10 +5,13 @@ namespace Tests\Feature;
 use App\Livewire\TargetBulanan\Index as TargetBulananIndex;
 use App\Models\Cabang;
 use App\Models\Customer;
+use App\Models\KategoriProduk;
 use App\Models\Pegawai;
+use App\Models\Produk;
 use App\Models\ServisMasuk;
 use App\Models\TargetDivisi;
 use App\Models\TransaksiFull;
+use App\Models\TransaksiFullDetail;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -177,7 +180,7 @@ class TargetBulananTest extends TestCase
             });
     }
 
-    public function test_admin_division_auto_calculated_from_transaksi_full_penjualan_lunas_by_tanggal_lunas()
+    public function test_admin_division_counts_laptop_product_units_from_paid_sales()
     {
         $superadmin = User::where('email', 'superadmin@soulmate.test')->first();
         $this->actingAs($superadmin);
@@ -186,81 +189,119 @@ class TargetBulananTest extends TestCase
         TargetDivisi::query()->delete();
 
         $cabangId = $superadmin->cabang_id ?: 1;
+        $cabangLain = Cabang::firstOrCreate(
+            ['kode_cabang' => 'CB-TST2'],
+            [
+                'nama_cabang' => 'Cabang Uji Lain',
+                'alamat' => 'Jl. Uji No. 2',
+                'no_wa' => '081234567892',
+                'status' => 'aktif',
+            ]
+        );
 
-        // 1. Setup annual target for admin division
         TargetDivisi::updateOrCreate(
             ['cabang_id' => $cabangId, 'divisi' => 'admin', 'tahun' => 2026],
             ['target_bulanan' => 10]
         );
 
-        // 2. Transaksi Penjualan Lunas in January 2026 -> SHOULD BE COUNTED in Month 1
-        TransaksiFull::create([
-            'no_transaksi' => 'INV-PJ-PKP-260110-00010',
-            'cabang_id' => $cabangId,
-            'nama_pelanggan' => 'Pelanggan Lunas Jan',
-            'tipe_transaksi' => 'penjualan',
-            'tanggal' => '2026-01-10 10:00:00',
-            'tanggal_lunas' => '2026-01-10 10:00:00',
-            'total_modal' => 50000,
-            'total_jual' => 100000,
-            'grand_total' => 100000,
-            'status' => 'Lunas',
-            'metode_pembayaran' => 'Cash',
+        $kategoriLaptop = KategoriProduk::firstOrCreate(
+            ['slug' => 'laptop'],
+            ['nama_kategori' => 'Laptop']
+        );
+        $kategoriKomponen = KategoriProduk::firstOrCreate(
+            ['slug' => 'komponen-laptop'],
+            ['nama_kategori' => 'Komponen Laptop']
+        );
+
+        $produkLaptop = Produk::create([
+            'kategori_id' => $kategoriLaptop->id,
+            'nama_produk' => 'Laptop Asus Vivobook 14 A1404',
+            'harga_beli' => 6000000,
+            'harga_jual' => 7200000,
         ]);
 
-        // 3. Transaksi Penjualan BON in January 2026 -> SHOULD NOT BE COUNTED
-        $bonTrx = TransaksiFull::create([
-            'no_transaksi' => 'INV-PJ-PKP-260115-00011',
-            'cabang_id' => $cabangId,
-            'nama_pelanggan' => 'Pelanggan Bon Jan',
-            'tipe_transaksi' => 'penjualan',
-            'tanggal' => '2026-01-15 11:00:00',
-            'tanggal_lunas' => null,
-            'total_modal' => 80000,
-            'total_jual' => 150000,
-            'grand_total' => 150000,
-            'status' => 'Bon',
-            'metode_pembayaran' => 'Cash',
+        $produkSparepart = Produk::create([
+            'kategori_id' => $kategoriKomponen->id,
+            'nama_produk' => 'Baterai Laptop Asus Vivobook A412',
+            'harga_beli' => 400000,
+            'harga_jual' => 650000,
         ]);
 
-        // 4. Transaksi Servis Lunas in January 2026 -> SHOULD NOT BE COUNTED in Divisi Admin
-        TransaksiFull::create([
-            'no_transaksi' => 'INV-PJ-PKP-260120-00012',
-            'cabang_id' => $cabangId,
-            'nama_pelanggan' => 'Pelanggan Servis Jan',
-            'tipe_transaksi' => 'servis',
-            'tanggal' => '2026-01-20 14:00:00',
-            'tanggal_lunas' => '2026-01-20 14:00:00',
-            'total_modal' => 30000,
-            'total_jual' => 75000,
-            'grand_total' => 75000,
-            'status' => 'Lunas',
-            'metode_pembayaran' => 'Cash',
+        $nomor = 1;
+        $buatNota = function (int $cabang, string $tanggal, string $status, ?string $tanggalLunas, array $baris, string $tipe = 'penjualan') use (&$nomor) {
+            $nota = TransaksiFull::create([
+                'no_transaksi' => 'INV-PJ-TST-'.str_pad((string) $nomor++, 5, '0', STR_PAD_LEFT),
+                'cabang_id' => $cabang,
+                'nama_pelanggan' => 'Pelanggan Uji',
+                'tipe_transaksi' => $tipe,
+                'tanggal' => $tanggal,
+                'tanggal_lunas' => $tanggalLunas,
+                'total_modal' => 0,
+                'total_jual' => 0,
+                'grand_total' => 0,
+                'status' => $status,
+                'metode_pembayaran' => 'Cash',
+            ]);
+
+            foreach ($baris as $dataBaris) {
+                TransaksiFullDetail::create(array_merge([
+                    'transaksi_full_id' => $nota->id,
+                    'qty' => 1,
+                    'harga_modal' => 0,
+                    'harga_jual' => 0,
+                    'subtotal_modal' => 0,
+                    'subtotal_jual' => 0,
+                    'laba' => 0,
+                ], $dataBaris));
+            }
+
+            return $nota;
+        };
+
+        // 1. Penjualan lunas Januari: 2 unit laptop + 4 sparepart + 3 item manual -> dihitung 2 unit
+        $buatNota($cabangId, '2026-01-10 10:00:00', 'Lunas', '2026-01-10 10:00:00', [
+            ['produk_id' => $produkLaptop->id, 'nama_item' => $produkLaptop->nama_produk, 'qty' => 2],
+            ['produk_id' => $produkSparepart->id, 'nama_item' => $produkSparepart->nama_produk, 'qty' => 4],
+            ['produk_id' => null, 'nama_item' => 'Jasa Instalasi Windows', 'qty' => 3],
         ]);
 
-        // Verify January has count 1 (only the paid sales transaction)
+        // 2. Penjualan BON Januari: 3 unit laptop -> belum dihitung
+        $notaBon = $buatNota($cabangId, '2026-01-15 11:00:00', 'BON', null, [
+            ['produk_id' => $produkLaptop->id, 'nama_item' => $produkLaptop->nama_produk, 'qty' => 3],
+        ]);
+
+        // 3. Nota servis lunas Januari: bukan penjualan unit, tidak dihitung ke Divisi Admin
+        $buatNota($cabangId, '2026-01-20 14:00:00', 'Lunas', '2026-01-20 14:00:00', [
+            ['produk_id' => $produkLaptop->id, 'nama_item' => $produkLaptop->nama_produk, 'qty' => 1],
+        ], 'servis');
+
+        // 4. Penjualan lunas cabang lain: tidak boleh bocor ke cabang aktif
+        $buatNota($cabangLain->id, '2026-01-22 09:00:00', 'Lunas', '2026-01-22 09:00:00', [
+            ['produk_id' => $produkLaptop->id, 'nama_item' => $produkLaptop->nama_produk, 'qty' => 5],
+        ]);
+
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
             ->assertViewHas('divisiMatrix', function ($divisiMatrix) {
                 return isset($divisiMatrix['admin'])
-                    && $divisiMatrix['admin']['months'][1]['count'] === 1
-                    && $divisiMatrix['admin']['months'][2]['count'] === 0;
+                    && $divisiMatrix['admin']['months'][1]['count'] === 2
+                    && $divisiMatrix['admin']['months'][2]['count'] === 0
+                    && $divisiMatrix['admin']['total_ytd'] === 2;
             });
 
-        // 5. Now settle the BON transaction in February 2026 (tanggal_lunas = 2026-02-14)
-        $bonTrx->update([
+        // 5. BON dilunasi Februari 2026 -> 3 unit pindah ke Februari mengikuti tanggal_lunas
+        $notaBon->update([
             'status' => 'Lunas',
             'tanggal_lunas' => '2026-02-14 15:00:00',
         ]);
 
-        // Verify February now has count 1, and January remains 1
         Livewire::test(TargetBulananIndex::class)
             ->set('filterTahun', 2026)
             ->assertViewHas('divisiMatrix', function ($divisiMatrix) {
                 return isset($divisiMatrix['admin'])
-                    && $divisiMatrix['admin']['months'][1]['count'] === 1
-                    && $divisiMatrix['admin']['months'][2]['count'] === 1
-                    && $divisiMatrix['admin']['total_ytd'] === 2;
+                    && $divisiMatrix['admin']['months'][1]['count'] === 2
+                    && $divisiMatrix['admin']['months'][2]['count'] === 3
+                    && $divisiMatrix['admin']['total_ytd'] === 5;
             });
     }
 
@@ -357,7 +398,7 @@ class TargetBulananTest extends TestCase
                     && $divisiMatrix['laptop']['months'][2]['count'] === 0
                     && $divisiMatrix['printer']['months'][2]['count'] === 1
                     && $divisiMatrix['komputer']['months'][3]['count'] === 1
-                    && $divisiMatrix['admin']['months'][1]['count'] === 0; // Admin is manual, zero by default
+                    && $divisiMatrix['admin']['months'][1]['count'] === 0; // Divisi Admin hanya hitung unit laptop terjual, bukan servis
             });
     }
 
