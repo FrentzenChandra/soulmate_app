@@ -45,11 +45,11 @@
     @endif
 
     <!-- ============================================== -->
-    <!-- KARTU RINGKASAN METRIK (BULAN BERJALAN)         -->
+    <!-- KARTU RINGKASAN METRIK (MENGIKUTI FILTER AKTIF) -->
     <!-- ============================================== -->
     <div>
-        <!-- Skeleton Shimmer Saat Memuat / Memproses Mutasi Data -->
-        <div wire:loading wire:target="save, delete, toggleSelesai" class="w-full">
+        <!-- Skeleton Shimmer Saat Memuat / Memproses Mutasi Data & Perubahan Filter -->
+        <div wire:loading wire:target="save, delete, toggleSelesai, setPeriodeMode, startDate, endDate, filterBulan, filterTahun, statusFilter, viaFilter, kodeFilter, orangFilter, cabangFilter, search" class="w-full">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 @for ($i = 0; $i < 3; $i++)
                     <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs animate-pulse">
@@ -64,7 +64,7 @@
         </div>
 
         <!-- Kartu Metrik Riil (Aktif) -->
-        <div wire:loading.remove wire:target="save, delete, toggleSelesai" class="w-full">
+        <div wire:loading.remove wire:target="save, delete, toggleSelesai, setPeriodeMode, startDate, endDate, filterBulan, filterTahun, statusFilter, viaFilter, kodeFilter, orangFilter, cabangFilter, search" class="w-full">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <x-metric-card
                     label="Total Bruto"
