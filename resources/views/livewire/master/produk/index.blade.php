@@ -74,6 +74,7 @@
                     <option value="tersedia">Stok Tersedia (&gt; 3)</option>
                     <option value="kritis">Stok Kritis (&le; 3)</option>
                     <option value="habis">Stok Habis (0)</option>
+                    <option value="non_aktif">Non-Aktif</option>
                 </select>
             </div>
 
@@ -860,7 +861,9 @@
 
                     <!-- Product Snapshot Card -->
                     <div class="px-6 py-3">
-                        @if($deleteProdukFoto)
+                        @php($adaFotoProduk = $deleteProdukFoto && (str_starts_with($deleteProdukFoto, 'http') || file_exists(public_path($deleteProdukFoto))))
+
+                        @if($adaFotoProduk)
                             <a href="{{ asset($deleteProdukFoto) }}" target="_blank" rel="noopener"
                                title="Buka foto ukuran penuh"
                                class="block mb-3 rounded-2xl overflow-hidden border border-gray-200 bg-gray-50">
@@ -870,9 +873,9 @@
                         @endif
 
                         <div class="p-3.5 rounded-2xl bg-gray-50 border border-gray-200/90 flex items-center space-x-3.5">
-                            @if(! $deleteProdukFoto)
+                            @if(! $adaFotoProduk)
                                 <div class="w-10 h-10 rounded-lg bg-purple-50 text-[#5E17EB] border border-purple-100 flex items-center justify-center shrink-0">
-                                    <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                    <svg class="w-5 h-5 opacity-70" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                                 </div>
                             @endif
 
@@ -886,17 +889,25 @@
 
                             <div class="shrink-0 text-right">
                                 <span class="text-[10px] font-bold text-gray-400 block uppercase">Sisa Stok</span>
-                                <span class="text-sm font-black block mt-0.5">
-                                    <span class="text-gray-400 line-through">{{ $deleteProdukStok }} Unit</span>
-                                    <span class="text-gray-400">&rarr;</span>
-                                    <span class="text-rose-600">0 Unit</span>
-                                </span>
+                                @if($deleteIsHQ)
+                                    <span class="text-sm font-black text-gray-900 block mt-0.5">{{ $deleteProdukStok }} Unit</span>
+                                @else
+                                    <span class="text-sm font-black block mt-0.5">
+                                        @if($deleteProdukStok > 0)
+                                            <span class="text-gray-400" style="text-decoration: line-through">{{ $deleteProdukStok }} Unit</span>
+                                            <span class="text-gray-400">&rarr;</span>
+                                        @endif
+                                        <span class="text-rose-600">0 Unit</span>
+                                    </span>
+                                @endif
                             </div>
                         </div>
 
-                        <p class="text-[11px] text-gray-500 mt-2">
-                            Stok cabang ini akan menjadi 0 dan produk disembunyikan dari Website Marketplace.
-                        </p>
+                        @unless($deleteIsHQ)
+                            <p class="text-[11px] text-gray-500 mt-2">
+                                Stok cabang ini akan menjadi 0 dan produk disembunyikan dari Website Marketplace.
+                            </p>
+                        @endunless
                     </div>
 
                     <!-- Informational Impact Alert -->
