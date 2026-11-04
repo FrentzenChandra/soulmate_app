@@ -397,10 +397,28 @@
                                         <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                             Harga Jual <span class="text-rose-500">*</span>
                                         </label>
-                                        <input type="number"
-                                               wire:model="hargaJual"
-                                               min="1"
-                                               step="100"
+                                        <input type="text"
+                                               inputmode="numeric"
+                                               autocomplete="off"
+                                               x-on:input.capture="
+                                                   const el = $el;
+                                                   const digitBefore = el.value.slice(0, el.selectionStart).replace(/\D/g, '').length;
+                                                   const digits = el.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+                                                   const formatted = digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                                                   el.value = formatted;
+                                                   if (digitBefore === 0) {
+                                                       el.setSelectionRange(0, 0);
+                                                   } else {
+                                                       let seen = 0;
+                                                       let pos = formatted.length;
+                                                       for (let i = 0; i < formatted.length; i++) {
+                                                           if (/\d/.test(formatted[i])) seen++;
+                                                           if (seen === digitBefore) { pos = i + 1; break; }
+                                                       }
+                                                       el.setSelectionRange(pos, pos);
+                                                   }
+                                               "
+                                               wire:model.live.debounce.400ms="hargaJual"
                                                class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] @error('hargaJual') border-rose-500 @enderror">
                                         @error('hargaJual') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                     </div>
@@ -408,10 +426,28 @@
                                         <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                             Harga Modal <span class="text-rose-500">*</span>
                                         </label>
-                                        <input type="number"
-                                               wire:model="hargaBeli"
-                                               min="0"
-                                               step="100"
+                                        <input type="text"
+                                               inputmode="numeric"
+                                               autocomplete="off"
+                                               x-on:input.capture="
+                                                   const el = $el;
+                                                   const digitBefore = el.value.slice(0, el.selectionStart).replace(/\D/g, '').length;
+                                                   const digits = el.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+                                                   const formatted = digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                                                   el.value = formatted;
+                                                   if (digitBefore === 0) {
+                                                       el.setSelectionRange(0, 0);
+                                                   } else {
+                                                       let seen = 0;
+                                                       let pos = formatted.length;
+                                                       for (let i = 0; i < formatted.length; i++) {
+                                                           if (/\d/.test(formatted[i])) seen++;
+                                                           if (seen === digitBefore) { pos = i + 1; break; }
+                                                       }
+                                                       el.setSelectionRange(pos, pos);
+                                                   }
+                                               "
+                                               wire:model.live.debounce.400ms="hargaBeli"
                                                class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] @error('hargaBeli') border-rose-500 @enderror">
                                         @error('hargaBeli') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                     </div>
