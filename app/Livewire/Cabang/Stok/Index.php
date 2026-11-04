@@ -47,6 +47,12 @@ class Index extends Component
 
     public bool $isAktif = true;
 
+    public string $modeAdjust = 'opname'; // opname, aktifkan
+
+    public float $hargaJual = 0;
+
+    public float $hargaBeli = 0;
+
     public string $jenisPenyesuaian = 'opname'; // opname, tambah, kurang
 
     public int $deltaQty = 0;
@@ -138,9 +144,12 @@ class Index extends Component
         $this->newStock = $stok->jumlah;
         $this->minStok = $stok->min_stok ?? 3;
         $this->isAktif = (bool) ($stok->is_aktif ?? true);
+        $this->modeAdjust = $this->isAktif ? 'opname' : 'aktifkan';
+        $this->hargaJual = (float) $produk->harga_jual;
+        $this->hargaBeli = (float) $produk->harga_beli;
         $this->jenisPenyesuaian = 'opname';
         $this->deltaQty = 0;
-        $this->catatan = 'Hasil Stock Opname Fisik Toko';
+        $this->catatan = $this->isAktif ? 'Hasil Stock Opname Fisik Toko' : '';
         $this->modalAdjustOpen = true;
     }
 
@@ -154,16 +163,32 @@ class Index extends Component
         $user = Auth::user();
         abort_if(! $user->isOwner() && ! $user->can('cabang.stok.adjust'), 403, 'Akses penyesuaian stok dibatasi.');
 
-        $this->validate([
+        $isAktivasi = $this->modeAdjust === 'aktifkan';
+
+        $rules = [
             'newStock' => ['required', 'integer', 'min:0'],
             'minStok' => ['required', 'integer', 'min:0'],
             'catatan' => ['required', 'string', 'max:255'],
-        ], [
-            'newStock.required' => 'Jumlah stok baru wajib diisi.',
+        ];
+        $messages = [
+            'newStock.required' => 'Jumlah stok wajib diisi.',
             'newStock.min' => 'Stok tidak boleh kurang dari 0.',
             'minStok.required' => 'Batas minimum stok wajib diisi.',
             'catatan.required' => 'Alasan/catatan penyesuaian wajib dicatat.',
-        ]);
+        ];
+
+        if ($isAktivasi) {
+            $rules['newStock'] = ['required', 'integer', 'min:1'];
+            $rules['hargaBeli'] = ['required', 'numeric', 'min:0'];
+            $rules['hargaJual'] = ['required', 'numeric', 'min:1'];
+            $rules['catatan'] = ['nullable', 'string', 'max:255'];
+            $messages['newStock.min'] = 'Jumlah stok minimal 1 unit agar produk tayang.';
+            $messages['hargaBeli.required'] = 'Harga modal wajib diisi.';
+            $messages['hargaJual.required'] = 'Harga jual wajib diisi.';
+            $messages['hargaJual.min'] = 'Harga jual harus lebih dari 0.';
+        }
+
+        $this->validate($rules, $messages);
 
         $cabang = $this->activeCabang;
         if (! $cabang || ! $this->selectedProdukId) {
@@ -172,22 +197,50 @@ class Index extends Component
             return;
         }
 
-        $stok = Stok::updateOrCreate(
-            ['produk_id' => $this->selectedProdukId, 'cabang_id' => $cabang->id],
+        $produk = Produk::findOrFail($this->selectedProdukId);
+
+        if ($isAktivasi) {
+            $produk->update([
+                'harga_beli' => $this->hargaBeli,
+                'harga_jual' => $this->hargaJual,
+                'ready_marketplace' => true,
+            ]);
+        }
+
+        Stok::updateOrCreate(
+            ['produk_id' => $produk->id, 'cabang_id' => $cabang->id],
             [
                 'jumlah' => $this->newStock,
                 'min_stok' => max(0, $this->minStok),
-                'is_aktif' => $this->isAktif,
+                'is_aktif' => $isAktivasi ? true : $this->isAktif,
             ]
         );
 
         $this->dispatch('stockUpdated');
-
-        $selisih = $this->newStock - $this->currentStock;
-        $tanda = $selisih >= 0 ? "+{$selisih}" : "{$selisih}";
-
-        session()->flash('success', "Stok \"{$this->selectedProdukName}\" di {$cabang->nama_cabang} berhasil diperbarui menjadi {$this->newStock} unit ({$tanda}).");
         $this->modalAdjustOpen = false;
+
+        if (! $isAktivasi) {
+            $selisih = $this->newStock - $this->currentStock;
+            $tanda = $selisih >= 0 ? "+{$selisih}" : "{$selisih}";
+
+            session()->flash('success', "Stok \"{$this->selectedProdukName}\" di {$cabang->nama_cabang} berhasil diperbarui menjadi {$this->newStock} unit ({$tanda}).");
+
+            return;
+        }
+
+        session()->flash('success', "Produk \"{$this->selectedProdukName}\" aktif kembali dengan stok {$this->newStock} unit dan tayang di website.");
+
+        if ($user->isOwner() || $user->can('master.produk.view')) {
+            $this->redirect(route('master.produk', ['search' => $this->selectedProdukName]));
+
+            return;
+        }
+
+        $this->dispatch('swal:toast', [
+            'type' => 'success',
+            'title' => 'Produk Diaktifkan',
+            'text' => "Produk \"{$this->selectedProdukName}\" aktif kembali dan tayang di website.",
+        ]);
     }
 
     public function deleteProduk(int $id): void

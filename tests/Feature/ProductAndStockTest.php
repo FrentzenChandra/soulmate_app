@@ -168,9 +168,10 @@ class ProductAndStockTest extends TestCase
             'produk_id' => $produk->id,
             'cabang_id' => $this->cabangPkp->id,
             'jumlah' => 5,
+            'is_aktif' => true,
         ]);
 
-        $this->actingAs($this->superadmin);
+        $this->actingAs($this->owner);
 
         Livewire::test(\App\Livewire\Cabang\Stok\Index::class)
             ->call('openAdjustModal', $produk->id)
@@ -183,6 +184,105 @@ class ProductAndStockTest extends TestCase
             'produk_id' => $produk->id,
             'cabang_id' => $this->cabangPkp->id,
             'jumlah' => 12,
+        ]);
+    }
+
+    public function test_inactive_stock_opens_activation_mode_with_existing_prices()
+    {
+        $produk = Produk::create([
+            'nama_produk' => 'SSD NVMe 512GB',
+            'barcode' => '8998880001',
+            'harga_beli' => 400000,
+            'harga_jual' => 550000,
+            'ready_marketplace' => false,
+        ]);
+        Stok::create([
+            'produk_id' => $produk->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 0,
+            'is_aktif' => false,
+        ]);
+
+        $this->actingAs($this->owner);
+
+        Livewire::test(\App\Livewire\Cabang\Stok\Index::class)
+            ->call('openAdjustModal', $produk->id)
+            ->assertSet('modeAdjust', 'aktifkan')
+            ->assertSet('hargaJual', 550000.0)
+            ->assertSet('hargaBeli', 400000.0)
+            ->assertSee('AKTIFKAN');
+    }
+
+    public function test_activating_inactive_stock_updates_prices_stock_and_redirects_to_master()
+    {
+        $produk = Produk::create([
+            'nama_produk' => 'Adaptor Laptop 65W',
+            'barcode' => '8998880002',
+            'harga_beli' => 200000,
+            'harga_jual' => 300000,
+            'ready_marketplace' => false,
+        ]);
+        Stok::create([
+            'produk_id' => $produk->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 0,
+            'is_aktif' => false,
+        ]);
+
+        $this->actingAs($this->owner);
+
+        Livewire::test(\App\Livewire\Cabang\Stok\Index::class)
+            ->call('openAdjustModal', $produk->id)
+            ->set('hargaBeli', 210000)
+            ->set('hargaJual', 315000)
+            ->set('newStock', 6)
+            ->call('saveAdjustment')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('master.produk', ['search' => 'Adaptor Laptop 65W']));
+
+        $this->assertDatabaseHas('stoks', [
+            'produk_id' => $produk->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 6,
+            'is_aktif' => true,
+        ]);
+
+        $this->assertDatabaseHas('produks', [
+            'id' => $produk->id,
+            'harga_beli' => 210000,
+            'harga_jual' => 315000,
+            'ready_marketplace' => true,
+        ]);
+    }
+
+    public function test_activation_requires_at_least_one_unit_of_stock()
+    {
+        $produk = Produk::create([
+            'nama_produk' => 'Keyboard Mekanik 60%',
+            'barcode' => '8998880003',
+            'harga_beli' => 250000,
+            'harga_jual' => 350000,
+            'ready_marketplace' => false,
+        ]);
+        Stok::create([
+            'produk_id' => $produk->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'jumlah' => 0,
+            'is_aktif' => false,
+        ]);
+
+        $this->actingAs($this->owner);
+
+        Livewire::test(\App\Livewire\Cabang\Stok\Index::class)
+            ->call('openAdjustModal', $produk->id)
+            ->set('newStock', 0)
+            ->call('saveAdjustment')
+            ->assertHasErrors(['newStock']);
+
+        $this->assertDatabaseHas('stoks', [
+            'produk_id' => $produk->id,
+            'cabang_id' => $this->cabangPkp->id,
+            'is_aktif' => false,
         ]);
     }
 
