@@ -265,9 +265,14 @@
                                 <div class="inline-flex items-center space-x-1.5 justify-end">
                                     @can('cabang.stok.adjust')
                                     <button wire:click="openAdjustModal({{ $item->id }})"
-                                            class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-[#0052FF] text-[#0052FF] hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer group">
-                                        <svg class="w-3.5 h-3.5 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                                        <span>Penyesuaian</span>
+                                            class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer group {{ $isAktif ? 'bg-blue-50 hover:bg-[#0052FF] text-[#0052FF] hover:text-white' : 'bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white' }}">
+                                        @if($isAktif)
+                                            <svg class="w-3.5 h-3.5 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                                            <span>Penyesuaian</span>
+                                        @else
+                                            <svg class="w-3.5 h-3.5 text-emerald-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                            <span>AKTIFKAN</span>
+                                        @endif
                                     </button>
 
                                     <button type="button"
@@ -351,8 +356,8 @@
                                 <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                             </div>
                             <div class="min-w-0">
-                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">Penyesuaian Stok (Opname)</h3>
-                                <p class="text-xs text-purple-200 font-medium mt-0.5">{{ auth()->user()->isOwner() ? ('Outlet: ' . ($cabang?->nama_cabang ?? 'Cabang')) : 'Soulmate Komputer' }}</p>
+                                <h3 class="text-base font-bold text-white tracking-tight leading-snug">{{ $modeAdjust === 'aktifkan' ? 'Aktifkan Produk' : 'Penyesuaian Stok (Opname)' }}</h3>
+                                <p class="text-xs text-purple-200 font-medium mt-0.5">{{ $modeAdjust === 'aktifkan' ? 'Produk akan aktif kembali dan tayang di website' : (auth()->user()->isOwner() ? ('Outlet: ' . ($cabang?->nama_cabang ?? 'Cabang')) : 'Soulmate Komputer') }}</p>
                             </div>
                         </div>
                         <button wire:click="$set('modalAdjustOpen', false)" class="w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition-all cursor-pointer shrink-0">
@@ -385,76 +390,107 @@
                                 </div>
                             </div>
 
-                            <!-- Perbandingan Stok Saat Ini vs Baru -->
-                            <div class="grid grid-cols-2 gap-3 text-center">
-                                <div class="bg-gray-100/80 p-3 rounded-2xl">
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase block">Stok Tercatat</span>
-                                    <span class="text-2xl font-extrabold text-gray-700 mt-1 block">{{ $currentStock }}</span>
+                            @if($modeAdjust === 'aktifkan')
+                                <!-- Harga & Stok Saat Diaktifkan -->
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            Harga Jual <span class="text-rose-500">*</span>
+                                        </label>
+                                        <input type="number"
+                                               wire:model="hargaJual"
+                                               min="1"
+                                               step="100"
+                                               class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] @error('hargaJual') border-rose-500 @enderror">
+                                        @error('hargaJual') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            Harga Modal <span class="text-rose-500">*</span>
+                                        </label>
+                                        <input type="number"
+                                               wire:model="hargaBeli"
+                                               min="0"
+                                               step="100"
+                                               class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] @error('hargaBeli') border-rose-500 @enderror">
+                                        @error('hargaBeli') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                            Jumlah Stok <span class="text-rose-500">*</span>
+                                        </label>
+                                        <input type="number"
+                                               wire:model="newStock"
+                                               min="1"
+                                               class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] @error('newStock') border-rose-500 @enderror">
+                                        @error('newStock') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+                                    </div>
                                 </div>
-                                <div class="bg-blue-50/80 p-3 rounded-2xl border border-blue-200">
-                                    <span class="text-[10px] font-bold text-blue-600 uppercase block">Stok Fisik Baru</span>
-                                    <span class="text-2xl font-black text-[#0052FF] mt-1 block">{{ $newStock }}</span>
+
+                                <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                    <p class="text-[11px] font-semibold text-emerald-800 leading-relaxed">
+                                        Produk akan aktif dijual di cabang ini dan otomatis tayang kembali di website.
+                                    </p>
                                 </div>
-                            </div>
-
-                            <!-- Input Jumlah Baru & Quick Stepper -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Input Jumlah Fisik Sebenarnya <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="number"
-                                       wire:model.live="newStock"
-                                       min="0"
-                                       {{ !$isAktif ? 'disabled' : '' }}
-                                       class="w-full text-center text-lg font-black py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] {{ !$isAktif ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white' }}">
-                                @error('newStock') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-
-                                <!-- Quick Increment Buttons -->
-                                <div class="flex items-center justify-center space-x-1.5 mt-2">
-                                    <button type="button" wire:click="quickDelta(-5)" {{ !$isAktif ? 'disabled' : '' }} class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs {{ !$isAktif ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer' }}">-5</button>
-                                    <button type="button" wire:click="quickDelta(-1)" {{ !$isAktif ? 'disabled' : '' }} class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs {{ !$isAktif ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer' }}">-1</button>
-                                    <button type="button" wire:click="quickDelta(1)" {{ !$isAktif ? 'disabled' : '' }} class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs {{ !$isAktif ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer' }}">+1</button>
-                                    <button type="button" wire:click="quickDelta(5)" {{ !$isAktif ? 'disabled' : '' }} class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs {{ !$isAktif ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer' }}">+5</button>
-                                    <button type="button" wire:click="quickDelta(10)" {{ !$isAktif ? 'disabled' : '' }} class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs {{ !$isAktif ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer' }}">+10</button>
+                            @else
+                                <!-- Perbandingan Stok Saat Ini vs Baru -->
+                                <div class="grid grid-cols-2 gap-3 text-center">
+                                    <div class="bg-gray-100/80 p-3 rounded-2xl">
+                                        <span class="text-[10px] font-bold text-gray-400 uppercase block">Stok Tercatat</span>
+                                        <span class="text-2xl font-extrabold text-gray-700 mt-1 block">{{ $currentStock }}</span>
+                                    </div>
+                                    <div class="bg-blue-50/80 p-3 rounded-2xl border border-blue-200">
+                                        <span class="text-[10px] font-bold text-blue-600 uppercase block">Stok Fisik Baru</span>
+                                        <span class="text-2xl font-black text-[#0052FF] mt-1 block">{{ $newStock }}</span>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Batas Minimum Stok & Status Alokasi -->
-                            <div class="grid grid-cols-2 gap-3 pt-1 border-t border-gray-100">
+                                <!-- Input Jumlah Baru & Quick Stepper -->
                                 <div>
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                        Input Jumlah Fisik Sebenarnya <span class="text-rose-500">*</span>
+                                    </label>
+                                    <input type="number"
+                                           wire:model.live="newStock"
+                                           min="0"
+                                           class="w-full text-center text-lg font-black py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] bg-white">
+                                    @error('newStock') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
+
+                                    <!-- Quick Increment Buttons -->
+                                    <div class="flex items-center justify-center space-x-1.5 mt-2">
+                                        <button type="button" wire:click="quickDelta(-5)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">-5</button>
+                                        <button type="button" wire:click="quickDelta(-1)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">-1</button>
+                                        <button type="button" wire:click="quickDelta(1)" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs cursor-pointer">+1</button>
+                                        <button type="button" wire:click="quickDelta(5)" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs cursor-pointer">+5</button>
+                                        <button type="button" wire:click="quickDelta(10)" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs cursor-pointer">+10</button>
+                                    </div>
+                                </div>
+
+                                <!-- Batas Minimum Stok -->
+                                <div class="pt-1 border-t border-gray-100">
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                                         Batas Min. Stok (Alert) <span class="text-rose-500">*</span>
                                     </label>
                                     <input type="number"
                                            wire:model="minStok"
                                            min="0"
-                                           {{ !$isAktif ? 'disabled' : '' }}
-                                           class="w-full text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] {{ !$isAktif ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white' }} @error('minStok') border-rose-500 @enderror">
-                                    <span class="text-[10px] text-gray-400 block mt-0.5">Notif bunyi jika stok ≤ nilai ini</span>
+                                           class="w-full text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] bg-white @error('minStok') border-rose-500 @enderror">
+                                    <span class="text-[10px] text-gray-400 block mt-0.5">Notif bunyi jika stok &le; nilai ini</span>
                                     @error('minStok') <span class="text-[11px] text-rose-500 font-semibold block mt-0.5">{{ $message }}</span> @enderror
                                 </div>
+
+                                <!-- Catatan Penyesuaian -->
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                        Status Penjualan
+                                        Alasan / Keterangan Penyesuaian <span class="text-rose-500">*</span>
                                     </label>
-                                    <label class="flex items-center space-x-2 p-2 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer mt-0.5">
-                                        <input type="checkbox" wire:model.live="isAktif" class="rounded text-[#0052FF] focus:ring-[#0052FF]">
-                                        <span class="text-xs font-bold text-gray-800">Aktif Dijual</span>
-                                    </label>
-                                    <span class="text-[10px] text-gray-400 block mt-0.5">Bila nonaktif, 0 notifikasi</span>
+                                    <input type="text"
+                                           wire:model="catatan"
+                                           class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] @error('catatan') border-rose-500 @enderror">
+                                    @error('catatan') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
                                 </div>
-                            </div>
-
-                            <!-- Catatan Penyesuaian -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                                    Alasan / Keterangan Penyesuaian <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="text"
-                                       wire:model="catatan"
-                                       class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] @error('catatan') border-rose-500 @enderror">
-                                @error('catatan') <span class="text-[11px] text-rose-500 font-semibold block mt-1">{{ $message }}</span> @enderror
-                            </div>
+                            @endif
                         </div>
 
                         <!-- Footer Modal -->
@@ -464,14 +500,28 @@
                                     class="px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">
                                 Batal
                             </button>
-                            <button type="submit"
+                            <button type="button"
+                                    x-on:click="
+                                        const isAktifkan = @js($modeAdjust === 'aktifkan');
+                                        const run = () => $wire.saveAdjustment();
+                                        if (! window.swalConfirm) { run(); return; }
+                                        window.swalConfirm(
+                                            isAktifkan ? 'Aktifkan Produk Ini?' : 'Simpan Stok Baru?',
+                                            isAktifkan
+                                                ? 'Produk akan aktif dijual, harga tersimpan, dan tayang kembali di website.'
+                                                : 'Pastikan jumlah fisik dan batas minimum stok sudah benar.',
+                                            { confirmText: isAktifkan ? 'Ya, Aktifkan' : 'Ya, Simpan', cancelText: 'Batal' }
+                                        ).then((res) => { if (res.isConfirmed) { run(); } });
+                                    "
                                     wire:loading.attr="disabled"
-                                    class="px-5 py-2.5 rounded-xl bg-[#0052FF] hover:bg-blue-700 disabled:opacity-50 text-xs font-bold text-white shadow-lg shadow-blue-900/30 transition-all cursor-pointer inline-flex items-center space-x-2">
-                                <svg wire:loading wire:target="saveAdjust" class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    wire:target="saveAdjustment"
+                                    class="px-5 py-2.5 rounded-xl disabled:opacity-50 text-xs font-bold text-white shadow-lg transition-all cursor-pointer inline-flex items-center space-x-2 {{ $modeAdjust === 'aktifkan' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-900/30' : 'bg-[#0052FF] hover:bg-blue-700 shadow-blue-900/30' }}">
+                                <svg wire:loading wire:target="saveAdjustment" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                 </svg>
-                                <span>Simpan Stok Baru</span>
+                                <span wire:loading.remove wire:target="saveAdjustment">{{ $modeAdjust === 'aktifkan' ? 'AKTIFKAN' : 'Simpan Stok Baru' }}</span>
+                                <span wire:loading wire:target="saveAdjustment">{{ $modeAdjust === 'aktifkan' ? 'Mengaktifkan...' : 'Menyimpan...' }}</span>
                             </button>
                         </div>
                     </form>
