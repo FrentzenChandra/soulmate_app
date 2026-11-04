@@ -212,8 +212,8 @@ class ProductAndStockTest extends TestCase
         Livewire::test(\App\Livewire\Cabang\Stok\Index::class)
             ->call('openAdjustModal', $produk->id)
             ->assertSet('modeAdjust', 'aktifkan')
-            ->assertSet('hargaJual', 550000.0)
-            ->assertSet('hargaBeli', 400000.0)
+            ->assertSet('hargaJual', '550.000')
+            ->assertSet('hargaBeli', '400.000')
             ->assertSee('AKTIFKAN');
     }
 
@@ -237,8 +237,8 @@ class ProductAndStockTest extends TestCase
 
         Livewire::test(\App\Livewire\Cabang\Stok\Index::class)
             ->call('openAdjustModal', $produk->id)
-            ->set('hargaBeli', 210000)
-            ->set('hargaJual', 315000)
+            ->set('hargaBeli', '210.000')
+            ->set('hargaJual', '315.000')
             ->set('newStock', 6)
             ->call('saveAdjustment')
             ->assertHasNoErrors()

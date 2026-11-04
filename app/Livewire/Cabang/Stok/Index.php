@@ -49,9 +49,9 @@ class Index extends Component
 
     public string $modeAdjust = 'opname'; // opname, aktifkan
 
-    public float $hargaJual = 0;
+    public string $hargaJual = '0';
 
-    public float $hargaBeli = 0;
+    public string $hargaBeli = '0';
 
     public string $jenisPenyesuaian = 'opname'; // opname, tambah, kurang
 
@@ -145,8 +145,8 @@ class Index extends Component
         $this->minStok = $stok->min_stok ?? 3;
         $this->isAktif = (bool) ($stok->is_aktif ?? true);
         $this->modeAdjust = $this->isAktif ? 'opname' : 'aktifkan';
-        $this->hargaJual = (float) $produk->harga_jual;
-        $this->hargaBeli = (float) $produk->harga_beli;
+        $this->hargaJual = number_format((float) $produk->harga_jual, 0, ',', '.');
+        $this->hargaBeli = number_format((float) $produk->harga_beli, 0, ',', '.');
         $this->jenisPenyesuaian = 'opname';
         $this->deltaQty = 0;
         $this->catatan = $this->isAktif ? 'Hasil Stock Opname Fisik Toko' : '';
@@ -164,6 +164,12 @@ class Index extends Component
         abort_if(! $user->isOwner() && ! $user->can('cabang.stok.adjust'), 403, 'Akses penyesuaian stok dibatasi.');
 
         $isAktivasi = $this->modeAdjust === 'aktifkan';
+
+        if ($isAktivasi) {
+            // Input harga memakai format ribuan (titik) agar mudah dibaca; bersihkan sebelum validasi.
+            $this->hargaJual = str_replace('.', '', $this->hargaJual);
+            $this->hargaBeli = str_replace('.', '', $this->hargaBeli);
+        }
 
         $rules = [
             'newStock' => ['required', 'integer', 'min:0'],
