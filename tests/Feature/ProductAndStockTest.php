@@ -69,6 +69,10 @@ class ProductAndStockTest extends TestCase
         ]);
         $this->superadmin->syncRoles([$superadminRole]);
 
+        // Permission matrix wajib di-seed agar akun Superadmin punya izin granular
+        // seperti cabang.stok.adjust dan master.produk.view saat pengujian.
+        $this->seed(\Database\Seeders\PermissionMatrixSeeder::class);
+
         $this->kategori = KategoriProduk::create([
             'nama_kategori' => 'Penyimpanan & Memori',
             'slug' => 'penyimpanan-memori',
