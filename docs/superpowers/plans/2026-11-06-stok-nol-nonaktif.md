@@ -4,7 +4,7 @@
 
 **Goal:** Saat stok cabang mencapai 0, baris stok menjadi non-aktif dan produk otomatis hilang dari Website Marketplace; reaktivasi tetap manual.
 
-**Architecture:** Satu method statis `Stok::syncAvailability(int $produkId)` sebagai choke point, dipanggil setelah setiap mutasi stok. Sinkronisasi satu arah (hanya menonaktifkan). Query katalog kasir dan marketplace diberi pengaman `jumlah > 0` agar flag basi tidak menjual produk kosong.
+**Architecture:** Satu method statis `Stok::syncAvailability(int $produkId, bool $allowReactivate = false)` sebagai choke point, dipanggil setelah setiap mutasi stok. Default satu arah (hanya menonaktifkan); reaktivasi hanya untuk retur penjualan dan pembatalan servis. Query katalog kasir dan marketplace diberi pengaman `jumlah > 0` agar flag basi tidak menjual produk kosong.
 
 **Tech Stack:** Laravel 12, Livewire 3, PostgreSQL (produksi), SQLite in-memory (test), PHPUnit.
 
@@ -147,7 +147,7 @@ public static function syncAvailability(int $produkId, bool $allowReactivate = f
 ### Task 4: Servis & retur penjualan — pembatalan mengaktifkan kembali
 
 **Files:**
-- Modify: `app/Livewire/Servis/Masuk/Index.php:523`, `:594`, `:782`
+- Modify: `app/Livewire/Servis/Masuk/Index.php:523`, `:594`, `:747`, `:782`
 - Modify: `app/Livewire/Laporan/Penjualan/Index.php:411`
 - Test: `tests/Feature/StokStatusSyncTest.php`
 
