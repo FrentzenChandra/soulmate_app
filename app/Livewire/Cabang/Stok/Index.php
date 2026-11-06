@@ -222,6 +222,8 @@ class Index extends Component
             ]
         );
 
+        Stok::syncAvailability($this->selectedProdukId);
+
         $this->dispatch('stockUpdated');
         $this->modalAdjustOpen = false;
 
@@ -386,7 +388,7 @@ class Index extends Component
                 });
             } elseif ($this->stokFilter === 'habis') {
                 $query->whereHas('stoks', function ($q) use ($cabang) {
-                    $q->where('cabang_id', $cabang->id)->where('is_aktif', true)->where('jumlah', '<=', 0);
+                    $q->where('cabang_id', $cabang->id)->where('jumlah', '<=', 0);
                 });
             }
         }
