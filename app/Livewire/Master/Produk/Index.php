@@ -425,6 +425,8 @@ class Index extends Component
                 }
             }
 
+            Stok::syncAvailability($produk->id);
+
             session()->flash('success', "Produk \"{$produk->nama_produk}\" berhasil diperbarui.");
         } else {
             abort_if(! Auth::user()->isOwner() && ! Auth::user()->can('master.produk.create'), 403, 'Akses tambah produk dibatasi.');
@@ -445,6 +447,8 @@ class Index extends Component
                     'is_aktif' => $isAktif,
                 ]);
             }
+
+            Stok::syncAvailability($produk->id);
 
             session()->flash('success', "Produk baru \"{$produk->nama_produk}\" berhasil ditambahkan.");
         }
@@ -515,9 +519,9 @@ class Index extends Component
             // Tambah tabel riwayat mutasi stok kalau angka lama harus bisa dipulihkan.
             Stok::where('produk_id', $id)
                 ->where('cabang_id', $targetCabangId)
-                ->update(['jumlah' => 0, 'is_aktif' => false]);
+                ->update(['jumlah' => 0]);
 
-            $produk->update(['ready_marketplace' => false]);
+            Stok::syncAvailability($id);
 
             session()->flash('success', "Produk \"{$produk->nama_produk}\" dinonaktifkan: stok cabang ini menjadi 0 dan produk disembunyikan dari Website Marketplace. Pilih filter \"Non-Aktif\" untuk mengaktifkan kembali.");
 

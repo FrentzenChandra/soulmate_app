@@ -521,6 +521,7 @@ class Index extends Component
                         ->first();
                     if ($stok) {
                         $stok->increment('jumlah', $det->qty);
+                        Stok::syncAvailability($det->produk_id, true);
                     }
                 }
             }
@@ -592,6 +593,7 @@ class Index extends Component
                             ->first();
                         if ($stok) {
                             $stok->increment('jumlah', $det->qty);
+                            Stok::syncAvailability($det->produk_id, true);
                         }
                     }
                 }
@@ -745,6 +747,7 @@ class Index extends Component
             }
 
             $stok->decrement('jumlah', (int) $this->itemQty);
+            Stok::syncAvailability($this->selectedProdukId);
         }
 
         $subtotal = (float) $this->selectedMasterServisHarga * (int) $this->itemQty;
@@ -780,6 +783,7 @@ class Index extends Component
                     ->first();
                 if ($stok) {
                     $stok->increment('jumlah', $detail->qty);
+                    Stok::syncAvailability($detail->produk_id, true);
                 }
             }
 

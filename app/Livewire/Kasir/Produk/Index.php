@@ -747,6 +747,7 @@ class Index extends Component
 
                     if ($stok) {
                         $stok->decrement('jumlah', $item['qty']);
+                        Stok::syncAvailability($item['id']);
                     }
                 }
             }
@@ -870,6 +871,7 @@ class Index extends Component
 
                     if ($stok) {
                         $stok->decrement('jumlah', $item['qty']);
+                        Stok::syncAvailability($item['id']);
                     }
                 }
             }
@@ -942,7 +944,7 @@ class Index extends Component
         }
 
         $query = Produk::whereHas('stoks', function ($q) use ($cabang) {
-            $q->where('cabang_id', $cabang->id)->where('is_aktif', true);
+            $q->where('cabang_id', $cabang->id)->where('is_aktif', true)->where('jumlah', '>', 0);
         })->with(['kategori', 'stoks' => function ($q) use ($cabang) {
             $q->where('cabang_id', $cabang->id);
         }]);

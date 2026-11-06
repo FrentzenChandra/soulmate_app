@@ -410,6 +410,8 @@ class Index extends Component
                         $stokSebelum = (int) $stok->jumlah;
                         $stok->increment('jumlah', $sisaServer);
                         $stokSesudah = $stokSebelum + $sisaServer;
+
+                        Stok::syncAvailability($detail->produk_id, true);
                     }
 
                     $detail->increment('qty_retur', $sisaServer);
