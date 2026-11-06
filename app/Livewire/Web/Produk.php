@@ -91,6 +91,7 @@ class Produk extends Component
     {
         $product = ProdukModel::with('kategori')
             ->where('ready_marketplace', true)
+            ->whereHas('stoks', fn ($q) => $q->where('jumlah', '>', 0))
             ->find($productId);
 
         if (! $product) {
@@ -226,9 +227,10 @@ class Produk extends Component
     {
         // 1. Kategori dinamis dari database (hanya yang memiliki produk ready_marketplace)
         // Cache 1 hari (86.400 detik)
-        $dbCategories = Cache::remember('web_kategori_produks_ready', 86400, function () {
+        $dbCategories = Cache::remember('web_kategori_produks_ready_v2', 86400, function () {
             return KategoriProduk::whereHas('produks', function ($q) {
-                $q->where('ready_marketplace', true);
+                $q->where('ready_marketplace', true)
+                  ->whereHas('stoks', fn ($sq) => $sq->where('jumlah', '>', 0));
             })->orderBy('nama_kategori')->get(['id', 'nama_kategori', 'slug']);
         });
 
@@ -240,10 +242,11 @@ class Produk extends Component
             'id' => $c->id,
         ]))->all();
 
-        // 2. Query Produk riil database (ready_marketplace = true, tanpa cek stok)
+        // 2. Query Produk riil database (wajib ready_marketplace = true dan punya stok)
         $query = ProdukModel::query()
             ->with('kategori')
-            ->where('ready_marketplace', true);
+            ->where('ready_marketplace', true)
+            ->whereHas('stoks', fn ($q) => $q->where('jumlah', '>', 0));
 
         $totalCatalogCount = (clone $query)->count();
 
