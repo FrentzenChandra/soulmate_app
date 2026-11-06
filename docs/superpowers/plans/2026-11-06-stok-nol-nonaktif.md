@@ -21,7 +21,7 @@
 ## Review Focus
 - Baris stok tanpa data (produk belum punya baris `stoks`) tidak boleh bikin error dan harus dianggap tidak tersedia.
 - `increment()`/`decrement()` tidak memicu event model: bila satu jalur lupa memanggil sinkronisasi, produk harus tetap tidak terjual karena pengaman query.
-- Retur/pembatalan yang menambah stok **tidak** boleh mengaktifkan produk kembali.
+- Retur penjualan dan pembatalan servis **harus** mengaktifkan kembali produk; penyesuaian stok manual **tidak boleh** mengaktifkan.
 - Penyesuaian manual ke angka negatif harus tetap menonaktifkan.
 - Command backfill dijalankan dua kali tidak boleh mengubah apa pun pada putaran kedua.
 
@@ -34,7 +34,7 @@
 - Test: `tests/Feature/StokStatusSyncTest.php` (baru)
 
 **Interfaces:**
-- Produces: `public static function syncAvailability(int $produkId): void`
+- Produces: `public static function syncAvailability(int $produkId, bool $allowReactivate = false): void`
 
 - [ ] **Step 1: Tulis test yang gagal**
 
@@ -50,11 +50,32 @@ public function test_sync_marks_stock_inactive_and_hides_marketplace_when_zero()
     $this->assertFalse($produk->fresh()->ready_marketplace);
 }
 
-public function test_sync_does_not_reactivate_product_when_stock_is_positive()
+public function test_sync_does_not_reactivate_without_permission()
 {
-    // produk ready_marketplace = false, stok jumlah 5
-    Stok::syncAvailability($produk->id);
-    $this->assertFalse($produk->fresh()->ready_marketplace); // satu arah
+    // stok jumlah 5 tapi is_aktif false, produk ready_marketplace false
+    Stok::syncAvailability($produk->id); // default: satu arah
+
+    $this->assertFalse($stok->fresh()->is_aktif);
+    $this->assertFalse($produk->fresh()->ready_marketplace);
+}
+
+public function test_sync_reactivates_stock_and_marketplace_when_allowed()
+{
+    // stok cabang1 jumlah 5 (is_aktif false), produk ready_marketplace false
+    Stok::syncAvailability($produk->id, true);
+
+    $this->assertTrue($stok->fresh()->is_aktif);
+    $this->assertTrue($produk->fresh()->ready_marketplace);
+}
+
+public function test_sync_keeps_marketplace_off_when_another_branch_is_zero()
+{
+    // cabang1 jumlah 5, cabang2 jumlah 0
+    Stok::syncAvailability($produk->id, true);
+
+    $this->assertTrue($stokCabang1->fresh()->is_aktif);
+    $this->assertFalse($stokCabang2->fresh()->is_aktif);
+    $this->assertFalse($produk->fresh()->ready_marketplace);
 }
 
 public function test_sync_handles_product_without_stock_row()
@@ -69,12 +90,20 @@ public function test_sync_handles_product_without_stock_row()
 - [ ] **Step 3: Implementasi**
 
 ```php
-public static function syncAvailability(int $produkId): void
+public static function syncAvailability(int $produkId, bool $allowReactivate = false): void
 {
     self::where('produk_id', $produkId)->where('jumlah', '<=', 0)->update(['is_aktif' => false]);
 
     $punyaBaris = self::where('produk_id', $produkId)->exists();
     $adaKosong = self::where('produk_id', $produkId)->where('jumlah', '<=', 0)->exists();
+
+    if ($allowReactivate) {
+        self::where('produk_id', $produkId)->where('jumlah', '>', 0)->update(['is_aktif' => true]);
+
+        if ($punyaBaris && ! $adaKosong) {
+            Produk::whereKey($produkId)->update(['ready_marketplace' => true]);
+        }
+    }
 
     if (! $punyaBaris || $adaKosong) {
         Produk::whereKey($produkId)->where('ready_marketplace', true)->update(['ready_marketplace' => false]);
@@ -115,18 +144,18 @@ public static function syncAvailability(int $produkId): void
 
 ---
 
-### Task 4: Servis & retur penjualan
+### Task 4: Servis & retur penjualan — pembatalan mengaktifkan kembali
 
 **Files:**
-- Modify: `app/Livewire/Servis/Masuk/Index.php:523`, `:594`, `:747`, `:782`
+- Modify: `app/Livewire/Servis/Masuk/Index.php:523`, `:594`, `:782`
 - Modify: `app/Livewire/Laporan/Penjualan/Index.php:411`
 - Test: `tests/Feature/StokStatusSyncTest.php`
 
-- [ ] **Step 1: Test gagal** — pakai sparepart sampai stok 0 -> non-aktif; hapus item/batalkan servis (stok naik) -> tetap non-aktif; retur penjualan -> tetap non-aktif.
+- [ ] **Step 1: Test gagal** — pakai sparepart sampai stok 0 -> non-aktif. Lalu retur penjualan / hapus item servis / batalkan servis -> stok naik, baris stok `is_aktif = true`, dan `ready_marketplace = true` bila semua cabang bersaldo positif.
 - [ ] **Step 2: Jalankan, pastikan gagal.**
-- [ ] **Step 3: Implementasi** — panggil `Stok::syncAvailability($det->produk_id)` / `($detail->produk_id)` tepat setelah setiap `increment`/`decrement` di 5 titik tersebut.
+- [ ] **Step 3: Implementasi** — panggil `Stok::syncAvailability($det->produk_id, true)` (retur & pembatalan) dan `Stok::syncAvailability($det->produk_id)` (pemakaian sparepart di baris ~747, tanpa reaktivasi).
 - [ ] **Step 4: Test hijau.**
-- [ ] **Step 5: Commit** — `feat(servis): stok sparepart habis menonaktifkan produk`.
+- [ ] **Step 5: Commit** — `feat(servis): retur dan pembatalan mengaktifkan produk kembali`.
 
 ---
 
