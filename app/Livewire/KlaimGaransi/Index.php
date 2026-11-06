@@ -29,7 +29,7 @@ class Index extends Component
     #[Url(except: 'semua')]
     public string $cabangFilter = 'semua';
 
-    public string $periodeMode = 'bulanan'; // Default per bulan jalan
+    public string $periodeMode = 'tahunan'; // Default per tahun berjalan
     public string $startDate = '';
     public string $endDate = '';
     public string $filterBulan = '';

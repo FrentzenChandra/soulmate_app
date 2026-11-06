@@ -81,14 +81,15 @@ class KlaimGaransiTest extends TestCase
         $this->get(route('master.distributor'))->assertOk();
     }
 
-    public function test_default_filter_is_bulanan_current_month(): void
+    public function test_default_filter_is_tahunan_current_year(): void
     {
         $this->actingAs($this->owner);
 
         Livewire::test(KlaimGaransiIndex::class)
-            ->assertSet('periodeMode', 'bulanan')
-            ->assertSet('filterBulan', Carbon::now()->format('m'))
-            ->assertSet('filterTahun', (string) Carbon::now()->year);
+            ->assertSet('periodeMode', 'tahunan')
+            ->assertSet('filterTahun', (string) Carbon::now()->year)
+            ->assertSet('startDate', Carbon::now()->startOfYear()->toDateString())
+            ->assertSet('endDate', Carbon::now()->endOfYear()->toDateString());
     }
 
     public function test_zero_status_architecture_verification(): void
@@ -607,7 +608,9 @@ class KlaimGaransiTest extends TestCase
             'tanggal_selesai_klaim' => null,
         ]);
 
-        $component = Livewire::test(KlaimGaransiIndex::class);
+        // Uji khusus filter bulanan: klaim bulan lalu & bulan depan tidak boleh ikut
+        $component = Livewire::test(KlaimGaransiIndex::class)
+            ->call('setPeriodeMode', 'bulanan');
         $this->assertEquals(1, $component->viewData('totalKlaim'));
         $this->assertEquals(0, $component->viewData('selesaiKlaim'));
         $this->assertEquals(1, $component->viewData('belumSelesaiKlaim'));
@@ -659,8 +662,9 @@ class KlaimGaransiTest extends TestCase
             'tanggal_selesai_klaim' => null,
         ]);
 
-        // Default mode bulanan (bulan tanpa data) -> kartu ikut kosong
+        // Mode bulanan (bulan tanpa data) -> kartu ikut kosong
         $component = Livewire::test(KlaimGaransiIndex::class)
+            ->call('setPeriodeMode', 'bulanan')
             ->set('filterBulan', $now->copy()->subMonthNoOverflow()->format('m'))
             ->set('filterTahun', (string) $now->copy()->subMonthNoOverflow()->year);
 
