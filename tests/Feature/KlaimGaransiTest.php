@@ -496,7 +496,7 @@ class KlaimGaransiTest extends TestCase
     }
 
     // =========================================================================
-    // TEST KARTU RINGKASAN METRIK (TERKUNCI DI BULAN BERJALAN)
+    // TEST KARTU RINGKASAN METRIK (MENGIKUTI FILTER PERIODE TABEL)
     // =========================================================================
 
     public function test_summary_cards_display_current_month_claims_and_math(): void
@@ -640,7 +640,7 @@ class KlaimGaransiTest extends TestCase
         $this->assertEquals(0, $component->viewData('belumSelesaiKlaim'));
     }
 
-    public function test_table_period_and_search_filters_do_not_affect_summary_cards(): void
+    public function test_summary_cards_follow_selected_period_mode(): void
     {
         $this->actingAs($this->owner);
         $now = Carbon::now('Asia/Jakarta');
@@ -659,14 +659,51 @@ class KlaimGaransiTest extends TestCase
             'tanggal_selesai_klaim' => null,
         ]);
 
-        // Ubah mode periode ke hari ini dan ubah filter pencarian tabel ke kata kunci yang tidak ada
+        // Default mode bulanan (bulan tanpa data) -> kartu ikut kosong
         $component = Livewire::test(KlaimGaransiIndex::class)
-            ->call('setPeriodeMode', 'hari_ini')
-            ->set('search', 'NONEXISTENT_KEYWORD_XYZ');
+            ->set('filterBulan', $now->copy()->subMonthNoOverflow()->format('m'))
+            ->set('filterTahun', (string) $now->copy()->subMonthNoOverflow()->year);
 
+        $this->assertEquals(0, $component->viewData('totalKlaim'));
+
+        // Mode hari ini -> hanya klaim bertanggal masuk hari ini
+        $component->call('setPeriodeMode', 'hari_ini');
+        $this->assertEquals(0, $component->viewData('totalKlaim'));
+
+        // Mode semua -> seluruh klaim tanpa batas tanggal
+        $component->call('setPeriodeMode', 'semua');
         $this->assertEquals(1, $component->viewData('totalKlaim'));
         $this->assertEquals(0, $component->viewData('selesaiKlaim'));
         $this->assertEquals(1, $component->viewData('belumSelesaiKlaim'));
+    }
+
+    public function test_summary_cards_follow_table_search_filter(): void
+    {
+        $this->actingAs($this->owner);
+        $now = Carbon::now('Asia/Jakarta');
+        $distributor = MasterDistributor::create(['nama' => 'Distributor E', 'is_aktif' => true]);
+        $customer = Customer::create(['nama' => 'Rina', 'no_hp' => '08137778899', 'cabang_id' => $this->cabang->id]);
+
+        KlaimGaransi::create([
+            'cabang_id' => $this->cabang->id,
+            'no_klaim' => 'KG-SEARCH-1',
+            'tanggal_masuk' => $now->toDateString(),
+            'customer_id' => $customer->id,
+            'customer_nama' => $customer->nama,
+            'master_distributor_id' => $distributor->id,
+            'barang' => 'Keyboard Mekanik',
+            'keluhan' => 'Double click',
+            'tanggal_selesai_klaim' => null,
+        ]);
+
+        $component = Livewire::test(KlaimGaransiIndex::class);
+        $this->assertEquals(1, $component->viewData('totalKlaim'));
+
+        // Kata kunci tabel tanpa hasil -> kartu ikut 0 (kartu = ringkasan data terlihat)
+        $component->set('search', 'NONEXISTENT_KEYWORD_XYZ');
+        $this->assertEquals(0, $component->viewData('totalKlaim'));
+        $this->assertEquals(0, $component->viewData('selesaiKlaim'));
+        $this->assertEquals(0, $component->viewData('belumSelesaiKlaim'));
     }
 
     public function test_summary_cards_branch_isolation(): void

@@ -45,11 +45,11 @@
     @endif
 
     <!-- ============================================== -->
-    <!-- KARTU RINGKASAN METRIK (BULAN BERJALAN)         -->
+    <!-- KARTU RINGKASAN METRIK (MENGIKUTI FILTER PERIODE) -->
     <!-- ============================================== -->
     <div>
-        <!-- Skeleton Shimmer Saat Memuat / Memproses Mutasi Data -->
-        <div wire:loading wire:target="save, tandaiSelesaiKlaim, toggleSelesai, deleteKlaim, deleteKlaimDirect" class="w-full">
+        <!-- Skeleton Shimmer Saat Memuat / Memproses Mutasi & Filter Data -->
+        <div wire:loading wire:target="save, tandaiSelesaiKlaim, toggleSelesai, deleteKlaim, deleteKlaimDirect, setPeriodeMode, updatedStartDate, updatedEndDate, updatedFilterBulan, updatedFilterTahun, updatedDistributorFilter, updatedCabangFilter, updatedSearch" class="w-full">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 @for ($i = 0; $i < 3; $i++)
                     <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs animate-pulse">
@@ -65,7 +65,7 @@
         </div>
 
         <!-- Kartu Metrik Riil (Aktif) -->
-        <div wire:loading.remove wire:target="save, tandaiSelesaiKlaim, toggleSelesai, deleteKlaim, deleteKlaimDirect" class="w-full">
+        <div wire:loading.remove wire:target="save, tandaiSelesaiKlaim, toggleSelesai, deleteKlaim, deleteKlaimDirect, setPeriodeMode, updatedStartDate, updatedEndDate, updatedFilterBulan, updatedFilterTahun, updatedDistributorFilter, updatedCabangFilter, updatedSearch" class="w-full">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <x-metric-card
                     label="Total Klaim"
