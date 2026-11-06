@@ -415,7 +415,7 @@ class KlaimGaransiTest extends TestCase
         ]);
 
         $test = Livewire::test(KlaimGaransiIndex::class)
-            ->set('periodeMode', 'semua');
+            ->call('setPeriodeMode', 'semua');
 
         $data = $test->instance()->getTableData();
         $this->assertNotEmpty($data);
