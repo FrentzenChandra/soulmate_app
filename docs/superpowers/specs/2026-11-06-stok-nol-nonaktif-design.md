@@ -20,6 +20,9 @@ Menyesuaikan status ketersediaan produk secara otomatis ketika stok habis, tanpa
 - Tidak mengubah tampilan/filter Master Produk yang sudah ada (`non_aktif` tetap).
 - Tidak mengaktifkan produk otomatis pada penyesuaian stok manual maupun stok masuk biasa.
 
+## Aturan presedensi (penting)
+Aturan "ada satu cabang dengan stok 0 -> `ready_marketplace = false`" **selalu menang**. Retur/pembatalan hanya menyalakan marketplace bila setelah mutasi itu **tidak ada lagi** baris stok `<= 0` pada produk tersebut. `stoks.is_aktif` tetap per baris cabang: baris yang stoknya kembali `> 0` langsung `true`.
+
 ## Keputusan yang sudah diambil
 | Hal | Keputusan |
 | --- | --- |
