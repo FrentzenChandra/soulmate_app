@@ -218,7 +218,7 @@ class ProductAndStockTest extends TestCase
             ->assertSee('AKTIFKAN');
     }
 
-    public function test_activating_inactive_stock_updates_prices_stock_and_redirects_to_master()
+    public function test_activating_inactive_stock_updates_prices_and_stays_on_page()
     {
         $produk = Produk::create([
             'nama_produk' => 'Adaptor Laptop 65W',
@@ -243,7 +243,10 @@ class ProductAndStockTest extends TestCase
             ->set('newStock', 6)
             ->call('saveAdjustment')
             ->assertHasNoErrors()
-            ->assertRedirect(route('master.produk', ['search' => 'Adaptor Laptop 65W']));
+            ->assertNoRedirect()
+            ->assertSet('modalAdjustOpen', false)
+            ->assertDispatched('stockUpdated')
+            ->assertDispatched('swal:toast');
 
         $this->assertDatabaseHas('stoks', [
             'produk_id' => $produk->id,
