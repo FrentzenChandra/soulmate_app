@@ -43,11 +43,11 @@ class Home extends Component
                 'category' => 'cctv',
                 'image' => asset('images/image_beranda/cctv.png'),
             ],
-            // [
-            //     'name' => 'Jaringan',
-            //     'category' => 'router',
-            //     'image' => asset('images/image_beranda/jaringan.jpeg'),
-            // ],
+            [
+                'name' => 'Jaringan',
+                'category' => 'jaringan',
+                'image' => asset('images/image_beranda/jaringan.jpeg'),
+            ],
             [
                 'name' => 'Software',
                 'category' => 'software',
