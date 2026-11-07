@@ -1040,6 +1040,11 @@
                                 </div>
                             </div>
 
+                            {{-- DINONAKTIFKAN (revisi user): blok Nominal Uang Diterima, Kembalian, dan Catatan
+                                 disembunyikan agar modal checkout muat 1 layar tanpa scroll.
+                                 jumlah_bayar otomatis mengikuti grandTotal (openPaymentModal, updatedDiskon, prosesPembayaran).
+                                 Hapus tanda komentar Blade di awal dan akhir blok untuk mengaktifkan kembali.
+
                             <!-- Input Uang Diterima & Quick Money Stepper -->
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
@@ -1115,6 +1120,7 @@
                                        wire:model="catatan"
                                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E17EB]">
                             </div>
+                            --}}
                         </div>
 
                         <!-- Footer Modal -->
