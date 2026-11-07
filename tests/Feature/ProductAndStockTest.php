@@ -214,6 +214,7 @@ class ProductAndStockTest extends TestCase
             ->assertSet('modeAdjust', 'aktifkan')
             ->assertSet('hargaJual', '550.000')
             ->assertSet('hargaBeli', '400.000')
+            ->assertSeeInOrder(['Harga Modal', 'Harga Jual', 'Jumlah Stok'])
             ->assertSee('AKTIFKAN');
     }
 
