@@ -236,14 +236,6 @@ class Index extends Component
             return;
         }
 
-        session()->flash('success', "Produk \"{$this->selectedProdukName}\" aktif kembali dengan stok {$this->newStock} unit dan tayang di website.");
-
-        if ($user->isOwner() || $user->can('master.produk.view')) {
-            $this->redirect(route('master.produk', ['search' => $this->selectedProdukName]));
-
-            return;
-        }
-
         $this->dispatch('swal:toast', [
             'type' => 'success',
             'title' => 'Produk Diaktifkan',
