@@ -40,6 +40,17 @@ class FakturPajak extends Model
         'catatan',
     ];
 
+    /**
+     * Kamus istilah domain (baca sebelum mengubah skema):
+     *
+     * - `dpp_lain` adalah MODAL, yaitu harga pokok pengadaan.
+     *   Nilainya = dpp x (11/12) dan menjadi dasar PPN 12%.
+     *   Semua label UI, export Excel, dan laporan menyebutnya "Modal".
+     * - Nama kolom TIDAK di-rename menjadi `modal` karena harus migrasi data
+     *   historis tanpa manfaat fungsional. Jangan "rapikan" nama kolom ini
+     *   tanpa koordinasi, karena query, payload tabel, dan test memakai
+     *   `dpp_lain`.
+     */
     protected $casts = [
         'tanggal' => 'date',
         'is_selesai' => 'boolean',

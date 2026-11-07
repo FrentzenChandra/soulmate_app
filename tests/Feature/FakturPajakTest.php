@@ -169,6 +169,41 @@ class FakturPajakTest extends TestCase
             ->assertSeeHtml('Total PPh');
     }
 
+    public function test_summary_cards_show_total_dpp_and_total_modal(): void
+    {
+        $now = \Carbon\Carbon::now('Asia/Jakarta');
+
+        FakturPajak::create([
+            'cabang_id' => $this->cabang->id,
+            'user_id' => $this->owner->id,
+            'no_faktur' => 'FP-DPP-MODAL-001',
+            'tanggal' => $now->copy()->startOfMonth()->addDays(3)->toDateString(),
+            'nama_pajak_snapshot' => 'Dinas Kominfo',
+            'barang_snapshot' => 'Server Rack',
+            'via_pajak_snapshot' => 'E-Katalog',
+            'bruto' => 11100000,
+            'dpp' => 10000000,
+            'dpp_lain' => 9166666.67,
+            'ppn_nominal' => 1100000,
+            'jenis_pph_snapshot' => 'PPh 22',
+            'pph_persen' => 1.5,
+            'pph_nominal' => 150000,
+            'netto' => 9850000,
+        ]);
+
+        Livewire::actingAs($this->owner)
+            ->test(Index::class)
+            ->assertSeeHtml('Total Bruto')
+            ->assertSeeHtml('Total DPP')
+            ->assertSeeHtml('Total Modal')
+            ->assertSeeHtml('Total PPN')
+            ->assertSeeHtml('Total PPh')
+            ->assertSeeHtml('Rp 10.000.000')
+            ->assertSeeHtml('Rp 9.166.667')
+            // Label lama tidak boleh tersisa di UI maupun export
+            ->assertDontSeeHtml('DPP Lain');
+    }
+
     public function test_summary_cards_exclude_last_day_of_last_month_and_first_day_of_next_month(): void
     {
         $now = \Carbon\Carbon::now('Asia/Jakarta');
