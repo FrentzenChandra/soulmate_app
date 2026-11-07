@@ -328,6 +328,10 @@ class Index extends Component
         }
 
         // Kalkulasi Presisi
+        // Catatan istilah: $dppLain disimpan di kolom `dpp_lain` dan di UI
+        // disebut MODAL (harga pokok pengadaan). Rumusnya tetap dpp x (11/12)
+        // dan menjadi dasar PPN 12%. Nama kolom DB sengaja tidak di-rename
+        // agar tidak perlu migrasi data historis.
         $dpp = round($bruto / 1.11, 2);
         $dppLain = round($dpp * (11 / 12), 2);
         $ppnNominal = round($dppLain * 0.12, 2);
@@ -601,13 +605,16 @@ class Index extends Component
         $orangOptions = MasterOrangPajak::where('is_aktif', true)->orderBy('nama')->get();
         $cabangs = $user->isOwner() ? Cabang::where('status', 'aktif')->orderBy('nama_cabang')->get() : collect([]);
 
-        // Ringkasan 3 Metrik — mengikuti filter aktif (periode, status, saluran, kode, rekanan, pencarian, cabang)
+        // Ringkasan 5 Metrik — mengikuti filter aktif (periode, status, saluran, kode, rekanan, pencarian, cabang)
+        // total_modal diambil dari kolom dpp_lain (lihat catatan istilah di model).
         $summary = $this->filteredQuery()
             ->toBase()
-            ->selectRaw('COALESCE(SUM(bruto), 0) as total_bruto, COALESCE(SUM(ppn_nominal), 0) as total_ppn, COALESCE(SUM(pph_nominal), 0) as total_pph')
+            ->selectRaw('COALESCE(SUM(bruto), 0) as total_bruto, COALESCE(SUM(dpp), 0) as total_dpp, COALESCE(SUM(dpp_lain), 0) as total_modal, COALESCE(SUM(ppn_nominal), 0) as total_ppn, COALESCE(SUM(pph_nominal), 0) as total_pph')
             ->first();
 
         $totalBruto = (float) ($summary->total_bruto ?? 0);
+        $totalDpp = (float) ($summary->total_dpp ?? 0);
+        $totalModal = (float) ($summary->total_modal ?? 0);
         $totalPpn = (float) ($summary->total_ppn ?? 0);
         $totalPph = (float) ($summary->total_pph ?? 0);
 
@@ -621,6 +628,8 @@ class Index extends Component
             'isOwner' => $user->isOwner(),
             'isHQ' => $user->isOwner(),
             'totalBruto' => $totalBruto,
+            'totalDpp' => $totalDpp,
+            'totalModal' => $totalModal,
             'totalPpn' => $totalPpn,
             'totalPph' => $totalPph,
         ]);

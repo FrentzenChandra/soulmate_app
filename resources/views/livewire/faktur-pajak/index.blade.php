@@ -50,8 +50,8 @@
     <div>
         <!-- Skeleton Shimmer Saat Memuat / Memproses Mutasi Data & Perubahan Filter -->
         <div wire:loading wire:target="save, delete, toggleSelesai, setPeriodeMode, startDate, endDate, filterBulan, filterTahun, statusFilter, viaFilter, kodeFilter, orangFilter, cabangFilter, search" class="w-full">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                @for ($i = 0; $i < 3; $i++)
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                @for ($i = 0; $i < 5; $i++)
                     <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs animate-pulse">
                         <div class="flex items-center justify-between">
                             <div class="h-3.5 bg-gray-200 rounded w-24"></div>
@@ -65,11 +65,21 @@
 
         <!-- Kartu Metrik Riil (Aktif) -->
         <div wire:loading.remove wire:target="save, delete, toggleSelesai, setPeriodeMode, startDate, endDate, filterBulan, filterTahun, statusFilter, viaFilter, kodeFilter, orangFilter, cabangFilter, search" class="w-full">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                 <x-metric-card
                     label="Total Bruto"
                     :value="'Rp ' . number_format($totalBruto, 0, ',', '.')"
                     color="purple"
+                />
+                <x-metric-card
+                    label="Total DPP"
+                    :value="'Rp ' . number_format($totalDpp, 0, ',', '.')"
+                    color="black"
+                />
+                <x-metric-card
+                    label="Total Modal"
+                    :value="'Rp ' . number_format($totalModal, 0, ',', '.')"
+                    color="black"
                 />
                 <x-metric-card
                     label="Total PPN"
@@ -79,7 +89,7 @@
                 <x-metric-card
                     label="Total PPh"
                     :value="'Rp ' . number_format($totalPph, 0, ',', '.')"
-                    color="pink"
+                    color="rose"
                 />
             </div>
         </div>
@@ -539,7 +549,7 @@
                                             <span class="font-mono font-bold text-gray-800" x-text="formatRp(numDpp)"></span>
                                         </div>
                                         <div>
-                                            <span class="block text-[10px] font-bold text-gray-500">DPP Lain (11/12)</span>
+                                            <span class="block text-[10px] font-bold text-gray-500">Modal (11/12)</span>
                                             <span class="font-mono font-bold text-gray-800" x-text="formatRp(numDppLain)"></span>
                                         </div>
                                         <div>
@@ -668,7 +678,7 @@
                                 <span class="font-mono">Rp {{ number_format($selectedFaktur->dpp, 0, ',', '.') }}</span>
                             </div>
                             <div class="flex justify-between text-gray-500 font-semibold">
-                                <span>DPP Lain (11 / 12):</span>
+                                <span>Modal (11 / 12):</span>
                                 <span class="font-mono">Rp {{ number_format($selectedFaktur->dpp_lain, 0, ',', '.') }}</span>
                             </div>
                             <div class="flex justify-between text-rose-600 font-bold">
@@ -706,7 +716,7 @@
 </div>
 
 @push('scripts')
-<script src="{{ asset('js/xlsx.full.min.js') }}"></script>
+<script src="{{ asset('js/xlsx-js-style.bundle.js') }}"></script>
 <script>
     window.fakturPajakTable = function(config) {
         return {
@@ -974,9 +984,9 @@
                             headerHozAlign: "right",
                             formatter: (cell) => `<span class="font-mono font-black text-black whitespace-nowrap">${self.formatAngka(cell.getValue())}</span>`
                         },
-                        // 9. DPP LAIN - WIDTH 92 & MINWIDTH 80
+                        // 9. MODAL (dpp_lain) - WIDTH 92 & MINWIDTH 80
                         {
-                            title: "DPP Lain",
+                            title: "Modal",
                             field: "dpp_lain",
                             width: 92,
                             minWidth: 80,
@@ -1101,29 +1111,204 @@
                     alert('Tidak ada data faktur untuk diekspor.');
                     return;
                 }
-                const formatted = rows.map((r, i) => ({
-                    'No': i + 1,
-                    'Status': r.is_selesai ? 'Selesai' : 'Belum',
-                    'No Faktur': r.no_faktur,
-                    'Tanggal': r.tanggal,
-                    'Petugas': r.user_input,
-                    'Rekanan': r.nama,
-                    'Barang / Jasa': r.barang,
-                    'Via': r.via,
-                    'Kode': r.kode,
-                    'Bruto (Rp)': r.bruto,
-                    'DPP (Rp)': r.dpp,
-                    'DPP Lain (Rp)': r.dpp_lain,
-                    'PPN 12% (Rp)': r.ppn_nominal,
-                    'Jenis PPh': r.jenis_pph,
-                    'Tarif PPh (%)': r.pph_persen,
-                    'PPh (Rp)': r.pph_nominal,
-                    'Netto (Rp)': r.netto,
-                    'Catatan': r.catatan,
-                }));
-                const ws = XLSX.utils.json_to_sheet(formatted);
+
+                // Palet mengikuti warna kolom tabel. Solid, tanpa gradient.
+                const PURPLE = '5E17EB';
+                const BLUE = '0052FF';
+                const ROSE = 'E11D48';
+                const EMERALD = '047857';
+                const INK = '0F172A';
+                const SLATE = '475569';
+                const ZEBRA = 'F8FAFC';
+                const LINE = 'E2E8F0';
+                const NEUTRAL_HEADER = 'F1F5F9';
+
+                const border = {
+                    top: { style: 'thin', color: { rgb: LINE } },
+                    bottom: { style: 'thin', color: { rgb: LINE } },
+                    left: { style: 'thin', color: { rgb: LINE } },
+                    right: { style: 'thin', color: { rgb: LINE } },
+                };
+                const solid = (rgb) => ({ patternType: 'solid', fgColor: { rgb } });
+                const font = (rgb, bold = false, sz = 9) => ({ name: 'Calibri', sz, bold, color: { rgb } });
+
+                const columns = [
+                    { label: 'No', width: 6, align: 'center', color: INK },
+                    { label: 'Status', width: 13, align: 'center', color: INK },
+                    { label: 'No Faktur', width: 18, align: 'left', color: INK, bold: true },
+                    { label: 'Tanggal', width: 12, align: 'center', color: INK },
+                    { label: 'Petugas', width: 20, align: 'left', color: INK },
+                    { label: 'Rekanan', width: 28, align: 'left', color: INK, bold: true },
+                    { label: 'Barang / Jasa', width: 36, align: 'left', color: INK, wrap: true },
+                    { label: 'Via', width: 12, align: 'center', color: INK },
+                    { label: 'Kode', width: 8, align: 'center', color: INK },
+                    { label: 'Bruto (Rp)', width: 15, align: 'right', color: PURPLE, bold: true, headerFill: 'EDE9FE', money: true },
+                    { label: 'DPP (Rp)', width: 15, align: 'right', color: INK, bold: true, headerFill: 'E2E8F0', money: true },
+                    { label: 'Modal (Rp)', width: 15, align: 'right', color: INK, bold: true, headerFill: 'E2E8F0', money: true },
+                    { label: 'PPN (Rp)', width: 14, align: 'right', color: BLUE, bold: true, headerFill: 'DBEAFE', money: true },
+                    { label: 'Jenis PPh', width: 16, align: 'center', color: INK },
+                    { label: 'Tarif PPh', width: 10, align: 'center', color: INK, percent: true },
+                    { label: 'PPh (Rp)', width: 14, align: 'right', color: ROSE, bold: true, headerFill: 'FFE4E6', money: true },
+                    { label: 'Netto (Rp)', width: 15, align: 'right', color: EMERALD, bold: true, headerFill: 'D1FAE5', money: true },
+                    { label: 'Catatan', width: 26, align: 'left', color: SLATE, wrap: true },
+                ];
+
+                const lastCol = columns.length - 1;
+                const exportedAt = new Date().toLocaleString('id-ID', {
+                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                const aoa = [
+                    ['LAPORAN FAKTUR PAJAK'],
+                    ['Soulmate Komputer   |   ' + rows.length + ' faktur   |   Diekspor ' + exportedAt],
+                    [],
+                    columns.map((c) => c.label),
+                ];
+
+                const num = (v) => Number(v) || 0;
+                rows.forEach((r) => {
+                    aoa.push([
+                        aoa.length - 3,
+                        r.is_selesai ? 'Selesai' : 'Belum',
+                        r.no_faktur || '',
+                        r.tanggal || '',
+                        r.user_input || '',
+                        r.nama || '',
+                        r.barang || '',
+                        r.via || '',
+                        r.kode || '',
+                        num(r.bruto),
+                        num(r.dpp),
+                        num(r.dpp_lain),
+                        num(r.ppn_nominal),
+                        r.jenis_pph || '',
+                        num(r.pph_persen),
+                        num(r.pph_nominal),
+                        num(r.netto),
+                        r.catatan || '',
+                    ]);
+                });
+
+                const total = (key) => rows.reduce((sum, r) => sum + num(r[key]), 0);
+                const grandRow = new Array(columns.length).fill('');
+                grandRow[0] = 'Grandtotal';
+                grandRow[9] = total('bruto');
+                grandRow[10] = total('dpp');
+                grandRow[11] = total('dpp_lain');
+                grandRow[12] = total('ppn_nominal');
+                grandRow[15] = total('pph_nominal');
+                grandRow[16] = total('netto');
+                aoa.push(grandRow);
+
+                const ws = XLSX.utils.aoa_to_sheet(aoa);
+                const grandIndex = aoa.length - 1;
+                const dataStart = 4;
+
+                // Isi cell kosong agar border tabel tetap utuh.
+                for (let r = 0; r <= grandIndex; r++) {
+                    for (let c = 0; c <= lastCol; c++) {
+                        const addr = XLSX.utils.encode_cell({ r, c });
+                        if (!ws[addr]) {
+                            ws[addr] = { t: 's', v: '' };
+                        }
+                    }
+                }
+
+                for (let r = 0; r <= grandIndex; r++) {
+                    const isTitle = r === 0;
+                    const isSubtitle = r === 1;
+                    const isHeader = r === 3;
+                    const isGrand = r === grandIndex;
+
+                    for (let c = 0; c <= lastCol; c++) {
+                        const cell = ws[XLSX.utils.encode_cell({ r, c })];
+                        const col = columns[c];
+
+                        if (isTitle) {
+                            cell.s = {
+                                font: font('FFFFFF', true, 14),
+                                fill: solid(PURPLE),
+                                alignment: { horizontal: 'left', vertical: 'center', indent: 1 },
+                            };
+                            continue;
+                        }
+
+                        if (isSubtitle) {
+                            cell.s = {
+                                font: { ...font(SLATE, false, 9), italic: true },
+                                alignment: { horizontal: 'left', vertical: 'center', indent: 1 },
+                            };
+                            continue;
+                        }
+
+                        if (r === 2) {
+                            continue;
+                        }
+
+                        if (isHeader) {
+                            cell.s = {
+                                font: font(col.color, true, 9),
+                                fill: solid(col.headerFill || NEUTRAL_HEADER),
+                                alignment: { horizontal: col.align, vertical: 'center', wrapText: true },
+                                border,
+                            };
+                            continue;
+                        }
+
+                        if (isGrand) {
+                            cell.s = {
+                                font: font(c === 0 ? INK : col.color, true, 10),
+                                fill: solid(NEUTRAL_HEADER),
+                                alignment: { horizontal: c === 0 ? 'right' : col.align, vertical: 'center' },
+                                border,
+                                ...(col.money && typeof cell.v === 'number' ? { numFmt: '#,##0' } : {}),
+                            };
+                            continue;
+                        }
+
+                        const zebra = (r - dataStart) % 2 === 1;
+                        const style = {
+                            font: font(col.color, !!col.bold, 9),
+                            fill: solid(zebra ? ZEBRA : 'FFFFFF'),
+                            alignment: {
+                                horizontal: col.align,
+                                vertical: 'center',
+                                wrapText: !!col.wrap,
+                            },
+                            border,
+                        };
+
+                        if (col.money && typeof cell.v === 'number') {
+                            style.numFmt = '#,##0';
+                        } else if (col.percent && typeof cell.v === 'number') {
+                            style.numFmt = '0.00"%"';
+                        } else if (r >= dataStart && c === 1) {
+                            style.font = font(cell.v === 'Selesai' ? EMERALD : ROSE, true, 9);
+                        }
+
+                        cell.s = style;
+                    }
+                }
+
+                ws['!merges'] = [
+                    { s: { r: 0, c: 0 }, e: { r: 0, c: lastCol } },
+                    { s: { r: 1, c: 0 }, e: { r: 1, c: lastCol } },
+                    { s: { r: grandIndex, c: 0 }, e: { r: grandIndex, c: 8 } },
+                ];
+                ws['!cols'] = columns.map((c) => ({ wch: c.width }));
+                ws['!rows'] = [{ hpt: 30 }, { hpt: 20 }, { hpt: 8 }, { hpt: 32 }, { hpt: 24 }];
+                ws['!autofilter'] = {
+                    ref: XLSX.utils.encode_range({ s: { r: 3, c: 0 }, e: { r: dataStart + rows.length - 1, c: lastCol } }),
+                };
+
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Faktur Pajak");
+                wb.Props = {
+                    Title: 'Laporan Faktur Pajak',
+                    Subject: 'Faktur Pajak Soulmate Komputer',
+                    Author: 'Soulmate Komputer',
+                    CreatedDate: new Date(),
+                };
+                XLSX.utils.book_append_sheet(wb, ws, 'Faktur Pajak');
                 XLSX.writeFile(wb, `Laporan_Faktur_Pajak_${new Date().toISOString().slice(0, 10)}.xlsx`);
             }
         };
